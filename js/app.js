@@ -1056,7 +1056,7 @@
     document.getElementById("modal-edit-close").addEventListener("click", () => closeModal("modal-edit-word"));
     document.getElementById("modal-edit-cancel").addEventListener("click", () => closeModal("modal-edit-word"));
 
-    // Autofill trigger from Wiktionary
+    // Autofill trigger from Google Translate & Wiktionary
     document.getElementById("modal-add-autofill-btn").addEventListener("click", async () => {
       const wordInput = document.getElementById("add-word-input");
       const word = wordInput.value.trim();
@@ -1073,42 +1073,78 @@
       statusEl.style.display = "inline-flex";
 
       try {
-        const restUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
-        const restRes = await fetch(restUrl);
-        if (!restRes.ok) {
-          throw new Error("Wiktionary entry not found.");
+        // 1. Fetch translation from Google Translate API (free public endpoint)
+        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=en&dt=t&q=${encodeURIComponent(word)}`;
+        const gtRes = await fetch(googleTranslateUrl);
+        if (!gtRes.ok) {
+          throw new Error("Failed to contact translation service.");
         }
-        const restData = await restRes.json();
-        
-        if (!restData.ru || restData.ru.length === 0) {
-          throw new Error("No Russian definition found on Wiktionary.");
-        }
-        
-        const blocks = restData.ru;
-        const primaryBlock = blocks[0];
-        
-        const pos = primaryBlock.partOfSpeech ? primaryBlock.partOfSpeech.toLowerCase() : "noun";
-        const definitionObj = primaryBlock.definitions[0];
-        
-        const rawDef = definitionObj.definition || "";
-        const cleanDef = rawDef.replace(/<[^>]*>/g, "").trim();
-        
-        let exampleRu = "";
-        let exampleEn = "";
-        
-        for (const b of blocks) {
-          for (const def of b.definitions) {
-            if (def.examples && def.examples.length > 0) {
-              const ex = def.examples[0];
-              exampleRu = (ex.sentence || "").replace(/<[^>]*>/g, "").trim();
-              exampleEn = (ex.translation || "").replace(/<[^>]*>/g, "").trim();
-              break;
-            }
-          }
-          if (exampleRu) break;
+        const gtData = await gtRes.json();
+        const translation = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
+          ? gtData[0][0][0].trim() 
+          : "";
+          
+        if (!translation) {
+          throw new Error("Could not find a translation for this word.");
         }
 
+        // 2. Query Wiktionary for linguistic details (accented stress, example sentences, part of speech)
+        let posVal = "noun";
+        let cleanDef = translation; // Default to Google Translate translation
         let accented = word;
+        let exampleRu = "";
+        let exampleEn = "";
+
+        try {
+          const restUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
+          const restRes = await fetch(restUrl);
+          if (restRes.ok) {
+            const restData = await restRes.json();
+            if (restData.ru && restData.ru.length > 0) {
+              const blocks = restData.ru;
+              const primaryBlock = blocks[0];
+              const pos = primaryBlock.partOfSpeech ? primaryBlock.partOfSpeech.toLowerCase() : "noun";
+              const definitionObj = primaryBlock.definitions[0];
+              
+              const rawDef = definitionObj.definition || "";
+              const cleanWiktDef = rawDef.replace(/<[^>]*>/g, "").trim();
+              
+              if (cleanWiktDef) {
+                cleanDef = cleanWiktDef;
+              }
+
+              // Extract examples
+              for (const b of blocks) {
+                for (const def of b.definitions) {
+                  if (def.examples && def.examples.length > 0) {
+                    const ex = def.examples[0];
+                    exampleRu = (ex.sentence || "").replace(/<[^>]*>/g, "").trim();
+                    exampleEn = (ex.translation || "").replace(/<[^>]*>/g, "").trim();
+                    break;
+                  }
+                }
+                if (exampleRu) break;
+              }
+
+              // Map parts of speech
+              if (pos.includes("noun")) posVal = "noun";
+              else if (pos.includes("verb")) posVal = "verb";
+              else if (pos.includes("adj")) posVal = "adjective";
+              else if (pos.includes("adv")) posVal = "adverb";
+              else if (pos.includes("pron")) posVal = "pronoun";
+              else if (pos.includes("num")) posVal = "numeral";
+              else if (pos.includes("prep")) posVal = "preposition";
+              else if (pos.includes("conj")) posVal = "conjunction";
+              else if (pos.includes("part")) posVal = "particle";
+              else if (pos.includes("interj")) posVal = "interjection";
+              else posVal = "phrase";
+            }
+          }
+        } catch (e) {
+          console.warn("Wiktionary definitions lookup failed, using translation only.", e);
+        }
+
+        // Accented stress lookup
         try {
           const actionUrl = `https://en.wiktionary.org/w/api.php?action=parse&prop=wikitext&page=${encodeURIComponent(word)}&format=json&origin=*`;
           const actionRes = await fetch(actionUrl);
@@ -1132,19 +1168,7 @@
           console.warn("Accented stress lookup failed, using default base spelling.", e);
         }
 
-        let posVal = "noun";
-        if (pos.includes("noun")) posVal = "noun";
-        else if (pos.includes("verb")) posVal = "verb";
-        else if (pos.includes("adj")) posVal = "adjective";
-        else if (pos.includes("adv")) posVal = "adverb";
-        else if (pos.includes("pron")) posVal = "pronoun";
-        else if (pos.includes("num")) posVal = "numeral";
-        else if (pos.includes("prep")) posVal = "preposition";
-        else if (pos.includes("conj")) posVal = "conjunction";
-        else if (pos.includes("part")) posVal = "particle";
-        else if (pos.includes("interj")) posVal = "interjection";
-        else posVal = "phrase";
-
+        // Fill elements
         document.getElementById("add-accented-input").value = accented;
         document.getElementById("add-translation-input").value = cleanDef;
         document.getElementById("add-translit-input").value = transliterateWord(word);
@@ -1164,7 +1188,7 @@
         });
 
       } catch (err) {
-        alert(`Auto-fill Error: ${err.message || "Failed to fetch definitions from Wiktionary. Please fill details manually."}`);
+        alert(`Auto-fill Error: ${err.message || "Failed to translate word. Please fill details manually."}`);
       } finally {
         autofillBtn.disabled = false;
         statusEl.style.display = "none";
