@@ -26,6 +26,11 @@
     // Initialize SRS module
     SRS.init();
     
+    // Initialize Supabase Sync connection
+    if (window.SupabaseSync) {
+      window.SupabaseSync.init();
+    }
+    
     // Wire UI events
     setupNavigation();
     setupDashboard();
@@ -43,6 +48,15 @@
     
     updateCategoryDropdowns();
     setupScrollLoading();
+
+    // Global UI refresh callback for sync downloads
+    window.refreshAppUI = function () {
+      renderDashboard();
+      updateCategoryDropdowns();
+      if (views.dictionary.classList.contains("active")) {
+        renderDictionary();
+      }
+    };
 
     // Default view: Dashboard
     switchView("dashboard");
@@ -861,6 +875,7 @@
 
   // --- SYNC & BACKUP CONTROLLERS ---
   function setupSync() {
+    // Local JSON export
     document.getElementById("sync-copy-btn").addEventListener("click", () => {
       const textarea = document.getElementById("sync-export-area");
       textarea.select();
@@ -868,6 +883,7 @@
       alert("Backup JSON copied to clipboard successfully!");
     });
 
+    // Local JSON import
     document.getElementById("sync-import-btn").addEventListener("click", () => {
       const jsonStr = document.getElementById("sync-import-area").value.trim();
       if (!jsonStr) {
@@ -888,6 +904,7 @@
       }
     });
 
+    // Reset progress
     document.getElementById("sync-reset-btn").addEventListener("click", () => {
       if (confirm("WARNING: This will delete ALL learning progress, box schedules, XP stats, streaks, and custom words. This action CANNOT be undone! Are you sure?")) {
         SRS.resetAllData();
@@ -896,11 +913,133 @@
         switchView("dashboard");
       }
     });
+
+    // Supabase Connect
+    document.getElementById("supabase-connect-btn").addEventListener("click", async () => {
+      const url = document.getElementById("supabase-url-input").value.trim();
+      const key = document.getElementById("supabase-key-input").value.trim();
+      
+      if (!url || !key) {
+        alert("Please enter both the Supabase Project URL and Anon API key.");
+        return;
+      }
+
+      try {
+        await window.SupabaseSync.connect(url, key);
+        alert("Successfully connected to Supabase database!");
+      } catch (e) {
+        alert("Failed to connect: " + e.message);
+      }
+    });
+
+    // Supabase Disconnect
+    document.getElementById("supabase-disconnect-btn").addEventListener("click", async () => {
+      if (confirm("Disconnecting will remove your credentials and sign you out. Your local progress will remain intact. Continue?")) {
+        await window.SupabaseSync.disconnect();
+        alert("Disconnected from Supabase.");
+      }
+    });
+
+    // Supabase Auth Tab Switching
+    const tabLogin = document.getElementById("auth-tab-login");
+    const tabSignup = document.getElementById("auth-tab-signup");
+    const submitBtn = document.getElementById("supabase-auth-submit-btn");
+
+    tabLogin.addEventListener("click", () => {
+      window.SupabaseSync.authMode = "login";
+      tabLogin.style.color = "var(--color-primary)";
+      tabLogin.style.borderBottom = "2px solid var(--color-primary)";
+      tabSignup.style.color = "var(--color-text-muted)";
+      tabSignup.style.borderBottom = "none";
+      submitBtn.innerText = "Sign In";
+      submitBtn.className = "btn btn-success";
+    });
+
+    tabSignup.addEventListener("click", () => {
+      window.SupabaseSync.authMode = "signup";
+      tabSignup.style.color = "var(--color-primary)";
+      tabSignup.style.borderBottom = "2px solid var(--color-primary)";
+      tabLogin.style.color = "var(--color-text-muted)";
+      tabLogin.style.borderBottom = "none";
+      submitBtn.innerText = "Register Account";
+      submitBtn.className = "btn btn-primary";
+    });
+
+    // Supabase Auth Submit
+    submitBtn.addEventListener("click", async () => {
+      const email = document.getElementById("supabase-email").value.trim();
+      const password = document.getElementById("supabase-password").value.trim();
+
+      if (!email || !password) {
+        alert("Please enter both email and password.");
+        return;
+      }
+      if (password.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+
+      const origBtnText = submitBtn.innerText;
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing...";
+
+      try {
+        if (window.SupabaseSync.authMode === "login") {
+          await window.SupabaseSync.signIn(email, password);
+          alert("Signed in successfully!");
+        } else {
+          const res = await window.SupabaseSync.signUp(email, password);
+          if (res.session) {
+            alert("Registration successful and logged in!");
+          } else {
+            alert("Registration successful! Please check your email inbox to verify your account before logging in.");
+          }
+          tabLogin.click();
+        }
+        document.getElementById("supabase-email").value = "";
+        document.getElementById("supabase-password").value = "";
+      } catch (e) {
+        alert("Authentication error: " + e.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = origBtnText;
+      }
+    });
+
+    // Supabase Sign Out
+    document.getElementById("supabase-logout-btn").addEventListener("click", async () => {
+      if (confirm("Are you sure you want to sign out?")) {
+        try {
+          await window.SupabaseSync.signOut();
+          alert("Signed out successfully.");
+        } catch (e) {
+          alert("Error signing out: " + e.message);
+        }
+      }
+    });
+
+    // Supabase Sync Now
+    document.getElementById("supabase-sync-now-btn").addEventListener("click", async () => {
+      await window.SupabaseSync.syncBoth();
+    });
+
+    // Supabase Auto-sync toggle
+    const autosyncToggle = document.getElementById("supabase-autosync-toggle");
+    if (autosyncToggle) {
+      autosyncToggle.checked = localStorage.getItem("voc_supabase_autosync") !== "false";
+      autosyncToggle.addEventListener("change", () => {
+        localStorage.setItem("voc_supabase_autosync", autosyncToggle.checked);
+      });
+    }
   }
 
   function renderSyncData() {
     const payload = SRS.exportJSON();
     document.getElementById("sync-export-area").value = payload;
+    
+    if (window.SupabaseSync) {
+      window.SupabaseSync.updateUI();
+    }
   }
 
   // --- MODAL WINDOW CONTROLLERS ---

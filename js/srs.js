@@ -30,6 +30,12 @@
 
   // --- INTERNAL UTILS ---
 
+  function triggerBgPush(type, id, data) {
+    if (window.SupabaseSync && typeof window.SupabaseSync.handleLocalChange === "function") {
+      window.SupabaseSync.handleLocalChange(type, id, data);
+    }
+  }
+
   function loadFromStorage() {
     try {
       cardProgress = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROGRESS)) || {};
@@ -116,7 +122,9 @@
       }
       globalStats.lastActiveDate = today;
     }
+    globalStats.updatedAt = Date.now();
     saveToStorage();
+    triggerBgPush("stats", null, globalStats);
   }
 
   // --- PUBLIC API ---
@@ -169,8 +177,12 @@
           nextReview: Date.now(), // Due immediately
           correctCount: 0,
           wrongCount: 0,
-          starred: false
+          starred: false,
+          updatedAt: Date.now()
         };
+      }
+      if (!cardProgress[id].updatedAt) {
+        cardProgress[id].updatedAt = Date.now();
       }
       return cardProgress[id];
     },
@@ -214,11 +226,14 @@
       prog.nextReview = Date.now() + interval;
 
       // Update progress memory
+      prog.updatedAt = Date.now();
       cardProgress[id] = prog;
       
       // Save stats
       addXP(xpGained);
       saveToStorage();
+      
+      triggerBgPush("progress", id, prog);
       
       return {
         newBox: prog.box,
@@ -239,13 +254,18 @@
         pos: wordData.pos || "noun",
         category: wordData.category || "Custom",
         exampleRu: wordData.exampleRu ? wordData.exampleRu.trim() : "",
-        exampleEn: wordData.exampleEn ? wordData.exampleEn.trim() : ""
+        exampleEn: wordData.exampleEn ? wordData.exampleEn.trim() : "",
+        updatedAt: Date.now()
       };
 
       customWords.push(newWord);
       // Initialize progress
-      this.getCardProgress(id);
+      const prog = this.getCardProgress(id);
+      prog.updatedAt = Date.now();
       saveToStorage();
+      
+      triggerBgPush("word", id, newWord);
+      triggerBgPush("progress", id, prog);
       return newWord;
     },
 
@@ -254,19 +274,30 @@
       // Find in custom words
       const customIdx = customWords.findIndex(w => w.id === id);
       if (customIdx !== -1) {
-        customWords[customIdx] = { ...customWords[customIdx], ...updatedFields };
+        customWords[customIdx] = { ...customWords[customIdx], ...updatedFields, updatedAt: Date.now() };
         saveToStorage();
+        triggerBgPush("word", id, customWords[customIdx]);
         return true;
       }
       
-      // If it is a default word, we override details by keeping an override list or writing to progress.
-      // For simplicity, if they edit a default word, we can convert it into a local copy or we can just save the modifications inside progress,
-      // But creating a simple overrides object in localStorage is cleaner. Let's support editing custom words directly, 
-      // and for default words, let's keep overrides inside localStorage. Let's merge overrides when loading words.
-      // Let's implement an overrides database.
       let overrides = JSON.parse(localStorage.getItem("voc_russian_overrides")) || {};
-      overrides[id] = { ...overrides[id], ...updatedFields };
+      const defaultWord = this.getAllWords().find(w => w.id === id) || {};
+      overrides[id] = { 
+        id: id,
+        word: defaultWord.word || "",
+        accented: defaultWord.accented || "",
+        translation: defaultWord.translation || "",
+        transliteration: defaultWord.transliteration || "",
+        pos: defaultWord.pos || "",
+        category: defaultWord.category || "",
+        exampleRu: defaultWord.exampleRu || defaultWord.example_ru || "",
+        exampleEn: defaultWord.exampleEn || defaultWord.example_en || "",
+        ...overrides[id], 
+        ...updatedFields, 
+        updatedAt: Date.now() 
+      };
       localStorage.setItem("voc_russian_overrides", JSON.stringify(overrides));
+      triggerBgPush("word", id, overrides[id]);
       return true;
     },
 
@@ -277,14 +308,24 @@
       if (idx !== -1) {
         customWords.splice(idx, 1);
         delete cardProgress[id];
+        
+        let deletedIds = JSON.parse(localStorage.getItem("voc_russian_deleted_custom_ids")) || [];
+        if (!deletedIds.includes(id)) {
+          deletedIds.push(id);
+          localStorage.setItem("voc_russian_deleted_custom_ids", JSON.stringify(deletedIds));
+        }
+        
         saveToStorage();
+        triggerBgPush("word_delete", id, null);
         return true;
       }
       
       // For default words, we can't delete from standard database, but we can set a "hidden" flag in progress to exclude them.
       const prog = this.getCardProgress(id);
       prog.hidden = true;
+      prog.updatedAt = Date.now();
       saveToStorage();
+      triggerBgPush("progress", id, prog);
       return true;
     },
 
@@ -292,14 +333,18 @@
     restoreWord: function(id) {
       const prog = this.getCardProgress(id);
       prog.hidden = false;
+      prog.updatedAt = Date.now();
       saveToStorage();
+      triggerBgPush("progress", id, prog);
     },
 
     // Toggle Favorite status
     toggleStar: function (id) {
       const prog = this.getCardProgress(id);
       prog.starred = !prog.starred;
+      prog.updatedAt = Date.now();
       saveToStorage();
+      triggerBgPush("progress", id, prog);
       return prog.starred;
     },
 
@@ -355,12 +400,14 @@
       localStorage.removeItem(STORAGE_KEYS.CUSTOM_WORDS);
       localStorage.removeItem(STORAGE_KEYS.GLOBAL_STATS);
       localStorage.removeItem("voc_russian_overrides");
+      localStorage.removeItem("voc_russian_deleted_custom_ids");
       
       cardProgress = {};
       customWords = [];
-      globalStats = { xp: 0, streak: 0, lastActiveDate: null, totalCorrect: 0, totalAttempts: 0, dailyXpLog: {} };
+      globalStats = { xp: 0, streak: 0, lastActiveDate: null, totalCorrect: 0, totalAttempts: 0, dailyXpLog: {}, updatedAt: Date.now() };
       
       saveToStorage();
+      triggerBgPush("reset", null, null);
     },
 
     // Export payload
@@ -406,6 +453,29 @@
       }
       return w;
     });
+  };
+
+  // Add getter/setter API for SupabaseSync
+  SRS.getCardProgressMap = function() {
+    return cardProgress;
+  };
+  SRS.getCustomWordsList = function() {
+    return customWords;
+  };
+  SRS.getGlobalStats = function() {
+    return globalStats;
+  };
+  SRS.getOverridesMap = function() {
+    return JSON.parse(localStorage.getItem("voc_russian_overrides")) || {};
+  };
+  SRS.setAllData = function(progress, customWordsList, stats, overrides) {
+    if (progress) cardProgress = progress;
+    if (customWordsList) customWords = customWordsList;
+    if (stats) globalStats = stats;
+    if (overrides) {
+      localStorage.setItem("voc_russian_overrides", JSON.stringify(overrides));
+    }
+    saveToStorage();
   };
 
   window.SRS = SRS;
