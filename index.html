@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VocRussian - Russian Vocabulary Master</title>
+  <meta name="description" content="A premium, local spaced repetition app to learn Russian vocabulary words and phrases.">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0f19">
+  
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered successfully!', reg))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</head>
+<body>
+  
+  <div id="app-container">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside>
+      <div class="logo-container">
+        <div class="logo-icon">
+          <!-- Cyrillic letter Я in a styled SVG -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 4H14C11.5 4 9.5 6 9.5 8.5C9.5 11 11.5 13 14 13H16V20M16 13H11L16 20M16 4V13M16 4V20" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">VocRussian</div>
+      </div>
+      
+      <nav>
+        <ul class="nav-links">
+          <li class="nav-item active" data-target="dashboard">
+            <button id="nav-btn-dashboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="9"></rect>
+                <rect x="14" y="3" width="7" height="5"></rect>
+                <rect x="14" y="12" width="7" height="9"></rect>
+                <rect x="3" y="16" width="7" height="5"></rect>
+              </svg>
+              <span>Dashboard</span>
+            </button>
+          </li>
+          <li class="nav-item" data-target="study-select">
+            <button id="nav-btn-study">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+              </svg>
+              <span>Study</span>
+            </button>
+          </li>
+          <li class="nav-item" data-target="dictionary">
+            <button id="nav-btn-dictionary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+              </svg>
+              <span>Dictionary</span>
+            </button>
+          </li>
+          <li class="nav-item" data-target="sync">
+            <button id="nav-btn-sync">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+              <span>Sync & Backup</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="stats-badge-sidebar" title="Current Daily Streak">
+          <span>🔥</span>
+          <div>Streak: <span id="sidebar-streak-val">0</span> days</div>
+        </div>
+        <div class="stats-badge-sidebar" title="Total Experience Points (XP)">
+          <span>🏆</span>
+          <div>XP: <span id="sidebar-xp-val">0</span></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main>
+      
+      <!-- VIEW: DASHBOARD -->
+      <section id="view-dashboard" class="view-section active">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Добро пожаловать!</h1>
+            <p class="page-subtitle">Welcome back! Here is your learning overview today.</p>
+          </div>
+          <button id="dash-quick-study-btn" class="btn btn-primary">
+            <span>Start Due Review</span>
+            <span id="dash-due-btn-badge" class="btn-pill" style="background: rgba(255,255,255,0.25);">0</span>
+          </button>
+        </div>
+        
+        <!-- Stats Widgets -->
+        <div class="dashboard-grid">
+          <div class="card stat-card due">
+            <div class="stat-icon-wrapper">📚</div>
+            <div class="stat-info">
+              <div id="stat-due-count" class="stat-value">0</div>
+              <div class="stat-label">Cards Due</div>
+            </div>
+          </div>
+          <div class="card stat-card streak">
+            <div class="stat-icon-wrapper">🔥</div>
+            <div class="stat-info">
+              <div id="stat-streak" class="stat-value">0</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+          </div>
+          <div class="card stat-card xp">
+            <div class="stat-icon-wrapper">✨</div>
+            <div class="stat-info">
+              <div id="stat-xp" class="stat-value">0</div>
+              <div class="stat-label">Total XP</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-row-2">
+          <!-- Leitner Boxes Progress -->
+          <div class="card">
+            <h2 class="form-group" style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Spaced Repetition Status</h2>
+            <p class="page-subtitle" style="margin-bottom: 1.5rem;">Distribution of your vocabulary in Leitner boxes.</p>
+            
+            <div class="box-distribution-list">
+              <div class="box-item">
+                <div class="box-label-row">
+                  <span class="box-title">Box 1: New / Difficult</span>
+                  <span class="box-interval">Review daily</span>
+                  <span id="box1-count" class="box-count">0</span>
+                </div>
+                <div class="progress-track-bar">
+                  <div id="box1-fill" class="progress-fill-bar"></div>
+                </div>
+              </div>
+              <div class="box-item">
+                <div class="box-label-row">
+                  <span class="box-title">Box 2: Familiar</span>
+                  <span class="box-interval">Review every 2d</span>
+                  <span id="box2-count" class="box-count">0</span>
+                </div>
+                <div class="progress-track-bar">
+                  <div id="box2-fill" class="progress-fill-bar"></div>
+                </div>
+              </div>
+              <div class="box-item">
+                <div class="box-label-row">
+                  <span class="box-title">Box 3: Moderate</span>
+                  <span class="box-interval">Review every 4d</span>
+                  <span id="box3-count" class="box-count">0</span>
+                </div>
+                <div class="progress-track-bar">
+                  <div id="box3-fill" class="progress-fill-bar"></div>
+                </div>
+              </div>
+              <div class="box-item">
+                <div class="box-label-row">
+                  <span class="box-title">Box 4: Advanced</span>
+                  <span class="box-interval">Review every 7d</span>
+                  <span id="box4-count" class="box-count">0</span>
+                </div>
+                <div class="progress-track-bar">
+                  <div id="box4-fill" class="progress-fill-bar"></div>
+                </div>
+              </div>
+              <div class="box-item">
+                <div class="box-label-row">
+                  <span class="box-title">Box 5: Mastered</span>
+                  <span class="box-interval">Review every 14d</span>
+                  <span id="box5-count" class="box-count">0</span>
+                </div>
+                <div class="progress-track-bar">
+                  <div id="box5-fill" class="progress-fill-bar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Weekly Activity Chart -->
+          <div class="card">
+            <h2 class="form-group" style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Weekly Progress</h2>
+            <p class="page-subtitle" style="margin-bottom: 0.5rem;">XP gained over the last 7 days.</p>
+            <div class="chart-container">
+              <svg id="weekly-chart" class="bar-chart-svg" viewBox="0 0 400 200">
+                <!-- SVG Grid Lines -->
+                <line x1="40" y1="20" x2="380" y2="20" class="chart-grid" />
+                <line x1="40" y1="70" x2="380" y2="70" class="chart-grid" />
+                <line x1="40" y1="120" x2="380" y2="120" class="chart-grid" />
+                <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-glass-hover)" stroke-width="1.5" />
+                
+                <!-- Chart Bars and Labels rendered by JS -->
+                <g id="chart-bars-group"></g>
+                <g id="chart-labels-group"></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: STUDY SELECTION -->
+      <section id="view-study-select" class="view-section">
+        <div>
+          <h1 class="page-title">Choose Study Mode</h1>
+          <p class="page-subtitle">Practice Russian with three distinct active recall training methods.</p>
+        </div>
+        
+        <div class="study-modes-grid">
+          <div class="card mode-card card-glowing" id="mode-select-flashcard">
+            <div class="mode-icon">🎴</div>
+            <div class="mode-title">Flashcards (3D)</div>
+            <div class="mode-desc">Flip cards back and forth to practice self-grading active recall. Supports Leitner SRS scheduling.</div>
+          </div>
+          <div class="card mode-card card-glowing" id="mode-select-choice">
+            <div class="mode-icon">☑️</div>
+            <div class="mode-title">Multiple Choice</div>
+            <div class="mode-desc">Identify the correct English translation for Russian words from 4 choices. Excellent for building fast recognition.</div>
+          </div>
+          <div class="card mode-card card-glowing" id="mode-select-writing">
+            <div class="mode-icon">✍️</div>
+            <div class="mode-title">Writing Practice</div>
+            <div class="mode-desc">Test spelling and memory recall. Type out the exact Russian word based on its English translation, transliteration, and example context.</div>
+          </div>
+        </div>
+        
+        <!-- Filter Study Target -->
+        <div class="card" style="margin-top: 1rem;">
+          <h3 style="font-family: var(--font-heading); margin-bottom: 1rem;">Session Settings</h3>
+          <div class="dictionary-filter-bar" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <div class="form-group">
+              <label for="study-filter-db">Vocabulary Deck</label>
+              <select id="study-filter-db" class="filter-select">
+                <option value="standard">Standard Deck (120 words)</option>
+                <option value="expanded">Expanded Deck (3,376 words)</option>
+                <option value="custom">Personal Custom Deck (Empty/Add Words)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="study-filter-category">Limit Category</label>
+              <select id="study-filter-category" class="filter-select">
+                <!-- Populated dynamically by JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="study-filter-queue">Study Deck Target</label>
+              <select id="study-filter-queue" class="filter-select">
+                <option value="due">(Recommended) Due Cards Only</option>
+                <option value="starred">Starred / Starred Only</option>
+                <option value="all">Entire Database (Endless)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="study-deck-size">Max Session Size</label>
+              <select id="study-deck-size" class="filter-select">
+                <option value="10">10 Words</option>
+                <option value="20" selected>20 Words</option>
+                <option value="50">50 Words</option>
+                <option value="999">All Matching Cards</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: STUDY SESSION (ACTIVE) -->
+      <section id="view-study-active" class="view-section">
+        <div class="page-header" style="margin-bottom: 0;">
+          <button id="study-quit-btn" class="btn btn-secondary" style="padding: 0.6rem 1.2rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.35rem;">
+              <path d="M19 12H5M12 19l-7-7 7-7"></path>
+            </svg>
+            Quit Session
+          </button>
+          <div class="audio-controls">
+            <!-- Normal TTS voice speed -->
+            <button id="tts-normal-btn" class="audio-btn" title="Listen Russian (Normal Speed)">🔊</button>
+            <!-- Slow TTS voice speed -->
+            <button id="tts-slow-btn" class="audio-btn" title="Listen Russian (Slow Speed)" style="font-size: 0.95rem;">🐢</button>
+          </div>
+        </div>
+
+        <div class="study-viewport">
+          <div class="session-header">
+            <span class="progress-header-text">Card <span id="study-index-val">1</span> of <span id="study-total-val">10</span></span>
+            <span id="study-deck-type-badge" class="btn-pill" style="background-color: var(--color-primary-glow); color: var(--color-primary); font-weight: 600;">Due Queue</span>
+          </div>
+
+          <div class="study-progress-container">
+            <div id="study-progress-bar" class="study-progress-fill"></div>
+          </div>
+
+          <!-- SUB-VIEW: FLASHCARD COMPONENT -->
+          <div id="study-sub-flashcard" class="study-stage-component">
+            <div class="flashcard-wrapper" id="flashcard-click-wrapper">
+              <div class="flashcard-inner">
+                <!-- Front Side -->
+                <div class="card-face card-face-front">
+                  <span class="card-category-tag" id="fc-category-front">Nouns</span>
+                  <button class="card-star-btn" id="fc-star-btn">★</button>
+                  <div class="card-word-title" id="fc-word-front">Дом</div>
+                  <div class="card-word-translit" id="fc-word-translit-front">[dom]</div>
+                  <div class="flip-prompt">
+                    <kbd>Space</kbd> or click to flip card
+                  </div>
+                </div>
+                <!-- Back Side -->
+                <div class="card-face card-face-back">
+                  <span class="card-category-tag" id="fc-category-back">Nouns</span>
+                  <div class="card-word-translation" id="fc-word-translation-back">House / Home</div>
+                  <div class="card-word-pos" id="fc-word-pos-back">Noun</div>
+                  <div class="card-word-example-ru" id="fc-word-example-ru-back">Я хочу пойти домой.</div>
+                  <div class="card-word-example-en" id="fc-word-example-en-back">I want to go home.</div>
+                  <div class="flip-prompt">
+                    Click to flip back
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SRS Rating Controls (shown when card is flipped) -->
+            <div class="srs-buttons-panel" id="fc-rating-panel" style="margin-top: 1.5rem; opacity: 0.3; pointer-events: none;">
+              <button class="btn srs-btn btn-danger" id="srs-score-1">
+                <span>Hard / Forgot</span>
+                <span>Box 1 <kbd>1</kbd></span>
+              </button>
+              <button class="btn srs-btn btn-secondary" id="srs-score-3" style="border-color: var(--border-glass-hover);">
+                <span>Good</span>
+                <span>Box +1 <kbd>2</kbd></span>
+              </button>
+              <button class="btn srs-btn btn-success" id="srs-score-5">
+                <span>Easy</span>
+                <span>Box +1 <kbd>3</kbd></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: MULTIPLE CHOICE COMPONENT -->
+          <div id="study-sub-choice" class="study-stage-component" style="display: none;">
+            <div class="choice-question-box">
+              <span class="card-category-tag" id="choice-category">Verbs</span>
+              <div class="card-word-title" id="choice-word">Говорить</div>
+              <div class="card-word-translit" id="choice-word-translit">[govorit']</div>
+            </div>
+
+            <div class="choices-grid" id="choices-container">
+              <!-- Rendered by JS -->
+            </div>
+            
+            <button id="choice-next-btn" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%; display: none;">
+              Next Word
+              <kbd>Space</kbd>
+            </button>
+          </div>
+
+          <!-- SUB-VIEW: WRITING COMPONENT -->
+          <div id="study-sub-writing" class="study-stage-component" style="display: none;">
+            <div class="choice-question-box">
+              <span class="card-category-tag" id="writing-category">Conversation</span>
+              <div class="card-word-translation" id="writing-prompt-translation">Thank you</div>
+              <div class="card-word-translit" id="writing-prompt-translit">[spasibo]</div>
+              <div class="card-word-example-en" id="writing-prompt-example-en">"Thank you very much for the help!"</div>
+            </div>
+
+            <div class="writing-input-wrapper">
+              <input type="text" id="writing-user-input" class="writing-input" placeholder="Type in Russian Cyrillic..." autocomplete="off" spellcheck="false">
+              
+              <div class="writing-diff-output" id="writing-diff-container" style="display: none;">
+                <!-- Diff feedback -->
+              </div>
+              
+              <button id="writing-check-btn" class="btn btn-primary" style="width: 100%;">
+                Submit Answer
+                <kbd>Enter</kbd>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: SESSION SUMMARY/COMPLETION -->
+          <div id="study-sub-complete" class="study-stage-component" style="display: none;">
+            <div class="card study-completion-card">
+              <div class="congrats-emoji">🎉</div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.75rem;">Session Complete!</h2>
+              <p class="page-subtitle">Great job reviewing Russian vocabulary today.</p>
+              
+              <div class="dashboard-grid" style="width: 100%; margin: 1.5rem 0;">
+                <div class="card stat-card due" style="padding: 1.25rem;">
+                  <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem;">🧠</div>
+                  <div class="stat-info">
+                    <div id="complete-words-count" class="stat-value">0</div>
+                    <div class="stat-label">Reviewed</div>
+                  </div>
+                </div>
+                <div class="card stat-card xp" style="padding: 1.25rem;">
+                  <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem;">⚡</div>
+                  <div class="stat-info">
+                    <div id="complete-xp-gain" class="stat-value">0</div>
+                    <div class="stat-label">XP Earned</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 1rem; width: 100%;">
+                <button id="complete-home-btn" class="btn btn-secondary" style="flex: 1;">Back to Dashboard</button>
+                <button id="complete-again-btn" class="btn btn-primary" style="flex: 1;">Study Again</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW: DICTIONARY & EXPLORER -->
+      <section id="view-dictionary" class="view-section">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Vocabulary Explorer</h1>
+            <p class="page-subtitle">Search, filter, and edit the vocabulary database, or add new words.</p>
+          </div>
+          <button id="dict-add-word-btn" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Custom Word
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card dictionary-filter-bar" style="padding: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="dict-search" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Search</label>
+            <input type="text" id="dict-search" class="filter-input" placeholder="Search word or translation...">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="dict-filter-db" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Active Deck</label>
+            <select id="dict-filter-db" class="filter-select">
+              <option value="standard">Standard Deck (120 words)</option>
+              <option value="expanded">Expanded Deck (3,376 words)</option>
+              <option value="custom">Personal Custom Deck (Empty/Add Words)</option>
+            </select>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="dict-filter-category" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Category</label>
+            <select id="dict-filter-category" class="filter-select">
+              <!-- Populated dynamically by JS -->
+            </select>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="dict-filter-status" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Learning Status</label>
+            <select id="dict-filter-status" class="filter-select">
+              <option value="all">All Words</option>
+              <option value="due">Due Review</option>
+              <option value="starred">Starred ★</option>
+              <option value="box1">Box 1 (New)</option>
+              <option value="box2">Box 2 (Familiar)</option>
+              <option value="box3">Box 3 (Moderate)</option>
+              <option value="box4">Box 4 (Advanced)</option>
+              <option value="box5">Box 5 (Mastered)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Word Grid -->
+        <div id="dict-words-grid" class="vocab-grid">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Empty state -->
+        <div id="dict-empty-state" class="card" style="display: none; text-align: center; padding: 4rem 2rem; border-style: dashed;">
+          <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
+          <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">No words found</h3>
+          <p class="page-subtitle">Try adjusting your search criteria or add a custom word.</p>
+        </div>
+      </section>
+
+      <!-- VIEW: DATA SYNC & BACKUP -->
+      <section id="view-sync" class="view-section">
+        <div>
+          <h1 class="page-title">Sync & Backup</h1>
+          <p class="page-subtitle">Safeguard your progress, custom vocabulary words, and Leitner history.</p>
+        </div>
+
+        <div class="dashboard-row-2">
+          <!-- Export panel -->
+          <div class="card">
+            <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Export Data</h2>
+            <p class="page-subtitle" style="margin-bottom: 1.5rem;">Copy this backup payload and store it safely.</p>
+            
+            <div class="form-group">
+              <textarea id="sync-export-area" class="json-textarea" readonly></textarea>
+            </div>
+            
+            <button id="sync-copy-btn" class="btn btn-primary" style="width: 100%;">
+              Copy Backup JSON
+            </button>
+          </div>
+
+          <!-- Import panel -->
+          <div class="card">
+            <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Import Data</h2>
+            <p class="page-subtitle" style="margin-bottom: 1.5rem;">Paste a saved backup JSON below to restore progress.</p>
+            
+            <div class="form-group">
+              <textarea id="sync-import-area" class="json-textarea" placeholder="Paste your backup JSON text here..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+              <button id="sync-import-btn" class="btn btn-success" style="flex: 1;">Import Progress</button>
+              <button id="sync-reset-btn" class="btn btn-danger" style="flex: 1;">Reset All Progress</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+
+  <!-- MODAL: ADD CUSTOM WORD -->
+  <div class="modal-overlay" id="modal-add-word">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Custom Russian Word</h3>
+        <button class="modal-close-btn" id="modal-add-close">×</button>
+      </div>
+      
+      <form id="add-word-form" onsubmit="event.preventDefault();">
+        <div class="form-group">
+          <label for="add-word-input">Russian Word (Clean Cyrillic)*</label>
+          <div style="display:flex; gap:0.5rem; width:100%;">
+            <input type="text" id="add-word-input" class="filter-input" placeholder="e.g., Кот" required style="flex:1;">
+            <button type="button" id="modal-add-autofill-btn" class="btn btn-secondary" style="padding: 0 1rem; font-size: 0.85rem;" title="Auto-fill translations and examples from Wiktionary">
+              ⚡ Auto-fill
+            </button>
+          </div>
+          <div id="autofill-status" style="font-size:0.75rem; color:var(--color-primary); margin-top:0.25rem; display:none; align-items:center; gap:0.25rem;">
+            <span class="spinner" style="display:inline-block; width:12px; height:12px; border:2px solid var(--color-primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
+            <span>Fetching Wiktionary data...</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="add-accented-input">Accent Mark / Pronunciation Reference</label>
+          <input type="text" id="add-accented-input" class="filter-input" placeholder="e.g., Кот (use combine acute sign if wanted)">
+        </div>
+
+        <div class="form-group">
+          <label for="add-translation-input">English Translation*</label>
+          <input type="text" id="add-translation-input" class="filter-input" placeholder="e.g., Cat" required>
+        </div>
+
+        <div class="form-group">
+          <label for="add-translit-input">Romanization / Transliteration</label>
+          <input type="text" id="add-translit-input" class="filter-input" placeholder="e.g., kot">
+        </div>
+
+        <div class="dictionary-filter-bar" style="grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label for="add-pos-input">Part of Speech</label>
+            <select id="add-pos-input" class="filter-select">
+              <option value="noun">Noun</option>
+              <option value="verb">Verb</option>
+              <option value="adjective">Adjective</option>
+              <option value="adverb">Adverb</option>
+              <option value="pronoun">Pronoun</option>
+              <option value="numeral">Numeral</option>
+              <option value="conjunction">Conjunction</option>
+              <option value="preposition">Preposition</option>
+              <option value="phrase">Phrase</option>
+              <option value="interjection">Interjection</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="add-category-input">Category</label>
+            <select id="add-category-input" class="filter-select">
+              <option value="Custom">Custom Words</option>
+              <option value="Essentials">Essentials</option>
+              <option value="Nouns">Nouns</option>
+              <option value="Verbs">Verbs</option>
+              <option value="Adjectives">Adjectives</option>
+              <option value="Conversation">Conversation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="add-exampleru-input">Example Sentence (Russian)</label>
+          <input type="text" id="add-exampleru-input" class="filter-input" placeholder="e.g., У меня есть кот.">
+        </div>
+
+        <div class="form-group">
+          <label for="add-exampleen-input">Example Sentence Translation (English)</label>
+          <input type="text" id="add-exampleen-input" class="filter-input" placeholder="e.g., I have a cat.">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modal-add-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="modal-add-submit">Save Word</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDIT WORD -->
+  <div class="modal-overlay" id="modal-edit-word">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Vocabulary Word</h3>
+        <button class="modal-close-btn" id="modal-edit-close">×</button>
+      </div>
+      
+      <form id="edit-word-form" onsubmit="event.preventDefault();">
+        <input type="hidden" id="edit-word-id">
+        
+        <div class="form-group">
+          <label for="edit-word-input">Russian Word (Clean Cyrillic)*</label>
+          <input type="text" id="edit-word-input" class="filter-input" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="edit-accented-input">Accent Mark / Pronunciation Reference</label>
+          <input type="text" id="edit-accented-input" class="filter-input">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-translation-input">English Translation*</label>
+          <input type="text" id="edit-translation-input" class="filter-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-translit-input">Romanization / Transliteration</label>
+          <input type="text" id="edit-translit-input" class="filter-input">
+        </div>
+
+        <div class="dictionary-filter-bar" style="grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="form-group">
+            <label for="edit-pos-input">Part of Speech</label>
+            <select id="edit-pos-input" class="filter-select">
+              <option value="noun">Noun</option>
+              <option value="verb">Verb</option>
+              <option value="adjective">Adjective</option>
+              <option value="adverb">Adverb</option>
+              <option value="pronoun">Pronoun</option>
+              <option value="numeral">Numeral</option>
+              <option value="conjunction">Conjunction</option>
+              <option value="preposition">Preposition</option>
+              <option value="phrase">Phrase</option>
+              <option value="interjection">Interjection</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-category-input">Category</label>
+            <select id="edit-category-input" class="filter-select">
+              <option value="Essentials">Essentials</option>
+              <option value="Pronouns & Questions">Pronouns & Questions</option>
+              <option value="Nouns">Nouns</option>
+              <option value="Verbs">Verbs</option>
+              <option value="Adjectives">Adjectives</option>
+              <option value="Travel & Dining">Travel & Dining</option>
+              <option value="Numbers & Time">Numbers & Time</option>
+              <option value="Conversation">Conversation</option>
+              <option value="Custom">Custom Words</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-exampleru-input">Example Sentence (Russian)</label>
+          <input type="text" id="edit-exampleru-input" class="filter-input">
+        </div>
+
+        <div class="form-group">
+          <label for="edit-exampleen-input">Example Sentence Translation (English)</label>
+          <input type="text" id="edit-exampleen-input" class="filter-input">
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="modal-edit-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="modal-edit-submit">Update Word</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- BOOTSTRAP SCRIPTS -->
+  <script src="js/db.js"></script>
+  <script src="js/db_expanded.js"></script>
+  <script src="js/srs.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
