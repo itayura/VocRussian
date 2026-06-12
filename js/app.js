@@ -1007,6 +1007,43 @@
         localStorage.setItem("voc_supabase_autosync", autosyncToggle.checked);
       });
     }
+
+    // Force clear cache and update app
+    const forceUpdateBtn = document.getElementById("app-force-update-btn");
+    if (forceUpdateBtn) {
+      forceUpdateBtn.addEventListener("click", async () => {
+        const origText = forceUpdateBtn.innerText;
+        forceUpdateBtn.innerText = "⚡ Purging cache & reloading...";
+        forceUpdateBtn.disabled = true;
+
+        try {
+          // 1. Unregister all Service Workers
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+            }
+          }
+          // 2. Delete all caches
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            for (const key of keys) {
+              await caches.delete(key);
+            }
+          }
+          // 3. Clear local storage updates timestamp to force clean state pull
+          localStorage.removeItem("voc_supabase_last_sync");
+          
+          // 4. Force browser hard refresh bypassing cache
+          window.location.reload(true);
+        } catch (e) {
+          console.error("Force update cache purge failed:", e);
+          alert("Failed to clear cache: " + e.message);
+          forceUpdateBtn.innerText = origText;
+          forceUpdateBtn.disabled = false;
+        }
+      });
+    }
   }
 
   function renderSyncData() {
