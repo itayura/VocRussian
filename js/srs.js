@@ -242,6 +242,19 @@
       };
     },
 
+    // Set card box level manually
+    setCardBox: function (id, box) {
+      const prog = this.getCardProgress(id);
+      prog.box = parseInt(box, 10);
+      prog.nextReview = Date.now() + INTERVALS[prog.box];
+      prog.updatedAt = Date.now();
+      cardProgress[id] = prog;
+      
+      saveToStorage();
+      triggerBgPush("progress", id, prog);
+      return prog;
+    },
+
     // Add a custom word
     addCustomWord: function (wordData) {
       const id = "custom_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
