@@ -436,24 +436,38 @@
   // Flashcards Setup
   function setupFlashcardLayout() {
     const wrapper = document.getElementById("flashcard-click-wrapper");
+    const wasFlipped = wrapper.classList.contains("flipped");
     wrapper.classList.remove("flipped");
 
-    document.getElementById("fc-category-front").innerText = currentCard.category;
-    document.getElementById("fc-word-front").innerText = currentCard.accented || currentCard.word;
-    document.getElementById("fc-word-translit-front").innerText = `[${currentCard.transliteration || ""}]`;
+    const updateContent = (card) => {
+      document.getElementById("fc-category-front").innerText = card.category;
+      document.getElementById("fc-word-front").innerText = card.accented || card.word;
+      document.getElementById("fc-word-translit-front").innerText = `[${card.transliteration || ""}]`;
 
-    // Star state
-    const prog = SRS.getCardProgress(currentCard.id);
-    const starBtn = document.getElementById("fc-star-btn");
-    starBtn.classList.toggle("starred", prog.starred);
-    starBtn.innerText = prog.starred ? "★" : "☆";
+      // Star state
+      const prog = SRS.getCardProgress(card.id);
+      const starBtn = document.getElementById("fc-star-btn");
+      starBtn.classList.toggle("starred", prog.starred);
+      starBtn.innerText = prog.starred ? "★" : "☆";
 
-    // Back card details
-    document.getElementById("fc-category-back").innerText = currentCard.category;
-    document.getElementById("fc-word-translation-back").innerText = currentCard.translation;
-    document.getElementById("fc-word-pos-back").innerText = currentCard.pos;
-    document.getElementById("fc-word-example-ru-back").innerText = currentCard.exampleRu || "";
-    document.getElementById("fc-word-example-en-back").innerText = currentCard.exampleEn || "";
+      // Back card details
+      document.getElementById("fc-category-back").innerText = card.category;
+      document.getElementById("fc-word-translation-back").innerText = card.translation;
+      document.getElementById("fc-word-pos-back").innerText = card.pos;
+      document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
+      document.getElementById("fc-word-example-en-back").innerText = card.exampleEn || "";
+    };
+
+    if (wasFlipped) {
+      // Delay updating content until the card has rotated halfway (90deg) out of view (around 250ms)
+      setTimeout(() => {
+        if (currentCard) {
+          updateContent(currentCard);
+        }
+      }, 250);
+    } else {
+      updateContent(currentCard);
+    }
 
     // Lock rating panel until flipped
     const ratingPanel = document.getElementById("fc-rating-panel");
