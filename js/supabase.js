@@ -19,6 +19,7 @@
     isSyncing: false,
 
     init: async function () {
+      console.log("[SupabaseSync] init() started using URL:", CONFIG.URL);
       this.connectionState = "connecting";
       this.updateUI();
 
@@ -30,10 +31,14 @@
         this.connectionState = "connected";
         if (data && data.session) {
           this.user = data.session.user;
+          console.log("[SupabaseSync] Retrieved initial session for user:", this.user.email);
+        } else {
+          console.log("[SupabaseSync] No initial session found.");
         }
         
         // Setup auth state change listener
         this.client.auth.onAuthStateChange((event, session) => {
+          console.log("[SupabaseSync] Auth event triggered:", event, "Session user:", session ? session.user.email : "none");
           if (session) {
             this.user = session.user;
             this.onLoginSuccess();
