@@ -16,7 +16,8 @@
     "study-select": document.getElementById("view-study-select"),
     "study-active": document.getElementById("view-study-active"),
     dictionary: document.getElementById("view-dictionary"),
-    sync: document.getElementById("view-sync")
+    sync: document.getElementById("view-sync"),
+    settings: document.getElementById("view-settings")
   };
 
   const navItems = document.querySelectorAll(".nav-item");
@@ -39,6 +40,7 @@
     setupDictionary();
     setupSync();
     setupModals();
+    setupSettings();
     setupGlobalShortcuts();
 
     // Setup active DB controls in DOM
@@ -574,7 +576,16 @@
   function setupWritingLayout() {
     document.getElementById("writing-category").innerText = currentCard.category;
     document.getElementById("writing-prompt-translation").innerText = currentCard.translation;
-    document.getElementById("writing-prompt-translit").innerText = `[${currentCard.transliteration || ""}]`;
+    
+    const showTranslit = localStorage.getItem("voc_settings_show_translit") !== "false";
+    const translitEl = document.getElementById("writing-prompt-translit");
+    if (showTranslit) {
+      translitEl.style.display = "block";
+      translitEl.innerText = `[${currentCard.transliteration || ""}]`;
+    } else {
+      translitEl.style.display = "none";
+    }
+
     document.getElementById("writing-prompt-example-en").innerText = currentCard.exampleEn 
       ? `"${currentCard.exampleEn}"` 
       : "";
@@ -1257,6 +1268,19 @@
     
     if (window.SupabaseSync) {
       window.SupabaseSync.updateUI();
+    }
+  }
+
+  // --- SETTINGS CONTROLLERS ---
+  function setupSettings() {
+    const showTranslitCheckbox = document.getElementById("settings-show-translit");
+    if (showTranslitCheckbox) {
+      const showTranslit = localStorage.getItem("voc_settings_show_translit") !== "false";
+      showTranslitCheckbox.checked = showTranslit;
+      
+      showTranslitCheckbox.addEventListener("change", () => {
+        localStorage.setItem("voc_settings_show_translit", showTranslitCheckbox.checked ? "true" : "false");
+      });
     }
   }
 
