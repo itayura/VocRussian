@@ -905,12 +905,58 @@
     });
 
     // Reset progress
-    document.getElementById("sync-reset-btn").addEventListener("click", () => {
-      if (confirm("WARNING: This will delete ALL learning progress, box schedules, XP stats, streaks, and custom words. This action CANNOT be undone! Are you sure?")) {
-        SRS.resetAllData();
-        alert("Application progress reset to clean install.");
-        renderDashboard();
-        switchView("dashboard");
+    document.getElementById("sync-reset-btn").addEventListener("click", async () => {
+      const isCloudConnected = window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user;
+      
+      let msg = "WARNING: This will delete ALL learning progress, box schedules, XP stats, streaks, and custom words. This action CANNOT be undone! Are you sure?";
+      if (isCloudConnected) {
+        msg = "🔥 CRITICAL WARNING: You are signed into a cloud account. This will permanently delete ALL local progress AND ALL your saved backup data from the CLOUD database! This cannot be undone. Are you sure you want to proceed?";
+      }
+
+      if (confirm(msg)) {
+        const resetBtn = document.getElementById("sync-reset-btn");
+        const origText = resetBtn.innerText;
+        resetBtn.disabled = true;
+        resetBtn.innerText = "Wiping progress...";
+
+        try {
+          if (isCloudConnected) {
+            // Explicitly await the cloud deletion before deleting locally
+            const { error: errProg } = await window.SupabaseSync.client.from("voc_progress").delete().match({ user_id: window.SupabaseSync.user.id });
+            const { error: errWords } = await window.SupabaseSync.client.from("voc_words").delete().match({ user_id: window.SupabaseSync.user.id });
+            const { error: errStats } = await window.SupabaseSync.client.from("voc_stats").delete().match({ user_id: window.SupabaseSync.user.id });
+            
+            if (errProg || errWords || errStats) {
+              console.warn("Some cloud records failed to delete, proceeding with local reset anyway.", { errProg, errWords, errStats });
+            }
+          }
+          
+          SRS.resetAllData();
+          localStorage.removeItem("voc_supabase_last_sync");
+          
+          if (window.SupabaseSync && typeof window.SupabaseSync.updateUI === "function") {
+            window.SupabaseSync.updateUI();
+          }
+
+          alert("All local and cloud progress has been reset successfully.");
+          renderDashboard();
+          switchView("dashboard");
+        } catch (e) {
+          console.error("Cloud reset failed:", e);
+          SRS.resetAllData();
+          localStorage.removeItem("voc_supabase_last_sync");
+          
+          if (window.SupabaseSync && typeof window.SupabaseSync.updateUI === "function") {
+            window.SupabaseSync.updateUI();
+          }
+
+          alert("Local progress was reset, but we encountered an error clearing your cloud database: " + e.message);
+          renderDashboard();
+          switchView("dashboard");
+        } finally {
+          resetBtn.disabled = false;
+          resetBtn.innerText = origText;
+        }
       }
     });
 

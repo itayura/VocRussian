@@ -608,10 +608,7 @@
               <textarea id="sync-import-area" class="json-textarea" placeholder="Paste your backup JSON text here..."></textarea>
             </div>
             
-            <div style="display: flex; gap: 1rem;">
-              <button id="sync-import-btn" class="btn btn-success" style="flex: 1;">Import Progress</button>
-              <button id="sync-reset-btn" class="btn btn-danger" style="flex: 1;">Reset All Progress</button>
-            </div>
+            <button id="sync-import-btn" class="btn btn-success" style="width: 100%;">Import Progress</button>
           </div>
         </div>
 
@@ -625,6 +622,20 @@
             </p>
             <button type="button" id="app-force-update-btn" class="btn btn-secondary" style="width: 100%; font-size: 1rem; border-color: var(--color-primary); color: var(--color-primary-hover); outline: none;">
               ⚡ Force Clear Cache & Check for Updates
+            </button>
+          </div>
+        </div>
+
+        <!-- Danger Zone panel -->
+        <div class="card" style="margin-top: 1.5rem; border: 1px solid rgba(220, 53, 69, 0.3); background: rgba(220, 53, 69, 0.02);">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; color: #dc3545;">Danger Zone</h2>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Irreversible operations that delete your progress data.</p>
+          <div style="display: flex; flex-direction: column; gap: 1rem; background: var(--bg-input); border: 1px solid rgba(220, 53, 69, 0.15); border-radius: var(--border-radius-md); padding: 1.5rem;">
+            <p class="page-subtitle" style="font-size: 0.9rem; margin-top: 0; color: var(--color-text-muted);">
+              Wipe all learning statistics, flashcard boxes, and custom words. If you are signed in, this will also wipe all your saved study data from the cloud database.
+            </p>
+            <button type="button" id="sync-reset-btn" class="btn btn-danger" style="width: 100%; font-size: 1rem; background: #dc3545; border-color: #dc3545;">
+              🗑️ Reset All Local & Cloud Progress
             </button>
           </div>
         </div>
