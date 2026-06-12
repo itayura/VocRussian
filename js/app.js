@@ -825,17 +825,7 @@
         <div class="vocab-info-row">
           <span class="vocab-label-badge" style="text-transform: capitalize;">${card.pos}</span>
           <span class="vocab-label-badge">${card.category}</span>
-          <span class="vocab-label-badge" style="display: flex; align-items: center; gap: 0.25rem; background-color: var(--color-primary-glow); color: var(--color-primary); border-color: var(--color-primary-glow); padding: 0.1rem 0.35rem 0.1rem 0.5rem;">
-            <span>Box</span>
-            <select class="vocab-box-select" data-id="${card.id}" style="background: transparent; color: inherit; border: none; font-size: inherit; font-weight: bold; cursor: pointer; outline: none; font-family: inherit; padding: 0; margin: 0; -webkit-appearance: none; -moz-appearance: none; appearance: none; text-align: center; width: 1.25rem;">
-              <option value="1" ${prog.box === 1 ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--color-text-main);">1</option>
-              <option value="2" ${prog.box === 2 ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--color-text-main);">2</option>
-              <option value="3" ${prog.box === 3 ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--color-text-main);">3</option>
-              <option value="4" ${prog.box === 4 ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--color-text-main);">4</option>
-              <option value="5" ${prog.box === 5 ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--color-text-main);">5</option>
-            </select>
-            <span style="font-size: 0.6rem; opacity: 0.7; pointer-events: none; margin-left: -2px;">▼</span>
-          </span>
+          <span class="vocab-label-badge" style="background-color: var(--color-primary-glow); color:var(--color-primary);">Box ${prog.box}</span>
         </div>
 
         <div class="vocab-card-translation">${card.translation}</div>
@@ -875,13 +865,6 @@
           SRS.deleteWord(card.id);
           renderDictionary();
         }
-      });
-
-      // Manual Box Move Listener
-      cardEl.querySelector(".vocab-box-select").addEventListener("change", (e) => {
-        const newBox = parseInt(e.target.value, 10);
-        SRS.setCardBox(card.id, newBox);
-        renderDictionary();
       });
 
       grid.appendChild(cardEl);
