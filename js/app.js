@@ -914,31 +914,7 @@
       }
     });
 
-    // Supabase Connect
-    document.getElementById("supabase-connect-btn").addEventListener("click", async () => {
-      const url = document.getElementById("supabase-url-input").value.trim();
-      const key = document.getElementById("supabase-key-input").value.trim();
-      
-      if (!url || !key) {
-        alert("Please enter both the Supabase Project URL and Anon API key.");
-        return;
-      }
 
-      try {
-        await window.SupabaseSync.connect(url, key);
-        alert("Successfully connected to Supabase database!");
-      } catch (e) {
-        alert("Failed to connect: " + e.message);
-      }
-    });
-
-    // Supabase Disconnect
-    document.getElementById("supabase-disconnect-btn").addEventListener("click", async () => {
-      if (confirm("Disconnecting will remove your credentials and sign you out. Your local progress will remain intact. Continue?")) {
-        await window.SupabaseSync.disconnect();
-        alert("Disconnected from Supabase.");
-      }
-    });
 
     // Supabase Auth Tab Switching
     const tabLogin = document.getElementById("auth-tab-login");

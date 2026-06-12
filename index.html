@@ -74,9 +74,10 @@
           <li class="nav-item" data-target="sync">
             <button id="nav-btn-sync">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <span>Sync & Backup</span>
+              <span>Account</span>
             </button>
           </li>
         </ul>
@@ -497,8 +498,8 @@
       <!-- VIEW: DATA SYNC & BACKUP -->
       <section id="view-sync" class="view-section">
         <div>
-          <h1 class="page-title">Sync & Backup</h1>
-          <p class="page-subtitle">Safeguard your progress, custom vocabulary words, and Leitner history.</p>
+          <h1 class="page-title">Cloud Account</h1>
+          <p class="page-subtitle">Sign in to backup and sync your vocabulary learning progress across all devices automatically.</p>
         </div>
 
         <!-- SUPABASE CLOUD SYNC -->
@@ -506,41 +507,15 @@
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
             <div>
               <h2 style="font-family: var(--font-heading); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
-                ☁️ Supabase Cloud Sync
+                ☁️ Cloud Backup & Sync
               </h2>
-              <p class="page-subtitle">Sync progress, custom words, and stats across your desktop and Android devices.</p>
-            </div>
-            <div id="supabase-status-badge" class="btn btn-secondary btn-pill" style="pointer-events: none; border-color: var(--color-error); color: var(--color-error); font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-              <span id="supabase-status-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--color-error); display: inline-block;"></span>
-              <span id="supabase-status-text">Not Connected</span>
-            </div>
-          </div>
-
-          <!-- Step 1: Database Keys Connection -->
-          <div style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; margin-bottom: 1.5rem;">
-            <h3 style="font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 1rem; color: var(--color-text-main);">1. Database Credentials</h3>
-            <p class="page-subtitle" style="margin-bottom: 1.25rem; font-size: 0.9rem;">
-              Configure your own free Supabase project keys. They are saved in local storage on this device only.
-            </p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="supabase-url-input">Supabase Project URL</label>
-                <input type="text" id="supabase-url-input" class="filter-input" placeholder="https://xxxx.supabase.co">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="supabase-key-input">Supabase Anon API Key</label>
-                <input type="password" id="supabase-key-input" class="filter-input" placeholder="your-anon-api-key">
-              </div>
-            </div>
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
-              <button id="supabase-connect-btn" class="btn btn-primary">Connect Database</button>
-              <button id="supabase-disconnect-btn" class="btn btn-danger" style="display: none;">Disconnect</button>
+              <p class="page-subtitle">Your progress, stats, and custom words are automatically saved securely to your cloud database in real-time.</p>
             </div>
           </div>
 
           <!-- Step 2: Auth and Sync Operations -->
-          <div id="supabase-operations-panel" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; opacity: 0.4; pointer-events: none; transition: opacity var(--transition-normal);">
-            <h3 style="font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 1rem; color: var(--color-text-main);">2. Account & Synchronization</h3>
+          <div id="supabase-operations-panel" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; transition: opacity var(--transition-normal);">
+            <h3 style="font-family: var(--font-heading); font-size: 1.1rem; margin-bottom: 1rem; color: var(--color-text-main);">User Account</h3>
             
             <!-- When NOT logged in -->
             <div id="supabase-auth-form" style="display: block;">
@@ -581,11 +556,8 @@
                 <button type="button" id="supabase-sync-now-btn" class="btn btn-primary" style="width: 100%; font-size: 1.05rem; padding: 1.1rem;">
                   🔄 Sync Progress & Custom Words Now
                 </button>
-                <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--bg-card); padding: 0.75rem 1rem; border-radius: var(--border-radius-md); border: 1px solid var(--border-glass);">
+                <div style="display: none;">
                   <input type="checkbox" id="supabase-autosync-toggle" checked style="width: 18px; height: 18px; cursor: pointer;">
-                  <label for="supabase-autosync-toggle" style="font-size: 0.9rem; color: var(--color-text-main); cursor: pointer; user-select: none; margin-bottom: 0;">
-                    Auto-sync changes in background when scoring cards or updating vocabulary
-                  </label>
                 </div>
               </div>
             </div>

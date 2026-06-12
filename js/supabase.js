@@ -1,9 +1,12 @@
 // VocRussian Supabase Cloud Sync & Authentication Module
 
 (function () {
+  const CONFIG = {
+    URL: "https://bghuansvungabgsbxqjh.supabase.co",
+    KEY: "sb_publishable_KKO_dftWAuA0ndGfBnEldw_ulDWtjUb"
+  };
+
   const STORAGE_KEYS = {
-    URL: "voc_supabase_url",
-    KEY: "voc_supabase_key",
     LAST_SYNC: "voc_supabase_last_sync",
     AUTOSYNC: "voc_supabase_autosync"
   };
@@ -16,72 +19,19 @@
     isSyncing: false,
 
     init: async function () {
-      const url = localStorage.getItem(STORAGE_KEYS.URL);
-      const key = localStorage.getItem(STORAGE_KEYS.KEY);
-
-      if (url && key) {
-        this.connectionState = "connecting";
-        this.updateUI();
-        try {
-          this.client = window.supabase.createClient(url, key);
-          const { data, error } = await this.client.auth.getSession();
-          if (error) throw error;
-          
-          this.connectionState = "connected";
-          if (data && data.session) {
-            this.user = data.session.user;
-          }
-          
-          // Setup auth state change listener
-          this.client.auth.onAuthStateChange((event, session) => {
-            if (session) {
-              this.user = session.user;
-              this.onLoginSuccess();
-            } else {
-              this.user = null;
-              this.onLogout();
-            }
-            this.updateUI();
-          });
-        } catch (e) {
-          console.error("Failed to initialize Supabase connection:", e);
-          this.connectionState = "disconnected";
-        }
-      }
-      
-      this.updateUI();
-    },
-
-    connect: async function (url, key) {
-      if (!url || !key) {
-        throw new Error("Please provide both Supabase URL and Anon API key.");
-      }
-
-      url = url.trim();
-      key = key.trim();
-
       this.connectionState = "connecting";
       this.updateUI();
 
       try {
-        const clientInstance = window.supabase.createClient(url, key);
-        const { data, error } = await clientInstance.auth.getSession();
+        this.client = window.supabase.createClient(CONFIG.URL, CONFIG.KEY);
+        const { data, error } = await this.client.auth.getSession();
+        if (error) throw error;
         
-        if (error) {
-          throw new Error("Invalid credentials or server error: " + error.message);
-        }
-
-        // Save keys
-        localStorage.setItem(STORAGE_KEYS.URL, url);
-        localStorage.setItem(STORAGE_KEYS.KEY, key);
-        
-        this.client = clientInstance;
         this.connectionState = "connected";
-        
         if (data && data.session) {
           this.user = data.session.user;
         }
-
+        
         // Setup auth state change listener
         this.client.auth.onAuthStateChange((event, session) => {
           if (session) {
@@ -93,32 +43,10 @@
           }
           this.updateUI();
         });
-
-        this.updateUI();
-        return { success: true };
       } catch (e) {
+        console.error("Failed to initialize Supabase connection:", e);
         this.connectionState = "disconnected";
-        this.updateUI();
-        throw e;
       }
-    },
-
-    disconnect: async function () {
-      if (this.client && this.user) {
-        try {
-          await this.client.auth.signOut();
-        } catch (e) {
-          console.warn("Signout failed during disconnect:", e);
-        }
-      }
-      
-      localStorage.removeItem(STORAGE_KEYS.URL);
-      localStorage.removeItem(STORAGE_KEYS.KEY);
-      localStorage.removeItem(STORAGE_KEYS.LAST_SYNC);
-      
-      this.client = null;
-      this.user = null;
-      this.connectionState = "disconnected";
       
       this.updateUI();
     },
@@ -221,7 +149,7 @@
     // Bidirectional Sync algorithm
     syncBoth: async function () {
       if (this.connectionState !== "connected" || !this.user) {
-        alert("Please connect to your database and log in first.");
+        alert("Please sign in first to synchronize your progress.");
         return false;
       }
 
@@ -562,28 +490,11 @@
 
     // UI Updates
     updateUI: function () {
-      const urlInput = document.getElementById("supabase-url-input");
-      const keyInput = document.getElementById("supabase-key-input");
-      const connectBtn = document.getElementById("supabase-connect-btn");
-      const disconnectBtn = document.getElementById("supabase-disconnect-btn");
-      
-      const badge = document.getElementById("supabase-status-badge");
-      const dot = document.getElementById("supabase-status-dot");
-      const badgeText = document.getElementById("supabase-status-text");
-
       const operationsPanel = document.getElementById("supabase-operations-panel");
       const authForm = document.getElementById("supabase-auth-form");
       const syncPanel = document.getElementById("supabase-sync-panel");
       const userEmailSpan = document.getElementById("supabase-user-email");
       const lastSyncSpan = document.getElementById("supabase-last-sync");
-
-      // Load saved values if empty
-      if (urlInput && !urlInput.value) {
-        urlInput.value = localStorage.getItem(STORAGE_KEYS.URL) || "";
-      }
-      if (keyInput && !keyInput.value) {
-        keyInput.value = localStorage.getItem(STORAGE_KEYS.KEY) || "";
-      }
 
       // Last sync timestamp
       if (lastSyncSpan) {
@@ -592,19 +503,6 @@
       }
 
       if (this.connectionState === "connected") {
-        // Connected controls
-        if (urlInput) urlInput.disabled = true;
-        if (keyInput) keyInput.disabled = true;
-        if (connectBtn) connectBtn.style.display = "none";
-        if (disconnectBtn) disconnectBtn.style.display = "inline-flex";
-
-        if (badge) {
-          badge.style.borderColor = "var(--color-success)";
-          badge.style.color = "var(--color-success)";
-        }
-        if (dot) dot.style.backgroundColor = "var(--color-success)";
-        if (badgeText) badgeText.innerText = "Connected";
-
         // Enable actions panel
         if (operationsPanel) {
           operationsPanel.style.opacity = "1";
@@ -622,46 +520,12 @@
         }
 
       } else if (this.connectionState === "connecting") {
-        // Connecting controls
-        if (urlInput) urlInput.disabled = true;
-        if (keyInput) keyInput.disabled = true;
-        if (connectBtn) {
-          connectBtn.disabled = true;
-          connectBtn.innerText = "Connecting...";
-        }
-        if (disconnectBtn) disconnectBtn.style.display = "none";
-
-        if (badge) {
-          badge.style.borderColor = "hsl(38, 95%, 50%)";
-          badge.style.color = "hsl(38, 95%, 50%)";
-        }
-        if (dot) dot.style.backgroundColor = "hsl(38, 95%, 50%)";
-        if (badgeText) badgeText.innerText = "Connecting...";
-
         if (operationsPanel) {
           operationsPanel.style.opacity = "0.4";
           operationsPanel.style.pointerEvents = "none";
         }
-
       } else {
-        // Disconnected controls
-        if (urlInput) urlInput.disabled = false;
-        if (keyInput) keyInput.disabled = false;
-        if (connectBtn) {
-          connectBtn.disabled = false;
-          connectBtn.innerText = "Connect Database";
-          connectBtn.style.display = "inline-flex";
-        }
-        if (disconnectBtn) disconnectBtn.style.display = "none";
-
-        if (badge) {
-          badge.style.borderColor = "var(--color-error)";
-          badge.style.color = "var(--color-error)";
-        }
-        if (dot) dot.style.backgroundColor = "var(--color-error)";
-        if (badgeText) badgeText.innerText = "Not Connected";
-
-        // Disable actions panel
+        // Disconnected
         if (operationsPanel) {
           operationsPanel.style.opacity = "0.4";
           operationsPanel.style.pointerEvents = "none";
