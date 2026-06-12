@@ -48,11 +48,14 @@
         totalAttempts: 0,
         dailyXpLog: {}
       };
+      if (!globalStats.settings) {
+        globalStats.settings = {};
+      }
     } catch (e) {
       console.error("Failed to load local storage state, initializing empty.", e);
       cardProgress = {};
       customWords = [];
-      globalStats = { xp: 0, streak: 0, lastActiveDate: null, totalCorrect: 0, totalAttempts: 0, dailyXpLog: {} };
+      globalStats = { xp: 0, streak: 0, lastActiveDate: null, totalCorrect: 0, totalAttempts: 0, dailyXpLog: {}, settings: {} };
     }
   }
 
@@ -404,7 +407,7 @@
       
       cardProgress = {};
       customWords = [];
-      globalStats = { xp: 0, streak: 0, lastActiveDate: null, totalCorrect: 0, totalAttempts: 0, dailyXpLog: {}, updatedAt: Date.now() };
+      globalStats = { xp: 0, streak: 0, lastActiveDate: null, totalCorrect: 0, totalAttempts: 0, dailyXpLog: {}, settings: {}, updatedAt: Date.now() };
       
       saveToStorage();
       triggerBgPush("reset", null, null);
@@ -439,6 +442,26 @@
         console.error("Invalid JSON format for import", e);
         return false;
       }
+    },
+
+    getSetting: function (key, defaultValue) {
+      if (!globalStats.settings) {
+        globalStats.settings = {};
+      }
+      if (globalStats.settings[key] === undefined) {
+        return defaultValue;
+      }
+      return globalStats.settings[key];
+    },
+
+    setSetting: function (key, value) {
+      if (!globalStats.settings) {
+        globalStats.settings = {};
+      }
+      globalStats.settings[key] = value;
+      globalStats.updatedAt = Date.now();
+      saveToStorage();
+      triggerBgPush("stats", null, globalStats);
     }
   };
 
@@ -471,7 +494,12 @@
   SRS.setAllData = function(progress, customWordsList, stats, overrides) {
     if (progress) cardProgress = progress;
     if (customWordsList) customWords = customWordsList;
-    if (stats) globalStats = stats;
+    if (stats) {
+      globalStats = stats;
+      if (!globalStats.settings) {
+        globalStats.settings = {};
+      }
+    }
     if (overrides) {
       localStorage.setItem("voc_russian_overrides", JSON.stringify(overrides));
     }

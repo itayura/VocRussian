@@ -58,6 +58,11 @@
       if (views.dictionary.classList.contains("active")) {
         renderDictionary();
       }
+      // Refresh settings checkbox dynamically on sync
+      const showTranslitCheckbox = document.getElementById("settings-show-translit");
+      if (showTranslitCheckbox) {
+        showTranslitCheckbox.checked = SRS.getSetting("showTranslit", true);
+      }
     };
 
     // Default view: Dashboard
@@ -591,7 +596,7 @@
     document.getElementById("writing-category").innerText = currentCard.category;
     document.getElementById("writing-prompt-translation").innerText = currentCard.translation;
     
-    const showTranslit = localStorage.getItem("voc_settings_show_translit") !== "false";
+    const showTranslit = SRS.getSetting("showTranslit", true);
     const translitEl = document.getElementById("writing-prompt-translit");
     if (showTranslit) {
       translitEl.style.display = "block";
@@ -1289,11 +1294,10 @@
   function setupSettings() {
     const showTranslitCheckbox = document.getElementById("settings-show-translit");
     if (showTranslitCheckbox) {
-      const showTranslit = localStorage.getItem("voc_settings_show_translit") !== "false";
-      showTranslitCheckbox.checked = showTranslit;
+      showTranslitCheckbox.checked = SRS.getSetting("showTranslit", true);
       
       showTranslitCheckbox.addEventListener("change", () => {
-        localStorage.setItem("voc_settings_show_translit", showTranslitCheckbox.checked ? "true" : "false");
+        SRS.setSetting("showTranslit", showTranslitCheckbox.checked);
       });
     }
   }

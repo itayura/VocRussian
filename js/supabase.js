@@ -129,6 +129,7 @@
             total_correct: data.totalCorrect || 0,
             total_attempts: data.totalAttempts || 0,
             daily_xp_log: data.dailyXpLog || {},
+            settings: data.settings || {},
             updated_at: new Date(data.updatedAt || Date.now()).toISOString()
           });
         } else if (type === "word") {
@@ -394,6 +395,7 @@
               total_correct: localStats.totalCorrect || 0,
               total_attempts: localStats.totalAttempts || 0,
               daily_xp_log: localStats.dailyXpLog || {},
+              settings: localStats.settings || {},
               updated_at: new Date(localStats.updatedAt).toISOString()
             });
           if (pushStatsErr) throw pushStatsErr;
@@ -425,6 +427,7 @@
                 total_correct: localStats.totalCorrect || 0,
                 total_attempts: localStats.totalAttempts || 0,
                 daily_xp_log: mergedDailyXp,
+                settings: localStats.settings || {},
                 updated_at: new Date(localStats.updatedAt).toISOString()
               });
             if (pushStatsErr) throw pushStatsErr;
@@ -435,6 +438,7 @@
             localStats.last_active_date = dbStats.last_active_date;
             localStats.total_correct = dbStats.total_correct;
             localStats.total_attempts = dbStats.total_attempts;
+            localStats.settings = dbStats.settings || {};
             localStats.updatedAt = dbTime;
             
             // Re-upsert immediately to sync the merged daily logs
@@ -448,6 +452,7 @@
                 total_correct: localStats.total_correct,
                 total_attempts: localStats.total_attempts,
                 daily_xp_log: mergedDailyXp,
+                settings: localStats.settings || {},
                 updated_at: new Date().toISOString()
               });
             if (pushStatsErr) throw pushStatsErr;
