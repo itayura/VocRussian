@@ -77,6 +77,18 @@
       if (error) throw error;
     },
 
+    signInWithGoogle: async function () {
+      if (!this.client) throw new Error("Database not connected.");
+      const { data, error } = await this.client.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      if (error) throw error;
+      return data;
+    },
+
     isAutoSyncEnabled: function () {
       const toggle = document.getElementById("supabase-autosync-toggle");
       if (toggle) {

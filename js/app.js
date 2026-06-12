@@ -982,6 +982,23 @@
       }
     });
 
+    // Supabase Google Auth
+    const googleBtn = document.getElementById("supabase-google-btn");
+    if (googleBtn) {
+      googleBtn.addEventListener("click", async () => {
+        const origText = googleBtn.innerText;
+        googleBtn.disabled = true;
+        googleBtn.innerText = "Signing in with Google...";
+        try {
+          await window.SupabaseSync.signInWithGoogle();
+        } catch (e) {
+          alert("Google Sign In error: " + e.message);
+          googleBtn.disabled = false;
+          googleBtn.innerText = origText;
+        }
+      });
+    }
+
     // Supabase Sign Out
     document.getElementById("supabase-logout-btn").addEventListener("click", async () => {
       if (confirm("Are you sure you want to sign out?")) {
