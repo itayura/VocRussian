@@ -1107,6 +1107,148 @@
         }
       });
     }
+
+    // Feedback form handler
+    const feedbackForm = document.getElementById("feedback-form");
+    if (feedbackForm) {
+      feedbackForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const type = document.getElementById("feedback-type").value;
+        const title = document.getElementById("feedback-title").value.trim();
+        const description = document.getElementById("feedback-desc").value.trim();
+        
+        const submitBtn = document.getElementById("feedback-submit-btn");
+        const origBtnText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Sending feedback...";
+        
+        try {
+          if (!window.SupabaseSync || !window.SupabaseSync.client) {
+            throw new Error("Supabase is not initialized. Please check connection.");
+          }
+          await window.SupabaseSync.submitFeedback(type, title, description);
+          
+          alert("Thank you! Your feedback has been sent to the admin.");
+          feedbackForm.reset();
+          
+          // If the admin themselves is submitting feedback, reload the list
+          if (window.SupabaseSync.user && window.SupabaseSync.user.email === "itayuralevich@gmail.com") {
+            window.renderAdminFeedback();
+          }
+        } catch (err) {
+          console.error("Feedback submit failed:", err);
+          alert("Failed to submit feedback: " + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerText = origBtnText;
+        }
+      });
+    }
+
+    // Global admin feedback renderer
+    window.renderAdminFeedback = async function () {
+      const loader = document.getElementById("admin-feedback-loader");
+      const emptyState = document.getElementById("admin-feedback-empty");
+      const listContainer = document.getElementById("admin-feedback-list");
+      
+      if (!listContainer) return;
+      
+      loader.style.display = "block";
+      emptyState.style.display = "none";
+      listContainer.innerHTML = "";
+      
+      try {
+        if (!window.SupabaseSync || !window.SupabaseSync.client) {
+          return;
+        }
+        
+        const reports = await window.SupabaseSync.fetchFeedback();
+        loader.style.display = "none";
+        
+        if (!reports || reports.length === 0) {
+          emptyState.style.display = "block";
+          return;
+        }
+        
+        reports.forEach(report => {
+          const itemEl = document.createElement("div");
+          itemEl.className = "card";
+          itemEl.style.border = "1px solid var(--border-glass)";
+          itemEl.style.background = "var(--bg-card)";
+          itemEl.style.padding = "1rem";
+          itemEl.style.marginBottom = "0.5rem";
+          
+          const badgeTypeBg = report.type === 'bug' ? 'rgba(220, 53, 69, 0.15)' : 'rgba(40, 167, 69, 0.15)';
+          const badgeTypeColor = report.type === 'bug' ? '#dc3545' : '#28a745';
+          const badgeStatusBg = report.status === 'open' ? 'var(--color-primary-glow)' : report.status === 'in_progress' ? 'rgba(255, 193, 7, 0.15)' : 'rgba(40, 167, 69, 0.15)';
+          const badgeStatusColor = report.status === 'open' ? 'var(--color-primary)' : report.status === 'in_progress' ? '#ffc107' : '#28a745';
+          
+          itemEl.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="vocab-label-badge" style="font-size: 0.8rem; background: ${badgeTypeBg}; color: ${badgeTypeColor}; border-color: transparent; padding: 0.15rem 0.5rem; border-radius: 4px;">
+                  ${report.type === 'bug' ? '🐛 Bug' : '💡 Feature'}
+                </span>
+                <span class="vocab-label-badge" style="font-size: 0.8rem; background: ${badgeStatusBg}; color: ${badgeStatusColor}; border-color: transparent; text-transform: capitalize; padding: 0.15rem 0.5rem; border-radius: 4px;">
+                  ${report.status}
+                </span>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--color-text-muted);">${new Date(report.created_at).toLocaleString()}</span>
+            </div>
+            
+            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; margin-top: 0; margin-bottom: 0.25rem; color: var(--color-text-main);">${report.title}</h4>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 0.75rem; color: var(--color-text-main); white-space: pre-wrap; line-height: 1.4;">${report.description}</p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 0.75rem; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+              <span style="font-size: 0.8rem; color: var(--color-text-muted);">From: <strong>${report.user_email}</strong></span>
+              
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <select class="admin-status-select" data-id="${report.id}" style="background: var(--bg-card); color: var(--color-text-main); border: 1px solid var(--border-glass); border-radius: 4px; font-size: 0.8rem; padding: 2px 6px; cursor: pointer; outline: none; font-family: var(--font-body);">
+                  <option value="open" ${report.status === 'open' ? 'selected' : ''}>Open</option>
+                  <option value="in_progress" ${report.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                  <option value="resolved" ${report.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                </select>
+                <button class="btn btn-danger admin-delete-feedback-btn" data-id="${report.id}" style="padding: 2px 8px; font-size: 0.8rem; background: #dc3545; border-color: #dc3545;">
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          `;
+          
+          // Wire select change listener
+          itemEl.querySelector(".admin-status-select").addEventListener("change", async (e) => {
+            const newStatus = e.target.value;
+            try {
+              await window.SupabaseSync.updateFeedbackStatus(report.id, newStatus);
+              window.renderAdminFeedback();
+            } catch (err) {
+              console.error("Failed to update feedback status:", err);
+              alert("Failed to update status: " + err.message);
+            }
+          });
+          
+          // Wire delete click listener
+          itemEl.querySelector(".admin-delete-feedback-btn").addEventListener("click", async () => {
+            if (confirm("Are you sure you want to delete this feedback report permanently?")) {
+              try {
+                await window.SupabaseSync.deleteFeedback(report.id);
+                window.renderAdminFeedback();
+              } catch (err) {
+                console.error("Failed to delete feedback:", err);
+                alert("Failed to delete feedback: " + err.message);
+              }
+            }
+          });
+          
+          listContainer.appendChild(itemEl);
+        });
+      } catch (err) {
+        console.error("Admin fetch feedback failed:", err);
+        loader.style.display = "none";
+        listContainer.innerHTML = `<div style="color: #dc3545; text-align: center; padding: 1rem;">Failed to load feedback: ${err.message}</div>`;
+      }
+    };
   }
 
   function renderSyncData() {

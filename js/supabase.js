@@ -550,6 +550,19 @@
         if (authForm) authForm.style.display = "block";
         if (syncPanel) syncPanel.style.display = "none";
       }
+
+      // Admin feedback card visibility toggling
+      const adminCard = document.getElementById("supabase-admin-feedback-card");
+      if (adminCard) {
+        if (this.connectionState === "connected" && this.user && this.user.email === "itayuralevich@gmail.com") {
+          adminCard.style.display = "block";
+          if (window.renderAdminFeedback) {
+            window.renderAdminFeedback();
+          }
+        } else {
+          adminCard.style.display = "none";
+        }
+      }
     },
 
     updateSyncButtonState: function (syncing) {
@@ -563,6 +576,61 @@
           syncBtn.innerText = "🔄 Sync Progress & Custom Words Now";
         }
       }
+    },
+
+    submitFeedback: async function (type, title, description) {
+      if (!this.client) throw new Error("Database not connected.");
+      
+      const payload = {
+        type: type,
+        title: title.trim(),
+        description: description.trim(),
+        user_id: this.user ? this.user.id : null,
+        user_email: this.user ? this.user.email : "Anonymous"
+      };
+
+      const { data, error } = await this.client
+        .from("voc_feedback")
+        .insert([payload])
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+
+    fetchFeedback: async function () {
+      if (!this.client) throw new Error("Database not connected.");
+      const { data, error } = await this.client
+        .from("voc_feedback")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+
+    updateFeedbackStatus: async function (id, newStatus) {
+      if (!this.client) throw new Error("Database not connected.");
+      const { data, error } = await this.client
+        .from("voc_feedback")
+        .update({ status: newStatus })
+        .match({ id: id })
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+
+    deleteFeedback: async function (id) {
+      if (!this.client) throw new Error("Database not connected.");
+      const { data, error } = await this.client
+        .from("voc_feedback")
+        .delete()
+        .match({ id: id })
+        .select();
+
+      if (error) throw error;
+      return data;
     }
   };
 

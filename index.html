@@ -612,6 +612,39 @@
           </div>
         </div>
 
+        <!-- Feedback & Support panel -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            💬 Support & Feedback
+          </h2>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Report bugs or suggest features to improve VocRussian.</p>
+          
+          <form id="feedback-form" onsubmit="event.preventDefault();" style="display: flex; flex-direction: column; gap: 1rem; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="feedback-type">Feedback Type</label>
+                <select id="feedback-type" class="filter-select" style="width: 100%;">
+                  <option value="bug">🐛 Bug Report</option>
+                  <option value="feature">💡 Feature Request</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="feedback-title">Short Summary</label>
+                <input type="text" id="feedback-title" class="filter-input" placeholder="e.g. Accents missing on noun X" required>
+              </div>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+              <label for="feedback-desc">Details / Description</label>
+              <textarea id="feedback-desc" class="json-textarea" placeholder="Describe the bug or feature request in detail..." style="min-height: 100px; font-family: var(--font-body);" required></textarea>
+            </div>
+            
+            <button type="submit" id="feedback-submit-btn" class="btn btn-primary" style="width: 100%; font-size: 1rem;">
+              Send Feedback
+            </button>
+          </form>
+        </div>
+
         <!-- App Cache Reset panel -->
         <div class="card" style="margin-top: 1.5rem;">
           <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">System & Updates</h2>
@@ -623,6 +656,26 @@
             <button type="button" id="app-force-update-btn" class="btn btn-secondary" style="width: 100%; font-size: 1rem; border-color: var(--color-primary); color: var(--color-primary-hover); outline: none;">
               ⚡ Force Clear Cache & Check for Updates
             </button>
+          </div>
+        </div>
+
+        <!-- Admin Feedback Console (Visible to admin only) -->
+        <div class="card" id="supabase-admin-feedback-card" style="margin-top: 1.5rem; border: 1px solid var(--color-primary); display: none;">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; color: var(--color-primary-hover); display: flex; align-items: center; gap: 0.5rem;">
+            🔑 Admin Feedback Console
+          </h2>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Manage bug reports and feature requests submitted by users.</p>
+          
+          <div style="display: flex; flex-direction: column; gap: 1rem; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem;">
+            <div id="admin-feedback-loader" style="text-align: center; padding: 2rem 0; color: var(--color-text-muted);">
+              🔄 Loading feedback submissions...
+            </div>
+            <div id="admin-feedback-empty" style="display: none; text-align: center; padding: 2rem 0; color: var(--color-text-muted);">
+              📭 No feedback submissions found.
+            </div>
+            <div id="admin-feedback-list" style="display: flex; flex-direction: column; gap: 1rem;">
+              <!-- Dynamic feedback items rendered by JS -->
+            </div>
           </div>
         </div>
 
