@@ -596,8 +596,7 @@
 
       const { data, error } = await this.client
         .from("voc_feedback")
-        .insert([payload])
-        .select();
+        .insert([payload]);
 
       if (error) throw error;
       return data;
