@@ -210,23 +210,27 @@
       globalStats.totalAttempts = (globalStats.totalAttempts || 0) + 1;
 
       let xpGained = 0;
+      const isDue = !prog.nextReview || Date.now() >= prog.nextReview;
+
       if (isCorrect) {
         prog.correctCount++;
         globalStats.totalCorrect = (globalStats.totalCorrect || 0) + 1;
         
-        // Move up Leitner boxes
-        prog.box = Math.min((prog.box || 1) + 1, 5);
+        // Move up Leitner boxes and calculate next review timestamp only if card was due (or brand new)
+        if (isDue) {
+          prog.box = Math.min((prog.box || 1) + 1, 5);
+          const interval = INTERVALS[prog.box];
+          prog.nextReview = Date.now() + interval;
+        }
         xpGained = 15; // 15 XP for correct answer
       } else {
         prog.wrongCount++;
-        // Reset to box 1 (strict Leitner)
+        // Reset to box 1 (strict Leitner) and schedule review for tomorrow
         prog.box = 1;
+        const interval = INTERVALS[prog.box];
+        prog.nextReview = Date.now() + interval;
         xpGained = 5; // 5 XP for attempt/fail
       }
-
-      // Calculate next review timestamp
-      const interval = INTERVALS[prog.box];
-      prog.nextReview = Date.now() + interval;
 
       // Update progress memory
       prog.updatedAt = Date.now();
