@@ -43,6 +43,7 @@
     setupSync();
     setupModals();
     setupSettings();
+    initDailyReminders();
     setupLandingPage();
     setupGlobalShortcuts();
 
@@ -261,6 +262,9 @@
 
     // Weekly Chart Renderer
     renderWeeklyChart();
+
+    // Cache updated stats for notifications/service worker
+    syncReminderStateToCache();
   }
 
   function renderWeeklyChart() {
@@ -1815,5 +1819,226 @@
     if (theme !== "midnight") {
       document.body.classList.add(`theme-${theme}`);
     }
+  }
+
+  // --- DAILY REMINDERS CONTROLLER ---
+  async function initDailyReminders() {
+    const remindersToggle = document.getElementById("settings-reminders-enabled");
+    const reminderTimeInput = document.getElementById("settings-reminder-time");
+
+    if (!remindersToggle || !reminderTimeInput) return;
+
+    // Load saved settings
+    const remindersEnabled = SRS.getSetting("dailyReminders", false);
+    const reminderTime = SRS.getSetting("reminderTime", "19:00");
+
+    remindersToggle.checked = remindersEnabled;
+    reminderTimeInput.value = reminderTime;
+
+    // Update status text based on permission
+    updateReminderStatusText();
+
+    // Set up settings change listeners
+    remindersToggle.addEventListener("change", async () => {
+      const enabled = remindersToggle.checked;
+      if (enabled) {
+        // Request Notification permission
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          SRS.setSetting("dailyReminders", true);
+          updateReminderStatusText();
+          await syncReminderStateToCache();
+          
+          // Test notification
+          try {
+            new Notification("🔔 Daily Reminders Active!", {
+              body: `We'll remind you daily at ${reminderTimeInput.value} to practice your Russian words!`,
+              icon: "./logo.png"
+            });
+          } catch (e) {
+            console.warn("Failed to trigger test notification:", e);
+          }
+          
+          // Register background periodic sync
+          registerPeriodicSync();
+        } else {
+          remindersToggle.checked = false;
+          SRS.setSetting("dailyReminders", false);
+          updateReminderStatusText();
+          alert("Notification permission is blocked. Please enable notifications in your browser settings to use daily reminders.");
+        }
+      } else {
+        SRS.setSetting("dailyReminders", false);
+        updateReminderStatusText();
+        await syncReminderStateToCache();
+        
+        // Unregister periodic sync
+        unregisterPeriodicSync();
+      }
+    });
+
+    reminderTimeInput.addEventListener("change", async () => {
+      SRS.setSetting("reminderTime", reminderTimeInput.value);
+      await syncReminderStateToCache();
+      registerPeriodicSync(); // re-register with updated schedule if periodicSync is active
+    });
+
+    // Run a foreground check for active reminders
+    startForegroundReminderScheduler();
+
+    // Cache current state for Service Worker use
+    await syncReminderStateToCache();
+  }
+
+  function updateReminderStatusText() {
+    const statusText = document.getElementById("settings-reminders-status");
+    if (!statusText) return;
+
+    const enabled = SRS.getSetting("dailyReminders", false);
+    if (!enabled) {
+      statusText.innerHTML = "Receive daily notifications on this device to practice and maintain your streak.";
+      statusText.style.color = "var(--color-text-muted)";
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      statusText.innerHTML = "🟢 Daily reminders are active on this device.";
+      statusText.style.color = "#28a745";
+    } else if (Notification.permission === "denied") {
+      statusText.innerHTML = "🔴 Notifications are blocked by your browser settings.";
+      statusText.style.color = "#dc3545";
+    } else {
+      statusText.innerHTML = "🟡 Enable notifications to schedule daily reminders.";
+      statusText.style.color = "var(--color-warning, #ffc107)";
+    }
+  }
+
+  async function syncReminderStateToCache() {
+    if (!('caches' in window)) return;
+    try {
+      const stats = SRS.getGlobalStats();
+      const lastActiveDate = stats.lastActiveDate || "";
+      const streak = stats.streak || 0;
+      const enabled = SRS.getSetting("dailyReminders", false);
+      const reminderTime = SRS.getSetting("reminderTime", "19:00");
+
+      const data = {
+        lastActiveDate,
+        streak,
+        enabled,
+        reminderTime,
+        lastNotifiedDate: localStorage.getItem("voc_russian_last_notified_date") || ""
+      };
+
+      const cache = await caches.open("voc-russian-user-data");
+      await cache.put(
+        new Request("/user-streak-status"),
+        new Response(JSON.stringify(data), {
+          headers: { "Content-Type": "application/json" }
+        })
+      );
+    } catch (e) {
+      console.warn("Failed to sync reminder state to cache:", e);
+    }
+  }
+
+  async function registerPeriodicSync() {
+    if (!('serviceWorker' in navigator) || !('periodicSync' in navigator)) return;
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const enabled = SRS.getSetting("dailyReminders", false);
+      if (!enabled) return;
+
+      // Register periodic sync for daily reminder
+      await registration.periodicSync.register("daily-reminder", {
+        minInterval: 12 * 60 * 60 * 1000 
+      });
+      console.log("Periodic Background Sync registered successfully.");
+    } catch (e) {
+      console.warn("Periodic Sync registration failed (expected if not installed/supported):", e);
+    }
+  }
+
+  async function unregisterPeriodicSync() {
+    if (!('serviceWorker' in navigator) || !('periodicSync' in navigator)) return;
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      await registration.periodicSync.unregister("daily-reminder");
+      console.log("Periodic Background Sync unregistered.");
+    } catch (e) {
+      console.warn("Periodic Sync unregistration failed:", e);
+    }
+  }
+
+  let foregroundReminderInterval = null;
+
+  function startForegroundReminderScheduler() {
+    if (foregroundReminderInterval) clearInterval(foregroundReminderInterval);
+
+    // Check every 60 seconds
+    foregroundReminderInterval = setInterval(checkAndTriggerForegroundReminder, 60000);
+
+    // Also check on page load and visibility change
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        checkAndTriggerForegroundReminder();
+      }
+    });
+
+    // Run once immediately
+    setTimeout(checkAndTriggerForegroundReminder, 5000);
+  }
+
+  function checkAndTriggerForegroundReminder() {
+    const enabled = SRS.getSetting("dailyReminders", false);
+    if (!enabled || Notification.permission !== "granted") return;
+
+    const stats = SRS.getGlobalStats();
+    const lastActiveDate = stats.lastActiveDate || "";
+    
+    // Get current local date formatted as YYYY-MM-DD
+    const today = getTodayDateString();
+    
+    // If they have already studied today, do not remind them
+    if (lastActiveDate === today) return;
+
+    // Check if the current hour matches or exceeds the preferred reminder time
+    const reminderTime = SRS.getSetting("reminderTime", "19:00");
+    const [targetHour, targetMinute] = reminderTime.split(":").map(Number);
+    
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    // Is it time?
+    if (currentHour > targetHour || (currentHour === targetHour && currentMinute >= targetMinute)) {
+      // Check if we already notified today
+      const lastNotified = localStorage.getItem("voc_russian_last_notified_date");
+      if (lastNotified === today) return;
+
+      // Show notification!
+      try {
+        new Notification("Keep your streak active! 🇷🇺", {
+          body: `Keep your ${stats.streak || 0}-day streak alive! Take a few minutes to review your Russian vocabulary today.`,
+          icon: "./logo.png",
+          tag: "daily-reminder-fg",
+          requireInteraction: true
+        });
+
+        // Mark as notified today
+        localStorage.setItem("voc_russian_last_notified_date", today);
+        syncReminderStateToCache();
+      } catch (e) {
+        console.warn("Failed to trigger foreground Notification:", e);
+      }
+    }
+  }
+
+  function getTodayDateString() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const date = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${date}`;
   }
 })();

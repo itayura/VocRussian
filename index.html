@@ -869,6 +869,43 @@
           </div>
         </div>
 
+        <!-- Notifications & Reminders card -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            🔔 Notifications & Daily Reminders
+          </h2>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Stay on track and keep your learning streak alive.</p>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem;">
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Enable Daily Reminders</strong>
+                <span class="page-subtitle" id="settings-reminders-status" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Receive daily notifications on this device to practice and maintain your streak.
+                </span>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="settings-reminders-enabled">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Preferred Reminder Time</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Choose the best time of day to receive your practice alert.
+                </span>
+              </div>
+              <input type="time" id="settings-reminder-time" value="19:00" class="filter-input" style="width: auto; min-width: 120px; background-color: var(--bg-input); border-color: var(--border-glass); color: var(--color-text-main); padding: 0.5rem; border-radius: 4px; font-family: var(--font-body); font-size: 0.95rem; margin: 0;">
+            </div>
+
+          </div>
+        </div>
+
         <div class="card" style="margin-top: 1.5rem;">
           <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
             ℹ️ Welcome &amp; Features Page
