@@ -908,7 +908,13 @@
         <div class="vocab-info-row">
           <span class="vocab-label-badge" style="text-transform: capitalize;">${card.pos}</span>
           <span class="vocab-label-badge">${card.category}</span>
-          <span class="vocab-label-badge" style="background-color: var(--color-primary-glow); color:var(--color-primary);">Box ${prog.box}</span>
+          <select class="vocab-box-select" style="background-color: var(--color-primary-glow); color: var(--color-primary); border: 1px solid var(--border-glass); border-radius: 4px; font-size: 0.8rem; padding: 2px 4px; font-family: var(--font-body); cursor: pointer; outline: none; font-weight: bold; height: 24px;">
+            <option value="1" ${prog.box === 1 ? 'selected' : ''}>Box 1</option>
+            <option value="2" ${prog.box === 2 ? 'selected' : ''}>Box 2</option>
+            <option value="3" ${prog.box === 3 ? 'selected' : ''}>Box 3</option>
+            <option value="4" ${prog.box === 4 ? 'selected' : ''}>Box 4</option>
+            <option value="5" ${prog.box === 5 ? 'selected' : ''}>Box 5</option>
+          </select>
         </div>
 
         <div class="vocab-card-translation">${card.translation}</div>
@@ -932,6 +938,13 @@
         const btn = cardEl.querySelector(".star-toggle");
         btn.classList.toggle("starred", starred);
         btn.style.color = starred ? "hsl(45, 100%, 50%)" : "var(--color-text-muted)";
+      });
+
+      // Change Box manually
+      cardEl.querySelector(".vocab-box-select").addEventListener("change", (e) => {
+        const newBox = parseInt(e.target.value, 10);
+        SRS.setCardBox(card.id, newBox);
+        renderDashboard();
       });
 
       // Edit Word

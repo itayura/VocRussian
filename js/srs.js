@@ -355,6 +355,19 @@
       return prog.starred;
     },
 
+    // Set Leitner Box manually
+    setCardBox: function (id, newBox) {
+      const prog = this.getCardProgress(id);
+      prog.box = newBox;
+      const interval = INTERVALS[newBox];
+      prog.nextReview = Date.now() + interval;
+      prog.updatedAt = Date.now();
+      cardProgress[id] = prog;
+      saveToStorage();
+      triggerBgPush("progress", id, prog);
+      return prog;
+    },
+
     // Get stats summary
     getStatsSummary: function () {
       const allWords = this.getAllWords().filter(w => !this.getCardProgress(w.id).hidden);
