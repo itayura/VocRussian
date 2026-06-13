@@ -17,7 +17,8 @@
     "study-active": document.getElementById("view-study-active"),
     dictionary: document.getElementById("view-dictionary"),
     sync: document.getElementById("view-sync"),
-    settings: document.getElementById("view-settings")
+    settings: document.getElementById("view-settings"),
+    landing: document.getElementById("view-landing")
   };
 
   const navItems = document.querySelectorAll(".nav-item");
@@ -26,6 +27,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     // Initialize SRS module
     SRS.init();
+    applyTheme(SRS.getSetting("theme", "midnight"));
     
     // Initialize Supabase Sync connection
     if (window.SupabaseSync) {
@@ -41,6 +43,7 @@
     setupSync();
     setupModals();
     setupSettings();
+    setupLandingPage();
     setupGlobalShortcuts();
 
     // Setup active DB controls in DOM
@@ -63,10 +66,41 @@
       if (showTranslitCheckbox) {
         showTranslitCheckbox.checked = SRS.getSetting("showTranslit", true);
       }
+      // Refresh theme dropdown dynamically on sync
+      const themeSelect = document.getElementById("settings-theme");
+      if (themeSelect) {
+        const currentTheme = SRS.getSetting("theme", "midnight");
+        themeSelect.value = currentTheme;
+        applyTheme(currentTheme);
+      }
     };
 
-    // Default view: Dashboard
-    switchView("dashboard");
+    // Default view: check local progress to decide landing or dashboard
+    const statsStr = localStorage.getItem("voc_russian_stats");
+    const progressStr = localStorage.getItem("voc_russian_progress");
+    const customStr = localStorage.getItem("voc_russian_custom");
+    
+    let hasLocalProgress = false;
+    if (statsStr) {
+      try {
+        const stats = JSON.parse(statsStr);
+        if (stats && stats.xp > 0) {
+          hasLocalProgress = true;
+        }
+      } catch (e) {}
+    }
+    if (progressStr && progressStr !== "{}") {
+      hasLocalProgress = true;
+    }
+    if (customStr && customStr !== "[]") {
+      hasLocalProgress = true;
+    }
+    
+    if (hasLocalProgress) {
+      switchView("dashboard");
+    } else {
+      switchView("landing");
+    }
   });
 
   // --- VIEW ROUTING ---
@@ -86,6 +120,13 @@
   }
 
   function switchView(targetViewId) {
+    // Toggle full-screen landing-mode class on body
+    if (targetViewId === "landing") {
+      document.body.classList.add("landing-mode");
+    } else {
+      document.body.classList.remove("landing-mode");
+    }
+
     // Un-activate all nav links
     navItems.forEach(item => {
       if (item.getAttribute("data-target") === targetViewId) {
@@ -111,6 +152,14 @@
       renderDictionary();
     } else if (targetViewId === "sync") {
       renderSyncData();
+    }
+
+    // Google Analytics Virtual Page View Tracking
+    if (typeof gtag === 'function') {
+      gtag('event', 'page_view', {
+        page_title: targetViewId.charAt(0).toUpperCase() + targetViewId.slice(1),
+        page_path: '/' + targetViewId
+      });
     }
   }
 
@@ -1300,6 +1349,23 @@
         SRS.setSetting("showTranslit", showTranslitCheckbox.checked);
       });
     }
+
+    const themeSelect = document.getElementById("settings-theme");
+    if (themeSelect) {
+      themeSelect.value = SRS.getSetting("theme", "midnight");
+      themeSelect.addEventListener("change", () => {
+        const theme = themeSelect.value;
+        SRS.setSetting("theme", theme);
+        applyTheme(theme);
+      });
+    }
+
+    const viewLandingBtn = document.getElementById("settings-view-landing-btn");
+    if (viewLandingBtn) {
+      viewLandingBtn.addEventListener("click", () => {
+        switchView("landing");
+      });
+    }
   }
 
   // --- MODAL WINDOW CONTROLLERS ---
@@ -1612,5 +1678,142 @@
       if (char === '\u0301') return '';
       return translitMap[char] !== undefined ? translitMap[char] : char;
     }).join('');
+  }
+
+  // --- LANDING PAGE CONTROLLER ---
+  const demoWords = [
+    {
+      word: "Здравствуйте!",
+      pos: "phrase",
+      translation: "Hello / How do you do",
+      translit: "[zdrav-stvuy-te]",
+      exampleRu: "Здравствуйте, как ваши дела?",
+      exampleEn: "Hello, how are you doing?"
+    },
+    {
+      word: "Спасибо",
+      pos: "noun",
+      translation: "Thank you",
+      translit: "[spa-see-ba]",
+      exampleRu: "Большое спасибо за помощь!",
+      exampleEn: "Thank you very much for your help!"
+    },
+    {
+      word: "Пожалуйста",
+      pos: "adverb",
+      translation: "Please / You're welcome",
+      translit: "[pa-zhal-oo-ysta]",
+      exampleRu: "Дайте, пожалуйста, воды.",
+      exampleEn: "Please give me some water."
+    },
+    {
+      word: "Друг",
+      pos: "noun",
+      translation: "Friend",
+      translit: "[droog]",
+      exampleRu: "Он мой лучший друг.",
+      exampleEn: "He is my best friend."
+    },
+    {
+      word: "Любовь",
+      pos: "noun",
+      translation: "Love",
+      translit: "[lyu-bof']",
+      exampleRu: "Любовь спасёт мир.",
+      exampleEn: "Love will save the world."
+    }
+  ];
+  let demoIndex = 0;
+
+  function setupLandingPage() {
+    const ctaStart = document.getElementById("landing-cta-start");
+    if (ctaStart) {
+      ctaStart.addEventListener("click", () => {
+        switchView("dashboard");
+      });
+    }
+
+    const demoCard = document.getElementById("landing-demo-card");
+    if (demoCard) {
+      demoCard.addEventListener("click", (e) => {
+        // Prevent flipping if clicking audio button
+        if (e.target.closest("#demo-audio-btn")) return;
+        demoCard.classList.toggle("flipped");
+      });
+    }
+
+    const demoAudioBtn = document.getElementById("demo-audio-btn");
+    if (demoAudioBtn) {
+      demoAudioBtn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Stop card flip trigger
+        const word = demoWords[demoIndex].word;
+        if (window.AudioEngine) {
+          AudioEngine.speak(word);
+        }
+      });
+    }
+
+    const ratingButtons = document.querySelectorAll(".demo-rating-btn");
+    ratingButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const rating = btn.getAttribute("data-rating");
+        handleDemoRating(rating);
+      });
+    });
+  }
+
+  function handleDemoRating(rating) {
+    const demoCard = document.getElementById("landing-demo-card");
+    const container = document.getElementById("demo-xp-container");
+    if (!demoCard || !container) return;
+
+    // 1. Show XP Toast
+    const toast = document.createElement("div");
+    toast.className = "xp-toast";
+    toast.innerText = "+10 XP";
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 1200);
+
+    // 2. Cycle word
+    demoIndex = (demoIndex + 1) % demoWords.length;
+    const nextWord = demoWords[demoIndex];
+    
+    if (demoCard.classList.contains("flipped")) {
+      // Unflip card
+      demoCard.classList.remove("flipped");
+      // Wait for card to face forward before changing content
+      setTimeout(() => {
+        loadDemoWord(nextWord);
+      }, 250);
+    } else {
+      loadDemoWord(nextWord);
+    }
+  }
+
+  function loadDemoWord(w) {
+    const pos = document.getElementById("demo-card-pos");
+    const word = document.getElementById("demo-card-word");
+    const translit = document.getElementById("demo-card-translit");
+    const wordBack = document.getElementById("demo-card-word-back");
+    const translation = document.getElementById("demo-card-translation");
+    const exampleRu = document.getElementById("demo-card-example-ru");
+    const exampleEn = document.getElementById("demo-card-example-en");
+
+    if (pos) pos.innerText = w.pos;
+    if (word) word.innerText = w.word;
+    if (translit) translit.innerText = w.translit;
+    if (wordBack) wordBack.innerText = w.word;
+    if (translation) translation.innerText = w.translation;
+    if (exampleRu) exampleRu.innerText = w.exampleRu;
+    if (exampleEn) exampleEn.innerText = w.exampleEn;
+  }
+
+  function applyTheme(theme) {
+    // Clear existing theme classes
+    document.body.classList.remove("theme-midnight", "theme-emerald", "theme-cyberpunk", "theme-light");
+    // Add selected theme class
+    if (theme !== "midnight") {
+      document.body.classList.add(`theme-${theme}`);
+    }
   }
 })();

@@ -116,6 +116,117 @@
     <!-- MAIN VIEW CONTAINER -->
     <main>
       
+      <!-- VIEW: LANDING PAGE -->
+      <section id="view-landing" class="view-section">
+        <div class="landing-hero-container">
+          <div class="landing-hero-content">
+            <div class="landing-badge">🔥 Spaced Repetition Learning</div>
+            <h1 class="landing-hero-title">Master Russian Vocabulary <br><span class="gradient-text">The Smart Way</span></h1>
+            <p class="landing-hero-desc">
+              VocRussian helps you memorize essential Russian words and phrases with a personalized spaced repetition algorithm, audio pronunciations, writing practice, and real-time cloud sync.
+            </p>
+            <div class="landing-cta-group">
+              <button id="landing-cta-start" class="btn btn-primary btn-large">
+                <span>Start Learning Now</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.5rem;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </button>
+              <a href="#features" class="btn-link" id="landing-cta-explore">Explore Features &darr;</a>
+            </div>
+          </div>
+
+          <div class="landing-hero-visual">
+            <!-- INTERACTIVE PREVIEW CARD -->
+            <div class="demo-card-container">
+              <div class="demo-card" id="landing-demo-card">
+                <!-- Front of card -->
+                <div class="demo-card-face demo-card-front">
+                  <div class="demo-card-header">
+                    <span class="demo-card-pos" id="demo-card-pos">phrase</span>
+                    <button class="demo-audio-btn" id="demo-audio-btn" title="Listen Pronunciation">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="demo-card-word" id="demo-card-word">Здравствуйте!</div>
+                  <div class="demo-card-translit" id="demo-card-translit">[zdrav-stvuy-te]</div>
+                  <div class="demo-card-tap-hint">Tap card to flip ↺</div>
+                </div>
+                <!-- Back of card -->
+                <div class="demo-card-face demo-card-back">
+                  <div class="demo-card-word-back" id="demo-card-word-back">Здравствуйте!</div>
+                  <div class="demo-card-translation" id="demo-card-translation">Hello / How do you do</div>
+                  <div class="demo-card-example-ru" id="demo-card-example-ru">Здравствуйте, как дела?</div>
+                  <div class="demo-card-example-en" id="demo-card-example-en">Hello, how are things?</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="demo-controls-wrapper">
+              <div class="demo-controls-label">Rate your recall:</div>
+              <div class="demo-card-controls">
+                <button class="demo-rating-btn hard" data-rating="hard">Hard</button>
+                <button class="demo-rating-btn good" data-rating="good">Good</button>
+                <button class="demo-rating-btn easy" data-rating="easy">Easy</button>
+              </div>
+            </div>
+            
+            <div class="xp-toast-container" id="demo-xp-container"></div>
+          </div>
+        </div>
+
+        <!-- FEATURES SECTION -->
+        <div class="landing-section" id="features">
+          <h2 class="landing-section-title">Why Learn with <span class="gradient-text">VocRussian</span>?</h2>
+          <div class="landing-features-grid">
+            <div class="landing-feature-card">
+              <div class="feature-icon">🧠</div>
+              <h3 class="feature-title">Spaced Repetition (SRS)</h3>
+              <p class="feature-desc">Our smart scheduling algorithms (Leitner boxes) prompt you to review words right before you're about to forget them, maximizing long-term retention.</p>
+            </div>
+            <div class="landing-feature-card">
+              <div class="feature-icon">✍️</div>
+              <h3 class="feature-title">Active Writing Practice</h3>
+              <p class="feature-desc">Type the words in Cyrillic. Toggle romanized transliteration guides to aid spelling, pronunciation, and accentuation dynamically.</p>
+            </div>
+            <div class="landing-feature-card">
+              <div class="feature-icon">🔊</div>
+              <h3 class="feature-title">Natural Audio TTS</h3>
+              <p class="feature-desc">Listen to natural, clear text-to-speech audio pronunciations for every word and example sentence to master your accent and listening comprehension.</p>
+            </div>
+            <div class="landing-feature-card">
+              <div class="feature-icon">☁️</div>
+              <h3 class="feature-title">Supabase Cloud Sync</h3>
+              <p class="feature-desc">Save your stats and custom word libraries in the cloud. Synchronize progress seamlessly across desktops, laptops, tablets, and phones.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS SECTION -->
+        <div class="landing-section landing-stats-container">
+          <div class="landing-stat-item">
+            <div class="landing-stat-num">1,000+</div>
+            <div class="landing-stat-label">Curated Vocabulary Words</div>
+          </div>
+          <div class="landing-stat-item">
+            <div class="landing-stat-num">100%</div>
+            <div class="landing-stat-label">Free &amp; Open Source</div>
+          </div>
+          <div class="landing-stat-item">
+            <div class="landing-stat-num">PWA</div>
+            <div class="landing-stat-label">Offline &amp; Mobile Capable</div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="landing-footer">
+          <div class="landing-footer-logo">VocRussian</div>
+          <p class="landing-footer-text">VocRussian is a client-side Spaced Repetition App designed to master Russian vocabulary.</p>
+          <div class="landing-footer-copyright">&copy; 2026 VocRussian. Made with &hearts; for language learners.</div>
+        </footer>
+      </section>
+
       <!-- VIEW: DASHBOARD -->
       <section id="view-dashboard" class="view-section active">
         <div class="page-header">
@@ -738,7 +849,34 @@
                 <span class="switch-slider"></span>
               </label>
             </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">App Color Theme</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Choose your preferred workspace aesthetic.
+                </span>
+              </div>
+              <select id="settings-theme" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
+                <option value="midnight">Midnight Purple</option>
+                <option value="emerald">Aurora Emerald</option>
+                <option value="cyberpunk">Cyberpunk Neon</option>
+                <option value="light">Light Glassmorphic</option>
+              </select>
+            </div>
           </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            ℹ️ Welcome &amp; Features Page
+          </h2>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Learn more about the application features and interactive preview.</p>
+          <button id="settings-view-landing-btn" class="btn btn-secondary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+            <span>Show Welcome &amp; Features Page</span>
+          </button>
         </div>
       </section>
       
