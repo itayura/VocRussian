@@ -959,14 +959,14 @@
       const textarea = document.getElementById("sync-export-area");
       textarea.select();
       document.execCommand("copy");
-      alert("Backup JSON copied to clipboard successfully!");
+      alert("Backup data copied to clipboard successfully!");
     });
 
     // Local JSON import
     document.getElementById("sync-import-btn").addEventListener("click", () => {
       const jsonStr = document.getElementById("sync-import-area").value.trim();
       if (!jsonStr) {
-        alert("Please paste backup JSON payload first.");
+        alert("Please paste backup text first.");
         return;
       }
       
@@ -978,7 +978,7 @@
           renderSyncData();
           renderDashboard();
         } else {
-          alert("Import failed. Please ensure the pasted text is valid JSON exported from this app.");
+          alert("Import failed. Please ensure the pasted text is a valid backup exported from this app.");
         }
       }
     });

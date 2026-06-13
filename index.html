@@ -711,7 +711,7 @@
 
         <!-- Local Backup JSON Row -->
         <h3 style="font-family: var(--font-heading); font-size: 1.25rem; margin-top: 2rem; margin-bottom: 0.25rem; color: var(--color-text-main);">Local Backup & Restore</h3>
-        <p class="page-subtitle" style="margin-bottom: 1rem;">Export or import data manually via JSON text files.</p>
+        <p class="page-subtitle" style="margin-bottom: 1rem;">Export or import data manually via backup text files.</p>
         
         <div class="dashboard-row-2">
           <!-- Export panel -->
@@ -724,17 +724,17 @@
             </div>
             
             <button id="sync-copy-btn" class="btn btn-primary" style="width: 100%;">
-              Copy Backup JSON
+              Copy Backup Text
             </button>
           </div>
 
           <!-- Import panel -->
           <div class="card">
             <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Import Data</h2>
-            <p class="page-subtitle" style="margin-bottom: 1.5rem;">Paste a saved backup JSON below to restore progress.</p>
+            <p class="page-subtitle" style="margin-bottom: 1.5rem;">Paste a saved backup text below to restore progress.</p>
             
             <div class="form-group">
-              <textarea id="sync-import-area" class="json-textarea" placeholder="Paste your backup JSON text here..."></textarea>
+              <textarea id="sync-import-area" class="json-textarea" placeholder="Paste your backup text here..."></textarea>
             </div>
             
             <button id="sync-import-btn" class="btn btn-success" style="width: 100%;">Import Progress</button>
@@ -791,7 +791,7 @@
         <!-- Admin Feedback Console (Visible to admin only) -->
         <div class="card" id="supabase-admin-feedback-card" style="margin-top: 1.5rem; border: 1px solid var(--color-primary); display: none;">
           <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; color: var(--color-primary-hover); display: flex; align-items: center; gap: 0.5rem;">
-            🔑 Admin Feedback Console
+            🔑 Support Dashboard
           </h2>
           <p class="page-subtitle" style="margin-bottom: 1.5rem;">Manage bug reports and feature requests submitted by users.</p>
           
