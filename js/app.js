@@ -1204,7 +1204,7 @@
         
         try {
           if (!window.SupabaseSync || !window.SupabaseSync.client) {
-            throw new Error("Supabase is not initialized. Please check connection.");
+            throw new Error("Cloud database is not connected. Please check your connection.");
           }
           await window.SupabaseSync.submitFeedback(type, title, description);
           

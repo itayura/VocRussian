@@ -1,7 +1,7 @@
 {
   "name": "VocRussian - Russian Vocabulary Master",
   "short_name": "VocRussian",
-  "description": "Learn Russian vocabulary using Leitner spaced repetition system.",
+  "description": "Learn Russian vocabulary using a smart systematic review method.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
