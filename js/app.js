@@ -18,7 +18,8 @@
     dictionary: document.getElementById("view-dictionary"),
     sync: document.getElementById("view-sync"),
     settings: document.getElementById("view-settings"),
-    landing: document.getElementById("view-landing")
+    landing: document.getElementById("view-landing"),
+    grammar: document.getElementById("view-grammar")
   };
 
   const navItems = document.querySelectorAll(".nav-item");
@@ -94,6 +95,9 @@
     setupSettings();
     initDailyReminders();
     setupLandingPage();
+    if (window.GrammarManager) {
+      window.GrammarManager.init();
+    }
     setupGlobalShortcuts();
 
     // Setup active DB controls in DOM
@@ -207,6 +211,10 @@
       renderDictionary();
     } else if (targetViewId === "sync") {
       renderSyncData();
+    } else if (targetViewId === "grammar") {
+      if (window.GrammarManager) {
+        window.GrammarManager.updateGrammarLevelUI();
+      }
     }
 
     // Google Analytics Virtual Page View Tracking

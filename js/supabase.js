@@ -544,6 +544,11 @@
         localStorage.setItem(STORAGE_KEYS.LAST_SYNC, syncTime);
         console.log("[SupabaseSync] Sync completed successfully at:", syncTime);
 
+        // Sync Grammar Progress
+        if (window.GrammarManager && typeof window.GrammarManager.syncWithCloud === "function") {
+          await window.GrammarManager.syncWithCloud();
+        }
+
         // Refresh UI
         if (window.refreshAppUI) {
           window.refreshAppUI();

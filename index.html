@@ -80,6 +80,16 @@
               <span>Dictionary</span>
             </button>
           </li>
+          <li class="nav-item" data-target="grammar">
+            <button id="nav-btn-grammar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>AI Grammar</span>
+            </button>
+          </li>
           <li class="nav-item" data-target="sync">
             <button id="nav-btn-sync">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -650,6 +660,226 @@
         </div>
       </section>
 
+      <!-- VIEW: AI GRAMMAR -->
+      <section id="view-grammar" class="view-section">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">AI Grammar Workspace</h1>
+            <p class="page-subtitle">Learn rules, practice quizzes, and get grammar corrections powered by Gemini AI.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <div class="stats-badge-sidebar" style="margin-top: 0; background: var(--bg-card); border: 1px solid var(--border-glass);" title="Grammar Score/Progress">
+              <span>⭐</span>
+              <div>Level: <span id="grammar-level-val">1</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Pills for Grammar Subviews -->
+        <div class="card" style="padding: 0.5rem 1rem; border-radius: var(--border-radius-md); display: flex; gap: 0.5rem; border: 1px solid var(--border-glass); background: var(--bg-card); align-self: flex-start;">
+          <button type="button" id="grammar-tab-tutor" class="btn btn-secondary btn-pill active" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent;">🤖 AI Tutor</button>
+          <button type="button" id="grammar-tab-practice" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent;">📝 Practice Arena</button>
+          <button type="button" id="grammar-tab-sandbox" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent;">✍️ Sandbox</button>
+        </div>
+
+        <!-- SUBVIEW: AI TUTOR -->
+        <div id="grammar-subview-tutor" class="grammar-subview-panel card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="dashboard-row-2" style="grid-template-columns: 1fr 2fr; gap: 1.5rem; width: 100%;">
+            <!-- Left Side: Lesson Topics List -->
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; border-right: 1px solid var(--border-glass); padding-right: 1.5rem;">
+              <h3 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 0.5rem;">Grammar Topics</h3>
+              <div class="grammar-topic-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <button type="button" class="grammar-topic-btn active" data-topic="nominative_case" style="text-align: left; background: var(--bg-input); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-main); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Nominative Case (Именительный)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="accusative_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Accusative Case (Винительный)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="genitive_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Genitive Case (Родительный)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="dative_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Dative Case (Дательный)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="instrumental_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Instrumental Case (Творительный)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="prepositional_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Prepositional Case (Предложный)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="verb_aspects" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Verb Aspects (Aspects)</button>
+                <button type="button" class="grammar-topic-btn" data-topic="verbs_of_motion" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s;">Verbs of Motion (Движение)</button>
+              </div>
+            </div>
+            <!-- Right Side: Tutor Panel -->
+            <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 400px; justify-content: space-between;">
+              <div id="tutor-chat-history" style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: 400px; padding-right: 0.5rem;">
+                <div class="chat-bubble assistant" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem; max-width: 90%;">
+                  <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">AI Tutor</strong>
+                  <span id="tutor-initial-msg">Select a topic from the left, or ask a custom question below to get started learning Russian grammar!</span>
+                </div>
+              </div>
+              
+              <!-- Loader -->
+              <div id="tutor-loading" style="display: none; align-items: center; gap: 0.5rem; justify-content: center; padding: 1rem;">
+                <div style="width: 20px; height: 20px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                <span class="page-subtitle" style="margin:0;">Gemini is explaining...</span>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
+                <input type="text" id="tutor-custom-input" class="filter-input" style="flex: 1;" placeholder="Ask anything about Russian grammar (e.g. When to use Accusative case?)...">
+                <button type="button" id="tutor-send-btn" class="btn btn-primary" style="padding: 0.85rem 1.25rem;">Ask AI</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBVIEW: PRACTICE ARENA -->
+        <div id="grammar-subview-practice" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
+          <div id="practice-setup-screen" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div>
+              <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Grammar Practice Arena</h2>
+              <p class="page-subtitle">Configure a customized AI-generated grammar quiz to test your declension and conjugation skills.</p>
+            </div>
+            
+            <div class="dictionary-filter-bar" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; width: 100%;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="practice-quiz-topic">Target Topic</label>
+                <select id="practice-quiz-topic" class="filter-select">
+                  <option value="nominative_case">Nominative Case</option>
+                  <option value="accusative_case" selected>Accusative Case</option>
+                  <option value="genitive_case">Genitive Case</option>
+                  <option value="dative_case">Dative Case</option>
+                  <option value="instrumental_case">Instrumental Case</option>
+                  <option value="prepositional_case">Prepositional Case</option>
+                  <option value="verb_aspects">Verb Aspects</option>
+                  <option value="verbs_of_motion">Verbs of Motion</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="practice-quiz-level">Difficulty Level</label>
+                <select id="practice-quiz-level" class="filter-select">
+                  <option value="A1">A1 (Beginner)</option>
+                  <option value="A2">A2 (Elementary)</option>
+                  <option value="B1">B1 (Intermediate)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="practice-quiz-count">Number of Questions</label>
+                <select id="practice-quiz-count" class="filter-select">
+                  <option value="3">3 Questions</option>
+                  <option value="5" selected>5 Questions</option>
+                  <option value="10">10 Questions</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="button" id="practice-start-btn" class="btn btn-primary" style="align-self: flex-start; margin-top: 1rem; padding: 1rem 2rem; font-size: 1.05rem;">
+              🚀 Start AI Quiz
+            </button>
+          </div>
+
+          <!-- Practice Session Loader -->
+          <div id="practice-loading" style="display: none; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; gap: 1rem;">
+            <div style="width: 40px; height: 40px; border: 3px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            <h3 style="font-family: var(--font-heading); margin-bottom: 0.25rem;">Generating Quiz Questions...</h3>
+            <p class="page-subtitle">Gemini is creating context-specific fill-in-the-gap sentences.</p>
+          </div>
+
+          <!-- Active Quiz Screen -->
+          <div id="practice-active-screen" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 650px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Question <span id="quiz-index-val">1</span> of <span id="quiz-total-val">5</span></span>
+              <button type="button" id="quiz-quit-btn" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Quit Quiz</button>
+            </div>
+            
+            <div class="study-progress-container">
+              <div id="quiz-progress-bar" class="study-progress-fill"></div>
+            </div>
+
+            <div class="choice-question-box" style="padding: 2.5rem 1.5rem; margin-top: 0.5rem;">
+              <span class="card-category-tag" id="quiz-topic-badge">Accusative Case</span>
+              <div class="card-word-title" id="quiz-sentence-prompt" style="font-size: 2.2rem; line-height: 1.3;">Я читаю [blank] (книга).</div>
+              <div class="card-word-translit" id="quiz-translit-prompt">[Ya chitayu [blank] (kniga).]</div>
+              <div class="card-word-example-en" id="quiz-translation-prompt" style="margin-top: 0.5rem; font-size: 1.05rem;">"I am reading a book."</div>
+            </div>
+
+            <div class="choices-grid" id="quiz-choices-container">
+              <!-- Dynamically populated choices buttons -->
+            </div>
+
+            <!-- Quiz Explanation Alert Box -->
+            <div id="quiz-explanation-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.5rem; animation: fadeIn 0.3s forwards;">
+              <strong style="color: var(--color-text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;"><span id="quiz-result-emoji">✅</span> <span id="quiz-result-title">Correct!</span></strong>
+              <p id="quiz-explanation-text" style="font-size: 0.85rem; color: var(--color-text-main); line-height: 1.4; margin: 0;"></p>
+            </div>
+
+            <button type="button" id="quiz-next-btn" class="btn btn-primary" style="display: none; width: 100%; font-size: 1.05rem; padding: 1rem;">
+              Next Question &rarr;
+            </button>
+          </div>
+
+          <!-- Quiz Completion Screen -->
+          <div id="practice-complete-screen" style="display: none; flex-direction: column; align-items: center; text-align: center; gap: 1.5rem; max-width: 500px; margin: 0 auto; width: 100%;">
+            <div class="congrats-emoji" style="font-size: 4rem;">🏆</div>
+            <h2 style="font-family: var(--font-heading); font-size: 2rem;">Quiz Complete!</h2>
+            <p class="page-subtitle">You have completed the grammar exercises.</p>
+            
+            <div class="dashboard-grid" style="width: 100%; margin: 1rem 0; grid-template-columns: repeat(2, 1fr);">
+              <div class="card stat-card due" style="padding: 1.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;">
+                <div class="stat-value" id="quiz-complete-score">5 / 5</div>
+                <div class="stat-label">Correct Answers</div>
+              </div>
+              <div class="card stat-card xp" style="padding: 1.25rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;">
+                <div class="stat-value" id="quiz-complete-xp">+75 XP</div>
+                <div class="stat-label">XP Earned</div>
+              </div>
+            </div>
+
+            <button type="button" id="quiz-complete-finish-btn" class="btn btn-primary" style="width: 100%; padding: 1rem;">Back to Setup</button>
+          </div>
+        </div>
+
+        <!-- SUBVIEW: SANDBOX -->
+        <div id="grammar-subview-sandbox" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
+          <div>
+            <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">AI Writing Sandbox</h2>
+            <p class="page-subtitle">Write Russian sentences or paragraphs and click analyze to check spelling, grammar, and receive suggestions for improvement.</p>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="sandbox-user-input" style="font-size: 0.8rem; font-weight: 600; color: var(--color-text-muted);">Your Russian Text</label>
+            <textarea id="sandbox-user-input" class="json-textarea" placeholder="Type or paste your Russian text here (e.g. Я живу в Москва и я люблю учить Русский язык.)..." style="min-height: 120px; font-family: var(--font-body); font-size: 1.05rem; line-height: 1.5; padding: 1rem;"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <button type="button" id="sandbox-analyze-btn" class="btn btn-primary" style="padding: 1rem 2rem;">
+              ✨ Analyze with AI
+            </button>
+            <button type="button" id="sandbox-clear-btn" class="btn btn-secondary" style="padding: 1rem 1.5rem;">
+              Clear Text
+            </button>
+          </div>
+
+          <!-- Sandbox Loader -->
+          <div id="sandbox-loading" style="display: none; align-items: center; gap: 0.5rem; justify-content: center; padding: 1rem;">
+            <div style="width: 20px; height: 20px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+            <span class="page-subtitle" style="margin:0;">Analyzing sentence structures and grammar rules...</span>
+          </div>
+
+          <!-- Sandbox Feedback Results -->
+          <div id="sandbox-results-panel" style="display: none; flex-direction: column; gap: 1.5rem; animation: fadeIn 0.3s forwards; border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
+            <h3 style="font-family: var(--font-heading); font-size: 1.25rem;">Analysis Feedback</h3>
+            
+            <div class="dashboard-row-2" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+              <!-- Left Side: Corrections -->
+              <div class="card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); padding: 1.25rem;">
+                <h4 style="font-family: var(--font-heading); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">🔧 Corrections & Issues</h4>
+                <div id="sandbox-corrections-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                  <!-- Dynamically populated corrections -->
+                </div>
+              </div>
+
+              <!-- Right Side: Suggestions & Natural phrasing -->
+              <div class="card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-glass); padding: 1.25rem;">
+                <h4 style="font-family: var(--font-heading); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">🌟 Natural Alternatives</h4>
+                <div id="sandbox-suggestions-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                  <!-- Dynamically populated suggestions -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- VIEW: DATA SYNC & BACKUP -->
       <section id="view-sync" class="view-section">
         <div>
@@ -1201,6 +1431,7 @@
   <script src="js/db_expanded.js"></script>
   <script src="js/srs.js"></script>
   <script src="js/audio.js"></script>
+  <script src="js/grammar.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
