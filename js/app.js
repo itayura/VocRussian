@@ -124,17 +124,9 @@
         applyTheme(currentTheme);
       }
       // Refresh Gemini settings dynamically on sync
-      const geminiKeyInput = document.getElementById("settings-gemini-key");
-      if (geminiKeyInput) {
-        geminiKeyInput.value = SRS.getSetting("geminiApiKey", "");
-      }
       const geminiAutofillCheckbox = document.getElementById("settings-gemini-autofill-enabled");
       if (geminiAutofillCheckbox) {
         geminiAutofillCheckbox.checked = SRS.getSetting("geminiAutofillEnabled", true);
-      }
-      const geminiModelInput = document.getElementById("settings-gemini-model");
-      if (geminiModelInput) {
-        geminiModelInput.value = SRS.getSetting("geminiModel", "gemini-3.1-flash-lite");
       }
     };
 
@@ -1440,41 +1432,12 @@
     }
 
     // Gemini Settings
-    const geminiKeyInput = document.getElementById("settings-gemini-key");
-    const geminiKeyToggle = document.getElementById("settings-gemini-key-toggle");
     const geminiAutofillCheckbox = document.getElementById("settings-gemini-autofill-enabled");
-    const geminiModelInput = document.getElementById("settings-gemini-model");
-
-    if (geminiKeyInput) {
-      geminiKeyInput.value = SRS.getSetting("geminiApiKey", "");
-      geminiKeyInput.addEventListener("change", () => {
-        SRS.setSetting("geminiApiKey", geminiKeyInput.value.trim());
-      });
-    }
-
-    if (geminiKeyToggle && geminiKeyInput) {
-      geminiKeyToggle.addEventListener("click", () => {
-        if (geminiKeyInput.type === "password") {
-          geminiKeyInput.type = "text";
-          geminiKeyToggle.innerText = "🔒";
-        } else {
-          geminiKeyInput.type = "password";
-          geminiKeyToggle.innerText = "👁️";
-        }
-      });
-    }
 
     if (geminiAutofillCheckbox) {
       geminiAutofillCheckbox.checked = SRS.getSetting("geminiAutofillEnabled", true);
       geminiAutofillCheckbox.addEventListener("change", () => {
         SRS.setSetting("geminiAutofillEnabled", geminiAutofillCheckbox.checked);
-      });
-    }
-
-    if (geminiModelInput) {
-      geminiModelInput.value = SRS.getSetting("geminiModel", "gemini-3.1-flash-lite");
-      geminiModelInput.addEventListener("change", () => {
-        SRS.setSetting("geminiModel", geminiModelInput.value.trim() || "gemini-3.1-flash-lite");
       });
     }
 
@@ -1486,76 +1449,35 @@
     }
   }
 
-  // --- GEMINI LLM SENTENCE GENERATION ---
+  // --- GEMINI LLM SENTENCE GENERATION (SECURE BACKEND EDGE FUNCTION) ---
   async function generateSentenceWithGemini(word, translation, partOfSpeech = "") {
-    const apiKey = SRS.getSetting("geminiApiKey", "");
-    const model = SRS.getSetting("geminiModel", "gemini-3.1-flash-lite");
     const enabled = SRS.getSetting("geminiAutofillEnabled", true);
-
-    if (!enabled || !apiKey) {
+    if (!enabled) {
       return null;
     }
 
-    const posContext = partOfSpeech ? ` as a ${partOfSpeech}` : "";
-    const prompt = `You are a helpful Russian teacher. Generate a single, clear, natural, and grammatically correct example sentence in Russian using the Russian word "${word}" (meaning "${translation}"${posContext}). Keep the sentence simple, suitable for a beginner/intermediate language learner.
-Provide the output strictly as a JSON object with the following schema:
-{
-  "sentence_ru": "the Russian sentence (include stress marks on vowels if helpful, e.g. кни́га)",
-  "sentence_en": "the exact English translation of the Russian sentence"
-}
-Do not include any markdown formatting, backticks, or explanation outside of the raw JSON object.`;
+    // Must have Supabase connected to invoke edge functions
+    if (!window.SupabaseSync || !window.SupabaseSync.client) {
+      console.warn("Gemini sentence generation skipped: Database is not connected.");
+      return null;
+    }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                text: prompt
-              }
-            ]
-          }
-        ],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "OBJECT",
-            properties: {
-              sentence_ru: { type: "STRING" },
-              sentence_en: { type: "STRING" }
-            },
-            required: ["sentence_ru", "sentence_en"]
-          }
-        }
-      })
+    const { data, error } = await window.SupabaseSync.client.functions.invoke("generate-sentence", {
+      body: { word, translation, partOfSpeech }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Gemini API returned error: ${response.status} - ${errorText}`);
+    if (error) {
+      throw new Error(`Edge Function generate-sentence error: ${error.message || error}`);
     }
 
-    const data = await response.json();
-    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textResponse) {
-      throw new Error("No response content received from Gemini API.");
-    }
-
-    try {
-      const result = JSON.parse(textResponse.trim());
+    if (data && data.success) {
       return {
-        sentenceRu: result.sentence_ru,
-        sentenceEn: result.sentence_en
+        sentenceRu: data.sentenceRu,
+        sentenceEn: data.sentenceEn
       };
-    } catch (e) {
-      console.error("Failed to parse Gemini response JSON:", textResponse, e);
-      throw new Error("Invalid JSON structure returned by Gemini.");
     }
+
+    return null;
   }
 
   // --- MODAL WINDOW CONTROLLERS ---
@@ -1685,10 +1607,10 @@ Do not include any markdown formatting, backticks, or explanation outside of the
         }
 
         // 3. Try generating example sentences with Gemini if configured
-        const geminiApiKey = SRS.getSetting("geminiApiKey", "");
         const geminiAutofillEnabled = SRS.getSetting("geminiAutofillEnabled", true);
+        const isDbConnected = window.SupabaseSync && window.SupabaseSync.client;
 
-        if (geminiApiKey && geminiAutofillEnabled) {
+        if (isDbConnected && geminiAutofillEnabled) {
           try {
             const spinnerStatusText = statusEl.querySelector("span:last-child");
             if (spinnerStatusText) {
@@ -1857,10 +1779,10 @@ Do not include any markdown formatting, backticks, or explanation outside of the
         }
 
         // 3. Try generating example sentences with Gemini if configured
-        const geminiApiKey = SRS.getSetting("geminiApiKey", "");
         const geminiAutofillEnabled = SRS.getSetting("geminiAutofillEnabled", true);
+        const isDbConnected = window.SupabaseSync && window.SupabaseSync.client;
 
-        if (geminiApiKey && geminiAutofillEnabled) {
+        if (isDbConnected && geminiAutofillEnabled) {
           try {
             const spinnerStatusText = statusEl.querySelector("span:last-child");
             if (spinnerStatusText) {
