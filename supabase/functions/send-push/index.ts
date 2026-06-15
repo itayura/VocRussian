@@ -14,9 +14,26 @@ serve(async (req) => {
   }
 
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      throw new Error("Missing Authorization header");
+    }
+
+    const token = authHeader.replace(/^Bearer /, "");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const isServiceRole = token === serviceRoleKey;
+
+    // Initialize Supabase Client.
+    // If it's a standard user token, we use the Anon Key and forward their token to enforce RLS.
+    // If it's the Service Role key, we use the Service Role key to bypass RLS.
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      isServiceRole ? serviceRoleKey : (Deno.env.get("SUPABASE_ANON_KEY") ?? ""),
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
     );
 
     const { userId, title, body } = await req.json();
@@ -25,15 +42,21 @@ serve(async (req) => {
       throw new Error("Missing required fields: userId, title, body");
     }
 
-    // Fetch user's push subscriptions
+    // Fetch user's push subscriptions.
+    // If the caller is a standard user, RLS will return an empty array if they try to fetch another user's subscriptions.
     const { data: subscriptions, error } = await supabaseClient
       .from("user_push_subscriptions")
       .select("*")
       .eq("user_id", userId);
 
     if (error) throw error;
+    
+    // If no subscriptions found (or access denied by RLS)
     if (!subscriptions || subscriptions.length === 0) {
-      return new Response(JSON.stringify({ success: true, message: "No subscriptions found for user." }), {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "No subscription found or access denied for this user ID." 
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -76,7 +99,12 @@ serve(async (req) => {
         
         // If the subscription is expired or inactive (410 Gone / 404 Not Found), delete it
         if (err.statusCode === 410 || err.statusCode === 404) {
-          await supabaseClient
+          // Use service role client for deletion to ensure it cleans up correctly
+          const adminClient = createClient(
+            Deno.env.get("SUPABASE_URL") ?? "",
+            serviceRoleKey
+          );
+          await adminClient
             .from("user_push_subscriptions")
             .delete()
             .eq("id", sub.id);
