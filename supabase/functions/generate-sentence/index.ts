@@ -29,7 +29,7 @@ serve(async (req) => {
       },
     });
 
-    // Verify token: must be either the valid project anon key or a valid authenticated user JWT
+    // Verify token: must be a valid authenticated user JWT
     const isAnon = token === supabaseAnonKey;
     let user = null;
 
@@ -44,8 +44,8 @@ serve(async (req) => {
       }
     }
 
-    if (!user && !isAnon) {
-      return new Response(JSON.stringify({ error: "Unauthorized: Invalid session token" }), {
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized: You must be signed in to use AI sentence generation features." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });

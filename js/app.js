@@ -130,11 +130,7 @@
         themeSelect.value = currentTheme;
         applyTheme(currentTheme);
       }
-      // Refresh Gemini settings dynamically on sync
-      const geminiAutofillCheckbox = document.getElementById("settings-gemini-autofill-enabled");
-      if (geminiAutofillCheckbox) {
-        geminiAutofillCheckbox.checked = SRS.getSetting("geminiAutofillEnabled", true);
-      }
+
     };
 
     // Default view: check local progress to decide landing or dashboard
@@ -1483,15 +1479,7 @@
       });
     }
 
-    // Gemini Settings
-    const geminiAutofillCheckbox = document.getElementById("settings-gemini-autofill-enabled");
 
-    if (geminiAutofillCheckbox) {
-      geminiAutofillCheckbox.checked = SRS.getSetting("geminiAutofillEnabled", true);
-      geminiAutofillCheckbox.addEventListener("change", () => {
-        SRS.setSetting("geminiAutofillEnabled", geminiAutofillCheckbox.checked);
-      });
-    }
 
     const viewLandingBtn = document.getElementById("settings-view-landing-btn");
     if (viewLandingBtn) {
@@ -1503,8 +1491,9 @@
 
   // --- GEMINI LLM SENTENCE GENERATION (SECURE BACKEND EDGE FUNCTION) ---
   async function generateSentenceWithGemini(word, translation, partOfSpeech = "") {
-    const enabled = SRS.getSetting("geminiAutofillEnabled", true);
-    if (!enabled) {
+    // Only enabled if the user is signed in
+    const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+    if (!isLoggedIn) {
       return null;
     }
 
