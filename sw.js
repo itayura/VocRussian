@@ -1,5 +1,5 @@
 // VocRussian Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v10";
+const CACHE_NAME = "voc-russian-cache-v11";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -157,3 +157,27 @@ function getTodayDateString() {
   const date = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${date}`;
 }
+
+// Push Event (Remote Notifications)
+self.addEventListener("push", (event) => {
+  let data = { title: "VocRussian", body: "Practice your Russian words today!" };
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data = { title: "VocRussian", body: event.data.text() };
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: "./logo.png",
+    badge: "./logo.png",
+    tag: "remote-push",
+    requireInteraction: true
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});

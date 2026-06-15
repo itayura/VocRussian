@@ -78,8 +78,59 @@
 
     signOut: async function () {
       if (!this.client) return;
+      
+      // Clean up push subscription on sign out
+      try {
+        if ('serviceWorker' in navigator) {
+          const reg = await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.getSubscription();
+          if (sub) {
+            await this.unregisterPushSubscription(sub.endpoint);
+            await sub.unsubscribe();
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to clean up push subscription on sign out:", e);
+      }
+
       const { error } = await this.client.auth.signOut();
       if (error) throw error;
+    },
+
+    registerPushSubscription: async function (subscription) {
+      if (!this.client || !this.user) return;
+      try {
+        const subJSON = subscription.toJSON();
+        const endpoint = subJSON.endpoint;
+        const p256dh = subJSON.keys.p256dh;
+        const auth = subJSON.keys.auth;
+
+        const { error } = await this.client.from("user_push_subscriptions").upsert({
+          user_id: this.user.id,
+          endpoint: endpoint,
+          p256dh: p256dh,
+          auth: auth
+        }, {
+          onConflict: "endpoint"
+        });
+        if (error) throw error;
+        console.log("Push subscription synchronized with cloud successfully.");
+      } catch (e) {
+        console.error("Failed to register push subscription on cloud:", e);
+      }
+    },
+
+    unregisterPushSubscription: async function (endpoint) {
+      if (!this.client || !this.user) return;
+      try {
+        await this.client.from("user_push_subscriptions").delete().match({
+          user_id: this.user.id,
+          endpoint: endpoint
+        });
+        console.log("Push subscription removed from cloud.");
+      } catch (e) {
+        console.error("Failed to unregister push subscription from cloud:", e);
+      }
     },
 
     signInWithGoogle: async function () {
@@ -498,6 +549,9 @@
         this.syncBoth().then((success) => {
           if (success) {
             console.log("Auto-sync on login complete.");
+            if (window.syncPushSubscriptionWithCloud) {
+              window.syncPushSubscriptionWithCloud();
+            }
           }
         });
       }, 500);

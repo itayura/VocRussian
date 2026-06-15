@@ -2068,6 +2068,9 @@
             console.warn("Failed to trigger test notification:", e);
           }
           
+          // Sync push subscription with Supabase cloud
+          await window.syncPushSubscriptionWithCloud();
+
           // Register background periodic sync
           registerPeriodicSync();
         } else {
@@ -2081,6 +2084,20 @@
         updateReminderStatusText();
         await syncReminderStateToCache();
         
+        // Clean up cloud push registration on disable
+        try {
+          if ('serviceWorker' in navigator && window.SupabaseSync) {
+            const reg = await navigator.serviceWorker.ready;
+            const sub = await reg.pushManager.getSubscription();
+            if (sub) {
+              await window.SupabaseSync.unregisterPushSubscription(sub.endpoint);
+              await sub.unsubscribe();
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to clean up push subscription on disable:", e);
+        }
+
         // Unregister periodic sync
         unregisterPeriodicSync();
       }
@@ -2097,6 +2114,9 @@
 
     // Cache current state for Service Worker use
     await syncReminderStateToCache();
+
+    // Try synchronizing push subscription if already enabled
+    await window.syncPushSubscriptionWithCloud();
   }
 
   function updateReminderStatusText() {
@@ -2250,4 +2270,47 @@
     const date = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${date}`;
   }
+
+  // Helper to convert VAPID public key string to Uint8Array
+  function urlBase64ToUint8Array(base64String) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  // Globally expose push synchronization handler
+  window.syncPushSubscriptionWithCloud = async function () {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    
+    // Only register if notifications are granted and daily reminders are enabled
+    const remindersEnabled = SRS.getSetting("dailyReminders", false);
+    if (Notification.permission !== "granted" || !remindersEnabled) return;
+
+    // Only register if user is logged into Supabase
+    if (!window.SupabaseSync || window.SupabaseSync.connectionState !== "connected" || !window.SupabaseSync.user) {
+      return;
+    }
+
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      let subscription = await reg.pushManager.getSubscription();
+      
+      if (!subscription) {
+        const publicVapidKey = "BAqMWdlYByp62_O4sbmCP2QAIemdBADjVUkEZ9uTk55vnzKsbLvYwYDOuXVfpd-lvgnyrXWbvCgX7xjonPkxJbI";
+        subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+      }
+      
+      await window.SupabaseSync.registerPushSubscription(subscription);
+    } catch (e) {
+      console.warn("Failed to synchronize push subscription with cloud:", e);
+    }
+  };
 })();
