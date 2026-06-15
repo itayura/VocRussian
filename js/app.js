@@ -1503,8 +1503,13 @@
       return null;
     }
 
+    const { data: sessionData } = await window.SupabaseSync.client.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
     const { data, error } = await window.SupabaseSync.client.functions.invoke("generate-sentence", {
-      body: { word, translation, partOfSpeech }
+      body: { word, translation, partOfSpeech },
+      headers: headers
     });
 
     if (error) {

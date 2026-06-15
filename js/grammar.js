@@ -301,10 +301,14 @@
 
       try {
         const client = window.SupabaseSync.client;
+        const { data: sessionData } = await client.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke explain Deno edge function
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "explain", topic: topicId }
+          body: { action: "explain", topic: topicId },
+          headers: headers
         });
 
         if (error) throw new Error(error.message || error);
@@ -388,10 +392,14 @@
 
       try {
         const client = window.SupabaseSync.client;
+        const { data: sessionData } = await client.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke explain Deno edge function with custom question
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "explain", topic: activeTopic, customQuestion: question }
+          body: { action: "explain", topic: activeTopic, customQuestion: question },
+          headers: headers
         });
 
         if (error) throw new Error(error.message || error);
@@ -518,10 +526,14 @@
 
       try {
         const client = window.SupabaseSync.client;
+        const { data: sessionData } = await client.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke quiz Deno edge function
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topic, cefr: cefr, count: count }
+          body: { action: "quiz", topic: topic, cefr: cefr, count: count },
+          headers: headers
         });
 
         if (error) throw new Error(error.message || error);
@@ -707,10 +719,14 @@
 
       try {
         const client = window.SupabaseSync.client;
+        const { data: sessionData } = await client.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke Deno edge function analyze-sentence
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "analyze", sentence: input }
+          body: { action: "analyze", sentence: input },
+          headers: headers
         });
 
         if (error) throw new Error(error.message || error);
