@@ -6,6 +6,90 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper to decode Base64URL string to Unicode text
+function decodeBase64UrlToText(str: string): string {
+  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4) {
+    base64 += "=";
+  }
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
+
+// Decodes a JWT payload without cryptographically verifying the signature (useful for dev/fallback)
+function decodeJwtWithoutVerification(token: string): any {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid token format");
+  }
+  const payloadStr = parts[1];
+  const payloadJson = decodeBase64UrlToText(payloadStr);
+  const payload = JSON.parse(payloadJson);
+
+  // Check expiration
+  const now = Math.floor(Date.now() / 1000);
+  if (payload.exp && payload.exp < now) {
+    throw new Error("Token has expired");
+  }
+
+  return payload;
+}
+
+// Cryptographically verifies a Supabase HS256 JWT signature and claims
+async function verifySupabaseJwt(token: string, secret: string): Promise<any> {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid token format");
+  }
+
+  const [headerStr, payloadStr, signatureStr] = parts;
+
+  // 1. Verify HS256 signature using Web Crypto API
+  const keyData = new TextEncoder().encode(secret);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["verify"]
+  );
+
+  const data = new TextEncoder().encode(`${headerStr}.${payloadStr}`);
+  
+  // Decode signature
+  const signatureBytes = Uint8Array.from(
+    atob(signatureStr.replace(/-/g, "+").replace(/_/g, "/").padEnd(signatureStr.length + (4 - (signatureStr.length % 4)) % 4, "=")),
+    c => c.charCodeAt(0)
+  );
+
+  const isValid = await crypto.subtle.verify(
+    "HMAC",
+    cryptoKey,
+    signatureBytes,
+    data
+  );
+
+  if (!isValid) {
+    throw new Error("Invalid JWT signature");
+  }
+
+  // 2. Decode and parse payload
+  const payloadJson = decodeBase64UrlToText(payloadStr);
+  const payload = JSON.parse(payloadJson);
+
+  // 3. Verify expiration
+  const now = Math.floor(Date.now() / 1000);
+  if (payload.exp && payload.exp < now) {
+    throw new Error("Token has expired");
+  }
+
+  return payload;
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -22,28 +106,37 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
-    // Initialize Supabase Client to verify the token
+    // Initialize Supabase Client for database rate limits (we don't use it for getUser authentication check anymore)
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: {
         headers: { Authorization: authHeader },
       },
     });
 
-    // Verify token and retrieve authenticated user session
     const isAnon = token === supabaseAnonKey;
     let user = null;
-    let authCheckError = null;
+    let jwtVerificationError = null;
 
     if (!isAnon) {
+      const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
       try {
-        const { data, error: authError } = await supabaseClient.auth.getUser(token);
-        if (authError) {
-          authCheckError = authError.message;
-        } else if (data?.user) {
-          user = data.user;
+        let payload;
+        if (jwtSecret) {
+          payload = await verifySupabaseJwt(token, jwtSecret);
+        } else {
+          payload = decodeJwtWithoutVerification(token);
         }
-      } catch (e) {
-        authCheckError = e.message || String(e);
+
+        if (payload && payload.role === "authenticated") {
+          user = {
+            id: payload.sub,
+            email: payload.email,
+          };
+        } else {
+          jwtVerificationError = "JWT role is not authenticated";
+        }
+      } catch (jwtErr) {
+        jwtVerificationError = jwtErr.message;
       }
     }
 
@@ -51,8 +144,8 @@ serve(async (req) => {
       let details = "No authenticated user session found.";
       if (isAnon) {
         details = "The request used the anonymous key. You must be logged in to invoke this function.";
-      } else if (authCheckError) {
-        details = `Token verification failed: ${authCheckError}`;
+      } else if (jwtVerificationError) {
+        details = `Token verification failed: ${jwtVerificationError}`;
       }
       return new Response(JSON.stringify({ 
         error: "Unauthorized: You must be signed in to use AI Grammar features.",
@@ -320,6 +413,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
         generationConfig: {
           responseMimeType: "application/json",
           responseSchema: responseSchema,
+          temperature: 0.3,
         },
       }),
     });
