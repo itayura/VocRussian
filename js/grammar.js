@@ -575,8 +575,9 @@
       const topicText = topicEl.options[topicEl.selectedIndex].text;
       document.getElementById("quiz-topic-badge").innerText = topicText;
 
-      document.getElementById("quiz-sentence-prompt").innerText = q.sentencePattern;
-      document.getElementById("quiz-translit-prompt").innerText = `[ ${q.transliteration} ]`;
+      // Replace [blank] with a styled dashed blank space
+      const sentenceHtml = q.sentencePattern.replace(/\[blank\]/gi, '<span class="quiz-blank-line"></span>');
+      document.getElementById("quiz-sentence-prompt").innerHTML = sentenceHtml;
       document.getElementById("quiz-translation-prompt").innerText = `"${q.translation}"`;
 
       // Render choice buttons
