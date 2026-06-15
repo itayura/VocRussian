@@ -38,24 +38,46 @@ serve(async (req) => {
 
     const { userId, title, body } = await req.json();
 
-    if (!userId || !title || !body) {
-      throw new Error("Missing required fields: userId, title, body");
+    if (!title || !body) {
+      throw new Error("Missing required fields: title, body");
     }
 
-    // Fetch user's push subscriptions.
-    // If the caller is a standard user, RLS will return an empty array if they try to fetch another user's subscriptions.
-    const { data: subscriptions, error } = await supabaseClient
-      .from("user_push_subscriptions")
-      .select("*")
-      .eq("user_id", userId);
+    let subscriptions = [];
 
-    if (error) throw error;
-    
+    // Check if the request is a broadcast to all users
+    if (userId === "all" || !userId) {
+      if (!isServiceRole) {
+        return new Response(JSON.stringify({ 
+          error: "Unauthorized: Only administrators using the service_role key can broadcast notifications to everyone." 
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 403,
+        });
+      }
+
+      // Admin broadcast: Fetch all subscriptions
+      const { data, error } = await supabaseClient
+        .from("user_push_subscriptions")
+        .select("*");
+      
+      if (error) throw error;
+      subscriptions = data || [];
+    } else {
+      // Standard target push: Fetch target user's subscriptions
+      const { data, error } = await supabaseClient
+        .from("user_push_subscriptions")
+        .select("*")
+        .eq("user_id", userId);
+      
+      if (error) throw error;
+      subscriptions = data || [];
+    }
+
     // If no subscriptions found (or access denied by RLS)
     if (!subscriptions || subscriptions.length === 0) {
       return new Response(JSON.stringify({ 
         success: true, 
-        message: "No subscription found or access denied for this user ID." 
+        message: "No active subscriptions found to receive this notification." 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -99,7 +121,6 @@ serve(async (req) => {
         
         // If the subscription is expired or inactive (410 Gone / 404 Not Found), delete it
         if (err.statusCode === 410 || err.statusCode === 404) {
-          // Use service role client for deletion to ensure it cleans up correctly
           const adminClient = createClient(
             Deno.env.get("SUPABASE_URL") ?? "",
             serviceRoleKey
