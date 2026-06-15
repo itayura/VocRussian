@@ -31,7 +31,18 @@ serve(async (req) => {
 
     // Verify token: must be either the valid project anon key or a valid authenticated user JWT
     const isAnon = token === supabaseAnonKey;
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+    let user = null;
+
+    if (!isAnon) {
+      try {
+        const { data, error: authError } = await supabaseClient.auth.getUser();
+        if (!authError && data?.user) {
+          user = data.user;
+        }
+      } catch (e) {
+        console.warn("Auth check failed:", e);
+      }
+    }
 
     if (!user && !isAnon) {
       return new Response(JSON.stringify({ error: "Unauthorized: Invalid session token" }), {

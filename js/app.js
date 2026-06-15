@@ -1623,6 +1623,7 @@
             }
           } catch (e) {
             console.warn("Gemini sentence generation failed, using Wiktionary instead.", e);
+            alert(`AI Sentence Generation failed: ${e.message || e}\n\nFalling back to Wiktionary examples.`);
           } finally {
             // Restore status spinner text
             const spinnerStatusText = statusEl.querySelector("span:last-child");
@@ -1795,6 +1796,7 @@
             }
           } catch (e) {
             console.warn("Gemini sentence generation failed, using Wiktionary instead.", e);
+            alert(`AI Sentence Generation failed: ${e.message || e}\n\nFalling back to Wiktionary examples.`);
           } finally {
             // Restore status spinner text
             const spinnerStatusText = statusEl.querySelector("span:last-child");
