@@ -29,23 +29,19 @@ serve(async (req) => {
       },
     });
 
-    // Verify token: must be either the valid project anon key or a valid authenticated user JWT
-    const isAnon = token === supabaseAnonKey;
+    // Verify token and retrieve authenticated user session
     let user = null;
-
-    if (!isAnon) {
-      try {
-        const { data, error: authError } = await supabaseClient.auth.getUser();
-        if (!authError && data?.user) {
-          user = data.user;
-        }
-      } catch (e) {
-        console.warn("Auth check failed:", e);
+    try {
+      const { data, error: authError } = await supabaseClient.auth.getUser();
+      if (!authError && data?.user) {
+        user = data.user;
       }
+    } catch (e) {
+      console.warn("Auth check failed:", e);
     }
 
-    if (!user && !isAnon) {
-      return new Response(JSON.stringify({ error: "Unauthorized: Invalid session token" }), {
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized: Active user session required for AI Grammar" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
@@ -56,6 +52,48 @@ serve(async (req) => {
 
     if (!action) {
       throw new Error("Missing required field: action");
+    }
+
+    // --- SERVER-SIDE RATE LIMITING ---
+    // 1. Check Requests Per Minute limit (Max 5 RPM)
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { count: countMin, error: errorMin } = await supabaseClient
+      .from("voc_ai_request_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gt("created_at", oneMinuteAgo);
+
+    if (errorMin) throw errorMin;
+    if (countMin && countMin >= 5) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 5 AI requests per minute." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 429,
+      });
+    }
+
+    // 2. Check Requests Per Day limit (Max 100 RPD)
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count: countDay, error: errorDay } = await supabaseClient
+      .from("voc_ai_request_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gt("created_at", twentyFourHoursAgo);
+
+    if (errorDay) throw errorDay;
+    if (countDay && countDay >= 100) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 100 AI requests per day." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 429,
+      });
+    }
+
+    // 3. Log this successful request
+    const { error: logError } = await supabaseClient
+      .from("voc_ai_request_logs")
+      .insert({ user_id: user.id, action: action });
+    
+    if (logError) {
+      console.warn("Failed to write request log:", logError);
     }
 
     // Read the server-side Gemini API key
