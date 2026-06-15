@@ -921,6 +921,56 @@
           </div>
         </div>
 
+        <!-- LLM Integration (Gemini) card -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            🤖 Gemini AI Integration
+          </h2>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Configure Google Gemini to automatically generate learning examples and translations.</p>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem;">
+            
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <label for="settings-gemini-key" style="color: var(--color-text-main); font-weight: bold; font-size: 0.95rem;">Gemini API Key</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="password" id="settings-gemini-key" class="filter-input" placeholder="Enter your Gemini API key" style="flex: 1; margin: 0; background-color: var(--bg-input); border-color: var(--border-glass); color: var(--color-text-main); padding: 0.5rem; border-radius: 4px; font-family: var(--font-body); font-size: 0.95rem;">
+                <button type="button" id="settings-gemini-key-toggle" class="btn btn-secondary" style="padding: 0 0.75rem; font-size: 0.85rem;" title="Show/Hide API Key">👁️</button>
+              </div>
+              <span class="page-subtitle" style="font-size: 0.8rem; margin: 0; color: var(--color-text-muted);">
+                Get a free API key from <a href="https://aistudio.google.com/" target="_blank" style="color: var(--color-primary); text-decoration: underline;">Google AI Studio</a>.
+              </span>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Generate Example Sentences</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Use Gemini to generate natural learning examples during word autofill.
+                </span>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="settings-gemini-autofill-enabled" checked>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Gemini Model</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Specify the model name for generation.
+                </span>
+              </div>
+              <input type="text" id="settings-gemini-model" value="gemini-3.1-flash-lite" class="filter-input" style="width: auto; min-width: 180px; background-color: var(--bg-input); border-color: var(--border-glass); color: var(--color-text-main); padding: 0.5rem; border-radius: 4px; font-family: var(--font-body); font-size: 0.95rem; margin: 0;">
+            </div>
+
+          </div>
+        </div>
+
         <div class="card" style="margin-top: 1.5rem;">
           <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
             ℹ️ Welcome &amp; Features Page

@@ -123,6 +123,19 @@
         themeSelect.value = currentTheme;
         applyTheme(currentTheme);
       }
+      // Refresh Gemini settings dynamically on sync
+      const geminiKeyInput = document.getElementById("settings-gemini-key");
+      if (geminiKeyInput) {
+        geminiKeyInput.value = SRS.getSetting("geminiApiKey", "");
+      }
+      const geminiAutofillCheckbox = document.getElementById("settings-gemini-autofill-enabled");
+      if (geminiAutofillCheckbox) {
+        geminiAutofillCheckbox.checked = SRS.getSetting("geminiAutofillEnabled", true);
+      }
+      const geminiModelInput = document.getElementById("settings-gemini-model");
+      if (geminiModelInput) {
+        geminiModelInput.value = SRS.getSetting("geminiModel", "gemini-3.1-flash-lite");
+      }
     };
 
     // Default view: check local progress to decide landing or dashboard
@@ -1426,11 +1439,122 @@
       });
     }
 
+    // Gemini Settings
+    const geminiKeyInput = document.getElementById("settings-gemini-key");
+    const geminiKeyToggle = document.getElementById("settings-gemini-key-toggle");
+    const geminiAutofillCheckbox = document.getElementById("settings-gemini-autofill-enabled");
+    const geminiModelInput = document.getElementById("settings-gemini-model");
+
+    if (geminiKeyInput) {
+      geminiKeyInput.value = SRS.getSetting("geminiApiKey", "");
+      geminiKeyInput.addEventListener("change", () => {
+        SRS.setSetting("geminiApiKey", geminiKeyInput.value.trim());
+      });
+    }
+
+    if (geminiKeyToggle && geminiKeyInput) {
+      geminiKeyToggle.addEventListener("click", () => {
+        if (geminiKeyInput.type === "password") {
+          geminiKeyInput.type = "text";
+          geminiKeyToggle.innerText = "🔒";
+        } else {
+          geminiKeyInput.type = "password";
+          geminiKeyToggle.innerText = "👁️";
+        }
+      });
+    }
+
+    if (geminiAutofillCheckbox) {
+      geminiAutofillCheckbox.checked = SRS.getSetting("geminiAutofillEnabled", true);
+      geminiAutofillCheckbox.addEventListener("change", () => {
+        SRS.setSetting("geminiAutofillEnabled", geminiAutofillCheckbox.checked);
+      });
+    }
+
+    if (geminiModelInput) {
+      geminiModelInput.value = SRS.getSetting("geminiModel", "gemini-3.1-flash-lite");
+      geminiModelInput.addEventListener("change", () => {
+        SRS.setSetting("geminiModel", geminiModelInput.value.trim() || "gemini-3.1-flash-lite");
+      });
+    }
+
     const viewLandingBtn = document.getElementById("settings-view-landing-btn");
     if (viewLandingBtn) {
       viewLandingBtn.addEventListener("click", () => {
         switchView("landing");
       });
+    }
+  }
+
+  // --- GEMINI LLM SENTENCE GENERATION ---
+  async function generateSentenceWithGemini(word, translation, partOfSpeech = "") {
+    const apiKey = SRS.getSetting("geminiApiKey", "");
+    const model = SRS.getSetting("geminiModel", "gemini-3.1-flash-lite");
+    const enabled = SRS.getSetting("geminiAutofillEnabled", true);
+
+    if (!enabled || !apiKey) {
+      return null;
+    }
+
+    const posContext = partOfSpeech ? ` as a ${partOfSpeech}` : "";
+    const prompt = `You are a helpful Russian teacher. Generate a single, clear, natural, and grammatically correct example sentence in Russian using the Russian word "${word}" (meaning "${translation}"${posContext}). Keep the sentence simple, suitable for a beginner/intermediate language learner.
+Provide the output strictly as a JSON object with the following schema:
+{
+  "sentence_ru": "the Russian sentence (include stress marks on vowels if helpful, e.g. кни́га)",
+  "sentence_en": "the exact English translation of the Russian sentence"
+}
+Do not include any markdown formatting, backticks, or explanation outside of the raw JSON object.`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              sentence_ru: { type: "STRING" },
+              sentence_en: { type: "STRING" }
+            },
+            required: ["sentence_ru", "sentence_en"]
+          }
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini API returned error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textResponse) {
+      throw new Error("No response content received from Gemini API.");
+    }
+
+    try {
+      const result = JSON.parse(textResponse.trim());
+      return {
+        sentenceRu: result.sentence_ru,
+        sentenceEn: result.sentence_en
+      };
+    } catch (e) {
+      console.error("Failed to parse Gemini response JSON:", textResponse, e);
+      throw new Error("Invalid JSON structure returned by Gemini.");
     }
   }
 
@@ -1558,6 +1682,32 @@
           }
         } catch (e) {
           console.warn("Accented stress lookup failed, using default base spelling.", e);
+        }
+
+        // 3. Try generating example sentences with Gemini if configured
+        const geminiApiKey = SRS.getSetting("geminiApiKey", "");
+        const geminiAutofillEnabled = SRS.getSetting("geminiAutofillEnabled", true);
+
+        if (geminiApiKey && geminiAutofillEnabled) {
+          try {
+            const spinnerStatusText = statusEl.querySelector("span:last-child");
+            if (spinnerStatusText) {
+              spinnerStatusText.innerText = "Generating AI sentences with Gemini...";
+            }
+            const aiSentence = await generateSentenceWithGemini(word, cleanDef, posVal);
+            if (aiSentence) {
+              exampleRu = aiSentence.sentenceRu;
+              exampleEn = aiSentence.sentenceEn;
+            }
+          } catch (e) {
+            console.warn("Gemini sentence generation failed, using Wiktionary instead.", e);
+          } finally {
+            // Restore status spinner text
+            const spinnerStatusText = statusEl.querySelector("span:last-child");
+            if (spinnerStatusText) {
+              spinnerStatusText.innerText = "Fetching Wiktionary data...";
+            }
+          }
         }
 
         // Fill elements
@@ -1704,6 +1854,32 @@
           }
         } catch (e) {
           console.warn("Accented stress lookup failed, using default base spelling.", e);
+        }
+
+        // 3. Try generating example sentences with Gemini if configured
+        const geminiApiKey = SRS.getSetting("geminiApiKey", "");
+        const geminiAutofillEnabled = SRS.getSetting("geminiAutofillEnabled", true);
+
+        if (geminiApiKey && geminiAutofillEnabled) {
+          try {
+            const spinnerStatusText = statusEl.querySelector("span:last-child");
+            if (spinnerStatusText) {
+              spinnerStatusText.innerText = "Generating AI sentences with Gemini...";
+            }
+            const aiSentence = await generateSentenceWithGemini(russianWord, cleanDef, posVal);
+            if (aiSentence) {
+              exampleRu = aiSentence.sentenceRu;
+              exampleEn = aiSentence.sentenceEn;
+            }
+          } catch (e) {
+            console.warn("Gemini sentence generation failed, using Wiktionary instead.", e);
+          } finally {
+            // Restore status spinner text
+            const spinnerStatusText = statusEl.querySelector("span:last-child");
+            if (spinnerStatusText) {
+              spinnerStatusText.innerText = "Fetching Russian translation data...";
+            }
+          }
         }
 
         // Fill elements (including Russian Word field)
