@@ -290,6 +290,50 @@
           </div>
         </div>
 
+        <!-- LEVEL ASSESSMENT BARS (A1 to B2) -->
+        <div class="card" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem;">
+          <div>
+            <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Proficiency Level Assessment</h2>
+            <p class="page-subtitle" style="margin: 0;">Your estimated language proficiency based on vocabulary mastery and grammar study.</p>
+          </div>
+          
+          <div class="level-bars-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <!-- Vocabulary Proficiency Bar -->
+            <div class="level-bar-item">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                <strong style="color: var(--color-text-main); font-size: 1.05rem;">Vocabulary Level</strong>
+                <span style="font-size: 0.9rem; color: var(--color-primary-hover); font-weight: bold;"><span id="vocab-level-badge">A1</span> (<span id="vocab-level-percent">0%</span>)</span>
+              </div>
+              <div class="level-progress-track" style="height: 1.25rem; background: var(--bg-input); border-radius: var(--border-radius-pill); position: relative; overflow: hidden; border: 1px solid var(--border-glass);">
+                <div id="vocab-level-fill" class="level-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill); transition: width 1.2s cubic-bezier(0.1, 0.8, 0.3, 1);"></div>
+                <div class="level-progress-segments" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; pointer-events: none;">
+                  <div style="width: 25%; height: 100%; border-right: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">A1</div>
+                  <div style="width: 25%; height: 100%; border-right: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">A2</div>
+                  <div style="width: 25%; height: 100%; border-right: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">B1</div>
+                  <div style="width: 25%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">B2</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grammar Proficiency Bar -->
+            <div class="level-bar-item">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                <strong style="color: var(--color-text-main); font-size: 1.05rem;">Grammar Level</strong>
+                <span style="font-size: 0.9rem; color: var(--color-primary-hover); font-weight: bold;"><span id="grammar-level-badge">A1</span> (<span id="grammar-level-percent">0%</span>)</span>
+              </div>
+              <div class="level-progress-track" style="height: 1.25rem; background: var(--bg-input); border-radius: var(--border-radius-pill); position: relative; overflow: hidden; border: 1px solid var(--border-glass);">
+                <div id="grammar-level-fill" class="level-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill); transition: width 1.2s cubic-bezier(0.1, 0.8, 0.3, 1);"></div>
+                <div class="level-progress-segments" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: space-between; pointer-events: none;">
+                  <div style="width: 25%; height: 100%; border-right: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">A1</div>
+                  <div style="width: 25%; height: 100%; border-right: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">A2</div>
+                  <div style="width: 25%; height: 100%; border-right: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">B1</div>
+                  <div style="width: 25%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold;">B2</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="dashboard-row-2">
           <!-- Leitner Boxes Progress -->
           <div class="card">
@@ -433,6 +477,17 @@
                 <option value="50">50 Words</option>
                 <option value="999">All Matching Cards</option>
               </select>
+            </div>
+            
+            <!-- Category Mastery Progress -->
+            <div id="study-mastery-group" style="grid-column: 1 / -1; margin-top: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.9rem; color: var(--color-text-muted); font-weight: 500;">Category Mastery Level:</span>
+                <strong style="font-size: 0.95rem; color: var(--color-primary-hover);" id="study-target-mastery-val">0%</strong>
+              </div>
+              <div class="level-progress-track" style="height: 0.75rem; background: var(--bg-input); border-radius: var(--border-radius-pill); position: relative; overflow: hidden; border: 1px solid var(--border-glass); width: 100%;">
+                <div id="study-target-mastery-fill" class="level-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill); transition: width 0.8s cubic-bezier(0.1, 0.8, 0.3, 1);"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -759,6 +814,17 @@
                   <option value="5" selected>5 Questions</option>
                   <option value="10">10 Questions</option>
                 </select>
+              </div>
+            </div>
+
+            <!-- Grammar Quiz Target Mastery Progress -->
+            <div id="practice-mastery-group" style="margin-top: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--border-glass); width: 100%;">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.9rem; color: var(--color-text-muted); font-weight: 500;">Grammar Topic Mastery:</span>
+                <strong style="font-size: 0.95rem; color: var(--color-primary-hover);" id="practice-target-mastery-val">0%</strong>
+              </div>
+              <div class="level-progress-track" style="height: 0.75rem; background: var(--bg-input); border-radius: var(--border-radius-pill); position: relative; overflow: hidden; border: 1px solid var(--border-glass); width: 100%;">
+                <div id="practice-target-mastery-fill" class="level-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill); transition: width 0.8s cubic-bezier(0.1, 0.8, 0.3, 1);"></div>
               </div>
             </div>
 

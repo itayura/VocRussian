@@ -192,12 +192,13 @@
     },
 
     // Record quiz completion
-    recordQuizCompleted: function (topicId, correctCount, totalCount) {
+    recordQuizCompleted: function (topicId, level, correctCount, totalCount) {
       const score = Math.round((correctCount / totalCount) * 100);
+      const key = `${topicId}_${level}`; // e.g. "nominative_case_A1"
       
-      if (!grammarProgress[topicId]) {
-        grammarProgress[topicId] = {
-          topicId: topicId,
+      if (!grammarProgress[key]) {
+        grammarProgress[key] = {
+          topicId: key,
           lessonsCompleted: 0,
           quizzesTaken: 0,
           avgScore: 0,
@@ -206,7 +207,7 @@
         };
       }
 
-      const p = grammarProgress[topicId];
+      const p = grammarProgress[key];
       // Compute moving average score
       p.avgScore = Math.round(((p.avgScore * p.quizzesTaken) + score) / (p.quizzesTaken + 1));
       p.quizzesTaken++;
@@ -236,6 +237,33 @@
       // Activate clicked
       document.getElementById(`grammar-tab-${tabId}`).classList.add("active");
       document.getElementById(`grammar-subview-${tabId}`).style.display = "flex";
+
+      if (tabId === "practice") {
+        this.updateGrammarPracticeMasteryUI();
+      }
+    },
+
+    // Calculate and render grammar mastery for selected topic/level
+    updateGrammarPracticeMasteryUI: function () {
+      const topic = document.getElementById("practice-quiz-topic").value;
+      const level = document.getElementById("practice-quiz-level").value;
+      
+      const key = `${topic}_${level}`;
+      const gProgressMap = this.getGrammarProgressMap() || {};
+
+      const baseProgress = gProgressMap[topic] || {};
+      const lessonCompleted = (baseProgress.lessonsCompleted || 0) > 0;
+
+      const lvlProgress = gProgressMap[key] || {};
+      const quizzesTaken = lvlProgress.quizzesTaken || 0;
+      const avgScore = lvlProgress.avgScore || 0;
+
+      const masteryPct = Math.round((lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0));
+
+      const valEl = document.getElementById("practice-target-mastery-val");
+      const fillEl = document.getElementById("practice-target-mastery-fill");
+      if (valEl) valEl.innerText = `${masteryPct}%`;
+      if (fillEl) fillEl.style.width = `${masteryPct}%`;
     },
 
     // Event listeners configuration
@@ -270,6 +298,10 @@
       document.getElementById("quiz-quit-btn").addEventListener("click", () => self.quitPracticeQuiz());
       document.getElementById("quiz-next-btn").addEventListener("click", () => self.nextQuizQuestion());
       document.getElementById("quiz-complete-finish-btn").addEventListener("click", () => self.resetPracticeArenaUI());
+
+      // Target settings change
+      document.getElementById("practice-quiz-topic").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());
+      document.getElementById("practice-quiz-level").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());
 
       // Sandbox Buttons
       document.getElementById("sandbox-analyze-btn").addEventListener("click", () => self.analyzeSandboxWriting());
@@ -680,7 +712,8 @@
 
       // Record in local cache
       const topic = document.getElementById("practice-quiz-topic").value;
-      this.recordQuizCompleted(topic, currentQuizCorrectCount, currentQuizQuestions.length);
+      const level = document.getElementById("practice-quiz-level").value;
+      this.recordQuizCompleted(topic, level, currentQuizCorrectCount, currentQuizQuestions.length);
 
       // Award XP
       window.SRS.scoreCard("dummy_xp_holder", true);

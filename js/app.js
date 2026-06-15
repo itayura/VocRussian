@@ -245,6 +245,8 @@
       if (window.GrammarManager) {
         window.GrammarManager.updateGrammarLevelUI();
       }
+    } else if (targetViewId === "study-select") {
+      updateSelectedCategoryMasteryUI();
     }
 
     // Google Analytics Virtual Page View Tracking
@@ -316,6 +318,114 @@
     });
   }
 
+  function updateLevelAssessmentUI() {
+    // 1. Calculate Vocabulary progress
+    const allWords = SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden);
+    let totalVocabWeight = 0;
+    let maxVocabWeight = allWords.length * 4;
+
+    allWords.forEach(w => {
+      const prog = SRS.getCardProgress(w.id);
+      totalVocabWeight += Math.max(0, (prog.box || 1) - 1);
+    });
+
+    const vocabPct = maxVocabWeight > 0 ? Math.round((totalVocabWeight / maxVocabWeight) * 100) : 0;
+    
+    // Set level badge based on percentage
+    let vocabLevel = "A1";
+    if (vocabPct >= 25 && vocabPct < 50) vocabLevel = "A2";
+    else if (vocabPct >= 50 && vocabPct < 75) vocabLevel = "B1";
+    else if (vocabPct >= 75) vocabLevel = "B2";
+
+    const vFill = document.getElementById("vocab-level-fill");
+    const vBadge = document.getElementById("vocab-level-badge");
+    const vPercent = document.getElementById("vocab-level-percent");
+    if (vFill) vFill.style.width = `${vocabPct}%`;
+    if (vBadge) vBadge.innerText = vocabLevel;
+    if (vPercent) vPercent.innerText = `${vocabPct}%`;
+
+    // 2. Calculate Grammar progress
+    const topics = [
+      "nominative_case", "accusative_case", "genitive_case", "dative_case", 
+      "instrumental_case", "prepositional_case", "verb_aspects", "verbs_of_motion"
+    ];
+    const levels = ["A1", "A2", "B1"];
+    let totalGrammarWeight = 0;
+    let maxGrammarWeight = topics.length * levels.length * 100; // 8 topics * 3 levels * 100 max points each
+
+    if (window.GrammarManager && typeof window.GrammarManager.getGrammarProgressMap === "function") {
+      const gProgressMap = window.GrammarManager.getGrammarProgressMap() || {};
+
+      topics.forEach(topic => {
+        // Did user complete base lesson?
+        const baseProgress = gProgressMap[topic] || {};
+        const lessonCompleted = (baseProgress.lessonsCompleted || 0) > 0;
+
+        levels.forEach(lvl => {
+          const key = `${topic}_${lvl}`;
+          const lvlProgress = gProgressMap[key] || {};
+          const quizzesTaken = lvlProgress.quizzesTaken || 0;
+          const avgScore = lvlProgress.avgScore || 0;
+
+          // Points: Lesson completed = 40 pts, Quiz = avgScore * 0.6
+          const points = (lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0);
+          totalGrammarWeight += points;
+        });
+      });
+    }
+
+    const grammarPct = maxGrammarWeight > 0 ? Math.round((totalGrammarWeight / maxGrammarWeight) * 100) : 0;
+
+    let grammarLevel = "A1";
+    if (grammarPct >= 25 && grammarPct < 50) grammarLevel = "A2";
+    else if (grammarPct >= 50 && grammarPct < 75) grammarLevel = "B1";
+    else if (grammarPct >= 75) grammarLevel = "B2";
+
+    const gFill = document.getElementById("grammar-level-fill");
+    const gBadge = document.getElementById("grammar-level-badge");
+    const gPercent = document.getElementById("grammar-level-percent");
+    if (gFill) gFill.style.width = `${grammarPct}%`;
+    if (gBadge) gBadge.innerText = grammarLevel;
+    if (gPercent) gPercent.innerText = `${grammarPct}%`;
+  }
+
+  function updateSelectedCategoryMasteryUI() {
+    const activeDb = document.getElementById("study-filter-db").value;
+    const category = document.getElementById("study-filter-category").value;
+    
+    // Get all words matching activeDb and category
+    let allWords = [];
+    if (activeDb === "expanded") {
+      allWords = window.expandedVocabulary || [];
+    } else if (activeDb === "standard") {
+      allWords = window.defaultVocabulary || [];
+    } else {
+      // Custom deck
+      allWords = (JSON.parse(localStorage.getItem("voc_russian_custom")) || []).filter(w => (w.deckId || "custom") === activeDb);
+    }
+
+    allWords = allWords.filter(w => !SRS.getCardProgress(w.id).hidden);
+
+    if (category && category !== "all") {
+      allWords = allWords.filter(w => w.category === category);
+    }
+
+    let totalWeight = 0;
+    let maxWeight = allWords.length * 4;
+
+    allWords.forEach(w => {
+      const prog = SRS.getCardProgress(w.id);
+      totalWeight += Math.max(0, (prog.box || 1) - 1);
+    });
+
+    const masteryPct = maxWeight > 0 ? Math.round((totalWeight / maxWeight) * 100) : 0;
+
+    const valEl = document.getElementById("study-target-mastery-val");
+    const fillEl = document.getElementById("study-target-mastery-fill");
+    if (valEl) valEl.innerText = `${masteryPct}%`;
+    if (fillEl) fillEl.style.width = `${masteryPct}%`;
+  }
+
   function renderDashboard() {
     const stats = SRS.getStatsSummary();
     
@@ -354,6 +464,9 @@
 
     // Weekly Chart Renderer
     renderWeeklyChart();
+
+    // Proficiency Level Assessment
+    updateLevelAssessmentUI();
 
     // Cache updated stats for notifications/service worker
     syncReminderStateToCache();
@@ -433,7 +546,16 @@
       document.getElementById("dict-filter-db").value = e.target.value;
       updateCategoryDropdowns();
       renderDashboard();
+      updateSelectedCategoryMasteryUI();
     });
+
+    // Category Filter Switcher
+    document.getElementById("study-filter-category").addEventListener("change", () => {
+      updateSelectedCategoryMasteryUI();
+    });
+
+    // Initial load update
+    updateSelectedCategoryMasteryUI();
   }
 
   // --- STUDY ACTIVE CONTROLLERS ---
