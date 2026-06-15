@@ -25,6 +25,55 @@
 
   // --- INITIALIZATION ---
   document.addEventListener("DOMContentLoaded", () => {
+    // Override window.alert with a premium glassmorphic custom modal alert
+    window.alert = function (message) {
+      let overlay = document.getElementById("custom-alert-modal");
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "custom-alert-modal";
+        overlay.className = "modal-overlay";
+        overlay.style.zIndex = "10000"; // Sit on top of other modals
+        
+        overlay.innerHTML = `
+          <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <div style="font-size: 2.5rem;" id="custom-alert-icon">🔔</div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-text-main); margin: 0;" id="custom-alert-title">Notice</h3>
+            <p style="font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; word-break: break-word;" id="custom-alert-message"></p>
+            <button type="button" class="btn btn-primary" id="custom-alert-ok-btn" style="width: 100%; padding: 0.75rem; font-size: 1rem; margin-top: 0.5rem;">OK</button>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        // Bind close events
+        const closeAlert = () => overlay.classList.remove("active");
+        overlay.querySelector("#custom-alert-ok-btn").addEventListener("click", closeAlert);
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) closeAlert();
+        });
+      }
+
+      // Set icon/title based on message content
+      const msgLower = message.toLowerCase();
+      let icon = "🔔";
+      let title = "Notice";
+
+      if (msgLower.includes("success") || msgLower.includes("done") || msgLower.includes("copied") || msgLower.includes("thank")) {
+        icon = "✅";
+        title = "Success";
+      } else if (msgLower.includes("error") || msgLower.includes("fail") || msgLower.includes("block") || msgLower.includes("warning")) {
+        icon = "⚠️";
+        title = "Alert";
+      } else if (msgLower.includes("reset") || msgLower.includes("delete") || msgLower.includes("wipe")) {
+        icon = "🗑️";
+        title = "Warning";
+      }
+
+      document.getElementById("custom-alert-icon").innerText = icon;
+      document.getElementById("custom-alert-title").innerText = title;
+      document.getElementById("custom-alert-message").innerText = message;
+      overlay.classList.add("active");
+    };
+
     // Initialize SRS module
     SRS.init();
     applyTheme(SRS.getSetting("theme", "midnight"));
