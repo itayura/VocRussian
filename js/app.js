@@ -98,6 +98,9 @@
     if (window.GrammarManager) {
       window.GrammarManager.init();
     }
+    if (window.updateAIGrammarLockState) {
+      window.updateAIGrammarLockState();
+    }
     setupGlobalShortcuts();
 
     // Setup active DB controls in DOM
@@ -168,6 +171,10 @@
       const button = item.querySelector("button");
       button.addEventListener("click", () => {
         const target = item.getAttribute("data-target");
+        if (target === "grammar" && item.classList.contains("disabled")) {
+          alert("Account Sign-in Required: Please sign in or create an account under the 'Account' tab to unlock AI Grammar features.");
+          return;
+        }
         switchView(target);
       });
     });
@@ -177,6 +184,33 @@
       switchView("dashboard");
     });
   }
+
+  window.updateAIGrammarLockState = function () {
+    const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+    const grammarTab = document.querySelector('.nav-item[data-target="grammar"]');
+    if (grammarTab) {
+      grammarTab.classList.toggle("disabled", !isLoggedIn);
+    }
+    
+    // If the grammar section is currently active and the user is not logged in, redirect them
+    if (!isLoggedIn && views.grammar && views.grammar.classList.contains("active")) {
+      // Check if they have local progress to go to dashboard, otherwise landing
+      let hasLocalProgress = false;
+      try {
+        const statsStr = localStorage.getItem("voc_russian_stats");
+        const progressStr = localStorage.getItem("voc_russian_progress");
+        if ((statsStr && statsStr !== "{}") || (progressStr && progressStr !== "{}")) {
+          hasLocalProgress = true;
+        }
+      } catch (e) {}
+      
+      if (hasLocalProgress) {
+        switchView("dashboard");
+      } else {
+        switchView("landing");
+      }
+    }
+  };
 
   function switchView(targetViewId) {
     // Toggle full-screen landing-mode class on body

@@ -44,6 +44,13 @@ serve(async (req) => {
       }
     }
 
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Unauthorized: You must be signed in to use AI Grammar features." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
     const requestData = await req.json();
     const { action } = requestData;
 
@@ -54,76 +61,43 @@ serve(async (req) => {
     const clientIP = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown";
 
     // --- SERVER-SIDE RATE LIMITING ---
-    if (user) {
-      // 1. Check Requests Per Minute limit for logged-in users (Max 20 RPM)
-      const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
-      const { count: countMin, error: errorMin } = await supabaseClient
-        .from("voc_ai_request_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .gt("created_at", oneMinuteAgo);
+    // 1. Check Requests Per Minute limit for logged-in users (Max 20 RPM)
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { count: countMin, error: errorMin } = await supabaseClient
+      .from("voc_ai_request_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gt("created_at", oneMinuteAgo);
 
-      if (errorMin) throw errorMin;
-      if (countMin && countMin >= 20) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 20 AI requests per minute." }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 429,
-        });
-      }
+    if (errorMin) throw errorMin;
+    if (countMin && countMin >= 20) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 20 AI requests per minute." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 429,
+      });
+    }
 
-      // 2. Check Requests Per Day limit for logged-in users (Max 400 RPD)
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const { count: countDay, error: errorDay } = await supabaseClient
-        .from("voc_ai_request_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .gt("created_at", twentyFourHoursAgo);
+    // 2. Check Requests Per Day limit for logged-in users (Max 400 RPD)
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count: countDay, error: errorDay } = await supabaseClient
+      .from("voc_ai_request_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gt("created_at", twentyFourHoursAgo);
 
-      if (errorDay) throw errorDay;
-      if (countDay && countDay >= 400) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 400 AI requests per day." }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 429,
-        });
-      }
-    } else {
-      // Guest Limits: Max 5 RPM / 30 RPD by IP address
-      const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
-      const { count: countMin, error: errorMin } = await supabaseClient
-        .from("voc_ai_request_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("ip_address", clientIP)
-        .gt("created_at", oneMinuteAgo);
-
-      if (errorMin) throw errorMin;
-      if (countMin && countMin >= 5) {
-        return new Response(JSON.stringify({ error: "Guest rate limit exceeded: Max 5 AI requests per minute. Please register to increase your limits." }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 429,
-        });
-      }
-
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const { count: countDay, error: errorDay } = await supabaseClient
-        .from("voc_ai_request_logs")
-        .select("*", { count: "exact", head: true })
-        .eq("ip_address", clientIP)
-        .gt("created_at", twentyFourHoursAgo);
-
-      if (errorDay) throw errorDay;
-      if (countDay && countDay >= 30) {
-        return new Response(JSON.stringify({ error: "Guest rate limit exceeded: Max 30 AI requests per day. Please register to increase your limits." }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 429,
-        });
-      }
+    if (errorDay) throw errorDay;
+    if (countDay && countDay >= 400) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 400 AI requests per day." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 429,
+      });
     }
 
     // 3. Log this successful request
     const { error: logError } = await supabaseClient
       .from("voc_ai_request_logs")
       .insert({ 
-        user_id: user ? user.id : null, 
+        user_id: user.id, 
         action: action,
         ip_address: clientIP
       });

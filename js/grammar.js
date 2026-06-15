@@ -12,6 +12,21 @@
   let currentQuizCorrectCount = 0;
   let activeTopic = "nominative_case";
 
+  // Parse server-side/Deno JSON error messages
+  function getErrorMessage(error) {
+    if (!error) return "Unknown error";
+    let msg = error.message || String(error);
+    try {
+      const parsed = JSON.parse(msg);
+      if (parsed && parsed.error) {
+        msg = parsed.error;
+      }
+    } catch (e) {
+      // Not JSON, use original message
+    }
+    return msg;
+  }
+
   const GrammarManager = {
     init: function () {
       this.loadFromStorage();
@@ -263,8 +278,8 @@
 
     // Check Cloud Database Connected
     ensureCloudConnected: function () {
-      if (!window.SupabaseSync || !window.SupabaseSync.client) {
-        alert("Cloud Connection Required: AI Grammar functions require a connected database to query Gemini AI. Please connect your database under the Account tab first.");
+      if (!window.SupabaseSync || !window.SupabaseSync.client || !window.SupabaseSync.user) {
+        alert("Account Sign-in Required: AI Grammar features require a signed-in account. Please sign in or create an account under the 'Account' tab first.");
         return false;
       }
       return true;
@@ -352,7 +367,7 @@
       } catch (err) {
         loader.style.display = "none";
         console.error("Failed to explain grammar concept:", err);
-        this.appendTutorMessage("assistant", `<span style="color:var(--color-error);">Error loading lesson: ${err.message || err}. Please try again later.</span>`);
+        this.appendTutorMessage("assistant", `<span style="color:var(--color-error);">Error loading lesson: ${getErrorMessage(err)}. Please try again later.</span>`);
       }
     },
 
@@ -441,7 +456,7 @@
       } catch (err) {
         loader.style.display = "none";
         console.error("AI Tutor response error:", err);
-        this.appendTutorMessage("assistant", `<span style="color:var(--color-error);">Error getting explanation: ${err.message || err}. Please try again.</span>`);
+        this.appendTutorMessage("assistant", `<span style="color:var(--color-error);">Error getting explanation: ${getErrorMessage(err)}. Please try again.</span>`);
       }
     },
 
@@ -525,7 +540,7 @@
         loadingScreen.style.display = "none";
         setupScreen.style.display = "flex";
         console.error("AI Quiz generation failed:", err);
-        alert(`Failed to start quiz: ${err.message || err}. Please try again.`);
+        alert(`Failed to start quiz: ${getErrorMessage(err)}. Please try again.`);
       }
     },
 
@@ -773,7 +788,7 @@
         loader.style.display = "none";
         analyzeBtn.disabled = false;
         console.error("AI writing analysis failed:", err);
-        alert(`Analysis failed: ${err.message || err}. Please try again.`);
+        alert(`Analysis failed: ${getErrorMessage(err)}. Please try again.`);
       }
     },
 

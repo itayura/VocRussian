@@ -167,6 +167,22 @@ aside {
   border-color: transparent;
 }
 
+.nav-item.disabled {
+  opacity: 0.45;
+  filter: grayscale(0.85);
+}
+
+.nav-item.disabled button {
+  cursor: not-allowed !important;
+}
+
+.nav-item.disabled button:hover {
+  background: transparent !important;
+  color: var(--color-text-muted) !important;
+  border-color: transparent !important;
+}
+
+
 .sidebar-footer {
   margin-top: auto;
   display: flex;

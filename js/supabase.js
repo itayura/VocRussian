@@ -648,6 +648,11 @@
           adminCard.style.display = "none";
         }
       }
+
+      // Call grammar update state if it exists
+      if (typeof window.updateAIGrammarLockState === "function") {
+        window.updateAIGrammarLockState();
+      }
     },
 
     updateSyncButtonState: function (syncing) {
