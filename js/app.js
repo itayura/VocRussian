@@ -2038,14 +2038,71 @@
     if (!remindersToggle || !reminderTimeInput) return;
 
     // Load saved settings
-    const remindersEnabled = SRS.getSetting("dailyReminders", false);
+    const remindersEnabled = SRS.getSetting("dailyReminders", true);
     const reminderTime = SRS.getSetting("reminderTime", "19:00");
 
-    remindersToggle.checked = remindersEnabled;
+    remindersToggle.checked = remindersEnabled && Notification.permission === "granted";
     reminderTimeInput.value = reminderTime;
 
     // Update status text based on permission
     updateReminderStatusText();
+
+    // Show/hide dashboard notification opt-in banner
+    const notificationBanner = document.getElementById("dashboard-notification-banner");
+    const bannerEnableBtn = document.getElementById("notification-banner-enable-btn");
+    const bannerDismissBtn = document.getElementById("notification-banner-dismiss-btn");
+
+    if (notificationBanner) {
+      const bannerDismissed = localStorage.getItem("voc_notification_banner_dismissed") === "true";
+      if ("Notification" in window && Notification.permission === "default" && remindersEnabled && !bannerDismissed) {
+        notificationBanner.style.display = "flex";
+      } else {
+        notificationBanner.style.display = "none";
+      }
+
+      if (bannerEnableBtn) {
+        bannerEnableBtn.addEventListener("click", async () => {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            SRS.setSetting("dailyReminders", true);
+            remindersToggle.checked = true;
+            updateReminderStatusText();
+            await syncReminderStateToCache();
+
+            // Test notification
+            try {
+              new Notification("🔔 Daily Reminders Active!", {
+                body: `We'll remind you daily at ${reminderTimeInput.value} to practice your Russian words!`,
+                icon: "./logo.png"
+              });
+            } catch (e) {
+              console.warn("Failed to trigger test notification:", e);
+            }
+
+            // Sync push subscription with Supabase cloud
+            await window.syncPushSubscriptionWithCloud();
+
+            // Register background periodic sync
+            registerPeriodicSync();
+          } else {
+            remindersToggle.checked = false;
+            SRS.setSetting("dailyReminders", false);
+            updateReminderStatusText();
+            if (permission === "denied") {
+              alert("Notification permission was denied. If you want to receive study reminders, please enable notifications in your browser settings.");
+            }
+          }
+          notificationBanner.style.display = "none";
+        });
+      }
+
+      if (bannerDismissBtn) {
+        bannerDismissBtn.addEventListener("click", () => {
+          localStorage.setItem("voc_notification_banner_dismissed", "true");
+          notificationBanner.style.display = "none";
+        });
+      }
+    }
 
     // Set up settings change listeners
     remindersToggle.addEventListener("change", async () => {
@@ -2123,7 +2180,7 @@
     const statusText = document.getElementById("settings-reminders-status");
     if (!statusText) return;
 
-    const enabled = SRS.getSetting("dailyReminders", false);
+    const enabled = SRS.getSetting("dailyReminders", true);
     if (!enabled) {
       statusText.innerHTML = "Receive daily notifications on this device to practice and maintain your streak.";
       statusText.style.color = "var(--color-text-muted)";
@@ -2148,7 +2205,7 @@
       const stats = SRS.getGlobalStats();
       const lastActiveDate = stats.lastActiveDate || "";
       const streak = stats.streak || 0;
-      const enabled = SRS.getSetting("dailyReminders", false);
+      const enabled = SRS.getSetting("dailyReminders", true);
       const reminderTime = SRS.getSetting("reminderTime", "19:00");
 
       const data = {
@@ -2175,7 +2232,7 @@
     if (!('serviceWorker' in navigator) || !('periodicSync' in navigator)) return;
     try {
       const registration = await navigator.serviceWorker.ready;
-      const enabled = SRS.getSetting("dailyReminders", false);
+      const enabled = SRS.getSetting("dailyReminders", true);
       if (!enabled) return;
 
       // Register periodic sync for daily reminder
@@ -2219,7 +2276,7 @@
   }
 
   function checkAndTriggerForegroundReminder() {
-    const enabled = SRS.getSetting("dailyReminders", false);
+    const enabled = SRS.getSetting("dailyReminders", true);
     if (!enabled || Notification.permission !== "granted") return;
 
     const stats = SRS.getGlobalStats();
@@ -2288,7 +2345,7 @@
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
     
     // Only register if notifications are granted and daily reminders are enabled
-    const remindersEnabled = SRS.getSetting("dailyReminders", false);
+    const remindersEnabled = SRS.getSetting("dailyReminders", true);
     if (Notification.permission !== "granted" || !remindersEnabled) return;
 
     // Only register if user is logged into Supabase

@@ -240,6 +240,21 @@
           </button>
         </div>
         
+        <!-- Notification Opt-in Banner -->
+        <div id="dashboard-notification-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px dashed var(--color-primary); background: var(--color-primary-glow); padding: 1rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">🔔</span>
+            <div>
+              <strong style="color: var(--color-text-main); font-size: 0.95rem; display: block; margin-bottom: 0.15rem;">Keep your daily learning streak active!</strong>
+              <span class="page-subtitle" style="font-size: 0.8rem; margin: 0; color: var(--color-text-muted);">Allow notifications to receive study reminders and never miss a day.</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" id="notification-banner-enable-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 32px; font-weight: bold;">Enable Reminders</button>
+            <button type="button" id="notification-banner-dismiss-btn" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 32px; background: transparent; border-color: transparent; color: var(--color-text-muted);" title="Dismiss">✕</button>
+          </div>
+        </div>
+        
         <!-- Stats Widgets -->
         <div class="dashboard-grid">
           <div class="card stat-card due">
