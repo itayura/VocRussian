@@ -1810,4 +1810,23 @@ body.theme-light select option {
   color: var(--color-text-main);
 }
 
+/* Custom font stack to fix Cyrillic combining acute accent (stress mark) rendering issues in Inter/Outfit */
+.vocab-card-word,
+.vocab-card-example-ru,
+.demo-card-word,
+.demo-card-word-back,
+#demo-card-example-ru,
+#fc-word-front,
+#fc-word-example-ru-back,
+#choice-word,
+#writing-user-input,
+#add-word-input,
+#add-accented-input,
+#add-exampleru-input,
+#edit-word-input,
+#edit-accented-input,
+#edit-exampleru-input {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+}
+
 
