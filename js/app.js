@@ -97,15 +97,15 @@
     setupGlobalShortcuts();
 
     // Setup active DB controls in DOM
-    const activeDb = SRS.getActiveDb();
-    document.getElementById("study-filter-db").value = activeDb;
-    document.getElementById("dict-filter-db").value = activeDb;
+    populateDecksDropdowns();
+    checkSharedDeckImport();
     
     updateCategoryDropdowns();
     setupScrollLoading();
 
     // Global UI refresh callback for sync downloads
     window.refreshAppUI = function () {
+      populateDecksDropdowns();
       renderDashboard();
       updateCategoryDropdowns();
       if (views.dictionary.classList.contains("active")) {
@@ -1022,6 +1022,7 @@
           : "Are you sure you want to hide this default word? You can restore it later by clearing data.";
         if (confirm(msg)) {
           SRS.deleteWord(card.id);
+          populateDecksDropdowns();
           renderDictionary();
         }
       });
@@ -1492,7 +1493,8 @@
   // --- MODAL WINDOW CONTROLLERS ---
   const modals = {
     "modal-add-word": document.getElementById("modal-add-word"),
-    "modal-edit-word": document.getElementById("modal-edit-word")
+    "modal-edit-word": document.getElementById("modal-edit-word"),
+    "modal-manage-decks": document.getElementById("modal-manage-decks")
   };
 
   function setupModals() {
@@ -1502,6 +1504,45 @@
     
     document.getElementById("modal-edit-close").addEventListener("click", () => closeModal("modal-edit-word"));
     document.getElementById("modal-edit-cancel").addEventListener("click", () => closeModal("modal-edit-word"));
+    
+    document.getElementById("modal-decks-close").addEventListener("click", () => closeModal("modal-manage-decks"));
+    document.getElementById("modal-decks-close-footer").addEventListener("click", () => closeModal("modal-manage-decks"));
+
+    // Folder button clicks to open Manage Decks
+    document.getElementById("dict-manage-decks-btn").addEventListener("click", () => {
+      renderDecksList();
+      openModal("modal-manage-decks");
+    });
+    document.getElementById("study-manage-decks-btn").addEventListener("click", () => {
+      renderDecksList();
+      openModal("modal-manage-decks");
+    });
+
+    // Create custom deck
+    document.getElementById("create-deck-btn").addEventListener("click", () => {
+      const nameInput = document.getElementById("create-deck-name-input");
+      const name = nameInput.value.trim();
+      if (!name) {
+        alert("Please enter a deck name.");
+        return;
+      }
+      SRS.createCustomDeck(name);
+      nameInput.value = "";
+      populateDecksDropdowns();
+      renderDecksList();
+    });
+
+    // Import custom deck from paste box
+    document.getElementById("import-deck-btn").addEventListener("click", () => {
+      const codeInput = document.getElementById("import-deck-code-input");
+      const code = codeInput.value.trim();
+      if (!code) {
+        alert("Please paste a deck link or code first.");
+        return;
+      }
+      handleImportDeck(code);
+      codeInput.value = "";
+    });
 
     // Autofill trigger from Google Translate & Wiktionary
     document.getElementById("modal-add-autofill-btn").addEventListener("click", async () => {
@@ -1862,6 +1903,7 @@
         closeModal("modal-add-word");
         // Reset form
         document.getElementById("add-word-form").reset();
+        populateDecksDropdowns();
         renderDictionary();
       }
     });
@@ -2497,4 +2539,238 @@
       console.warn("Failed to synchronize push subscription with cloud:", e);
     }
   };
+
+  // --- DECKS MANAGEMENT UTILS & HANDLERS ---
+
+  // UTF-8 base64 encoding/decoding to support Cyrillic unicode characters safely
+  function utf8ToBase64(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+      return String.fromCharCode(parseInt(p1, 16));
+    }));
+  }
+
+  function base64ToUtf8(str) {
+    return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+  }
+
+  function populateDecksDropdowns() {
+    const studyDbSelect = document.getElementById("study-filter-db");
+    const dictDbSelect = document.getElementById("dict-filter-db");
+    
+    if (!studyDbSelect || !dictDbSelect) return;
+    
+    const activeDb = SRS.getActiveDb();
+    const allCustomWords = SRS.getCustomWordsList();
+    const defaultCustomCount = allCustomWords.filter(w => (w.deckId || "custom") === "custom").length;
+    
+    const customDecks = SRS.getCustomDecks();
+    
+    let html = `
+      <option value="standard">Standard Deck (120 words)</option>
+      <option value="expanded">Expanded Deck (3,376 words)</option>
+      <option value="custom">Personal Custom Deck (${defaultCustomCount} words)</option>
+    `;
+    
+    customDecks.forEach(deck => {
+      const count = allCustomWords.filter(w => w.deckId === deck.id).length;
+      html += `<option value="${deck.id}">${deck.name} (${count} words)</option>`;
+    });
+    
+    studyDbSelect.innerHTML = html;
+    dictDbSelect.innerHTML = html;
+    
+    studyDbSelect.value = activeDb;
+    dictDbSelect.value = activeDb;
+    
+    if (studyDbSelect.value !== activeDb) {
+      SRS.setActiveDb(studyDbSelect.value);
+    }
+  }
+
+  function renderDecksList() {
+    const container = document.getElementById("decks-list-container");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const builtInDecks = [
+      { id: "standard", name: "Standard Deck", isBuiltIn: true, count: 120 },
+      { id: "expanded", name: "Expanded Deck", isBuiltIn: true, count: 3376 },
+      { id: "custom", name: "Personal Custom Deck", isBuiltIn: true }
+    ];
+
+    const allCustomWords = SRS.getCustomWordsList();
+    builtInDecks[2].count = allCustomWords.filter(w => (w.deckId || "custom") === "custom").length;
+
+    const customDecks = SRS.getCustomDecks();
+
+    const allDecks = [...builtInDecks, ...customDecks.map(d => {
+      return {
+        id: d.id,
+        name: d.name,
+        isBuiltIn: false,
+        count: allCustomWords.filter(w => w.deckId === d.id).length
+      };
+    })];
+
+    allDecks.forEach(deck => {
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.justifyContent = "space-between";
+      row.style.padding = "0.75rem";
+      row.style.background = "var(--bg-card)";
+      row.style.border = "1px solid var(--border-glass)";
+      row.style.borderRadius = "var(--border-radius-sm)";
+      row.style.gap = "0.5rem";
+
+      const info = document.createElement("div");
+      info.style.display = "flex";
+      info.style.flexDirection = "column";
+      info.style.gap = "0.15rem";
+      info.innerHTML = `
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-main);">${deck.name}</span>
+        <span style="font-size: 0.75rem; color: var(--color-text-muted);">${deck.count} words</span>
+      `;
+      row.appendChild(info);
+
+      const actions = document.createElement("div");
+      actions.style.display = "flex";
+      actions.style.gap = "0.35rem";
+
+      if (deck.id === "custom" || !deck.isBuiltIn) {
+        const shareBtn = document.createElement("button");
+        shareBtn.type = "button";
+        shareBtn.className = "btn btn-secondary";
+        shareBtn.style.padding = "0.35rem 0.6rem";
+        shareBtn.style.fontSize = "0.75rem";
+        shareBtn.innerText = "🔗 Share";
+        shareBtn.addEventListener("click", () => shareDeck(deck.id, deck.name));
+        actions.appendChild(shareBtn);
+      }
+
+      if (!deck.isBuiltIn) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "btn btn-secondary";
+        deleteBtn.style.padding = "0.35rem 0.6rem";
+        deleteBtn.style.fontSize = "0.75rem";
+        deleteBtn.style.color = "var(--color-primary)";
+        deleteBtn.innerText = "🗑️";
+        deleteBtn.addEventListener("click", () => {
+          if (confirm(`Are you sure you want to delete the deck "${deck.name}"? This will delete all words inside this deck.`)) {
+            SRS.deleteCustomDeck(deck.id);
+            populateDecksDropdowns();
+            renderDecksList();
+            renderDictionary();
+          }
+        });
+        actions.appendChild(deleteBtn);
+      }
+
+      row.appendChild(actions);
+      container.appendChild(row);
+    });
+  }
+
+  function shareDeck(deckId, deckName) {
+    const allCustomWords = SRS.getCustomWordsList();
+    const deckWords = allCustomWords.filter(w => {
+      const wDeckId = w.deckId || "custom";
+      return wDeckId === deckId;
+    });
+
+    if (deckWords.length === 0) {
+      alert("Cannot share an empty deck. Please add some words first!");
+      return;
+    }
+
+    const payload = {
+      name: deckName,
+      words: deckWords.map(w => ({
+        word: w.word,
+        accented: w.accented,
+        translation: w.translation,
+        transliteration: w.transliteration || "",
+        pos: w.pos || "noun",
+        category: w.category || "Custom",
+        exampleRu: w.exampleRu || "",
+        exampleEn: w.exampleEn || ""
+      }))
+    };
+
+    try {
+      const jsonStr = JSON.stringify(payload);
+      const base64 = utf8ToBase64(jsonStr);
+      const shareUrl = `${window.location.origin}${window.location.pathname}?import-deck=${base64}`;
+
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert(`Shareable link copied to clipboard!\n\nLink: ${shareUrl.substring(0, 50)}...`);
+      }).catch(err => {
+        prompt("Copy this shareable link manually:", shareUrl);
+      });
+    } catch (e) {
+      console.error("Failed to generate share link:", e);
+      alert("Failed to share deck: Error encoding data.");
+    }
+  }
+
+  function handleImportDeck(rawInput) {
+    let base64Data = rawInput.trim();
+    if (base64Data.startsWith("http")) {
+      try {
+        const url = new URL(base64Data);
+        base64Data = url.searchParams.get("import-deck") || base64Data;
+      } catch (e) {
+        // use raw input
+      }
+    }
+
+    try {
+      const decodedStr = base64ToUtf8(base64Data);
+      const deckData = JSON.parse(decodedStr);
+      if (deckData && deckData.name && Array.isArray(deckData.words)) {
+        const newDeckId = SRS.importCustomDeck(deckData.name, deckData.words);
+        SRS.setActiveDb(newDeckId);
+        populateDecksDropdowns();
+        renderDecksList();
+        renderDictionary();
+        closeModal("modal-manage-decks");
+        alert(`Successfully imported deck "${deckData.name}" with ${deckData.words.length} words!`);
+      } else {
+        alert("Failed to import deck: Invalid deck structure.");
+      }
+    } catch (e) {
+      console.error("Failed to import shared deck:", e);
+      alert("Failed to import deck: Invalid or corrupted code/link.");
+    }
+  }
+
+  function checkSharedDeckImport() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const importData = urlParams.get("import-deck");
+    if (importData) {
+      try {
+        const decodedStr = base64ToUtf8(importData);
+        const deckData = JSON.parse(decodedStr);
+        if (deckData && deckData.name && Array.isArray(deckData.words)) {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          setTimeout(() => {
+            if (confirm(`Do you want to import the shared deck "${deckData.name}" containing ${deckData.words.length} words?`)) {
+              const newDeckId = SRS.importCustomDeck(deckData.name, deckData.words);
+              SRS.setActiveDb(newDeckId);
+              populateDecksDropdowns();
+              renderDictionary();
+              alert(`Successfully imported deck "${deckData.name}"!`);
+            }
+          }, 500);
+        }
+      } catch (e) {
+        console.error("Failed to import shared deck on load:", e);
+        alert("Failed to import deck: Invalid or corrupted share link.");
+      }
+    }
+  }
 })();

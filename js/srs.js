@@ -146,23 +146,24 @@
 
     // Set active database name
     setActiveDb: function(dbName) {
-      if (dbName === "expanded" || dbName === "standard" || dbName === "custom") {
-        localStorage.setItem("voc_russian_active_db", dbName);
-        return true;
-      }
-      return false;
+      localStorage.setItem("voc_russian_active_db", dbName);
+      return true;
     },
 
     // Get all words (default + custom)
     getAllWords: function () {
       const activeDb = this.getActiveDb();
-      let baseList = [];
       if (activeDb === "expanded") {
-        baseList = window.expandedVocabulary || [];
+        return window.expandedVocabulary || [];
       } else if (activeDb === "standard") {
-        baseList = window.defaultVocabulary || [];
-      } // If 'custom', baseList is empty, returning only customWords
-      return [...baseList, ...customWords];
+        return window.defaultVocabulary || [];
+      }
+      
+      // It's a custom deck (either default 'custom' or a user-created 'deck_xxxx')
+      return customWords.filter(w => {
+        const wDeckId = w.deckId || "custom";
+        return wDeckId === activeDb;
+      });
     },
 
     // Get specific word by ID
@@ -251,6 +252,10 @@
 
     // Add a custom word
     addCustomWord: function (wordData) {
+      const activeDb = this.getActiveDb();
+      // If activeDb is standard or expanded, force target deck to be the default "custom" deck
+      const targetDeckId = (activeDb === "standard" || activeDb === "expanded") ? "custom" : activeDb;
+
       const id = "custom_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
       const newWord = {
         id: id,
@@ -262,10 +267,17 @@
         category: wordData.category || "Custom",
         exampleRu: wordData.exampleRu ? wordData.exampleRu.trim() : "",
         exampleEn: wordData.exampleEn ? wordData.exampleEn.trim() : "",
+        deckId: targetDeckId,
         updatedAt: Date.now()
       };
 
       customWords.push(newWord);
+
+      // If activeDb was standard/expanded, switch active DB to targetDeckId
+      if (activeDb === "standard" || activeDb === "expanded") {
+        this.setActiveDb(targetDeckId);
+      }
+
       // Initialize progress
       const prog = this.getCardProgress(id);
       prog.updatedAt = Date.now();
@@ -479,6 +491,98 @@
       globalStats.updatedAt = Date.now();
       saveToStorage();
       triggerBgPush("stats", null, globalStats);
+    },
+
+    getCustomDecks: function() {
+      if (!globalStats.settings) globalStats.settings = {};
+      return globalStats.settings.customDecks || [];
+    },
+
+    createCustomDeck: function(name) {
+      if (!globalStats.settings) globalStats.settings = {};
+      if (!globalStats.settings.customDecks) globalStats.settings.customDecks = [];
+      
+      const id = "deck_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+      const newDeck = {
+        id: id,
+        name: name.trim(),
+        createdAt: Date.now()
+      };
+      
+      globalStats.settings.customDecks.push(newDeck);
+      globalStats.updatedAt = Date.now();
+      saveToStorage();
+      triggerBgPush("stats", null, globalStats);
+      return newDeck;
+    },
+
+    deleteCustomDeck: function(id) {
+      if (!globalStats.settings || !globalStats.settings.customDecks) return false;
+      const decks = globalStats.settings.customDecks;
+      const idx = decks.findIndex(d => d.id === id);
+      if (idx !== -1) {
+        decks.splice(idx, 1);
+        globalStats.updatedAt = Date.now();
+        
+        // Delete all words belonging to this deck
+        const wordsToDelete = customWords.filter(w => (w.deckId || "custom") === id);
+        wordsToDelete.forEach(w => {
+          this.deleteWord(w.id);
+        });
+
+        if (this.getActiveDb() === id) {
+          this.setActiveDb("custom");
+        }
+        
+        saveToStorage();
+        triggerBgPush("stats", null, globalStats);
+        return true;
+      }
+      return false;
+    },
+
+    importCustomDeck: function(name, words) {
+      if (!globalStats.settings) globalStats.settings = {};
+      if (!globalStats.settings.customDecks) globalStats.settings.customDecks = [];
+      
+      const newDeckId = "deck_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+      const newDeck = {
+        id: newDeckId,
+        name: name.trim(),
+        createdAt: Date.now()
+      };
+      
+      globalStats.settings.customDecks.push(newDeck);
+      globalStats.updatedAt = Date.now();
+      
+      // Add all words
+      words.forEach(w => {
+        const wordId = "custom_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+        const newWord = {
+          id: wordId,
+          word: w.word.trim(),
+          accented: w.accented ? w.accented.trim() : w.word.trim(),
+          translation: w.translation.trim(),
+          transliteration: w.transliteration ? w.transliteration.trim() : "",
+          pos: w.pos || "noun",
+          category: w.category || "Custom",
+          exampleRu: w.exampleRu ? w.exampleRu.trim() : "",
+          exampleEn: w.exampleEn ? w.exampleEn.trim() : "",
+          deckId: newDeckId,
+          updatedAt: Date.now()
+        };
+        customWords.push(newWord);
+        
+        // Initialize progress for the imported card
+        const prog = this.getCardProgress(wordId);
+        prog.updatedAt = Date.now();
+        triggerBgPush("word", wordId, newWord);
+        triggerBgPush("progress", wordId, prog);
+      });
+
+      saveToStorage();
+      triggerBgPush("stats", null, globalStats);
+      return newDeckId;
     }
   };
 

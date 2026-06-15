@@ -184,7 +184,7 @@
             updated_at: new Date(data.updatedAt || Date.now()).toISOString()
           });
         } else if (type === "word") {
-          await this.client.from("voc_words").upsert({
+          const payload = {
             user_id: this.user.id,
             id: id,
             word: data.word,
@@ -195,8 +195,15 @@
             category: data.category || "Custom",
             example_ru: data.exampleRu || data.example_ru || "",
             example_en: data.exampleEn || data.example_en || "",
+            deck_id: data.deckId || "custom",
             updated_at: new Date(data.updatedAt || Date.now()).toISOString()
-          });
+          };
+          const { error } = await this.client.from("voc_words").upsert(payload);
+          if (error) {
+            console.warn("[SupabaseSync] Upsert with deck_id failed, retrying without it:", error);
+            delete payload.deck_id;
+            await this.client.from("voc_words").upsert(payload);
+          }
         } else if (type === "word_delete") {
           await this.client.from("voc_words").delete().match({
             user_id: this.user.id,
@@ -279,6 +286,7 @@
               category: dbW.category || "Custom",
               exampleRu: dbW.example_ru || "",
               exampleEn: dbW.example_en || "",
+              deckId: dbW.deck_id || "custom",
               updatedAt: Date.parse(dbW.updated_at)
             };
             if (isCustom) {
@@ -290,7 +298,7 @@
             // Exists in both - compare updatedAt timestamps
             const dbTime = Date.parse(dbW.updated_at);
             const localTime = localW.updatedAt || 0;
-
+ 
             if (localTime > dbTime) {
               // Local is newer - queue to push to Supabase
               toPushWords.push(localW);
@@ -306,6 +314,7 @@
                 category: dbW.category || "Custom",
                 exampleRu: dbW.example_ru || "",
                 exampleEn: dbW.example_en || "",
+                deckId: dbW.deck_id || "custom",
                 updatedAt: dbTime
               };
               if (isCustom) {
@@ -338,13 +347,25 @@
             category: w.category || "Custom",
             example_ru: w.exampleRu || w.example_ru || "",
             example_en: w.exampleEn || w.example_en || "",
+            deck_id: w.deckId || "custom",
             updated_at: new Date(w.updatedAt || Date.now()).toISOString()
           }));
-
+ 
           const { error: pushErr } = await this.client
             .from("voc_words")
             .upsert(rowsToPush);
-          if (pushErr) throw pushErr;
+          if (pushErr) {
+            console.warn("[SupabaseSync] Syncing words with deck_id failed, retrying without it:", pushErr);
+            const fallbackRows = rowsToPush.map(row => {
+              const r = { ...row };
+              delete r.deck_id;
+              return r;
+            });
+            const { error: fallbackErr } = await this.client
+              .from("voc_words")
+              .upsert(fallbackRows);
+            if (fallbackErr) throw fallbackErr;
+          }
         }
 
 

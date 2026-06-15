@@ -392,11 +392,14 @@
           <div class="dictionary-filter-bar" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
             <div class="form-group">
               <label for="study-filter-db">Vocabulary Deck</label>
-              <select id="study-filter-db" class="filter-select">
-                <option value="standard">Standard Deck (120 words)</option>
-                <option value="expanded">Expanded Deck (3,376 words)</option>
-                <option value="custom">Personal Custom Deck (Empty/Add Words)</option>
-              </select>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <select id="study-filter-db" class="filter-select" style="flex: 1;">
+                  <option value="standard">Standard Deck (120 words)</option>
+                  <option value="expanded">Expanded Deck (3,376 words)</option>
+                  <option value="custom">Personal Custom Deck</option>
+                </select>
+                <button type="button" id="study-manage-decks-btn" class="btn btn-secondary" style="padding: 0.85rem 1rem; font-size: 0.95rem; border-radius: var(--border-radius-md);" title="Manage Decks">📁</button>
+              </div>
             </div>
             <div class="form-group">
               <label for="study-filter-category">Limit Category</label>
@@ -602,11 +605,14 @@
 
           <div class="form-group" style="margin-bottom: 0;">
             <label for="dict-filter-db" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Active Deck</label>
-            <select id="dict-filter-db" class="filter-select">
-              <option value="standard">Standard Deck (120 words)</option>
-              <option value="expanded">Expanded Deck (3,376 words)</option>
-              <option value="custom">Personal Custom Deck (Empty/Add Words)</option>
-            </select>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="dict-filter-db" class="filter-select" style="flex: 1;">
+                <option value="standard">Standard Deck (120 words)</option>
+                <option value="expanded">Expanded Deck (3,376 words)</option>
+                <option value="custom">Personal Custom Deck</option>
+              </select>
+              <button type="button" id="dict-manage-decks-btn" class="btn btn-secondary" style="padding: 0.85rem 1rem; font-size: 0.95rem; border-radius: var(--border-radius-md);" title="Manage Decks">📁</button>
+            </div>
           </div>
           
           <div class="form-group" style="margin-bottom: 0;">
@@ -1139,6 +1145,52 @@
           <button type="submit" class="btn btn-primary" id="modal-edit-submit">Update Word</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MANAGE DECKS -->
+  <div class="modal-overlay" id="modal-manage-decks">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📂 Manage Custom Decks</h3>
+        <button class="modal-close-btn" id="modal-decks-close">×</button>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1rem;">
+        <!-- Create Deck -->
+        <div>
+          <h4 style="margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 1rem;">Create New Deck</h4>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="create-deck-name-input" class="filter-input" placeholder="e.g. Travel, Food, Verbs..." style="flex: 1;">
+            <button type="button" id="create-deck-btn" class="btn btn-primary" style="padding: 0 1.25rem; height: auto;">Create</button>
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+        <!-- Decks List -->
+        <div>
+          <h4 style="margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 1rem;">Your Decks</h4>
+          <div id="decks-list-container" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 200px; overflow-y: auto; padding-right: 0.25rem;">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+        <!-- Import Deck -->
+        <div>
+          <h4 style="margin-bottom: 0.5rem; font-family: var(--font-heading); font-size: 1rem;">Import Shared Deck Code</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <textarea id="import-deck-code-input" class="filter-input" placeholder="Paste shareable deck link or raw code here..." style="height: 60px; resize: none; font-family: monospace; font-size: 0.8rem;"></textarea>
+            <button type="button" id="import-deck-btn" class="btn btn-secondary" style="width: 100%;">Import Deck</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-glass);">
+        <button type="button" class="btn btn-secondary" id="modal-decks-close-footer" style="width: 100%;">Close</button>
+      </div>
     </div>
   </div>
 
