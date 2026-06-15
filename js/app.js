@@ -1538,6 +1538,153 @@
       }
     });
 
+    // Reverse Autofill trigger (English to Russian)
+    document.getElementById("modal-add-reverse-autofill-btn").addEventListener("click", async () => {
+      const translationInput = document.getElementById("add-translation-input");
+      const englishText = translationInput.value.trim();
+      if (!englishText) {
+        alert("Please enter an English translation first.");
+        translationInput.focus();
+        return;
+      }
+
+      const statusEl = document.getElementById("reverse-autofill-status");
+      const reverseAutofillBtn = document.getElementById("modal-add-reverse-autofill-btn");
+      
+      reverseAutofillBtn.disabled = true;
+      statusEl.style.display = "inline-flex";
+
+      try {
+        // 1. Fetch translation from Google Translate API (en -> ru)
+        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
+        const gtRes = await fetch(googleTranslateUrl);
+        if (!gtRes.ok) {
+          throw new Error("Failed to contact translation service.");
+        }
+        const gtData = await gtRes.json();
+        let russianWord = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
+          ? gtData[0][0][0].trim() 
+          : "";
+          
+        if (!russianWord) {
+          throw new Error("Could not find a Russian translation for this word.");
+        }
+
+        // Clean up any trailing punctuation or casing if Google Translate returns capitalized or dotted
+        russianWord = russianWord.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").trim().toLowerCase();
+
+        if (!russianWord) {
+          throw new Error("Invalid Russian translation returned.");
+        }
+
+        // 2. Query Wiktionary for linguistic details of the resolved Russian word
+        let posVal = "noun";
+        let cleanDef = englishText; // Keep user's input as the definition
+        let accented = russianWord;
+        let exampleRu = "";
+        let exampleEn = "";
+
+        try {
+          const restUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(russianWord)}`;
+          const restRes = await fetch(restUrl);
+          if (restRes.ok) {
+            const restData = await restRes.json();
+            if (restData.ru && restData.ru.length > 0) {
+              const blocks = restData.ru;
+              const primaryBlock = blocks[0];
+              const pos = primaryBlock.partOfSpeech ? primaryBlock.partOfSpeech.toLowerCase() : "noun";
+              const definitionObj = primaryBlock.definitions[0];
+              
+              const rawDef = definitionObj.definition || "";
+              const cleanWiktDef = rawDef.replace(/<[^>]*>/g, "").trim();
+              
+              if (cleanWiktDef) {
+                cleanDef = cleanWiktDef;
+              }
+
+              // Extract examples
+              for (const b of blocks) {
+                for (const def of b.definitions) {
+                  if (def.examples && def.examples.length > 0) {
+                    const ex = def.examples[0];
+                    exampleRu = (ex.sentence || "").replace(/<[^>]*>/g, "").trim();
+                    exampleEn = (ex.translation || "").replace(/<[^>]*>/g, "").trim();
+                    break;
+                  }
+                }
+                if (exampleRu) break;
+              }
+
+              // Map parts of speech
+              if (pos.includes("noun")) posVal = "noun";
+              else if (pos.includes("verb")) posVal = "verb";
+              else if (pos.includes("adj")) posVal = "adjective";
+              else if (pos.includes("adv")) posVal = "adverb";
+              else if (pos.includes("pron")) posVal = "pronoun";
+              else if (pos.includes("num")) posVal = "numeral";
+              else if (pos.includes("prep")) posVal = "preposition";
+              else if (pos.includes("conj")) posVal = "conjunction";
+              else if (pos.includes("part")) posVal = "particle";
+              else if (pos.includes("interj")) posVal = "interjection";
+              else posVal = "phrase";
+            }
+          }
+        } catch (e) {
+          console.warn("Wiktionary definitions lookup failed, using translation only.", e);
+        }
+
+        // Accented stress lookup
+        try {
+          const actionUrl = `https://en.wiktionary.org/w/api.php?action=parse&prop=wikitext&page=${encodeURIComponent(russianWord)}&format=json&origin=*`;
+          const actionRes = await fetch(actionUrl);
+          if (actionRes.ok) {
+            const actionData = await actionRes.json();
+            if (actionData.parse && actionData.parse.wikitext) {
+              const wikitext = actionData.parse.wikitext["*"] || "";
+              const accentedRegex = /\{\{ru-[^}]*\}\}/g;
+              const matches = wikitext.match(accentedRegex) || [];
+              for (const match of matches) {
+                const parts = match.replace(/[{}]/g, "").split("|");
+                const stressedPart = parts.find(p => p.includes("\u0301"));
+                if (stressedPart) {
+                  accented = stressedPart.trim();
+                  break;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("Accented stress lookup failed, using default base spelling.", e);
+        }
+
+        // Fill elements (including Russian Word field)
+        document.getElementById("add-word-input").value = russianWord.charAt(0).toUpperCase() + russianWord.slice(1);
+        document.getElementById("add-accented-input").value = accented.charAt(0).toUpperCase() + accented.slice(1);
+        document.getElementById("add-translation-input").value = cleanDef;
+        document.getElementById("add-translit-input").value = transliterateWord(russianWord);
+        document.getElementById("add-pos-input").value = posVal;
+        document.getElementById("add-exampleru-input").value = exampleRu;
+        document.getElementById("add-exampleen-input").value = exampleEn;
+
+        // Visual success pulse
+        const inputs = [
+          "add-word-input", "add-accented-input", "add-translation-input", "add-translit-input",
+          "add-pos-input", "add-exampleru-input", "add-exampleen-input"
+        ];
+        inputs.forEach(id => {
+          const el = document.getElementById(id);
+          el.style.borderColor = "var(--color-success)";
+          setTimeout(() => el.style.borderColor = "", 1000);
+        });
+
+      } catch (err) {
+        alert(`Reverse Auto-fill Error: ${err.message || "Failed to translate word. Please fill details manually."}`);
+      } finally {
+        reverseAutofillBtn.disabled = false;
+        statusEl.style.display = "none";
+      }
+    });
+
     // Add Form Submit
     document.getElementById("add-word-form").addEventListener("submit", () => {
       const word = document.getElementById("add-word-input").value;
