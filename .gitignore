@@ -1,0 +1,15 @@
+# Node dependencies
+node_modules/
+
+# Local Environment secrets
+.env
+.env.local
+.env.*.local
+
+# Temporary local scripts/credential logs
+push_notify.ps1
+*.ps1
+*.key
+*.token
+*.txt
+!README.md
