@@ -20,6 +20,9 @@
       const parsed = JSON.parse(msg);
       if (parsed && parsed.error) {
         msg = parsed.error;
+        if (parsed.details) {
+          msg += ` (${parsed.details})`;
+        }
       }
     } catch (e) {
       // Not JSON, use original message

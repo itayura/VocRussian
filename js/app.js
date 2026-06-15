@@ -1612,91 +1612,17 @@
           throw new Error("Could not find a translation for this word.");
         }
 
-        // 2. Query Wiktionary for linguistic details (accented stress, example sentences, part of speech)
+        // Skip Wiktionary REST query and only use translation
         let posVal = "noun";
-        let cleanDef = translation; // Default to Google Translate translation
+        let cleanDef = translation; 
         let accented = word;
         let exampleRu = "";
         let exampleEn = "";
 
-        try {
-          const restUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word)}`;
-          const restRes = await fetch(restUrl);
-          if (restRes.ok) {
-            const restData = await restRes.json();
-            if (restData.ru && restData.ru.length > 0) {
-              const blocks = restData.ru;
-              const primaryBlock = blocks[0];
-              const pos = primaryBlock.partOfSpeech ? primaryBlock.partOfSpeech.toLowerCase() : "noun";
-              const definitionObj = primaryBlock.definitions[0];
-              
-              const rawDef = definitionObj.definition || "";
-              const cleanWiktDef = rawDef.replace(/<[^>]*>/g, "").trim();
-              
-              if (cleanWiktDef) {
-                cleanDef = cleanWiktDef;
-              }
+        // 2. Try generating example sentences with Gemini if logged in
+        const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
 
-              // Extract examples
-              for (const b of blocks) {
-                for (const def of b.definitions) {
-                  if (def.examples && def.examples.length > 0) {
-                    const ex = def.examples[0];
-                    exampleRu = (ex.sentence || "").replace(/<[^>]*>/g, "").trim();
-                    exampleEn = (ex.translation || "").replace(/<[^>]*>/g, "").trim();
-                    break;
-                  }
-                }
-                if (exampleRu) break;
-              }
-
-              // Map parts of speech
-              if (pos.includes("noun")) posVal = "noun";
-              else if (pos.includes("verb")) posVal = "verb";
-              else if (pos.includes("adj")) posVal = "adjective";
-              else if (pos.includes("adv")) posVal = "adverb";
-              else if (pos.includes("pron")) posVal = "pronoun";
-              else if (pos.includes("num")) posVal = "numeral";
-              else if (pos.includes("prep")) posVal = "preposition";
-              else if (pos.includes("conj")) posVal = "conjunction";
-              else if (pos.includes("part")) posVal = "particle";
-              else if (pos.includes("interj")) posVal = "interjection";
-              else posVal = "phrase";
-            }
-          }
-        } catch (e) {
-          console.warn("Wiktionary definitions lookup failed, using translation only.", e);
-        }
-
-        // Accented stress lookup
-        try {
-          const actionUrl = `https://en.wiktionary.org/w/api.php?action=parse&prop=wikitext&page=${encodeURIComponent(word)}&format=json&origin=*`;
-          const actionRes = await fetch(actionUrl);
-          if (actionRes.ok) {
-            const actionData = await actionRes.json();
-            if (actionData.parse && actionData.parse.wikitext) {
-              const wikitext = actionData.parse.wikitext["*"] || "";
-              const accentedRegex = /\{\{ru-[^}]*\}\}/g;
-              const matches = wikitext.match(accentedRegex) || [];
-              for (const match of matches) {
-                const parts = match.replace(/[{}]/g, "").split("|");
-                const stressedPart = parts.find(p => p.includes("\u0301"));
-                if (stressedPart) {
-                  accented = stressedPart.trim();
-                  break;
-                }
-              }
-            }
-          }
-        } catch (e) {
-          console.warn("Accented stress lookup failed, using default base spelling.", e);
-        }
-
-        // 3. Try generating example sentences with Gemini if configured
-        const geminiAutofillEnabled = SRS.getSetting("geminiAutofillEnabled", true);
-        const isDbConnected = window.SupabaseSync && window.SupabaseSync.client;
-
-        if (isDbConnected && geminiAutofillEnabled) {
+        if (isLoggedIn) {
           try {
             const spinnerStatusText = statusEl.querySelector("span:last-child");
             if (spinnerStatusText) {
@@ -1708,14 +1634,8 @@
               exampleEn = aiSentence.sentenceEn;
             }
           } catch (e) {
-            console.warn("Gemini sentence generation failed, using Wiktionary instead.", e);
-            alert(`AI Sentence Generation failed: ${e.message || e}\n\nFalling back to Wiktionary examples.`);
-          } finally {
-            // Restore status spinner text
-            const spinnerStatusText = statusEl.querySelector("span:last-child");
-            if (spinnerStatusText) {
-              spinnerStatusText.innerText = "Fetching Wiktionary data...";
-            }
+            console.warn("Gemini sentence generation failed.", e);
+            alert(`AI Sentence Generation failed: ${e.message || e}`);
           }
         }
 
@@ -1785,91 +1705,17 @@
           throw new Error("Invalid Russian translation returned.");
         }
 
-        // 2. Query Wiktionary for linguistic details of the resolved Russian word
+        // Skip Wiktionary REST query and only use translation
         let posVal = "noun";
-        let cleanDef = englishText; // Keep user's input as the definition
+        let cleanDef = englishText; 
         let accented = russianWord;
         let exampleRu = "";
         let exampleEn = "";
 
-        try {
-          const restUrl = `https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(russianWord)}`;
-          const restRes = await fetch(restUrl);
-          if (restRes.ok) {
-            const restData = await restRes.json();
-            if (restData.ru && restData.ru.length > 0) {
-              const blocks = restData.ru;
-              const primaryBlock = blocks[0];
-              const pos = primaryBlock.partOfSpeech ? primaryBlock.partOfSpeech.toLowerCase() : "noun";
-              const definitionObj = primaryBlock.definitions[0];
-              
-              const rawDef = definitionObj.definition || "";
-              const cleanWiktDef = rawDef.replace(/<[^>]*>/g, "").trim();
-              
-              if (cleanWiktDef) {
-                cleanDef = cleanWiktDef;
-              }
+        // 2. Try generating example sentences with Gemini if logged in
+        const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
 
-              // Extract examples
-              for (const b of blocks) {
-                for (const def of b.definitions) {
-                  if (def.examples && def.examples.length > 0) {
-                    const ex = def.examples[0];
-                    exampleRu = (ex.sentence || "").replace(/<[^>]*>/g, "").trim();
-                    exampleEn = (ex.translation || "").replace(/<[^>]*>/g, "").trim();
-                    break;
-                  }
-                }
-                if (exampleRu) break;
-              }
-
-              // Map parts of speech
-              if (pos.includes("noun")) posVal = "noun";
-              else if (pos.includes("verb")) posVal = "verb";
-              else if (pos.includes("adj")) posVal = "adjective";
-              else if (pos.includes("adv")) posVal = "adverb";
-              else if (pos.includes("pron")) posVal = "pronoun";
-              else if (pos.includes("num")) posVal = "numeral";
-              else if (pos.includes("prep")) posVal = "preposition";
-              else if (pos.includes("conj")) posVal = "conjunction";
-              else if (pos.includes("part")) posVal = "particle";
-              else if (pos.includes("interj")) posVal = "interjection";
-              else posVal = "phrase";
-            }
-          }
-        } catch (e) {
-          console.warn("Wiktionary definitions lookup failed, using translation only.", e);
-        }
-
-        // Accented stress lookup
-        try {
-          const actionUrl = `https://en.wiktionary.org/w/api.php?action=parse&prop=wikitext&page=${encodeURIComponent(russianWord)}&format=json&origin=*`;
-          const actionRes = await fetch(actionUrl);
-          if (actionRes.ok) {
-            const actionData = await actionRes.json();
-            if (actionData.parse && actionData.parse.wikitext) {
-              const wikitext = actionData.parse.wikitext["*"] || "";
-              const accentedRegex = /\{\{ru-[^}]*\}\}/g;
-              const matches = wikitext.match(accentedRegex) || [];
-              for (const match of matches) {
-                const parts = match.replace(/[{}]/g, "").split("|");
-                const stressedPart = parts.find(p => p.includes("\u0301"));
-                if (stressedPart) {
-                  accented = stressedPart.trim();
-                  break;
-                }
-              }
-            }
-          }
-        } catch (e) {
-          console.warn("Accented stress lookup failed, using default base spelling.", e);
-        }
-
-        // 3. Try generating example sentences with Gemini if configured
-        const geminiAutofillEnabled = SRS.getSetting("geminiAutofillEnabled", true);
-        const isDbConnected = window.SupabaseSync && window.SupabaseSync.client;
-
-        if (isDbConnected && geminiAutofillEnabled) {
+        if (isLoggedIn) {
           try {
             const spinnerStatusText = statusEl.querySelector("span:last-child");
             if (spinnerStatusText) {
@@ -1881,14 +1727,8 @@
               exampleEn = aiSentence.sentenceEn;
             }
           } catch (e) {
-            console.warn("Gemini sentence generation failed, using Wiktionary instead.", e);
-            alert(`AI Sentence Generation failed: ${e.message || e}\n\nFalling back to Wiktionary examples.`);
-          } finally {
-            // Restore status spinner text
-            const spinnerStatusText = statusEl.querySelector("span:last-child");
-            if (spinnerStatusText) {
-              spinnerStatusText.innerText = "Fetching Russian translation data...";
-            }
+            console.warn("Gemini sentence generation failed.", e);
+            alert(`AI Sentence Generation failed: ${e.message || e}`);
           }
         }
 

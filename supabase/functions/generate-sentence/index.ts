@@ -32,20 +32,32 @@ serve(async (req) => {
     // Verify token: must be a valid authenticated user JWT
     const isAnon = token === supabaseAnonKey;
     let user = null;
+    let authCheckError = null;
 
     if (!isAnon) {
       try {
-        const { data, error: authError } = await supabaseClient.auth.getUser();
-        if (!authError && data?.user) {
+        const { data, error: authError } = await supabaseClient.auth.getUser(token);
+        if (authError) {
+          authCheckError = authError.message;
+        } else if (data?.user) {
           user = data.user;
         }
       } catch (e) {
-        console.warn("Auth check failed:", e);
+        authCheckError = e.message || String(e);
       }
     }
 
     if (!user) {
-      return new Response(JSON.stringify({ error: "Unauthorized: You must be signed in to use AI sentence generation features." }), {
+      let details = "No authenticated user session found.";
+      if (isAnon) {
+        details = "The request used the anonymous key. You must be logged in to invoke this function.";
+      } else if (authCheckError) {
+        details = `Token verification failed: ${authCheckError}`;
+      }
+      return new Response(JSON.stringify({ 
+        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
+        details: details
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
