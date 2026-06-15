@@ -1623,7 +1623,7 @@
           try {
             const spinnerStatusText = statusEl.querySelector("span:last-child");
             if (spinnerStatusText) {
-              spinnerStatusText.innerText = "Generating AI sentences with Gemini...";
+              spinnerStatusText.innerText = "Generating AI sentences...";
             }
             const aiSentence = await generateSentenceWithGemini(word, cleanDef, posVal);
             if (aiSentence) {
@@ -1796,7 +1796,7 @@
           try {
             const spinnerStatusText = statusEl.querySelector("span:last-child");
             if (spinnerStatusText) {
-              spinnerStatusText.innerText = "Generating AI sentences with Gemini...";
+              spinnerStatusText.innerText = "Generating AI sentences...";
             }
             const aiSentence = await generateSentenceWithGemini(russianWord, cleanDef, posVal);
             if (aiSentence) {
