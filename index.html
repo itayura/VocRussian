@@ -445,7 +445,12 @@
         <div class="study-viewport">
           <div class="session-header">
             <span class="progress-header-text">Card <span id="study-index-val">1</span> of <span id="study-total-val">10</span></span>
-            <span id="study-deck-type-badge" class="btn-pill" style="background-color: var(--color-primary-glow); color: var(--color-primary); font-weight: 600;">Due Queue</span>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button id="study-edit-word-btn" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; gap: 0.25rem;">
+                ✏️ Edit
+              </button>
+              <span id="study-deck-type-badge" class="btn-pill" style="background-color: var(--color-primary-glow); color: var(--color-primary); font-weight: 600;">Due Queue</span>
+            </div>
           </div>
 
           <div class="study-progress-container">

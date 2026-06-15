@@ -407,6 +407,15 @@
       }
     });
 
+    const editBtn = document.getElementById("study-edit-word-btn");
+    if (editBtn) {
+      editBtn.addEventListener("click", () => {
+        if (currentCard) {
+          openEditWordModal(currentCard.id);
+        }
+      });
+    }
+
     // TTS speaker buttons
     document.getElementById("tts-normal-btn").addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1876,6 +1885,24 @@
       if (updated) {
         closeModal("modal-edit-word");
         renderDictionary();
+
+        // If we are currently studying, update the active card details in real time
+        if (views["study-active"].classList.contains("active") && currentCard && currentCard.id === id) {
+          const newCardData = SRS.getWord(id);
+          if (newCardData) {
+            sessionDeck[sessionIndex] = newCardData;
+            currentCard = newCardData;
+
+            // Re-render the active view mode
+            if (currentStudyMode === "flashcard") {
+              setupFlashcardLayout();
+            } else if (currentStudyMode === "choice") {
+              setupChoiceLayout();
+            } else if (currentStudyMode === "writing") {
+              setupWritingLayout();
+            }
+          }
+        }
       }
     });
   }
