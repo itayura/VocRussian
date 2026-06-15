@@ -55,7 +55,7 @@ serve(async (req) => {
     }
 
     // --- SERVER-SIDE RATE LIMITING ---
-    // 1. Check Requests Per Minute limit (Max 5 RPM)
+    // 1. Check Requests Per Minute limit (Max 20 RPM)
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
     const { count: countMin, error: errorMin } = await supabaseClient
       .from("voc_ai_request_logs")
@@ -64,14 +64,14 @@ serve(async (req) => {
       .gt("created_at", oneMinuteAgo);
 
     if (errorMin) throw errorMin;
-    if (countMin && countMin >= 5) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 5 AI requests per minute." }), {
+    if (countMin && countMin >= 20) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 20 AI requests per minute." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 429,
       });
     }
 
-    // 2. Check Requests Per Day limit (Max 100 RPD)
+    // 2. Check Requests Per Day limit (Max 400 RPD)
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const { count: countDay, error: errorDay } = await supabaseClient
       .from("voc_ai_request_logs")
@@ -80,8 +80,8 @@ serve(async (req) => {
       .gt("created_at", twentyFourHoursAgo);
 
     if (errorDay) throw errorDay;
-    if (countDay && countDay >= 100) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 100 AI requests per day." }), {
+    if (countDay && countDay >= 400) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded: Max 400 AI requests per day." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 429,
       });
