@@ -55,6 +55,7 @@
   let currentQuizIndex = 0;
   let currentQuizCorrectCount = 0;
   let activeTopic = "nominative_case";
+  let activePresetName = null;
 
   // Parse server-side/Deno JSON error messages
   function getErrorMessage(error) {
@@ -124,6 +125,8 @@
         input.style.zIndex = "10";
         
         input.addEventListener("change", () => {
+          activePresetName = null;
+          this.updatePresetPillsHighlight();
           this.updateGrammarPracticeMasteryUI();
         });
 
@@ -135,11 +138,15 @@
       // Hook up Select All / Clear All
       document.getElementById("topics-select-all").addEventListener("click", () => {
         document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => cb.checked = true);
+        activePresetName = null;
+        this.updatePresetPillsHighlight();
         this.updateGrammarPracticeMasteryUI();
       });
 
       document.getElementById("topics-clear-all").addEventListener("click", () => {
         document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => cb.checked = false);
+        activePresetName = null;
+        this.updatePresetPillsHighlight();
         this.updateGrammarPracticeMasteryUI();
       });
 
@@ -148,22 +155,21 @@
 
       // Load saved subsets
       this.loadSavedSubsets();
+
+      // Check first checkbox by default if no preset was auto-activated
+      if (!activePresetName) {
+        const firstCb = container.querySelector(".topic-checkbox");
+        if (firstCb) {
+          firstCb.checked = true;
+        }
+      }
+      this.updateGrammarPracticeMasteryUI();
     },
 
     loadSavedSubsets: function () {
-      const dropdown = document.getElementById("practice-quiz-topic");
       const listContainer = document.getElementById("saved-subsets-list");
       const listWrapper = document.getElementById("saved-subsets-container");
-      if (!dropdown || !listContainer) return;
-
-      // Clean existing preset options
-      const optionsToRemove = [];
-      for (let i = 0; i < dropdown.options.length; i++) {
-        if (dropdown.options[i].value.startsWith("subset_")) {
-          optionsToRemove.push(dropdown.options[i]);
-        }
-      }
-      optionsToRemove.forEach(opt => opt.remove());
+      if (!listContainer) return;
 
       // Fetch from localStorage
       let subsets = {};
@@ -179,12 +185,6 @@
         listContainer.innerHTML = "";
 
         subsetKeys.forEach(name => {
-          // Append to dropdown
-          const opt = document.createElement("option");
-          opt.value = `subset_${name}`;
-          opt.innerText = `Preset: ${name}`;
-          dropdown.appendChild(opt);
-
           // Append to list
           const pill = document.createElement("div");
           pill.className = "subset-pill";
@@ -200,13 +200,27 @@
           pill.style.cursor = "pointer";
           pill.style.transition = "all 0.2s";
 
-          pill.onmouseenter = () => pill.style.borderColor = "var(--color-primary)";
-          pill.onmouseleave = () => pill.style.borderColor = "var(--border-glass)";
+          pill.onmouseenter = () => {
+            if (activePresetName !== name) {
+              pill.style.borderColor = "var(--color-primary)";
+            }
+          };
+          pill.onmouseleave = () => {
+            if (activePresetName !== name) {
+              pill.style.borderColor = "var(--border-glass)";
+            }
+          };
 
           pill.addEventListener("click", (e) => {
             if (e.target.classList.contains("delete-subset-btn")) return;
-            dropdown.value = `subset_${name}`;
-            this.handleTopicSelectionChange();
+            activePresetName = name;
+            
+            const checkedTopics = subsets[name] || [];
+            document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => {
+              cb.checked = checkedTopics.includes(cb.value);
+            });
+            this.updatePresetPillsHighlight();
+            this.updateGrammarPracticeMasteryUI();
           });
 
           const nameSpan = document.createElement("span");
@@ -240,9 +254,28 @@
           pill.appendChild(delBtn);
           listContainer.appendChild(pill);
         });
+        this.updatePresetPillsHighlight();
       } else {
         listWrapper.style.display = "none";
       }
+    },
+
+    updatePresetPillsHighlight: function () {
+      const pills = document.querySelectorAll("#saved-subsets-list .subset-pill");
+      pills.forEach(pill => {
+        const span = pill.querySelector("span");
+        if (!span) return;
+        const name = span.innerText;
+        if (activePresetName === name) {
+          pill.style.background = "var(--color-primary)";
+          pill.style.color = "#ffffff";
+          pill.style.borderColor = "var(--color-primary-hover)";
+        } else {
+          pill.style.background = "var(--bg-input)";
+          pill.style.color = "var(--color-text-main)";
+          pill.style.borderColor = "var(--border-glass)";
+        }
+      });
     },
 
     saveCurrentSubset: function () {
@@ -279,11 +312,9 @@
       localStorage.setItem("voc_russian_grammar_subsets", JSON.stringify(subsets));
 
       nameInput.value = "";
+      activePresetName = name;
       this.loadSavedSubsets();
-
-      const dropdown = document.getElementById("practice-quiz-topic");
-      dropdown.value = `subset_${name}`;
-      this.handleTopicSelectionChange();
+      this.updateGrammarPracticeMasteryUI();
     },
 
     deleteSubset: function (name) {
@@ -299,40 +330,10 @@
       delete subsets[name];
       localStorage.setItem("voc_russian_grammar_subsets", JSON.stringify(subsets));
 
+      if (activePresetName === name) {
+        activePresetName = null;
+      }
       this.loadSavedSubsets();
-
-      const dropdown = document.getElementById("practice-quiz-topic");
-      if (dropdown.value === `subset_${name}`) {
-        dropdown.value = "accusative_case";
-        this.handleTopicSelectionChange();
-      }
-    },
-
-    handleTopicSelectionChange: function () {
-      const dropdown = document.getElementById("practice-quiz-topic");
-      const val = dropdown.value;
-      const customPanel = document.getElementById("custom-topics-panel");
-
-      if (val === "multiple_random" || val.startsWith("subset_")) {
-        customPanel.style.display = "flex";
-
-        if (val.startsWith("subset_")) {
-          const name = val.substring(7);
-          let subsets = {};
-          try {
-            subsets = JSON.parse(localStorage.getItem("voc_russian_grammar_subsets")) || {};
-          } catch (e) {
-            console.error(e);
-          }
-          const checkedTopics = subsets[name] || [];
-          document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => {
-            cb.checked = checkedTopics.includes(cb.value);
-          });
-        }
-      } else {
-        customPanel.style.display = "none";
-      }
-
       this.updateGrammarPracticeMasteryUI();
     },
 
@@ -530,18 +531,13 @@
 
     // Calculate and render grammar mastery for selected topic/level
     updateGrammarPracticeMasteryUI: function () {
-      const topic = document.getElementById("practice-quiz-topic").value;
       const level = document.getElementById("practice-quiz-level").value;
       const gProgressMap = this.getGrammarProgressMap() || {};
 
       let checkedTopics = [];
-      if (topic === "multiple_random" || topic.startsWith("subset_")) {
-        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
-          checkedTopics.push(cb.value);
-        });
-      } else if (topic) {
-        checkedTopics.push(topic);
-      }
+      document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+        checkedTopics.push(cb.value);
+      });
 
       const valEl = document.getElementById("practice-target-mastery-val");
       const fillEl = document.getElementById("practice-target-mastery-fill");
@@ -601,7 +597,6 @@
       document.getElementById("quiz-complete-finish-btn").addEventListener("click", () => self.resetPracticeArenaUI());
 
       // Target settings change
-      document.getElementById("practice-quiz-topic").addEventListener("change", () => self.handleTopicSelectionChange());
       document.getElementById("practice-quiz-level").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());
 
       // Sandbox Buttons
@@ -774,22 +769,18 @@
       const loadingScreen = document.getElementById("practice-loading");
       const activeScreen = document.getElementById("practice-active-screen");
 
-      const topic = document.getElementById("practice-quiz-topic").value;
       const cefr = document.getElementById("practice-quiz-level").value;
       const count = parseInt(document.getElementById("practice-quiz-count").value, 10);
 
-      let topicParam = topic;
-      if (topic === "multiple_random" || topic.startsWith("subset_")) {
-        const checkedNames = [];
-        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
-          checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
-        });
-        if (checkedNames.length === 0) {
-          alert("Please select at least one grammar topic to start the quiz.");
-          return;
-        }
-        topicParam = checkedNames.join(", ");
+      const checkedNames = [];
+      document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+        checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
+      });
+      if (checkedNames.length === 0) {
+        alert("Please select at least one grammar topic to start the quiz.");
+        return;
       }
+      const topicParam = checkedNames.join(", ");
 
       setupScreen.style.display = "none";
       loadingScreen.style.display = "flex";
@@ -839,9 +830,20 @@
       document.getElementById("quiz-progress-bar").style.width = `${fillPercentage}%`;
 
       // Prompt fields
-      const topicEl = document.getElementById("practice-quiz-topic");
-      const topicText = topicEl.options[topicEl.selectedIndex].text;
-      document.getElementById("quiz-topic-badge").innerText = topicText;
+      let topicText = "";
+      const checkedCbs = document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked");
+      if (activePresetName) {
+        topicText = `Preset: ${activePresetName}`;
+      } else if (checkedCbs.length === 1) {
+        const id = checkedCbs[0].value;
+        topicText = TOPICS_MAP[id] || id;
+      } else {
+        topicText = "Multiple Topics";
+      }
+      const badgeEl = document.getElementById("quiz-topic-badge");
+      if (badgeEl) {
+        badgeEl.innerText = topicText;
+      }
 
       // Replace [blank] with a styled dashed blank space
       const sentenceHtml = q.sentencePattern.replace(/\[blank\]/gi, '<span class="quiz-blank-line"></span>');
@@ -984,9 +986,17 @@
       xpEl.innerText = `+${xpGained} XP`;
 
       // Record in local cache
-      const topic = document.getElementById("practice-quiz-topic").value;
+      const checkedCbs = document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked");
+      let topicKey = "";
+      if (activePresetName) {
+        topicKey = `subset_${activePresetName}`;
+      } else if (checkedCbs.length === 1) {
+        topicKey = checkedCbs[0].value;
+      } else {
+        topicKey = "multiple_random";
+      }
       const level = document.getElementById("practice-quiz-level").value;
-      this.recordQuizCompleted(topic, level, currentQuizCorrectCount, currentQuizQuestions.length);
+      this.recordQuizCompleted(topicKey, level, currentQuizCorrectCount, currentQuizQuestions.length);
 
       // Award XP
       window.SRS.scoreCard("dummy_xp_holder", true);
