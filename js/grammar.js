@@ -341,7 +341,9 @@
         return false;
       }
       return true;
-       renderTutorExplanation: function (payload) {
+    },
+
+    renderTutorExplanation: function (payload) {
       const contentEl = document.getElementById("tutor-explanation-content");
       contentEl.innerHTML = `
         <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
