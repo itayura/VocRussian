@@ -111,6 +111,8 @@
         label.style.cursor = "pointer";
         label.style.padding = "0.25rem 0";
         label.style.userSelect = "none";
+        label.style.position = "relative";
+        label.style.zIndex = "10";
 
         const input = document.createElement("input");
         input.type = "checkbox";
@@ -118,6 +120,8 @@
         input.className = "topic-checkbox";
         input.style.cursor = "pointer";
         input.style.accentColor = "var(--color-primary)";
+        input.style.position = "relative";
+        input.style.zIndex = "10";
         
         input.addEventListener("change", () => {
           this.updateGrammarPracticeMasteryUI();
@@ -574,7 +578,6 @@
 
       // Subtab pills
       document.getElementById("grammar-tab-tutor").addEventListener("click", () => self.switchSubtab("tutor"));
-      document.getElementById("grammar-tab-practice").addEventListener("click", () => self.switchSubtab("tutor")); // default or practice
       document.getElementById("grammar-tab-practice").addEventListener("click", () => self.switchSubtab("practice"));
       document.getElementById("grammar-tab-sandbox").addEventListener("click", () => self.switchSubtab("sandbox"));
 
@@ -687,12 +690,20 @@
       }
 
       if (explanationsCache[topicId]) {
-        loader.style.display = "none";
-        this.renderTutorExplanation(explanationsCache[topicId]);
-        this.recordLessonCompleted(topicId);
-        window.SRS.scoreCard("dummy_xp_holder", true);
-        this.showXpToast("+15 XP (Grammar Study)");
-        return;
+        try {
+          this.renderTutorExplanation(explanationsCache[topicId]);
+          this.recordLessonCompleted(topicId);
+          window.SRS.scoreCard("dummy_xp_holder", true);
+          this.showXpToast("+15 XP (Grammar Study)");
+          loader.style.display = "none";
+          return;
+        } catch (cacheErr) {
+          console.warn("Failed to render cached explanation for " + topicId + ", clearing cache and refetching:", cacheErr);
+          delete explanationsCache[topicId];
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(explanationsCache));
+          } catch (storageErr) {}
+        }
       }
 
       try {
