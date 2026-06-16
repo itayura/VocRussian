@@ -761,23 +761,18 @@
               </div>
             </div>
             <!-- Right Side: Tutor Panel -->
-            <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 400px; justify-content: space-between; flex: 1;">
-              <div id="tutor-chat-history" style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: 400px; padding-right: 0.5rem;">
-                <div class="chat-bubble assistant" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem; max-width: 90%;">
-                  <strong style="color: var(--color-primary); display: block; margin-bottom: 0.25rem;">AI Tutor</strong>
-                  <span id="tutor-initial-msg">Select a topic from the left, or ask a custom question below to get started learning Russian grammar!</span>
+            <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 400px; flex: 1; width: 100%;">
+              <!-- Explanation Display Area -->
+              <div id="tutor-explanation-content" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%;">
+                  <span id="tutor-initial-msg" style="color: var(--color-text-muted);">Select a topic from the left to load its grammar explanation!</span>
                 </div>
               </div>
               
               <!-- Loader -->
-              <div id="tutor-loading" style="display: none; align-items: center; gap: 0.5rem; justify-content: center; padding: 1rem;">
+              <div id="tutor-loading" style="display: none; align-items: center; gap: 0.5rem; justify-content: center; padding: 2rem 1rem; width: 100%;">
                 <div style="width: 20px; height: 20px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
                 <span class="page-subtitle" style="margin:0;">AI is explaining...</span>
-              </div>
-
-              <div style="display: flex; gap: 0.5rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
-                <input type="text" id="tutor-custom-input" class="filter-input" style="flex: 1;" placeholder="Ask anything about Russian grammar (e.g. When to use Accusative case?)...">
-                <button type="button" id="tutor-send-btn" class="btn btn-primary" style="padding: 0.85rem 1.25rem;">Ask AI</button>
               </div>
             </div>
           </div>

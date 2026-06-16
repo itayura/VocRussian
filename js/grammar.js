@@ -314,11 +314,7 @@
         });
       });
 
-      // Tutor Send Button (Ask custom query)
-      document.getElementById("tutor-send-btn").addEventListener("click", () => self.handleTutorSend());
-      document.getElementById("tutor-custom-input").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") self.handleTutorSend();
-      });
+
 
       // Practice Arena Buttons
       document.getElementById("practice-start-btn").addEventListener("click", () => self.startPracticeQuiz());
@@ -345,47 +341,50 @@
         return false;
       }
       return true;
-    },
+       renderTutorExplanation: function (payload) {
+      const contentEl = document.getElementById("tutor-explanation-content");
+      contentEl.innerHTML = `
+        <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
+          <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin: 0 0 0.5rem 0; color: var(--color-primary-hover);">${payload.title}</h3>
+          <div style="line-height: 1.6; font-size: 1rem; color: var(--color-text-main);">${payload.explanation}</div>
+          
+          <h4 style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Declension / Conjugation Rules</h4>
+          <div style="overflow-x: auto; width: 100%;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+              <thead>
+                <tr style="background-color: var(--bg-input); border-bottom: 2px solid var(--border-glass);">
+                  <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-primary);">Pattern/Form</th>
+                  <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-primary);">Ending Shift</th>
+                  <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-primary);">Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${payload.rules.map(r => `
+                  <tr style="border-bottom: 1px solid var(--border-glass);">
+                    <td style="padding: 0.75rem 1rem;"><strong>${r.ending}</strong></td>
+                    <td style="padding: 0.75rem 1rem;">${r.rule}</td>
+                    <td style="padding: 0.75rem 1rem;"><code>${r.example}</code></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
 
-    renderTutorExplanation: function (payload) {
-      this.appendTutorMessage("assistant", `
-        <h3 style="font-family: var(--font-heading); font-size: 1.3rem; margin-bottom: 0.75rem; color: var(--color-primary-hover);">${payload.title}</h3>
-        <div>${payload.explanation}</div>
-        
-        <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Declension / Conjugation Rules</h4>
-        <table>
-          <thead>
-            <tr>
-              <th>Pattern/Form</th>
-              <th>Ending Shift</th>
-              <th>Example</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${payload.rules.map(r => `
-              <tr>
-                <td><strong>${r.ending}</strong></td>
-                <td>${r.rule}</td>
-                <td><code>${r.example}</code></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-
-        <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Interactive Examples</h4>
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-          ${payload.examples.map(ex => `
-            <div style="background: rgba(255,255,255,0.03); border-radius: var(--border-radius-sm); padding: 0.75rem; border: 1px solid var(--border-glass);">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${ex.ru}</strong>
-                <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
+          <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Interactive Examples</h4>
+          <div style="display:flex; flex-direction:column; gap:0.75rem; width: 100%;">
+            ${payload.examples.map(ex => `
+              <div style="background: rgba(255,255,255,0.02); border-radius: var(--border-radius-sm); padding: 0.85rem 1rem; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 0.35rem; box-sizing: border-box;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
+                  <strong style="font-size:1.15rem; color:var(--color-primary-hover); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${ex.ru}</strong>
+                  <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" style="width:32px; height:32px; font-size:0.9rem; border-color:transparent; background:var(--bg-card); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%;">🔊</button>
+                </div>
+                <div class="page-subtitle" style="font-size: 0.9rem; margin: 0; color: var(--color-text-main); font-weight: 500;">${ex.en}</div>
+                <div style="font-size: 0.85rem; font-style:italic; color:var(--color-text-muted);">${ex.explanation}</div>
               </div>
-              <div class="page-subtitle" style="font-size: 0.85rem; margin:0.15rem 0;">${ex.en}</div>
-              <div style="font-size: 0.8rem; font-style:italic; color:var(--color-text-muted); margin-top:0.25rem;">${ex.explanation}</div>
-            </div>
-          `).join("")}
+            `).join("")}
+          </div>
         </div>
-      `);
+      `;
 
       // Bind TTS audio play buttons
       this.bindTutorTtsButtons();
@@ -396,14 +395,10 @@
       if (!this.ensureCloudConnected()) return;
 
       const loader = document.getElementById("tutor-loading");
-      const chatHistory = document.getElementById("tutor-chat-history");
-      const initMsg = document.getElementById("tutor-initial-msg");
+      const contentEl = document.getElementById("tutor-explanation-content");
       
       loader.style.display = "flex";
-      if (initMsg) initMsg.style.display = "none";
-      
-      // Clean chat for a clean topic lesson
-      chatHistory.innerHTML = "";
+      contentEl.innerHTML = "";
 
       // Check Cache
       const cacheKey = "voc_grammar_explanations_cache";
@@ -463,126 +458,9 @@
       } catch (err) {
         loader.style.display = "none";
         console.error("Failed to explain grammar concept:", err);
-        this.appendTutorMessage("assistant", `<span style="color:var(--color-error);">Error loading lesson: ${getErrorMessage(err)}. Please try again later.</span>`);
+        const errContent = `<div class="card" style="background:var(--bg-input); border:1px solid var(--border-glass); border-radius:var(--border-radius-md); padding:1.5rem; color:var(--color-error); width:100%;">Error loading lesson: ${getErrorMessage(err)}. Please try again later.</div>`;
+        contentEl.innerHTML = errContent;
       }
-    },
-
-    handleTutorSend: async function () {
-      if (!this.ensureCloudConnected()) return;
-
-      const inputEl = document.getElementById("tutor-custom-input");
-      const question = inputEl.value.trim();
-      if (!question) return;
-
-      inputEl.value = "";
-      
-      // Render user prompt
-      this.appendTutorMessage("user", question);
-
-      const loader = document.getElementById("tutor-loading");
-      loader.style.display = "flex";
-
-      try {
-        const client = window.SupabaseSync.client;
-        const { data: sessionData } = await client.auth.getSession();
-        const token = sessionData?.session?.access_token;
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        
-        // Invoke explain Deno edge function with custom question
-        const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "explain", topic: activeTopic, customQuestion: question },
-          headers: headers
-        });
-
-        if (error) throw new Error(error.message || error);
-        if (!data || !data.success) throw new Error("Failed to receive explanation payload.");
-
-        loader.style.display = "none";
-        
-        const payload = data.data;
-
-        // Render AI Response
-        this.appendTutorMessage("assistant", `
-          <h3 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--color-primary-hover);">${payload.title}</h3>
-          <div>${payload.explanation}</div>
-          
-          ${payload.rules && payload.rules.length > 0 ? `
-            <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Related Grammar Guidelines</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th>Pattern/Form</th>
-                  <th>Ending Shift</th>
-                  <th>Example</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${payload.rules.map(r => `
-                  <tr>
-                    <td><strong>${r.ending}</strong></td>
-                    <td>${r.rule}</td>
-                    <td><code>${r.example}</code></td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          ` : ""}
-
-          ${payload.examples && payload.examples.length > 0 ? `
-            <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Examples</h4>
-            <div style="display:flex; flex-direction:column; gap:0.75rem;">
-              ${payload.examples.map(ex => `
-                <div style="background: rgba(255,255,255,0.03); border-radius: var(--border-radius-sm); padding: 0.75rem; border: 1px solid var(--border-glass);">
-                  <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${ex.ru}</strong>
-                    <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
-                  </div>
-                  <div class="page-subtitle" style="font-size: 0.85rem; margin:0.15rem 0; color:var(--color-text-main); font-weight:500;">"${ex.en}"</div>
-                  <div style="font-size: 0.8rem; font-style:italic; color:var(--color-text-muted); margin-top:0.25rem;">${ex.explanation}</div>
-                </div>
-              `).join("")}
-            </div>
-          ` : ""}
-        `);
-
-        // Bind TTS audio play buttons
-        this.bindTutorTtsButtons();
-
-        // Increment stats
-        this.recordLessonCompleted(activeTopic);
-        window.SRS.scoreCard("dummy_xp_holder", true);
-        this.showXpToast("+15 XP (Custom AI Inquiry)");
-
-      } catch (err) {
-        loader.style.display = "none";
-        console.error("AI Tutor response error:", err);
-        this.appendTutorMessage("assistant", `<span style="color:var(--color-error);">Error getting explanation: ${getErrorMessage(err)}. Please try again.</span>`);
-      }
-    },
-
-    appendTutorMessage: function (role, content) {
-      const chatHistory = document.getElementById("tutor-chat-history");
-      const bubble = document.createElement("div");
-      
-      bubble.className = `chat-bubble ${role}`;
-      bubble.style.background = role === "assistant" ? "var(--bg-input)" : "var(--bg-card-hover)";
-      bubble.style.border = "1px solid var(--border-glass)";
-      bubble.style.borderRadius = "var(--border-radius-md)";
-      bubble.style.padding = "1.25rem";
-      bubble.style.maxWidth = "90%";
-      bubble.style.alignSelf = role === "assistant" ? "flex-start" : "flex-end";
-      
-      bubble.innerHTML = `
-        <strong style="color: ${role === 'assistant' ? 'var(--color-primary)' : 'var(--color-primary-hover)'}; display: block; margin-bottom: 0.5rem;">
-          ${role === 'assistant' ? '🤖 AI Tutor' : '👤 You'}
-        </strong>
-        <div>${content}</div>
-      `;
-
-      chatHistory.appendChild(bubble);
-      
-      // Auto scroll to bottom
-      chatHistory.scrollTop = chatHistory.scrollHeight;
     },
 
     bindTutorTtsButtons: function () {
