@@ -320,6 +320,50 @@
       return true;
     },
 
+    renderTutorExplanation: function (payload) {
+      this.appendTutorMessage("assistant", `
+        <h3 style="font-family: var(--font-heading); font-size: 1.3rem; margin-bottom: 0.75rem; color: var(--color-primary-hover);">${payload.title}</h3>
+        <div>${payload.explanation}</div>
+        
+        <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Declension / Conjugation Rules</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Pattern/Form</th>
+              <th>Ending Shift</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${payload.rules.map(r => `
+              <tr>
+                <td><strong>${r.ending}</strong></td>
+                <td>${r.rule}</td>
+                <td><code>${r.example}</code></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+
+        <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Interactive Examples</h4>
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          ${payload.examples.map(ex => `
+            <div style="background: rgba(255,255,255,0.03); border-radius: var(--border-radius-sm); padding: 0.75rem; border: 1px solid var(--border-glass);">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${ex.ru}</strong>
+                <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
+              </div>
+              <div class="page-subtitle" style="font-size: 0.85rem; margin:0.15rem 0;">${ex.en}</div>
+              <div style="font-size: 0.8rem; font-style:italic; color:var(--color-text-muted); margin-top:0.25rem;">${ex.explanation}</div>
+            </div>
+          `).join("")}
+        </div>
+      `);
+
+      // Bind TTS audio play buttons
+      this.bindTutorTtsButtons();
+    },
+
     // --- AI TUTOR ACTION ---
     loadTutorLesson: async function (topicId) {
       if (!this.ensureCloudConnected()) return;
@@ -333,6 +377,24 @@
       
       // Clean chat for a clean topic lesson
       chatHistory.innerHTML = "";
+
+      // Check Cache
+      const cacheKey = "voc_grammar_explanations_cache";
+      let explanationsCache = {};
+      try {
+        explanationsCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
+      } catch (e) {
+        console.warn("Failed to parse explanations cache", e);
+      }
+
+      if (explanationsCache[topicId]) {
+        loader.style.display = "none";
+        this.renderTutorExplanation(explanationsCache[topicId]);
+        this.recordLessonCompleted(topicId);
+        window.SRS.scoreCard("dummy_xp_holder", true);
+        this.showXpToast("+15 XP (Grammar Study)");
+        return;
+      }
 
       try {
         const client = window.SupabaseSync.client;
@@ -354,47 +416,15 @@
         const payload = data.data;
 
         // Render AI Response
-        this.appendTutorMessage("assistant", `
-          <h3 style="font-family: var(--font-heading); font-size: 1.3rem; margin-bottom: 0.75rem; color: var(--color-primary-hover);">${payload.title}</h3>
-          <div>${payload.explanation}</div>
-          
-          <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Declension / Conjugation Rules</h4>
-          <table>
-            <thead>
-              <tr>
-                <th>Pattern/Form</th>
-                <th>Ending Shift</th>
-                <th>Example</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${payload.rules.map(r => `
-                <tr>
-                  <td><strong>${r.ending}</strong></td>
-                  <td>${r.rule}</td>
-                  <td><code>${r.example}</code></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
+        this.renderTutorExplanation(payload);
 
-          <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Interactive Examples</h4>
-          <div style="display:flex; flex-direction:column; gap:0.75rem;">
-            ${payload.examples.map(ex => `
-              <div style="background: rgba(255,255,255,0.03); border-radius: var(--border-radius-sm); padding: 0.75rem; border: 1px solid var(--border-glass);">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                  <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${ex.ru}</strong>
-                  <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
-                </div>
-                <div class="page-subtitle" style="font-size: 0.85rem; margin:0.15rem 0;">${ex.en}</div>
-                <div style="font-size: 0.8rem; font-style:italic; color:var(--color-text-muted); margin-top:0.25rem;">${ex.explanation}</div>
-              </div>
-            `).join("")}
-          </div>
-        `);
-
-        // Bind TTS audio play buttons
-        this.bindTutorTtsButtons();
+        // Save to cache
+        try {
+          explanationsCache[topicId] = payload;
+          localStorage.setItem(cacheKey, JSON.stringify(explanationsCache));
+        } catch (cacheErr) {
+          console.warn("Failed to write explanation to cache:", cacheErr);
+        }
 
         // Save XP/Progress
         this.recordLessonCompleted(topicId);
@@ -610,7 +640,26 @@
       // Replace [blank] with a styled dashed blank space
       const sentenceHtml = q.sentencePattern.replace(/\[blank\]/gi, '<span class="quiz-blank-line"></span>');
       document.getElementById("quiz-sentence-prompt").innerHTML = sentenceHtml;
-      document.getElementById("quiz-translation-prompt").innerText = `"${q.translation}"`;
+
+      // Bind TTS button
+      const ttsBtn = document.getElementById("quiz-tts-btn");
+      if (ttsBtn) {
+        ttsBtn.onclick = () => {
+          const textToSpeak = q.sentencePattern
+            .replace(/\[blank\]/gi, ", ")
+            .replace(/[\u0301]/g, "")
+            .replace(/\((.*?)\)/g, "$1");
+          if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
+            window.AudioEngine.speak(textToSpeak);
+          } else if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'ru-RU';
+            window.speechSynthesis.speak(utterance);
+          }
+        };
+      }
+
+      window.setRevealableText("quiz-translation-prompt", `"${q.translation}"`);
 
       // Render choice buttons
       const choicesContainer = document.getElementById("quiz-choices-container");

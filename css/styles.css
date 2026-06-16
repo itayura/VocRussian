@@ -1170,10 +1170,15 @@ kbd {
   .nav-item button {
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
+    justify-content: center;
+    gap: 0;
+    padding: 0.75rem 0.5rem;
     font-size: 0.7rem;
     border-radius: var(--border-radius-sm);
+  }
+  
+  .nav-item button span {
+    display: none;
   }
   
   .nav-item button svg {
@@ -1961,6 +1966,36 @@ body.theme-light select option {
   vertical-align: middle;
   position: relative;
   top: -2px;
+}
+
+/* --- Tutor subview responsive layout --- */
+.tutor-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 2.2fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.tutor-topics-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border-right: 1px solid var(--border-glass);
+  padding-right: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .tutor-grid-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .tutor-topics-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border-glass);
+    padding-right: 0;
+    padding-bottom: 1.5rem;
+  }
 }
 
 

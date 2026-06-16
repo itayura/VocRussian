@@ -1,6 +1,85 @@
 // VocRussian Application Controller
 
 (function () {
+  // Override window.alert with a premium glassmorphic custom modal alert immediately
+  const nativeAlert = window.alert;
+  window.alert = function (message) {
+    if (!document.body) {
+      nativeAlert(message);
+      return;
+    }
+    let overlay = document.getElementById("custom-alert-modal");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "custom-alert-modal";
+      overlay.className = "modal-overlay";
+      overlay.style.zIndex = "10000"; // Sit on top of other modals
+      
+      overlay.innerHTML = `
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+          <div style="font-size: 2.5rem;" id="custom-alert-icon">🔔</div>
+          <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-text-main); margin: 0;" id="custom-alert-title">Notice</h3>
+          <p style="font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; word-break: break-word;" id="custom-alert-message"></p>
+          <button type="button" class="btn btn-primary" id="custom-alert-ok-btn" style="width: 100%; padding: 0.75rem; font-size: 1rem; margin-top: 0.5rem;">OK</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      
+      // Bind close events
+      const closeAlert = () => overlay.classList.remove("active");
+      overlay.querySelector("#custom-alert-ok-btn").addEventListener("click", closeAlert);
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeAlert();
+      });
+    }
+
+    // Set icon/title based on message content
+    const msgLower = message ? String(message).toLowerCase() : "";
+    let icon = "🔔";
+    let title = "Notice";
+
+    if (msgLower.includes("success") || msgLower.includes("done") || msgLower.includes("copied") || msgLower.includes("thank")) {
+      icon = "✅";
+      title = "Success";
+    } else if (msgLower.includes("error") || msgLower.includes("fail") || msgLower.includes("block") || msgLower.includes("warning")) {
+      icon = "⚠️";
+      title = "Alert";
+    } else if (msgLower.includes("reset") || msgLower.includes("delete") || msgLower.includes("wipe")) {
+      icon = "🗑️";
+      title = "Warning";
+    }
+
+    document.getElementById("custom-alert-icon").innerText = icon;
+    document.getElementById("custom-alert-title").innerText = title;
+    document.getElementById("custom-alert-message").innerText = message;
+    overlay.classList.add("active");
+  };
+
+  // Define utility function for revealing English translations on click
+  window.setRevealableText = function (elementId, text) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    if (!text) {
+      el.innerHTML = "";
+      return;
+    }
+    el.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%;">
+        <button type="button" class="btn btn-secondary reveal-translation-btn" style="padding: 0.4rem 0.85rem; font-size: 0.85rem; border: 1px solid var(--border-glass); background: var(--bg-input); border-radius: var(--border-radius-sm); color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s;">👁️ Reveal Translation</button>
+        <span class="translation-text" style="display: none; font-size: 1.05rem;">${text}</span>
+      </div>
+    `;
+    const btn = el.querySelector(".reveal-translation-btn");
+    const span = el.querySelector(".translation-text");
+    if (btn && span) {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        btn.style.display = "none";
+        span.style.display = "inline";
+      });
+    }
+  };
+
   // --- STATE VARIABLES ---
   let sessionDeck = [];
   let sessionIndex = 0;
@@ -26,55 +105,6 @@
 
   // --- INITIALIZATION ---
   document.addEventListener("DOMContentLoaded", () => {
-    // Override window.alert with a premium glassmorphic custom modal alert
-    window.alert = function (message) {
-      let overlay = document.getElementById("custom-alert-modal");
-      if (!overlay) {
-        overlay = document.createElement("div");
-        overlay.id = "custom-alert-modal";
-        overlay.className = "modal-overlay";
-        overlay.style.zIndex = "10000"; // Sit on top of other modals
-        
-        overlay.innerHTML = `
-          <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-            <div style="font-size: 2.5rem;" id="custom-alert-icon">🔔</div>
-            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-text-main); margin: 0;" id="custom-alert-title">Notice</h3>
-            <p style="font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; word-break: break-word;" id="custom-alert-message"></p>
-            <button type="button" class="btn btn-primary" id="custom-alert-ok-btn" style="width: 100%; padding: 0.75rem; font-size: 1rem; margin-top: 0.5rem;">OK</button>
-          </div>
-        `;
-        document.body.appendChild(overlay);
-        
-        // Bind close events
-        const closeAlert = () => overlay.classList.remove("active");
-        overlay.querySelector("#custom-alert-ok-btn").addEventListener("click", closeAlert);
-        overlay.addEventListener("click", (e) => {
-          if (e.target === overlay) closeAlert();
-        });
-      }
-
-      // Set icon/title based on message content
-      const msgLower = message.toLowerCase();
-      let icon = "🔔";
-      let title = "Notice";
-
-      if (msgLower.includes("success") || msgLower.includes("done") || msgLower.includes("copied") || msgLower.includes("thank")) {
-        icon = "✅";
-        title = "Success";
-      } else if (msgLower.includes("error") || msgLower.includes("fail") || msgLower.includes("block") || msgLower.includes("warning")) {
-        icon = "⚠️";
-        title = "Alert";
-      } else if (msgLower.includes("reset") || msgLower.includes("delete") || msgLower.includes("wipe")) {
-        icon = "🗑️";
-        title = "Warning";
-      }
-
-      document.getElementById("custom-alert-icon").innerText = icon;
-      document.getElementById("custom-alert-title").innerText = title;
-      document.getElementById("custom-alert-message").innerText = message;
-      overlay.classList.add("active");
-    };
-
     // Initialize SRS module
     SRS.init();
     applyTheme(SRS.getSetting("theme", "midnight"));
@@ -347,7 +377,9 @@
     // 2. Calculate Grammar progress
     const topics = [
       "nominative_case", "accusative_case", "genitive_case", "dative_case", 
-      "instrumental_case", "prepositional_case", "verb_aspects", "verbs_of_motion"
+      "instrumental_case", "prepositional_case", "verb_aspects", "verbs_of_motion",
+      "verb_conjugations", "past_tense", "future_tense", "adjectives_declension",
+      "pronouns_declension", "noun_plurals"
     ];
     const levels = ["A1", "A2", "B1"];
     let totalGrammarWeight = 0;
@@ -736,7 +768,7 @@
       document.getElementById("fc-word-translation-back").innerText = card.translation;
       document.getElementById("fc-word-pos-back").innerText = card.pos;
       document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
-      document.getElementById("fc-word-example-en-back").innerText = card.exampleEn || "";
+      window.setRevealableText("fc-word-example-en-back", card.exampleEn);
     };
 
     if (wasFlipped) {
@@ -881,9 +913,7 @@
       translitEl.style.display = "none";
     }
 
-    document.getElementById("writing-prompt-example-en").innerText = currentCard.exampleEn 
-      ? `"${currentCard.exampleEn}"` 
-      : "";
+    window.setRevealableText("writing-prompt-example-en", currentCard.exampleEn ? `"${currentCard.exampleEn}"` : "");
 
     const checkBtn = document.getElementById("writing-check-btn");
     checkBtn.innerText = "Submit Answer";
