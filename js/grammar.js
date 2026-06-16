@@ -1,6 +1,33 @@
 // VocRussian AI Grammar Learning Manager
 
 (function () {
+  // Fallback for setRevealableText helper (useful if app.js is served cached)
+  if (!window.setRevealableText) {
+    window.setRevealableText = function (elementId, text) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      if (!text) {
+        el.innerHTML = "";
+        return;
+      }
+      el.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%;">
+          <button type="button" class="btn btn-secondary reveal-translation-btn" style="padding: 0.4rem 0.85rem; font-size: 0.85rem; border: 1px solid var(--border-glass); background: var(--bg-input); border-radius: var(--border-radius-sm); color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s;">👁️ Reveal Translation</button>
+          <span class="translation-text" style="display: none; font-size: 1.05rem;">${text}</span>
+        </div>
+      `;
+      const btn = el.querySelector(".reveal-translation-btn");
+      const span = el.querySelector(".translation-text");
+      if (btn && span) {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          btn.style.display = "none";
+          span.style.display = "inline";
+        });
+      }
+    };
+  }
+
   const STORAGE_KEYS = {
     GRAMMAR_PROGRESS: "voc_russian_grammar_progress",
   };

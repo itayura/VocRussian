@@ -1,5 +1,5 @@
 // VocRussian Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v18";
+const CACHE_NAME = "voc-russian-cache-v19";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const ASSETS_TO_CACHE = [
   "./js/audio.js",
   "./js/db.js",
   "./js/db_expanded.js",
+  "./js/grammar.js",
   "./js/srs.js",
   "./js/supabase.js"
 ];
