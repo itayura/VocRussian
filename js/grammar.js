@@ -639,6 +639,24 @@
       explText.innerText = q.explanation;
       explBox.style.display = "flex";
 
+      // Bind play full sentence button
+      const playFullBtn = document.getElementById("quiz-play-full-btn");
+      if (playFullBtn) {
+        playFullBtn.onclick = () => {
+          const fullSentenceText = q.sentencePattern
+            .replace(/\[blank\]/gi, q.answer)
+            .replace(/[\u0301]/g, "")
+            .replace(/\((.*?)\)/g, ""); // Remove parenthetical hints
+          if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
+            window.AudioEngine.speak(fullSentenceText);
+          } else if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(fullSentenceText);
+            utterance.lang = 'ru-RU';
+            window.speechSynthesis.speak(utterance);
+          }
+        };
+      }
+
       // Show Next button
       document.getElementById("quiz-next-btn").style.display = "block";
     },

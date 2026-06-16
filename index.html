@@ -874,7 +874,10 @@
 
             <!-- Quiz Explanation Alert Box -->
             <div id="quiz-explanation-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.5rem; animation: fadeIn 0.3s forwards;">
-              <strong style="color: var(--color-text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;"><span id="quiz-result-emoji">✅</span> <span id="quiz-result-title">Correct!</span></strong>
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
+                <strong style="color: var(--color-text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;"><span id="quiz-result-emoji">✅</span> <span id="quiz-result-title">Correct!</span></strong>
+                <button type="button" id="quiz-play-full-btn" class="audio-btn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); background: var(--bg-card); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; color: var(--color-text-main);" title="Listen to the full correct sentence">🔊 Listen Full Sentence</button>
+              </div>
               <p id="quiz-explanation-text" style="font-size: 0.85rem; color: var(--color-text-main); line-height: 1.4; margin: 0;"></p>
             </div>
 
