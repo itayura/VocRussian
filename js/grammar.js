@@ -32,6 +32,23 @@
     GRAMMAR_PROGRESS: "voc_russian_grammar_progress",
   };
 
+  const TOPICS_MAP = {
+    nominative_case: "Nominative Case",
+    accusative_case: "Accusative Case",
+    genitive_case: "Genitive Case",
+    dative_case: "Dative Case",
+    instrumental_case: "Instrumental Case",
+    prepositional_case: "Prepositional Case",
+    verb_aspects: "Verb Aspects",
+    verbs_of_motion: "Verbs of Motion",
+    verb_conjugations: "Verb Conjugations",
+    past_tense: "Past Tense",
+    future_tense: "Future Tense",
+    adjectives_declension: "Adjectives Declension",
+    pronouns_declension: "Pronouns Declension",
+    noun_plurals: "Noun Plurals"
+  };
+
   // State cache
   let grammarProgress = {}; // { topic_id: { lessonsCompleted, quizzesTaken, avgScore, lastPracticed, updatedAt } }
   let currentQuizQuestions = [];
@@ -61,6 +78,7 @@
     init: function () {
       this.loadFromStorage();
       this.setupEventListeners();
+      this.initCustomTopicsPanel();
       this.updateGrammarLevelUI();
     },
 
@@ -76,6 +94,242 @@
     saveToStorage: function () {
       localStorage.setItem(STORAGE_KEYS.GRAMMAR_PROGRESS, JSON.stringify(grammarProgress));
       this.updateGrammarLevelUI();
+    },
+
+    initCustomTopicsPanel: function () {
+      const container = document.getElementById("custom-topics-checkboxes");
+      if (!container) return;
+
+      container.innerHTML = "";
+      Object.entries(TOPICS_MAP).forEach(([id, name]) => {
+        const label = document.createElement("label");
+        label.style.display = "flex";
+        label.style.alignItems = "center";
+        label.style.gap = "0.5rem";
+        label.style.fontSize = "0.85rem";
+        label.style.color = "var(--color-text-main)";
+        label.style.cursor = "pointer";
+        label.style.padding = "0.25rem 0";
+        label.style.userSelect = "none";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.value = id;
+        input.className = "topic-checkbox";
+        input.style.cursor = "pointer";
+        input.style.accentColor = "var(--color-primary)";
+        
+        input.addEventListener("change", () => {
+          this.updateGrammarPracticeMasteryUI();
+        });
+
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(name));
+        container.appendChild(label);
+      });
+
+      // Hook up Select All / Clear All
+      document.getElementById("topics-select-all").addEventListener("click", () => {
+        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => cb.checked = true);
+        this.updateGrammarPracticeMasteryUI();
+      });
+
+      document.getElementById("topics-clear-all").addEventListener("click", () => {
+        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => cb.checked = false);
+        this.updateGrammarPracticeMasteryUI();
+      });
+
+      // Hook up Save Preset Button
+      document.getElementById("save-subset-btn").addEventListener("click", () => this.saveCurrentSubset());
+
+      // Load saved subsets
+      this.loadSavedSubsets();
+    },
+
+    loadSavedSubsets: function () {
+      const dropdown = document.getElementById("practice-quiz-topic");
+      const listContainer = document.getElementById("saved-subsets-list");
+      const listWrapper = document.getElementById("saved-subsets-container");
+      if (!dropdown || !listContainer) return;
+
+      // Clean existing preset options
+      const optionsToRemove = [];
+      for (let i = 0; i < dropdown.options.length; i++) {
+        if (dropdown.options[i].value.startsWith("subset_")) {
+          optionsToRemove.push(dropdown.options[i]);
+        }
+      }
+      optionsToRemove.forEach(opt => opt.remove());
+
+      // Fetch from localStorage
+      let subsets = {};
+      try {
+        subsets = JSON.parse(localStorage.getItem("voc_russian_grammar_subsets")) || {};
+      } catch (e) {
+        console.error("Failed to parse subsets", e);
+      }
+
+      const subsetKeys = Object.keys(subsets);
+      if (subsetKeys.length > 0) {
+        listWrapper.style.display = "flex";
+        listContainer.innerHTML = "";
+
+        subsetKeys.forEach(name => {
+          // Append to dropdown
+          const opt = document.createElement("option");
+          opt.value = `subset_${name}`;
+          opt.innerText = `Preset: ${name}`;
+          dropdown.appendChild(opt);
+
+          // Append to list
+          const pill = document.createElement("div");
+          pill.className = "subset-pill";
+          pill.style.display = "inline-flex";
+          pill.style.alignItems = "center";
+          pill.style.gap = "0.5rem";
+          pill.style.padding = "0.35rem 0.75rem";
+          pill.style.background = "var(--bg-input)";
+          pill.style.border = "1px solid var(--border-glass)";
+          pill.style.borderRadius = "var(--border-radius-pill)";
+          pill.style.fontSize = "0.8rem";
+          pill.style.color = "var(--color-text-main)";
+          pill.style.cursor = "pointer";
+          pill.style.transition = "all 0.2s";
+
+          pill.onmouseenter = () => pill.style.borderColor = "var(--color-primary)";
+          pill.onmouseleave = () => pill.style.borderColor = "var(--border-glass)";
+
+          pill.addEventListener("click", (e) => {
+            if (e.target.classList.contains("delete-subset-btn")) return;
+            dropdown.value = `subset_${name}`;
+            this.handleTopicSelectionChange();
+          });
+
+          const nameSpan = document.createElement("span");
+          nameSpan.innerText = name;
+          pill.appendChild(nameSpan);
+
+          const delBtn = document.createElement("button");
+          delBtn.type = "button";
+          delBtn.className = "delete-subset-btn";
+          delBtn.innerText = "✖";
+          delBtn.style.background = "transparent";
+          delBtn.style.border = "none";
+          delBtn.style.color = "var(--color-text-muted)";
+          delBtn.style.cursor = "pointer";
+          delBtn.style.fontSize = "0.85rem";
+          delBtn.style.padding = "0";
+          delBtn.style.display = "flex";
+          delBtn.style.alignItems = "center";
+          delBtn.style.justifyContent = "center";
+          delBtn.style.width = "14px";
+          delBtn.style.height = "14px";
+
+          delBtn.onmouseenter = () => delBtn.style.color = "var(--color-error)";
+          delBtn.onmouseleave = () => delBtn.style.color = "var(--color-text-muted)";
+
+          delBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            this.deleteSubset(name);
+          });
+
+          pill.appendChild(delBtn);
+          listContainer.appendChild(pill);
+        });
+      } else {
+        listWrapper.style.display = "none";
+      }
+    },
+
+    saveCurrentSubset: function () {
+      const nameInput = document.getElementById("subset-name-input");
+      const name = nameInput.value.trim();
+      if (!name) {
+        alert("Please enter a name for your preset subset.");
+        return;
+      }
+
+      if (name.length > 25) {
+        alert("Preset name should be under 25 characters.");
+        return;
+      }
+
+      const checked = [];
+      document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+        checked.push(cb.value);
+      });
+
+      if (checked.length === 0) {
+        alert("Please select at least one topic to save as a preset.");
+        return;
+      }
+
+      let subsets = {};
+      try {
+        subsets = JSON.parse(localStorage.getItem("voc_russian_grammar_subsets")) || {};
+      } catch (e) {
+        console.error(e);
+      }
+
+      subsets[name] = checked;
+      localStorage.setItem("voc_russian_grammar_subsets", JSON.stringify(subsets));
+
+      nameInput.value = "";
+      this.loadSavedSubsets();
+
+      const dropdown = document.getElementById("practice-quiz-topic");
+      dropdown.value = `subset_${name}`;
+      this.handleTopicSelectionChange();
+    },
+
+    deleteSubset: function (name) {
+      if (!confirm(`Are you sure you want to delete the preset "${name}"?`)) return;
+
+      let subsets = {};
+      try {
+        subsets = JSON.parse(localStorage.getItem("voc_russian_grammar_subsets")) || {};
+      } catch (e) {
+        console.error(e);
+      }
+
+      delete subsets[name];
+      localStorage.setItem("voc_russian_grammar_subsets", JSON.stringify(subsets));
+
+      this.loadSavedSubsets();
+
+      const dropdown = document.getElementById("practice-quiz-topic");
+      if (dropdown.value === `subset_${name}`) {
+        dropdown.value = "accusative_case";
+        this.handleTopicSelectionChange();
+      }
+    },
+
+    handleTopicSelectionChange: function () {
+      const dropdown = document.getElementById("practice-quiz-topic");
+      const val = dropdown.value;
+      const customPanel = document.getElementById("custom-topics-panel");
+
+      if (val === "multiple_random" || val.startsWith("subset_")) {
+        customPanel.style.display = "flex";
+
+        if (val.startsWith("subset_")) {
+          const name = val.substring(7);
+          let subsets = {};
+          try {
+            subsets = JSON.parse(localStorage.getItem("voc_russian_grammar_subsets")) || {};
+          } catch (e) {
+            console.error(e);
+          }
+          const checkedTopics = subsets[name] || [];
+          document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(cb => {
+            cb.checked = checkedTopics.includes(cb.value);
+          });
+        }
+      } else {
+        customPanel.style.display = "none";
+      }
+
+      this.updateGrammarPracticeMasteryUI();
     },
 
     getGrammarProgressMap: function () {
@@ -274,21 +528,42 @@
     updateGrammarPracticeMasteryUI: function () {
       const topic = document.getElementById("practice-quiz-topic").value;
       const level = document.getElementById("practice-quiz-level").value;
-      
-      const key = `${topic}_${level}`;
       const gProgressMap = this.getGrammarProgressMap() || {};
 
-      const baseProgress = gProgressMap[topic] || {};
-      const lessonCompleted = (baseProgress.lessonsCompleted || 0) > 0;
-
-      const lvlProgress = gProgressMap[key] || {};
-      const quizzesTaken = lvlProgress.quizzesTaken || 0;
-      const avgScore = lvlProgress.avgScore || 0;
-
-      const masteryPct = Math.round((lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0));
+      let checkedTopics = [];
+      if (topic === "multiple_random" || topic.startsWith("subset_")) {
+        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+          checkedTopics.push(cb.value);
+        });
+      } else if (topic) {
+        checkedTopics.push(topic);
+      }
 
       const valEl = document.getElementById("practice-target-mastery-val");
       const fillEl = document.getElementById("practice-target-mastery-fill");
+
+      if (checkedTopics.length === 0) {
+        if (valEl) valEl.innerText = "0%";
+        if (fillEl) fillEl.style.width = "0%";
+        return;
+      }
+
+      let totalMastery = 0;
+      checkedTopics.forEach(t => {
+        const key = `${t}_${level}`;
+        const baseProgress = gProgressMap[t] || {};
+        const lessonCompleted = (baseProgress.lessonsCompleted || 0) > 0;
+
+        const lvlProgress = gProgressMap[key] || {};
+        const quizzesTaken = lvlProgress.quizzesTaken || 0;
+        const avgScore = lvlProgress.avgScore || 0;
+
+        const topicMastery = (lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0);
+        totalMastery += topicMastery;
+      });
+
+      const masteryPct = Math.round(totalMastery / checkedTopics.length);
+
       if (valEl) valEl.innerText = `${masteryPct}%`;
       if (fillEl) fillEl.style.width = `${masteryPct}%`;
     },
@@ -323,7 +598,7 @@
       document.getElementById("quiz-complete-finish-btn").addEventListener("click", () => self.resetPracticeArenaUI());
 
       // Target settings change
-      document.getElementById("practice-quiz-topic").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());
+      document.getElementById("practice-quiz-topic").addEventListener("change", () => self.handleTopicSelectionChange());
       document.getElementById("practice-quiz-level").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());
 
       // Sandbox Buttons
@@ -492,6 +767,19 @@
       const cefr = document.getElementById("practice-quiz-level").value;
       const count = parseInt(document.getElementById("practice-quiz-count").value, 10);
 
+      let topicParam = topic;
+      if (topic === "multiple_random" || topic.startsWith("subset_")) {
+        const checkedNames = [];
+        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+          checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
+        });
+        if (checkedNames.length === 0) {
+          alert("Please select at least one grammar topic to start the quiz.");
+          return;
+        }
+        topicParam = checkedNames.join(", ");
+      }
+
       setupScreen.style.display = "none";
       loadingScreen.style.display = "flex";
       activeScreen.style.display = "none";
@@ -504,7 +792,7 @@
         
         // Invoke quiz Deno edge function
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topic, cefr: cefr, count: count },
+          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count },
           headers: headers
         });
 
