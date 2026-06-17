@@ -55,6 +55,70 @@
     overlay.classList.add("active");
   };
 
+  // Premium glassmorphic custom modal confirm
+  window.confirmCustom = function (message) {
+    return new Promise((resolve) => {
+      let overlay = document.getElementById("custom-confirm-modal");
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "custom-confirm-modal";
+        overlay.className = "modal-overlay";
+        overlay.style.zIndex = "10000"; // Sit on top of other modals
+        
+        overlay.innerHTML = `
+          <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <div style="font-size: 2.5rem;" id="custom-confirm-icon">❓</div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-text-main); margin: 0;" id="custom-confirm-title">Confirm</h3>
+            <p style="font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; margin: 0; word-break: break-word;" id="custom-confirm-message"></p>
+            <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.5rem;">
+              <button type="button" class="btn btn-secondary" id="custom-confirm-cancel-btn" style="flex: 1; padding: 0.75rem; font-size: 1rem;">Cancel</button>
+              <button type="button" class="btn btn-primary" id="custom-confirm-ok-btn" style="flex: 1; padding: 0.75rem; font-size: 1rem;">Yes</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        // Add active class animation
+        setTimeout(() => overlay.classList.add("active"), 10);
+      } else {
+        overlay.classList.add("active");
+      }
+      
+      document.getElementById("custom-confirm-message").innerText = message;
+      
+      const okBtn = overlay.querySelector("#custom-confirm-ok-btn");
+      const cancelBtn = overlay.querySelector("#custom-confirm-cancel-btn");
+      
+      const cleanListeners = () => {
+        okBtn.removeEventListener("click", onOk);
+        cancelBtn.removeEventListener("click", onCancel);
+        overlay.removeEventListener("click", onOverlayClick);
+      };
+      
+      const onOk = () => {
+        cleanListeners();
+        overlay.classList.remove("active");
+        resolve(true);
+      };
+      
+      const onCancel = () => {
+        cleanListeners();
+        overlay.classList.remove("active");
+        resolve(false);
+      };
+      
+      const onOverlayClick = (e) => {
+        if (e.target === overlay) {
+          onCancel();
+        }
+      };
+      
+      okBtn.addEventListener("click", onOk);
+      cancelBtn.addEventListener("click", onCancel);
+      overlay.addEventListener("click", onOverlayClick);
+    });
+  };
+
   // Define utility function for revealing English translations on click
   window.setRevealableText = function (elementId, text) {
     const el = document.getElementById(elementId);
@@ -593,8 +657,8 @@
   // --- STUDY ACTIVE CONTROLLERS ---
   function setupStudySession() {
     const quitBtn = document.getElementById("study-quit-btn");
-    quitBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to quit this study session? Your progress on completed words is already saved.")) {
+    quitBtn.addEventListener("click", async () => {
+      if (await window.confirmCustom("Are you sure you want to quit this study session? Your progress on completed words is already saved.")) {
         switchView("study-select");
       }
     });

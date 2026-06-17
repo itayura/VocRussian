@@ -1003,8 +1003,8 @@
       this.showXpToast(`+${xpGained} XP (Quiz Completed)`);
     },
 
-    quitPracticeQuiz: function () {
-      if (confirm("Are you sure you want to quit this grammar quiz session? Your progress will not be saved.")) {
+    quitPracticeQuiz: async function () {
+      if (await window.confirmCustom("Are you sure you want to quit this grammar quiz session? Your progress will not be saved.")) {
         this.resetPracticeArenaUI();
       }
     },

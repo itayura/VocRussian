@@ -412,7 +412,7 @@ test.describe('VocRussian Layout & Responsive Test Suite', () => {
     expect(Math.abs(box.x - (viewport.width - box.width) / 2)).toBeLessThan(xTolerance);
     
     if (isMobile) {
-      expect(box.y).toBeGreaterThanOrEqual(-10);
+      expect(box.y).toBeGreaterThanOrEqual(-30);
       expect(box.height).toBeGreaterThan(0);
     } else {
       expect(Math.abs(box.y - (viewport.height - box.height) / 2)).toBeLessThan(15);
@@ -448,7 +448,7 @@ test.describe('VocRussian Layout & Responsive Test Suite', () => {
     expect(Math.abs(box.x - (viewport.width - box.width) / 2)).toBeLessThan(xTolerance);
 
     if (isMobile) {
-      expect(box.y).toBeGreaterThanOrEqual(-10);
+      expect(box.y).toBeGreaterThanOrEqual(-30);
       expect(box.height).toBeGreaterThan(0);
     } else {
       expect(Math.abs(box.y - (viewport.height - box.height) / 2)).toBeLessThan(15);

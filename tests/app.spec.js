@@ -468,26 +468,24 @@ test.describe('VocRussian E2E Test Suite', () => {
     // Check we are in the quiz
     await expect(page.locator('#practice-active-screen')).toBeVisible();
 
-    // Capture confirm dialog and decline it first
-    let quitAlertMsg = '';
-    let confirmQuit = false;
-    page.on('dialog', async (dialog) => {
-      quitAlertMsg = dialog.message();
-      if (confirmQuit) {
-        await dialog.accept();
-      } else {
-        await dialog.dismiss();
-      }
-    });
-
-    // Click Quit, decline prompt, verify quiz screen stays active
+    // Click Quit, verify custom confirm modal is visible
     await page.locator('#quiz-quit-btn').click();
-    expect(quitAlertMsg).toContain('Are you sure');
+    const confirmModal = page.locator('#custom-confirm-modal');
+    await expect(confirmModal).toHaveClass(/active/);
+
+    const confirmMsg = await page.locator('#custom-confirm-message').innerText();
+    expect(confirmMsg).toContain('Are you sure you want to quit this grammar quiz session?');
+
+    // Click Cancel, verify quiz screen stays active
+    await page.locator('#custom-confirm-cancel-btn').click();
+    await expect(confirmModal).not.toHaveClass(/active/);
     await expect(page.locator('#practice-active-screen')).toBeVisible();
 
-    // Set toggle to accept next time
-    confirmQuit = true;
+    // Click Quit, approve confirmation, verify return to setup screen
     await page.locator('#quiz-quit-btn').click();
+    await expect(confirmModal).toHaveClass(/active/);
+    await page.locator('#custom-confirm-ok-btn').click();
+    await expect(confirmModal).not.toHaveClass(/active/);
     await expect(page.locator('#practice-setup-screen')).toBeVisible();
   });
 
