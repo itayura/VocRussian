@@ -1,0 +1,15 @@
+{
+  "name": "voc-russian",
+  "version": "1.0.0",
+  "description": "Russian Vocabulary Learning App",
+  "main": "js/app.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.1",
+    "http-server": "^14.1.1",
+    "playwright": "^1.44.1"
+  }
+}
