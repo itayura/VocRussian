@@ -388,4 +388,149 @@ test.describe('VocRussian Layout & Responsive Test Suite', () => {
     await expect(themeSelect).toBeVisible();
   });
 
+  // 8. Modal Dialog Layouts (Add Custom Word Modal)
+  test('Add Custom Word modal overlay and dialog layout matches constraints', async ({ page }) => {
+    const viewport = page.viewportSize();
+    if (!viewport) return;
+
+    // Navigate to Dictionary view
+    await page.locator('.nav-item[data-target="dictionary"]').click();
+
+    // Trigger modal
+    await page.locator('#dict-add-word-btn').click();
+    const modal = page.locator('#modal-add-word');
+    await expect(modal).toHaveClass(/active/);
+    await expect(modal).toHaveCSS('display', 'flex');
+
+    // Verify modal-content centering
+    const modalContent = modal.locator('.modal-content');
+    const box = await modalContent.boundingBox();
+    expect(box).not.toBeNull();
+    // Center alignment checks (approximate within 10px/15px tolerance on desktop, relaxed for mobile viewports)
+    const isMobile = viewport.width <= 768;
+    const xTolerance = isMobile ? 25 : 10;
+    expect(Math.abs(box.x - (viewport.width - box.width) / 2)).toBeLessThan(xTolerance);
+    
+    if (isMobile) {
+      expect(box.y).toBeGreaterThanOrEqual(-10);
+      expect(box.height).toBeGreaterThan(0);
+    } else {
+      expect(Math.abs(box.y - (viewport.height - box.height) / 2)).toBeLessThan(15);
+    }
+
+    // Dismiss modal
+    await page.locator('#modal-add-close').click();
+    await expect(modal).not.toHaveClass(/active/);
+    await expect(modal).toHaveCSS('display', 'none');
+  });
+
+  // 9. Custom Alert Modal layout and center positioning
+  test('Custom Alert Modal dynamically overlays and centers on screen', async ({ page }) => {
+    const viewport = page.viewportSize();
+    if (!viewport) return;
+
+    // Trigger custom alert by clicking the disabled Grammar tab (since we are signed out)
+    const grammarTab = page.locator('.nav-item[data-target="grammar"]');
+    await expect(grammarTab).toHaveClass(/disabled/);
+    await grammarTab.click();
+
+    const alertModal = page.locator('#custom-alert-modal');
+    await expect(alertModal).toHaveClass(/active/);
+    await expect(alertModal).toHaveCSS('display', 'flex');
+
+    const alertContent = alertModal.locator('.modal-content');
+    const box = await alertContent.boundingBox();
+    expect(box).not.toBeNull();
+
+    // Verify alert modal is centered on the viewport
+    const isMobile = viewport.width <= 768;
+    const xTolerance = isMobile ? 25 : 10;
+    expect(Math.abs(box.x - (viewport.width - box.width) / 2)).toBeLessThan(xTolerance);
+
+    if (isMobile) {
+      expect(box.y).toBeGreaterThanOrEqual(-10);
+      expect(box.height).toBeGreaterThan(0);
+    } else {
+      expect(Math.abs(box.y - (viewport.height - box.height) / 2)).toBeLessThan(15);
+    }
+
+    // Dismiss the custom alert
+    await page.locator('#custom-alert-ok-btn').click();
+    await expect(alertModal).not.toHaveClass(/active/);
+  });
+
+  // 10. Dashboard Leitner Box Distribution list vertical progression
+  test('Leitner Box distribution items stack vertically', async ({ page }) => {
+    const distributionList = page.locator('.box-distribution-list');
+    await expect(distributionList).toBeVisible();
+    await expect(distributionList).toHaveCSS('display', 'flex');
+    await expect(distributionList).toHaveCSS('flex-direction', 'column');
+
+    const boxItems = page.locator('.box-distribution-list .box-item');
+    const count = await boxItems.count();
+    expect(count).toBeGreaterThan(1);
+
+    // Verify each sequential box-item is positioned below the previous one
+    let lastY = -1;
+    for (let i = 0; i < count; i++) {
+      const box = await boxItems.nth(i).boundingBox();
+      expect(box).not.toBeNull();
+      if (lastY !== -1) {
+        expect(box.y).toBeGreaterThan(lastY);
+      }
+      lastY = box.y;
+    }
+  });
+
+  // 11. Practice Quiz Arena choice buttons display layout grid
+  test('Practice Arena active quiz layout uses correct grid displays', async ({ page }) => {
+    // Log in to unlock Practice Arena
+    await mockLogin(page);
+
+    // Navigate to AI Grammar -> Practice Arena
+    await page.locator('.nav-item[data-target="grammar"]').click();
+    await page.locator('#grammar-tab-practice').click();
+
+    // Start quiz
+    await page.locator('#practice-start-btn').click();
+    await expect(page.locator('#practice-active-screen')).toBeVisible();
+
+    // Choices grid should be a vertical grid layout
+    const choicesGrid = page.locator('#quiz-choices-container');
+    await expect(choicesGrid).toHaveCSS('display', 'grid');
+
+    const choiceButtons = choicesGrid.locator('.choice-btn');
+    const count = await choiceButtons.count();
+    expect(count).toBeGreaterThan(0);
+
+    // Verify choice button widths stretch fully
+    const gridBox = await choicesGrid.boundingBox();
+    const firstBtnBox = await choiceButtons.first().boundingBox();
+    expect(gridBox).not.toBeNull();
+    expect(firstBtnBox).not.toBeNull();
+    expect(Math.abs(firstBtnBox.width - gridBox.width)).toBeLessThan(15);
+  });
+
+  // 12. Theme switch modifies CSS custom variables
+  test('Theme switcher dynamically alters body CSS variables', async ({ page }) => {
+    // Navigate to Settings
+    await page.locator('.nav-item[data-target="settings"]').click();
+
+    // Get default color-primary custom variable
+    const defaultColor = await page.evaluate(() => {
+      return getComputedStyle(document.body).getPropertyValue('--color-primary').trim();
+    });
+    expect(defaultColor).toContain('252'); // Default: hsl(252, 90%, 68%)
+
+    // Select emerald theme
+    await page.locator('#settings-theme').selectOption('emerald');
+
+    // Get updated color-primary variable
+    const emeraldColor = await page.evaluate(() => {
+      return getComputedStyle(document.body).getPropertyValue('--color-primary').trim();
+    });
+    expect(emeraldColor).toContain('150'); // Emerald: hsl(150, 80%, 48%)
+  });
+
 });
+
