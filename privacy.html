@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - VocRussian</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <style>
+    /* Styling to match VocRussian theme */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg-main: hsl(224, 25%, 8%);
+      --bg-card: hsla(224, 25%, 14%, 0.6);
+      --color-primary: hsl(252, 90%, 68%);
+      --color-text-main: hsl(210, 40%, 98%);
+      --color-text-muted: hsl(217, 18%, 65%);
+      --border-glass: hsla(217, 30%, 90%, 0.07);
+      --font-heading: 'Outfit', -apple-system, sans-serif;
+      --font-body: 'Inter', -apple-system, sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-main);
+      color: var(--color-text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+      background-image: 
+        radial-gradient(at 10% 20%, hsla(252, 90%, 68%, 0.08) 0px, transparent 50%),
+        radial-gradient(at 90% 80%, hsla(142, 76%, 40%, 0.05) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, hsla(224, 25%, 8%, 1) 0px, transparent 100%);
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 1.5rem;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, var(--color-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      margin-top: 1.8rem;
+      margin-bottom: 0.8rem;
+      color: var(--color-primary);
+    }
+
+    p {
+      line-height: 1.6;
+      color: var(--color-text-muted);
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--color-text-muted);
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-glass);
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--color-text-muted);
+    }
+
+    a {
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+
+    a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="logo.png" alt="VocRussian Logo" class="logo">
+      <h1>Privacy Policy</h1>
+    </header>
+
+    <main>
+      <p><strong>Last Updated: June 17, 2026</strong></p>
+      
+      <p>VocRussian ("we", "our", or "us") is dedicated to protecting your privacy. This Privacy Policy details the types of information we collect, store, and process when you use the VocRussian web and mobile application.</p>
+
+      <h2>1. Information We Collect</h2>
+      <p>To provide sync features, progress tracking, and AI tutoring services, we collect and store the following information:</p>
+      <ul>
+        <li><strong>Account Information:</strong> If you sign up, we store your email address and authentication credentials securely.</li>
+        <li><strong>Study Progress:</strong> We store your vocabulary cards, review intervals (Leitner boxes), XP, streaks, attempts, and grammar quiz logs.</li>
+        <li><strong>App Interactions & Feedback:</strong> We store user feedback reports and diagnostic logs.</li>
+        <li><strong>AI Usage and IP Addresses:</strong> When you use AI-powered features (like the Grammar Sandbox or AI Tutor), we log the requested action along with your IP address to prevent abuse, enforce rate limits, and secure our API services.</li>
+      </ul>
+
+      <h2>2. Data Storage & Hosting</h2>
+      <p>All sync data, including user progress, credentials, and logs, is securely stored in a database hosted by <strong>Supabase</strong>. Additionally, the application caches data locally in your browser storage (IndexedDB / LocalStorage) to support offline access and fast load times.</p>
+
+      <h2>3. Sharing and Third-Party Services</h2>
+      <p>We do not sell your personal data. We only share information with third-party service providers necessary to run the app:</p>
+      <ul>
+        <li><strong>Supabase:</strong> For authentication, database storage, and hosting database functions.</li>
+        <li><strong>AI Service Providers (e.g. OpenAI):</strong> Your sentences and questions submitted to the grammar tutor are sent to LLM APIs to generate learning assistance. No personal identifiers are linked to these API requests.</li>
+      </ul>
+
+      <h2>4. Data Deletion Rights</h2>
+      <p>You have control over your data. You may delete your custom words or reset progress inside the application. If you wish to delete your account entirely, please contact us or open an issue on our repository, and we will purge your user record from Supabase.</p>
+
+      <h2>5. Changes to This Privacy Policy</h2>
+      <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page and updating the "Last Updated" date at the top.</p>
+
+      <h2>6. Contact Us</h2>
+      <p>If you have any questions or feedback regarding this Privacy Policy or the application, feel free to open a ticket or contact us via our GitHub Repository: <a href="https://github.com/itayura/VocRussian" target="_blank">github.com/itayura/VocRussian</a>.</p>
+    </main>
+
+    <footer>
+      <p>&copy; 2026 VocRussian. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>

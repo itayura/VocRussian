@@ -1,0 +1,27 @@
+{
+  "packageId": "com.itayura.vocrussian",
+  "host": "itayura.github.io",
+  "name": "VocRussian - Russian Vocabulary Master",
+  "launcherName": "VocRussian",
+  "display": "standalone",
+  "themeColor": "#0b0f19",
+  "navigationColor": "#0b0f19",
+  "backgroundColor": "#0b0f19",
+  "enableNotifications": false,
+  "startUrl": "/VocRussian/",
+  "iconUrl": "https://raw.githubusercontent.com/itayura/VocRussian/main/logo.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./android.keystore",
+    "alias": "android"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "webManifestUrl": "https://raw.githubusercontent.com/itayura/VocRussian/main/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fingerprints": [],
+  "additionalTrustedOrigins": []
+}

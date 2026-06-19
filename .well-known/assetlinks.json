@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.itayura.vocrussian",
+      "sha256_cert_fingerprints": [
+        "CA:65:27:EE:AA:EE:D7:4A:5C:7D:24:93:22:25:34:82:BA:51:DC:30:5A:7F:A8:BA:DD:16:FC:C6:FA:8D:90:EB"
+      ]
+    }
+  }
+]
