@@ -91,7 +91,8 @@ jobs:
 
       - name: Configure Bubblewrap
         run: |
-          yes n | bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}\"}" > ~/.bubblewrap/config.json
 
       - name: Generate Android Project
         run: |

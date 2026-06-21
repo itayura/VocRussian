@@ -783,9 +783,19 @@
     },
 
     // --- PRACTICE ARENA ACTION ---
-    startPracticeQuiz: async function () {
-      if (!this.ensureCloudConnected()) return;
+    getActiveVocabWords: function () {
+      if (!window.SRS || typeof window.SRS.getAllWords !== "function") return [];
+      const allWords = window.SRS.getAllWords();
+      const active = allWords.filter(w => {
+        const prog = window.SRS.getCardProgress(w.id);
+        return (prog.box > 1 && prog.box < 5) || prog.correctCount > 0 || prog.wrongCount > 0;
+      });
+      const targetList = active.length > 0 ? active : allWords;
+      const shuffled = [...targetList].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, 15).map(w => w.word);
+    },
 
+    startPracticeQuiz: async function () {
       const setupScreen = document.getElementById("practice-setup-screen");
       const loadingScreen = document.getElementById("practice-loading");
       const activeScreen = document.getElementById("practice-active-screen");
@@ -793,8 +803,10 @@
       const cefr = document.getElementById("practice-quiz-level").value;
       const count = parseInt(document.getElementById("practice-quiz-count").value, 10);
 
+      const checkedTopics = [];
       const checkedNames = [];
       document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+        checkedTopics.push(cb.value);
         checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
       });
       if (checkedNames.length === 0) {
@@ -802,6 +814,38 @@
         return;
       }
       const topicParam = checkedNames.join(", ");
+
+      // Check Offline Mode
+      const isOnline = navigator.onLine;
+      if (!isOnline) {
+        let cachedSentences = [];
+        try {
+          cachedSentences = JSON.parse(localStorage.getItem("voc_highly_rated_sentences")) || [];
+        } catch (e) {}
+
+        const matching = cachedSentences.filter(q => {
+          return q.cefr === cefr && checkedTopics.includes(q.topic);
+        });
+
+        if (matching.length >= count) {
+          const shuffled = [...matching].sort(() => 0.5 - Math.random());
+          currentQuizQuestions = shuffled.slice(0, count);
+          currentQuizIndex = 0;
+          currentQuizCorrectCount = 0;
+
+          setupScreen.style.display = "none";
+          loadingScreen.style.display = "none";
+          activeScreen.style.display = "flex";
+          this.renderQuizQuestion();
+          this.showXpToast("Started Quiz in Offline Mode 📶");
+          return;
+        } else {
+          alert(`Offline Mode: Not enough highly-rated cached sentences for selected topics (requires at least ${count}, you have ${matching.length} cached). Please connect online or rate sentences with 👍 during online study to cache them.`);
+          return;
+        }
+      }
+
+      if (!this.ensureCloudConnected()) return;
 
       setupScreen.style.display = "none";
       loadingScreen.style.display = "flex";
@@ -812,20 +856,37 @@
         const { data: sessionData } = await client.auth.getSession();
         const token = sessionData?.session?.access_token;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const vocabList = this.getActiveVocabWords();
         
-        // Invoke quiz Deno edge function
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count },
+          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count, vocab: vocabList },
           headers: headers
         });
 
         if (error) throw new Error(error.message || error);
         if (!data || !data.success || !data.data.questions) throw new Error("Failed to receive valid questions payload.");
 
+        let questions = data.data.questions;
+
+        // Blacklist filter
+        let blacklist = [];
+        try {
+          blacklist = JSON.parse(localStorage.getItem("voc_blacklisted_sentences")) || [];
+        } catch (e) {}
+
+        if (blacklist.length > 0) {
+          questions = questions.filter(q => !blacklist.includes(q.sentencePattern));
+        }
+
+        if (questions.length === 0) {
+          throw new Error("All generated questions were filtered out by your blacklist. Please try again.");
+        }
+
         loadingScreen.style.display = "none";
         activeScreen.style.display = "flex";
 
-        currentQuizQuestions = data.data.questions;
+        currentQuizQuestions = questions;
         currentQuizIndex = 0;
         currentQuizCorrectCount = 0;
 
@@ -995,6 +1056,75 @@
             const responseText = `Prompt: ${q.sentencePattern}\nYour Answer: ${choice}\nCorrect Answer: ${q.answer}\nExplanation: ${q.explanation}`;
             window.appealCustom(contextText, responseText);
           }
+        };
+      }
+
+      // Bind Thumbs Up/Down Rating Buttons
+      const rateUpBtn = document.getElementById("quiz-rate-up-btn");
+      const rateDownBtn = document.getElementById("quiz-rate-down-btn");
+      
+      if (rateUpBtn && rateDownBtn) {
+        rateUpBtn.style.backgroundColor = "var(--bg-card)";
+        rateUpBtn.style.borderColor = "var(--border-glass-hover)";
+        rateUpBtn.style.color = "var(--color-text-muted)";
+        rateUpBtn.disabled = false;
+
+        rateDownBtn.style.backgroundColor = "var(--bg-card)";
+        rateDownBtn.style.borderColor = "var(--border-glass-hover)";
+        rateDownBtn.style.color = "var(--color-text-muted)";
+        rateDownBtn.disabled = false;
+
+        rateUpBtn.onclick = () => {
+          let cached = [];
+          try {
+            cached = JSON.parse(localStorage.getItem("voc_highly_rated_sentences")) || [];
+          } catch (e) {}
+
+          const alreadyCached = cached.some(item => item.sentencePattern === q.sentencePattern);
+          if (!alreadyCached) {
+            const topicVal = q.topic || (document.querySelector("#custom-topics-checkboxes .topic-checkbox:checked")?.value || "nominative_case");
+            const cefrVal = q.cefr || document.getElementById("practice-quiz-level").value;
+            
+            const itemToCache = {
+              ...q,
+              topic: topicVal,
+              cefr: cefrVal
+            };
+            cached.push(itemToCache);
+            localStorage.setItem("voc_highly_rated_sentences", JSON.stringify(cached));
+          }
+
+          rateUpBtn.style.backgroundColor = "rgba(56, 176, 0, 0.15)";
+          rateUpBtn.style.borderColor = "var(--color-success)";
+          rateUpBtn.style.color = "var(--color-success)";
+          rateDownBtn.disabled = true;
+          
+          this.showXpToast("Sentence Cached 👍");
+        };
+
+        rateDownBtn.onclick = () => {
+          let blacklist = [];
+          try {
+            blacklist = JSON.parse(localStorage.getItem("voc_blacklisted_sentences")) || [];
+          } catch (e) {}
+          if (!blacklist.includes(q.sentencePattern)) {
+            blacklist.push(q.sentencePattern);
+            localStorage.setItem("voc_blacklisted_sentences", JSON.stringify(blacklist));
+          }
+
+          let cached = [];
+          try {
+            cached = JSON.parse(localStorage.getItem("voc_highly_rated_sentences")) || [];
+          } catch (e) {}
+          cached = cached.filter(item => item.sentencePattern !== q.sentencePattern);
+          localStorage.setItem("voc_highly_rated_sentences", JSON.stringify(cached));
+
+          rateDownBtn.style.backgroundColor = "rgba(220, 53, 69, 0.15)";
+          rateDownBtn.style.borderColor = "var(--color-error)";
+          rateDownBtn.style.color = "var(--color-error)";
+          rateUpBtn.disabled = true;
+          
+          this.showXpToast("Sentence Blacklisted 👎");
         };
       }
 

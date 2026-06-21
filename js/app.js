@@ -372,6 +372,137 @@
     });
   };
 
+  // Pre-populates the "Add Custom Word" modal and fires autofill translation immediately
+  window.openAddWordWithDefaults = function (wordText) {
+    const modal = document.getElementById("modal-add-word");
+    if (!modal) return;
+    
+    // Reset/Clear form fields
+    const form = document.getElementById("add-word-form");
+    if (form) form.reset();
+    
+    // Clear old status indicators
+    const statusEl = document.getElementById("autofill-status");
+    if (statusEl) statusEl.style.display = "none";
+    const reverseStatusEl = document.getElementById("reverse-autofill-status");
+    if (reverseStatusEl) reverseStatusEl.style.display = "none";
+    
+    // Reset input borders
+    const inputs = [
+      "add-word-input", "add-accented-input", "add-translation-input", "add-translit-input",
+      "add-pos-input", "add-exampleru-input", "add-exampleen-input"
+    ];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.borderColor = "";
+    });
+
+    // Populate Russian word input field
+    const wordInput = document.getElementById("add-word-input");
+    if (wordInput) {
+      wordInput.value = wordText;
+    }
+    
+    // Open modal
+    openModal("modal-add-word");
+    
+    // Automatically trigger Google Translate + Gemini autofill loop!
+    const autofillBtn = document.getElementById("modal-add-autofill-btn");
+    if (autofillBtn) {
+      autofillBtn.click();
+    }
+  };
+
+  // Setup the floating selection tooltip to capture and add grammar words to decks
+  function setupFloatingSelectionTooltip() {
+    const tooltip = document.createElement("div");
+    tooltip.id = "floating-selection-tooltip";
+    tooltip.style.position = "fixed";
+    tooltip.style.display = "none";
+    tooltip.style.padding = "0.4rem 0.8rem";
+    tooltip.style.fontSize = "0.85rem";
+    tooltip.style.background = "var(--color-primary)";
+    tooltip.style.color = "#ffffff";
+    tooltip.style.borderRadius = "var(--border-radius-sm)";
+    tooltip.style.cursor = "pointer";
+    tooltip.style.zIndex = "99999";
+    tooltip.style.boxShadow = "var(--shadow-main)";
+    tooltip.style.fontWeight = "bold";
+    tooltip.style.border = "1px solid var(--border-glass-hover)";
+    tooltip.style.transition = "opacity 0.15s ease";
+    tooltip.innerHTML = "➕ Add to Vocab";
+    document.body.appendChild(tooltip);
+    
+    let activeSelectionText = "";
+    
+    document.addEventListener("selectionchange", () => {
+      const selection = window.getSelection();
+      const text = selection.toString().trim();
+      
+      // Check if selection is within the AI Grammar workspace
+      const isWithinGrammar = selection.anchorNode && 
+        (selection.anchorNode.parentElement.closest("#view-grammar") || false);
+         
+      // Exclude punctuation, buttons/inputs, or long sentences (limit to 1-4 words)
+      if (text && text.length > 0 && text.length < 50 && isWithinGrammar && !text.includes("\n")) {
+        activeSelectionText = text;
+        
+        try {
+          const range = selection.getRangeAt(0);
+          const rects = range.getClientRects();
+          if (rects.length > 0) {
+            const rect = rects[0];
+            tooltip.style.top = `${rect.top - 38}px`; // position slightly above the text selection
+            tooltip.style.left = `${rect.left + rect.width / 2 - 50}px`; // horizontal centering
+            tooltip.style.display = "block";
+            tooltip.style.opacity = "1";
+          }
+        } catch (e) {
+          tooltip.style.display = "none";
+        }
+      } else {
+        // Selection cleared, wait for mouseup/pointerup to hide, or hide immediately if selection is completely empty
+        if (!text) {
+          tooltip.style.opacity = "0";
+          setTimeout(() => {
+            if (tooltip.style.opacity === "0") {
+              tooltip.style.display = "none";
+            }
+          }, 150);
+        }
+      }
+    });
+    
+    // Hide when clicking elsewhere
+    document.addEventListener("pointerdown", (e) => {
+      if (e.target !== tooltip) {
+        setTimeout(() => {
+          if (!window.getSelection().toString().trim()) {
+            tooltip.style.opacity = "0";
+            tooltip.style.display = "none";
+          }
+        }, 120);
+      }
+    });
+    
+    tooltip.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      tooltip.style.display = "none";
+      if (activeSelectionText) {
+        // Clean the Russian text: strip punctuation but keep Cyrillic letters and acute stress marks
+        const cleanWord = activeSelectionText
+          .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'0-9a-zA-Z]/g, "")
+          .trim();
+        
+        if (cleanWord) {
+          window.openAddWordWithDefaults(cleanWord);
+        }
+      }
+      window.getSelection().removeAllRanges();
+    });
+  }
+
 
   // Define utility function for revealing English translations on click
   window.setRevealableText = function (elementId, text) {
@@ -450,6 +581,7 @@
       window.updateAIGrammarLockState();
     }
     setupGlobalShortcuts();
+    setupFloatingSelectionTooltip();
 
     // Setup active DB controls in DOM
     populateDecksDropdowns();

@@ -281,12 +281,14 @@ Do not include any markdown formatting, backticks, or explanation outside of the
       };
 
     } else if (action === "quiz") {
-      const { topic, cefr, count } = requestData;
+      const { topic, cefr, count, vocab } = requestData;
       const questionCount = count || 5;
+      const vocabList = Array.isArray(vocab) && vocab.length > 0 ? vocab.join(", ") : "";
 
       prompt = `You are a professional Russian language teacher. Generate ${questionCount} Russian grammar fill-in-the-blank quiz questions.
 Target grammar topic: "${topic || "General Grammar"}"
 Target difficulty level: "${cefr || "A1"}" (CEFR level A1, A2, or B1).
+${vocabList ? `Try to base the fill-in-the-blank sentences or choices on these vocabulary words the user is currently studying: [${vocabList}]. Do not force it if it doesn't fit the grammar rules naturally, but use them whenever possible.` : ""}
 Provide the output strictly as a JSON object with the following schema:
 {
   "questions": [
@@ -296,7 +298,7 @@ Provide the output strictly as a JSON object with the following schema:
       "choices": ["Four choices in Russian Cyrillic including the correct answer", "choice2", "choice3", "choice4"],
       "translation": "English translation of the full correct sentence",
       "transliteration": "Latin transliteration of the full correct sentence",
-      "explanation": "Detailed explanation of why the answer is correct and what grammatical rule applies."
+      "explanation": "Detailed explanation of why the correct answer is required, what grammatical rule applies, and why the other incorrect choices are grammatically incorrect or incompatible (e.g. 'книге is in Dative case, but Accusative is required after читаю')."
     }
   ]
 }

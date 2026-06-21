@@ -901,7 +901,12 @@
             <div id="quiz-explanation-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.5rem; animation: fadeIn 0.3s forwards;">
               <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
                 <strong style="color: var(--color-text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;"><span id="quiz-result-emoji">✅</span> <span id="quiz-result-title">Correct!</span></strong>
-                <div style="display: flex; gap: 0.5rem;">
+                <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                  <div style="display: flex; gap: 0.25rem; align-items: center; margin-right: 0.5rem;" id="quiz-rating-container">
+                    <span style="font-size: 0.75rem; color: var(--color-text-muted);">Rate:</span>
+                    <button type="button" id="quiz-rate-up-btn" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); background: var(--bg-card); cursor: pointer; color: var(--color-text-muted); transition: all 0.2s;" title="Rate Thumbs Up">👍</button>
+                    <button type="button" id="quiz-rate-down-btn" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); background: var(--bg-card); cursor: pointer; color: var(--color-text-muted); transition: all 0.2s;" title="Rate Thumbs Down">👎</button>
+                  </div>
                   <button type="button" id="quiz-appeal-btn" class="btn btn-secondary btn-sm" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); background: var(--bg-card); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; color: var(--color-text-muted);" title="Appeal this question">⚠️ Appeal</button>
                   <button type="button" id="quiz-play-full-btn" class="audio-btn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); background: var(--bg-card); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; color: var(--color-text-main);" title="Listen to the full correct sentence">🔊 Listen Full Sentence</button>
                 </div>
