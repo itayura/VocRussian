@@ -119,6 +119,108 @@
     });
   };
 
+  // Canvas-based particle physics confetti engine for juicy UI feedback
+  window.showConfettiBurst = function (element) {
+    if (!element) return;
+    let canvas = document.getElementById("confetti-canvas");
+    if (!canvas) {
+      canvas = document.createElement("canvas");
+      canvas.id = "confetti-canvas";
+      canvas.style.position = "fixed";
+      canvas.style.top = "0";
+      canvas.style.left = "0";
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.pointerEvents = "none";
+      canvas.style.zIndex = "99999";
+      document.body.appendChild(canvas);
+      
+      const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+      
+      canvas.particles = [];
+      canvas.animationFrameId = null;
+    }
+    
+    const rect = element.getBoundingClientRect();
+    const startX = rect.left + rect.width / 2;
+    const startY = rect.top + rect.height / 2;
+    
+    const colors = ["#ff5964", "#35a7ff", "#38b000", "#ffca3a", "#8338ec", "#ff006e", "#3a86c8", "#00f5d4"];
+    
+    for (let i = 0; i < 45; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 3 + Math.random() * 7;
+      canvas.particles.push({
+        x: startX,
+        y: startY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - (2 + Math.random() * 3),
+        size: 5 + Math.random() * 7,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        opacity: 1,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.3,
+        gravity: 0.18 + Math.random() * 0.1,
+        decay: 0.015 + Math.random() * 0.015,
+        shape: Math.random() > 0.5 ? "circle" : "rect"
+      });
+    }
+    
+    if (!canvas.animationFrameId) {
+      const ctx = canvas.getContext("2d");
+      
+      function tick() {
+        if (canvas.particles.length === 0) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.animationFrameId = null;
+          return;
+        }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let i = canvas.particles.length - 1; i >= 0; i--) {
+          const p = canvas.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += p.gravity;
+          p.opacity -= p.decay;
+          p.rotation += p.rotationSpeed;
+          
+          if (p.opacity <= 0) {
+            canvas.particles.splice(i, 1);
+            continue;
+          }
+          
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+          ctx.globalAlpha = p.opacity;
+          ctx.fillStyle = p.color;
+          
+          if (p.shape === "circle") {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+          }
+          
+          ctx.restore();
+        }
+        
+        canvas.animationFrameId = requestAnimationFrame(tick);
+      }
+      
+      canvas.animationFrameId = requestAnimationFrame(tick);
+    }
+  };
+
+
   // Define utility function for revealing English translations on click
   window.setRevealableText = function (elementId, text) {
     const el = document.getElementById(elementId);
@@ -888,7 +990,10 @@
     const cardEl = document.getElementById("flashcard-click-wrapper");
     if (isCorrect) {
       AudioEngine.playSuccess();
-      if (cardEl) cardEl.classList.add("correct-glow");
+      if (cardEl) {
+        cardEl.classList.add("correct-glow");
+        if (window.showConfettiBurst) window.showConfettiBurst(cardEl);
+      }
     } else {
       AudioEngine.playError();
       if (cardEl) cardEl.classList.add("incorrect-shake");
@@ -963,10 +1068,11 @@
     studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
 
     if (isCorrect) {
-      buttonElement.classList.add("correct");
+      buttonElement.classList.add("correct", "correct-glow");
       AudioEngine.playSuccess();
+      if (window.showConfettiBurst) window.showConfettiBurst(buttonElement);
     } else {
-      buttonElement.classList.add("incorrect");
+      buttonElement.classList.add("incorrect", "incorrect-shake");
       // Find and highlight correct answer
       buttons.forEach(btn => {
         // Simple comparison of text
@@ -1004,6 +1110,7 @@
     const input = document.getElementById("writing-user-input");
     input.value = "";
     input.disabled = false;
+    input.classList.remove("incorrect-shake");
     input.focus();
 
     const diffContainer = document.getElementById("writing-diff-container");
@@ -1046,15 +1153,17 @@
 
     if (isCorrect) {
       checkBtn.innerText = "Next Word";
-      checkBtn.className = "btn btn-success";
+      checkBtn.className = "btn btn-success correct-glow";
       
       diffContainer.style.display = "block";
       diffContainer.innerHTML = `<span class="diff-char-correct" style="font-weight:700;">✓ Correct: ${currentCard.word}</span>`;
       
       AudioEngine.playSuccess();
+      if (window.showConfettiBurst) window.showConfettiBurst(checkBtn);
     } else {
       checkBtn.innerText = "Next Word";
       checkBtn.className = "btn btn-danger";
+      input.classList.add("incorrect-shake");
 
       // Compute visual character comparison
       const diffMarkup = computeTextDiff(userVal, currentCard.word);
