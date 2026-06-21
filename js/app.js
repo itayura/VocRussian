@@ -220,6 +220,158 @@
     }
   };
 
+  // Dynamic glassmorphic custom modal for appealing AI content decisions
+  window.appealCustom = function (context, aiResponse) {
+    return new Promise((resolve) => {
+      let overlay = document.getElementById("custom-appeal-modal");
+      if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "custom-appeal-modal";
+        overlay.className = "modal-overlay";
+        overlay.style.zIndex = "10000";
+        
+        overlay.innerHTML = `
+          <div class="modal-content" style="max-width: 500px; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
+            <div style="font-size: 2.5rem; text-align: center;">⚠️</div>
+            <h3 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-text-main); margin: 0; text-align: center;">Appeal AI Content</h3>
+            <p style="font-family: var(--font-body); font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.4; margin: 0;" id="custom-appeal-context"></p>
+            
+            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); border-radius: var(--border-radius-sm); padding: 0.75rem; max-height: 120px; overflow-y: auto; font-size: 0.85rem; color: var(--color-text-main); font-family: monospace; white-space: pre-wrap; word-break: break-all;" id="custom-appeal-response"></div>
+            
+            <div class="form-group" style="margin: 0; display: flex; flex-direction: column; gap: 0.35rem;">
+              <label for="custom-appeal-reason" style="font-size: 0.8rem; font-weight: 600; color: var(--color-text-muted);">Why is this incorrect? (Optional)</label>
+              <textarea id="custom-appeal-reason" class="json-textarea" style="min-height: 80px; font-size: 0.95rem; padding: 0.5rem 0.75rem; font-family: var(--font-body);" placeholder="Explain why the AI made a mistake..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 0.5rem;">
+              <button type="button" class="btn btn-secondary" id="custom-appeal-cancel-btn" style="flex: 1; padding: 0.75rem; font-size: 1rem;">Cancel</button>
+              <button type="button" class="btn btn-primary" id="custom-appeal-submit-btn" style="flex: 1; padding: 0.75rem; font-size: 1rem;">Submit Appeal</button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        
+        setTimeout(() => overlay.classList.add("active"), 10);
+      } else {
+        overlay.classList.add("active");
+        overlay.querySelector("#custom-appeal-reason").value = "";
+      }
+      
+      document.getElementById("custom-appeal-context").innerHTML = `<strong>Context:</strong> ${context}`;
+      document.getElementById("custom-appeal-response").innerText = aiResponse;
+      
+      const submitBtn = overlay.querySelector("#custom-appeal-submit-btn");
+      const cancelBtn = overlay.querySelector("#custom-appeal-cancel-btn");
+      
+      const cleanListeners = () => {
+        submitBtn.removeEventListener("click", onSubmit);
+        cancelBtn.removeEventListener("click", onCancel);
+        overlay.removeEventListener("click", onOverlayClick);
+      };
+      
+      const onSubmit = () => {
+        const reason = document.getElementById("custom-appeal-reason").value.trim();
+        cleanListeners();
+        overlay.classList.remove("active");
+        
+        let appeals = [];
+        try {
+          appeals = JSON.parse(localStorage.getItem("voc_russian_appeals")) || [];
+        } catch (e) {}
+        
+        const newAppeal = {
+          id: 'appeal_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          timestamp: new Date().toLocaleString(),
+          context: context,
+          aiResponse: aiResponse,
+          reason: reason || "No description provided",
+          status: "Pending Review"
+        };
+        
+        appeals.unshift(newAppeal);
+        localStorage.setItem("voc_russian_appeals", JSON.stringify(appeals));
+        
+        if (window.renderAppealsList) {
+          window.renderAppealsList();
+        }
+        
+        alert("Appeal Submitted: Thank you! Your appeal has been registered locally. We will review this AI generated content.");
+        resolve(true);
+      };
+      
+      const onCancel = () => {
+        cleanListeners();
+        overlay.classList.remove("active");
+        resolve(false);
+      };
+      
+      const onOverlayClick = (e) => {
+        if (e.target === overlay) {
+          onCancel();
+        }
+      };
+      
+      submitBtn.addEventListener("click", onSubmit);
+      cancelBtn.addEventListener("click", onCancel);
+      overlay.addEventListener("click", onOverlayClick);
+    });
+  };
+
+  // Renderer for appeals list in the settings panel
+  window.renderAppealsList = function () {
+    const listEl = document.getElementById("settings-appeals-list");
+    if (!listEl) return;
+    
+    let appeals = [];
+    try {
+      appeals = JSON.parse(localStorage.getItem("voc_russian_appeals")) || [];
+    } catch (e) {}
+    
+    if (appeals.length === 0) {
+      listEl.innerHTML = `<p class="page-subtitle" style="margin: 0; color: var(--color-text-muted);" id="no-appeals-msg">You haven't submitted any appeals yet.</p>`;
+      return;
+    }
+    
+    listEl.innerHTML = appeals.map(app => {
+      const escReason = (app.reason || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const escContext = (app.context || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      
+      return `
+        <div class="card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-radius: var(--border-radius-sm); box-sizing: border-box;" id="appeal-card-${app.id}">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
+            <strong style="color: var(--color-primary-hover); font-size: 0.95rem;">${escContext}</strong>
+            <span style="font-size: 0.75rem; color: var(--color-text-muted);">${app.timestamp}</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--color-text-main); line-height: 1.4;">
+            <strong>Your Appeal Comment:</strong> ${escReason}
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; width: 100%;">
+            <span style="font-size: 0.75rem; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: var(--border-radius-sm); border: 1px solid rgba(255, 193, 7, 0.3); background: rgba(255, 193, 7, 0.1); color: #ffc107;">
+              ${app.status}
+            </span>
+            <button type="button" class="btn btn-secondary btn-sm delete-appeal-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent; background: transparent; cursor: pointer;" data-id="${app.id}">✖ Delete Appeal</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+    
+    // Bind delete handlers
+    listEl.querySelectorAll(".delete-appeal-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-id");
+        if (await window.confirmCustom("Are you sure you want to delete this appeal record?")) {
+          let currentAppeals = [];
+          try {
+            currentAppeals = JSON.parse(localStorage.getItem("voc_russian_appeals")) || [];
+          } catch (e) {}
+          currentAppeals = currentAppeals.filter(app => app.id !== id);
+          localStorage.setItem("voc_russian_appeals", JSON.stringify(currentAppeals));
+          window.renderAppealsList();
+        }
+      });
+    });
+  };
+
 
   // Define utility function for revealing English translations on click
   window.setRevealableText = function (elementId, text) {
@@ -1849,6 +2001,11 @@
       viewLandingBtn.addEventListener("click", () => {
         switchView("landing");
       });
+    }
+
+    // Load/render submitted AI appeals list
+    if (window.renderAppealsList) {
+      window.renderAppealsList();
     }
   }
 

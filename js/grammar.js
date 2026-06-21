@@ -666,11 +666,24 @@
               </div>
             `).join("")}
           </div>
+          <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem; border-top: 1px solid var(--border-glass); padding-top: 1rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="tutor-appeal-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); cursor: pointer; color: var(--color-text-muted); display: inline-flex; align-items: center; gap: 0.35rem;">⚠️ Appeal Lesson Content</button>
+          </div>
         </div>
       `;
 
       // Bind TTS audio play buttons
       this.bindTutorTtsButtons();
+
+      // Bind Appeal Lesson Button
+      const tutorAppealBtn = document.getElementById("tutor-appeal-btn");
+      if (tutorAppealBtn) {
+        tutorAppealBtn.onclick = () => {
+          if (window.appealCustom) {
+            window.appealCustom("Grammar Tutor: " + payload.title, JSON.stringify(payload));
+          }
+        };
+      }
     },
 
     // --- AI TUTOR ACTION ---
@@ -973,6 +986,18 @@
         };
       }
 
+      // Bind Appeal Question Button
+      const quizAppealBtn = document.getElementById("quiz-appeal-btn");
+      if (quizAppealBtn) {
+        quizAppealBtn.onclick = () => {
+          if (window.appealCustom) {
+            const contextText = `Practice Arena: Question ${currentQuizIndex + 1}`;
+            const responseText = `Prompt: ${q.sentencePattern}\nYour Answer: ${choice}\nCorrect Answer: ${q.answer}\nExplanation: ${q.explanation}`;
+            window.appealCustom(contextText, responseText);
+          }
+        };
+      }
+
       // Show Next button
       document.getElementById("quiz-next-btn").style.display = "block";
     },
@@ -992,11 +1017,21 @@
 
       const scoreEl = document.getElementById("quiz-complete-score");
       const xpEl = document.getElementById("quiz-complete-xp");
+      const accuracyEl = document.getElementById("quiz-complete-accuracy");
+      const streakEl = document.getElementById("quiz-complete-streak");
 
       scoreEl.innerText = `${currentQuizCorrectCount} / ${currentQuizQuestions.length}`;
       
       const xpGained = currentQuizCorrectCount * 15;
       xpEl.innerText = `+${xpGained} XP`;
+
+      const accuracy = currentQuizQuestions.length > 0 ? Math.round((currentQuizCorrectCount / currentQuizQuestions.length) * 100) : 0;
+      if (accuracyEl) accuracyEl.innerText = `${accuracy}%`;
+
+      if (streakEl && window.SRS) {
+        const stats = window.SRS.getStatsSummary();
+        streakEl.innerText = `${stats.streak} days`;
+      }
 
       // Record in local cache
       const checkedCbs = document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked");
@@ -1132,6 +1167,16 @@
         // Award XP
         window.SRS.scoreCard("dummy_xp_holder", true);
         this.showXpToast("+10 XP (AI Writing sandbox)");
+
+        // Bind Appeal Sandbox Button
+        const sandboxAppealBtn = document.getElementById("sandbox-appeal-btn");
+        if (sandboxAppealBtn) {
+          sandboxAppealBtn.onclick = () => {
+            if (window.appealCustom) {
+              window.appealCustom("AI Sandbox Analysis: '" + input + "'", JSON.stringify(payload));
+            }
+          };
+        }
 
       } catch (err) {
         loader.style.display = "none";
