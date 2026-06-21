@@ -406,7 +406,9 @@
       // Setup study filters to defaults
       document.getElementById("study-filter-category").value = "all";
       document.getElementById("study-filter-queue").value = "due";
-      document.getElementById("study-deck-size").value = "20";
+      
+      const dueCap = SRS.getSetting("dueCap", 20);
+      document.getElementById("study-deck-size").value = dueCap.toString();
       
       startStudySession("flashcard");
     });
@@ -874,18 +876,31 @@
 
   function handleSrsScore(isCorrect) {
     if (!isCardFlipped) return;
+    isCardFlipped = false; // Immediately disable further clicks during transition
 
     // Log progress
     const result = SRS.scoreCard(currentCard.id, isCorrect);
     sessionXpGained += result.xpGained;
 
+    // Track review history
+    studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
+
+    const cardEl = document.getElementById("flashcard-click-wrapper");
     if (isCorrect) {
       AudioEngine.playSuccess();
+      if (cardEl) cardEl.classList.add("correct-glow");
     } else {
       AudioEngine.playError();
+      if (cardEl) cardEl.classList.add("incorrect-shake");
     }
 
-    showNextCard();
+    // Delay showing next card slightly to allow animation to play
+    setTimeout(() => {
+      if (cardEl) {
+        cardEl.classList.remove("correct-glow", "incorrect-shake");
+      }
+      showNextCard();
+    }, 450);
   }
 
   // Multiple Choice Setup
@@ -943,6 +958,9 @@
     // Score via SRS
     const result = SRS.scoreCard(currentCard.id, isCorrect);
     sessionXpGained += result.xpGained;
+
+    // Track review history
+    studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
 
     if (isCorrect) {
       buttonElement.classList.add("correct");
@@ -1021,6 +1039,9 @@
     const result = SRS.scoreCard(currentCard.id, isCorrect);
     sessionXpGained += result.xpGained;
 
+    // Track review history
+    studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
+
     input.disabled = true;
 
     if (isCorrect) {
@@ -1096,9 +1117,16 @@
     
     document.getElementById("study-sub-complete").style.display = "block";
     
+    // Compute stats
+    const correctCount = studyHistory.filter(item => item.isCorrect).length;
+    const accuracy = studyHistory.length > 0 ? Math.round((correctCount / studyHistory.length) * 100) : 0;
+    const stats = SRS.getStatsSummary();
+
     // Fill stats
     document.getElementById("complete-words-count").innerText = sessionDeck.length;
     document.getElementById("complete-xp-gain").innerText = `+${sessionXpGained} XP`;
+    document.getElementById("complete-accuracy").innerText = `${accuracy}%`;
+    document.getElementById("complete-streak").innerText = `${stats.streak} days`;
     
     AudioEngine.playLevelUp();
   }
@@ -1692,6 +1720,16 @@
         const theme = themeSelect.value;
         SRS.setSetting("theme", theme);
         applyTheme(theme);
+      });
+    }
+
+    const dueCapSelect = document.getElementById("settings-due-cap");
+    if (dueCapSelect) {
+      dueCapSelect.value = SRS.getSetting("dueCap", 20).toString();
+      dueCapSelect.addEventListener("change", () => {
+        const dueCap = parseInt(dueCapSelect.value, 10);
+        SRS.setSetting("dueCap", dueCap);
+        renderDashboard();
       });
     }
 

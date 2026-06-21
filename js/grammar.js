@@ -595,6 +595,14 @@
       document.getElementById("quiz-quit-btn").addEventListener("click", () => self.quitPracticeQuiz());
       document.getElementById("quiz-next-btn").addEventListener("click", () => self.nextQuizQuestion());
       document.getElementById("quiz-complete-finish-btn").addEventListener("click", () => self.resetPracticeArenaUI());
+      
+      const quizCompleteAgainBtn = document.getElementById("quiz-complete-again-btn");
+      if (quizCompleteAgainBtn) {
+        quizCompleteAgainBtn.addEventListener("click", () => {
+          document.getElementById("practice-complete-screen").style.display = "none";
+          self.startPracticeQuiz();
+        });
+      }
 
       // Target settings change
       document.getElementById("practice-quiz-level").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());

@@ -618,19 +618,33 @@
               <h2 style="font-family: var(--font-heading); font-size: 1.75rem;">Session Complete!</h2>
               <p class="page-subtitle">Great job reviewing Russian vocabulary today.</p>
               
-              <div class="dashboard-grid" style="width: 100%; margin: 1.5rem 0;">
-                <div class="card stat-card due" style="padding: 1.25rem;">
+              <div class="dashboard-grid" style="width: 100%; margin: 1.5rem 0; grid-template-columns: repeat(2, 1fr);">
+                <div class="card stat-card due" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
                   <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem;">🧠</div>
                   <div class="stat-info">
                     <div id="complete-words-count" class="stat-value">0</div>
                     <div class="stat-label">Reviewed</div>
                   </div>
                 </div>
-                <div class="card stat-card xp" style="padding: 1.25rem;">
+                <div class="card stat-card xp" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
                   <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem;">⚡</div>
                   <div class="stat-info">
                     <div id="complete-xp-gain" class="stat-value">0</div>
                     <div class="stat-label">XP Earned</div>
+                  </div>
+                </div>
+                <div class="card stat-card choice" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem; background: rgba(252, 90, 68, 0.1); color: var(--color-primary);">🎯</div>
+                  <div class="stat-info">
+                    <div id="complete-accuracy" class="stat-value">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                  </div>
+                </div>
+                <div class="card stat-card streak" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                  <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem; background: rgba(255, 165, 0, 0.1); color: orange;">🔥</div>
+                  <div class="stat-info">
+                    <div id="complete-streak" class="stat-value">0 days</div>
+                    <div class="stat-label">Streak</div>
                   </div>
                 </div>
               </div>
@@ -914,7 +928,10 @@
               </div>
             </div>
 
-            <button type="button" id="quiz-complete-finish-btn" class="btn btn-primary" style="width: 100%; padding: 1rem;">Back to Setup</button>
+            <div style="display: flex; gap: 1rem; width: 100%;">
+              <button type="button" id="quiz-complete-again-btn" class="btn btn-secondary" style="flex: 1; padding: 1rem;">Practice Again</button>
+              <button type="button" id="quiz-complete-finish-btn" class="btn btn-primary" style="flex: 1; padding: 1rem;">Back to Setup</button>
+            </div>
           </div>
         </div>
 
@@ -1210,6 +1227,23 @@
                 <option value="emerald">Aurora Emerald</option>
                 <option value="cyberpunk">Cyberpunk Neon</option>
                 <option value="light">Light Glassmorphic</option>
+              </select>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Daily Due Review Cap</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Limit the number of due cards shown on your dashboard and reviewed in a single batch.
+                </span>
+              </div>
+              <select id="settings-due-cap" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
+                <option value="10">10 Cards</option>
+                <option value="20" selected>20 Cards</option>
+                <option value="50">50 Cards</option>
+                <option value="999">No Limit</option>
               </select>
             </div>
           </div>

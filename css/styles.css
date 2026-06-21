@@ -1133,6 +1133,29 @@ kbd {
   to { transform: translateY(-8px); }
 }
 
+@keyframes correctGlow {
+  0% { transform: scale(1); box-shadow: 0 0 0px var(--color-success-glow); }
+  50% { transform: scale(1.02); box-shadow: 0 0 25px var(--color-success-glow); }
+  100% { transform: scale(1); box-shadow: var(--shadow-main); }
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.correct-glow {
+  animation: correctGlow 0.4s ease-out;
+  border-color: var(--color-success) !important;
+}
+
+.incorrect-shake {
+  animation: incorrectShake 0.4s ease-in-out;
+  border-color: var(--color-error) !important;
+}
+
+
 /* --- RESPONSIVE ADJUSTMENTS --- */
 /* For smaller screens: Convert Sidebar to Bottom Tab Bar */
 @media (max-width: 768px) {

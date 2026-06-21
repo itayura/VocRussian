@@ -392,7 +392,9 @@
         if (prog.starred) starredCount++;
       });
 
-      const dueCount = this.getDueCards().filter(w => !this.getCardProgress(w.id).hidden).length;
+      const rawDueCount = this.getDueCards().filter(w => !this.getCardProgress(w.id).hidden).length;
+      const dueCap = this.getSetting("dueCap", 20);
+      const dueCount = Math.min(rawDueCount, dueCap);
 
       return {
         xp: globalStats.xp || 0,
