@@ -1001,20 +1001,26 @@
       const explBox = document.getElementById("quiz-explanation-box");
       const explText = document.getElementById("quiz-explanation-text");
 
+      const animationsEnabled = window.SRS ? window.SRS.getSetting("animationsEnabled", true) : true;
+
       if (isCorrect) {
         currentQuizCorrectCount++;
-        selectedBtn.classList.add("correct-glow");
+        if (animationsEnabled) {
+          selectedBtn.classList.add("correct-glow");
+        }
         selectedBtn.style.borderColor = "var(--color-success)";
         selectedBtn.style.backgroundColor = "var(--color-success-glow)";
         if (window.AudioEngine) window.AudioEngine.playSuccess();
-        if (window.showConfettiBurst) window.showConfettiBurst(selectedBtn);
+        if (animationsEnabled && window.showConfettiBurst) window.showConfettiBurst(selectedBtn);
         
         emojiEl.innerText = "✅";
         titleEl.innerText = "Correct!";
         explBox.style.borderColor = "var(--color-success)";
         explBox.style.background = "var(--color-success-glow)";
       } else {
-        selectedBtn.classList.add("incorrect-shake");
+        if (animationsEnabled) {
+          selectedBtn.classList.add("incorrect-shake");
+        }
         selectedBtn.style.borderColor = "var(--color-error)";
         selectedBtn.style.backgroundColor = "var(--color-error-glow)";
         if (window.AudioEngine) window.AudioEngine.playError();

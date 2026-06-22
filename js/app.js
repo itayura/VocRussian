@@ -122,6 +122,7 @@
   // Canvas-based particle physics confetti engine for juicy UI feedback
   window.showConfettiBurst = function (element) {
     if (!element) return;
+    if (window.SRS && !window.SRS.getSetting("animationsEnabled", true)) return;
     let canvas = document.getElementById("confetti-canvas");
     if (!canvas) {
       canvas = document.createElement("canvas");
@@ -1272,15 +1273,16 @@
     studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
 
     const cardEl = document.getElementById("flashcard-click-wrapper");
+    const animationsEnabled = SRS.getSetting("animationsEnabled", true);
     if (isCorrect) {
       AudioEngine.playSuccess();
-      if (cardEl) {
+      if (cardEl && animationsEnabled) {
         cardEl.classList.add("correct-glow");
         if (window.showConfettiBurst) window.showConfettiBurst(cardEl);
       }
     } else {
       AudioEngine.playError();
-      if (cardEl) cardEl.classList.add("incorrect-shake");
+      if (cardEl && animationsEnabled) cardEl.classList.add("incorrect-shake");
     }
 
     // Delay showing next card slightly to allow animation to play
@@ -1289,7 +1291,7 @@
         cardEl.classList.remove("correct-glow", "incorrect-shake");
       }
       showNextCard();
-    }, 450);
+    }, animationsEnabled ? 450 : 50);
   }
 
   // Multiple Choice Setup
@@ -1351,12 +1353,19 @@
     // Track review history
     studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
 
+    const animationsEnabled = SRS.getSetting("animationsEnabled", true);
     if (isCorrect) {
-      buttonElement.classList.add("correct", "correct-glow");
+      buttonElement.classList.add("correct");
+      if (animationsEnabled) {
+        buttonElement.classList.add("correct-glow");
+        if (window.showConfettiBurst) window.showConfettiBurst(buttonElement);
+      }
       AudioEngine.playSuccess();
-      if (window.showConfettiBurst) window.showConfettiBurst(buttonElement);
     } else {
-      buttonElement.classList.add("incorrect", "incorrect-shake");
+      buttonElement.classList.add("incorrect");
+      if (animationsEnabled) {
+        buttonElement.classList.add("incorrect-shake");
+      }
       // Find and highlight correct answer
       buttons.forEach(btn => {
         // Simple comparison of text
@@ -1435,19 +1444,22 @@
 
     input.disabled = true;
 
+    const animationsEnabled = SRS.getSetting("animationsEnabled", true);
     if (isCorrect) {
       checkBtn.innerText = "Next Word";
-      checkBtn.className = "btn btn-success correct-glow";
+      checkBtn.className = animationsEnabled ? "btn btn-success correct-glow" : "btn btn-success";
       
       diffContainer.style.display = "block";
       diffContainer.innerHTML = `<span class="diff-char-correct" style="font-weight:700;">✓ Correct: ${currentCard.word}</span>`;
       
       AudioEngine.playSuccess();
-      if (window.showConfettiBurst) window.showConfettiBurst(checkBtn);
+      if (animationsEnabled && window.showConfettiBurst) window.showConfettiBurst(checkBtn);
     } else {
       checkBtn.innerText = "Next Word";
       checkBtn.className = "btn btn-danger";
-      input.classList.add("incorrect-shake");
+      if (animationsEnabled) {
+        input.classList.add("incorrect-shake");
+      }
 
       // Compute visual character comparison
       const diffMarkup = computeTextDiff(userVal, currentCard.word);
@@ -2119,10 +2131,19 @@
     const dueCapSelect = document.getElementById("settings-due-cap");
     if (dueCapSelect) {
       dueCapSelect.value = SRS.getSetting("dueCap", 20).toString();
-      dueCapSelect.addEventListener("change", () => {
-        const dueCap = parseInt(dueCapSelect.value, 10);
-        SRS.setSetting("dueCap", dueCap);
+      dueCapSelect.addEventListener("input", () => {
+        let val = parseInt(dueCapSelect.value, 10);
+        if (isNaN(val) || val <= 0) val = 20;
+        SRS.setSetting("dueCap", val);
         renderDashboard();
+      });
+    }
+
+    const animationsEnabledCheckbox = document.getElementById("settings-animations-enabled");
+    if (animationsEnabledCheckbox) {
+      animationsEnabledCheckbox.checked = SRS.getSetting("animationsEnabled", true);
+      animationsEnabledCheckbox.addEventListener("change", () => {
+        SRS.setSetting("animationsEnabled", animationsEnabledCheckbox.checked);
       });
     }
 
