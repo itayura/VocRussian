@@ -13,6 +13,7 @@ push_notify.ps1
 *.token
 *.txt
 !README.md
+!manifest-checksum.txt
 
 # Playwright
 test-results/
@@ -23,12 +24,6 @@ playwright/.cache/
 # Android / Bubblewrap
 android.keystore
 app/
-build.gradle
-gradle.properties
-gradle/
-gradlew
-gradlew.bat
-settings.gradle
 store_icon.png
 play_store_feature_graphic.png
 # Local build artifacts

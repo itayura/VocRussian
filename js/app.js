@@ -940,9 +940,11 @@
     
     // Set level badge based on percentage
     let vocabLevel = "A1";
-    if (vocabPct >= 25 && vocabPct < 50) vocabLevel = "A2";
-    else if (vocabPct >= 50 && vocabPct < 75) vocabLevel = "B1";
-    else if (vocabPct >= 75) vocabLevel = "B2";
+    if (vocabPct >= 17 && vocabPct < 34) vocabLevel = "A2";
+    else if (vocabPct >= 34 && vocabPct < 50) vocabLevel = "B1";
+    else if (vocabPct >= 50 && vocabPct < 67) vocabLevel = "B2";
+    else if (vocabPct >= 67 && vocabPct < 84) vocabLevel = "C1";
+    else if (vocabPct >= 84) vocabLevel = "C2";
 
     const vFill = document.getElementById("vocab-level-fill");
     const vBadge = document.getElementById("vocab-level-badge");
@@ -958,9 +960,9 @@
       "verb_conjugations", "past_tense", "future_tense", "adjectives_declension",
       "pronouns_declension", "noun_plurals"
     ];
-    const levels = ["A1", "A2", "B1"];
+    const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
     let totalGrammarWeight = 0;
-    let maxGrammarWeight = topics.length * levels.length * 100; // 8 topics * 3 levels * 100 max points each
+    let maxGrammarWeight = topics.length * levels.length * 100; // 14 topics * 6 levels * 100 max points each
 
     if (window.GrammarManager && typeof window.GrammarManager.getGrammarProgressMap === "function") {
       const gProgressMap = window.GrammarManager.getGrammarProgressMap() || {};
@@ -986,9 +988,11 @@
     const grammarPct = maxGrammarWeight > 0 ? Math.round((totalGrammarWeight / maxGrammarWeight) * 100) : 0;
 
     let grammarLevel = "A1";
-    if (grammarPct >= 25 && grammarPct < 50) grammarLevel = "A2";
-    else if (grammarPct >= 50 && grammarPct < 75) grammarLevel = "B1";
-    else if (grammarPct >= 75) grammarLevel = "B2";
+    if (grammarPct >= 17 && grammarPct < 34) grammarLevel = "A2";
+    else if (grammarPct >= 34 && grammarPct < 50) grammarLevel = "B1";
+    else if (grammarPct >= 50 && grammarPct < 67) grammarLevel = "B2";
+    else if (grammarPct >= 67 && grammarPct < 84) grammarLevel = "C1";
+    else if (grammarPct >= 84) grammarLevel = "C2";
 
     const gFill = document.getElementById("grammar-level-fill");
     const gBadge = document.getElementById("grammar-level-badge");
