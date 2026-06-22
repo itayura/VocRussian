@@ -729,8 +729,9 @@
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke explain Deno edge function
+        const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "explain", topic: topicId },
+          body: { action: "explain", topic: topicId, nativeLanguage: nativeLang },
           headers: headers
         });
 
@@ -859,8 +860,9 @@
 
         const vocabList = this.getActiveVocabWords();
         
+        const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count, vocab: vocabList },
+          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
           headers: headers
         });
 
@@ -1228,8 +1230,9 @@
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke Deno edge function analyze-sentence
+        const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "analyze", sentence: input },
+          body: { action: "analyze", sentence: input, nativeLanguage: nativeLang },
           headers: headers
         });
 

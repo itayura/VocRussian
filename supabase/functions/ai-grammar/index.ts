@@ -157,7 +157,15 @@ serve(async (req) => {
     }
 
     const requestData = await req.json();
-    const { action } = requestData;
+    const { action, nativeLanguage } = requestData;
+
+    const langMap: Record<string, string> = {
+      en: "English",
+      he: "Hebrew",
+      es: "Spanish",
+      fr: "French"
+    };
+    const targetLang = langMap[nativeLanguage] || "English";
 
     if (!action) {
       throw new Error("Missing required field: action");
@@ -230,18 +238,19 @@ serve(async (req) => {
       prompt = `You are a professional Russian language teacher. Explain the Russian grammar topic: "${topic || "User's custom question"}".
 ${customQuestion ? `The user has a specific question: "${customQuestion}"` : ""}
 Keep the explanation clear, engaging, and suitable for a beginner/intermediate language learner.
+Provide all explanations, rules descriptions, and example translations in ${targetLang} instead of English.
 Provide the output strictly as a JSON object with the following schema:
 {
   "title": "A short, engaging title for this grammar concept",
-  "explanation": "Clear, formatted explanation using standard HTML markup (paragraphs, lists) for readability, but kept inside this JSON string.",
+  "explanation": "Clear, formatted explanation in ${targetLang} using standard HTML markup (paragraphs, lists) for readability, but kept inside this JSON string.",
   "rules": [
-    { "ending": "declension/ending case (e.g. Masculine Inanimate)", "rule": "explanation of what changes (e.g. No change)", "example": "Russian word -> Accusative form (e.g. дом -> дом)" }
+    { "ending": "declension/ending case (e.g. Masculine Inanimate)", "rule": "explanation of what changes in ${targetLang}", "example": "Russian word -> Accusative form (e.g. дом -> дом)" }
   ],
   "examples": [
     {
       "ru": "Russian example sentence with stress marks (e.g. Я чита́ю кни́гу.)",
-      "en": "English translation",
-      "explanation": "Brief context on how the grammar rule applies in this sentence"
+      "en": "exact translation of the Russian sentence in ${targetLang}",
+      "explanation": "Brief context on how the grammar rule applies in this sentence, explained in ${targetLang}"
     }
   ]
 }
@@ -296,9 +305,9 @@ Provide the output strictly as a JSON object with the following schema:
       "sentencePattern": "The Russian sentence with the target word replaced by '[blank]', and the dictionary form in parentheses (e.g., 'Я хочу купить [blank] (книга).')",
       "answer": "The correct declined/conjugated Russian word (e.g. 'книгу')",
       "choices": ["Four choices in Russian Cyrillic including the correct answer", "choice2", "choice3", "choice4"],
-      "translation": "English translation of the full correct sentence",
+      "translation": "exact translation of the full correct sentence in ${targetLang}",
       "transliteration": "Latin transliteration of the full correct sentence",
-      "explanation": "Detailed explanation of why the correct answer is required, what grammatical rule applies, and why the other incorrect choices are grammatically incorrect or incompatible (e.g. 'книге is in Dative case, but Accusative is required after читаю')."
+      "explanation": "Detailed explanation in ${targetLang} of why the correct answer is required, what grammatical rule applies, and why the other incorrect choices are grammatically incorrect or incompatible (e.g. 'книге is in Dative case, but Accusative is required after читаю')."
     }
   ]
 }
@@ -346,14 +355,14 @@ Provide the output strictly as a JSON object with the following schema:
       "original": "The incorrect part of the sentence",
       "fixed": "The corrected version of that part",
       "type": "spelling" or "grammar" or "style",
-      "reason": "Explain why this was incorrect and what rule applies."
+      "reason": "Explain in ${targetLang} why this was incorrect and what rule applies."
     }
   ],
   "suggestions": [
     {
       "ru": "A natural, native-sounding alternative phrasing of the entire sentence with stress marks on vowels if helpful (e.g., Вчера́ я ходи́л в теа́тр.)",
-      "en": "English translation of this suggestion",
-      "description": "Why this suggestion sounds more natural or idiomatic"
+      "en": "Translation of this suggestion in ${targetLang}",
+      "description": "Why this suggestion sounds more natural or idiomatic, explained in ${targetLang}"
     }
   ]
 }

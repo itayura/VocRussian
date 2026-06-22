@@ -196,6 +196,22 @@ test.describe('VocRussian E2E Test Suite', () => {
       });
     });
 
+    // Disable animations in localStorage to prevent timeouts/instability
+    await page.addInitScript(() => {
+      const statsStr = localStorage.getItem("voc_russian_stats");
+      let stats = {};
+      if (statsStr) {
+        try {
+          stats = JSON.parse(statsStr);
+        } catch(e) {}
+      }
+      if (!stats.settings) {
+        stats.settings = {};
+      }
+      stats.settings.animationsEnabled = false;
+      localStorage.setItem("voc_russian_stats", JSON.stringify(stats));
+    });
+
     // Go to homepage
     await page.goto('/');
 

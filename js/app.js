@@ -119,6 +119,63 @@
     });
   };
 
+  // Dynamic translation helper with caching for multi-language dictionary and reviews
+  window.translateTextWithCache = async function (cardId, textToTranslate, targetLang) {
+    if (!textToTranslate) return "";
+    if (targetLang === "en") return textToTranslate;
+
+    let cache = {};
+    try {
+      cache = JSON.parse(localStorage.getItem("voc_translations_cache")) || {};
+    } catch (e) {}
+
+    const cacheKey = `${cardId}_${targetLang}_${textToTranslate}`;
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+
+    try {
+      const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+      const res = await fetch(googleTranslateUrl);
+      if (res.ok) {
+        const data = await res.json();
+        const translatedText = data && data[0] && data[0][0] && data[0][0][0]
+          ? data[0][0][0].trim()
+          : textToTranslate;
+        
+        cache[cacheKey] = translatedText;
+        localStorage.setItem("voc_translations_cache", JSON.stringify(cache));
+        return translatedText;
+      }
+    } catch (e) {
+      console.warn("Failed to translate text asynchronously:", e);
+    }
+    return textToTranslate;
+  };
+
+  window.getOrTriggerTranslation = function (cardId, textToTranslate, targetLang, callback) {
+    if (!textToTranslate || targetLang === "en") {
+      return textToTranslate;
+    }
+
+    let cache = {};
+    try {
+      cache = JSON.parse(localStorage.getItem("voc_translations_cache")) || {};
+    } catch (e) {}
+
+    const cacheKey = `${cardId}_${targetLang}_${textToTranslate}`;
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+
+    // Call async translate and trigger callback
+    window.translateTextWithCache(cardId, textToTranslate, targetLang).then(translated => {
+      if (callback) callback(translated);
+    });
+
+    return textToTranslate;
+  };
+
   // Canvas-based particle physics confetti engine for juicy UI feedback
   window.showConfettiBurst = function (element) {
     if (!element) return;
@@ -548,7 +605,9 @@
     sync: document.getElementById("view-sync"),
     settings: document.getElementById("view-settings"),
     landing: document.getElementById("view-landing"),
-    grammar: document.getElementById("view-grammar")
+    grammar: document.getElementById("view-grammar"),
+    stats: document.getElementById("view-stats"),
+    alphabet: document.getElementById("view-alphabet")
   };
 
   const navItems = document.querySelectorAll(".nav-item");
@@ -728,6 +787,12 @@
       }
     } else if (targetViewId === "study-select") {
       updateSelectedCategoryMasteryUI();
+    } else if (targetViewId === "stats") {
+      renderStatisticsPage();
+    } else if (targetViewId === "alphabet") {
+      if (window.AlphabetManager) {
+        window.AlphabetManager.init();
+      }
     }
 
     // Google Analytics Virtual Page View Tracking
@@ -799,6 +864,65 @@
       
       startStudySession("flashcard");
     });
+
+    // Mascot click reaction
+    const mascotAvatar = document.getElementById("dashboard-mascot-avatar");
+    if (mascotAvatar) {
+      mascotAvatar.addEventListener("click", () => {
+        if (window.AudioEngine) window.AudioEngine.playFlip();
+        
+        mascotAvatar.className = "";
+        void mascotAvatar.offsetWidth;
+        mascotAvatar.className = "mascot-animation-bounce";
+        
+        const reactions = [
+          "Привет! Let's keep learning Russian!",
+          "Did you know? Cyrillic script was developed in the 9th century AD!",
+          "Consistency is key. 10 minutes a day is better than 2 hours once a week!",
+          "Click me again, that was fun!",
+          "Let's practice the Russian alphabet, it has 33 letters!"
+        ];
+        const randomText = reactions[Math.floor(Math.random() * reactions.length)];
+        const textBubble = document.getElementById("dashboard-mascot-text");
+        if (textBubble) textBubble.textContent = randomText;
+      });
+    }
+
+    // Recommendation Refresh button
+    const recRefresh = document.getElementById("recommend-refresh-btn");
+    if (recRefresh) {
+      recRefresh.addEventListener("click", () => {
+        renderVocabularyRecommendation();
+      });
+    }
+
+    // Recommendation Speak button
+    const recSpeak = document.getElementById("recommend-speak-btn");
+    if (recSpeak) {
+      recSpeak.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (activeRecommendationWord && window.AudioEngine) {
+          window.AudioEngine.speak(activeRecommendationWord.word);
+        }
+      });
+    }
+
+    // Recommendation Add button
+    const recAdd = document.getElementById("recommend-add-btn");
+    if (recAdd) {
+      recAdd.addEventListener("click", () => {
+        if (activeRecommendationWord) {
+          const prog = SRS.getCardProgress(activeRecommendationWord.id);
+          prog.starred = true;
+          prog.nextReview = Date.now();
+          prog.hidden = false;
+          SRS.saveToStorage();
+          
+          alert(`"${activeRecommendationWord.word}" added to review queue and starred!`);
+          renderDashboard();
+        }
+      });
+    }
   }
 
   function updateLevelAssessmentUI() {
@@ -952,6 +1076,20 @@
 
     // Proficiency Level Assessment
     updateLevelAssessmentUI();
+
+    // Update Mascot state based on due cards
+    if (window.updateMascotState) {
+      if (stats.dueCount === 0) {
+        window.updateMascotState("sleep");
+      } else if (stats.dueCount > 15) {
+        window.updateMascotState("remind");
+      } else {
+        window.updateMascotState("idle");
+      }
+    }
+
+    // Render smart vocabulary recommendations
+    renderVocabularyRecommendation();
 
     // Cache updated stats for notifications/service worker
     syncReminderStateToCache();
@@ -1218,10 +1356,32 @@
 
       // Back card details
       document.getElementById("fc-category-back").innerText = card.category;
-      document.getElementById("fc-word-translation-back").innerText = card.translation;
       document.getElementById("fc-word-pos-back").innerText = card.pos;
       document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
-      window.setRevealableText("fc-word-example-en-back", card.exampleEn);
+
+      const nativeLang = SRS.getSetting("nativeLanguage", "en");
+      const translationText = window.getOrTriggerTranslation(
+        card.id,
+        card.translation,
+        nativeLang,
+        (translatedVal) => {
+          document.getElementById("fc-word-translation-back").innerText = translatedVal;
+        }
+      );
+      document.getElementById("fc-word-translation-back").innerText = translationText;
+
+      let exampleEnText = card.exampleEn || "";
+      if (card.exampleEn) {
+        exampleEnText = window.getOrTriggerTranslation(
+          card.id,
+          card.exampleEn,
+          nativeLang,
+          (translatedVal) => {
+            window.setRevealableText("fc-word-example-en-back", translatedVal);
+          }
+        );
+      }
+      window.setRevealableText("fc-word-example-en-back", exampleEnText);
     };
 
     if (wasFlipped) {
@@ -1276,12 +1436,14 @@
     const animationsEnabled = SRS.getSetting("animationsEnabled", true);
     if (isCorrect) {
       AudioEngine.playSuccess();
+      if (window.updateMascotState) window.updateMascotState("correct");
       if (cardEl && animationsEnabled) {
         cardEl.classList.add("correct-glow");
         if (window.showConfettiBurst) window.showConfettiBurst(cardEl);
       }
     } else {
       AudioEngine.playError();
+      if (window.updateMascotState) window.updateMascotState("incorrect");
       if (cardEl && animationsEnabled) cardEl.classList.add("incorrect-shake");
     }
 
@@ -1328,10 +1490,24 @@
     const container = document.getElementById("choices-container");
     container.innerHTML = "";
 
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+
     options.forEach((opt, idx) => {
       const btn = document.createElement("button");
       btn.className = "choice-btn";
-      btn.innerHTML = `<span>${opt.translation}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
+      btn.dataset.wordId = opt.id;
+      
+      const optionText = window.getOrTriggerTranslation(
+        opt.id,
+        opt.translation,
+        nativeLang,
+        (translatedVal) => {
+          const spanEl = btn.querySelector("span");
+          if (spanEl) spanEl.innerText = translatedVal;
+        }
+      );
+
+      btn.innerHTML = `<span>${optionText}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
       
       btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
       container.appendChild(btn);
@@ -1356,6 +1532,7 @@
     const animationsEnabled = SRS.getSetting("animationsEnabled", true);
     if (isCorrect) {
       buttonElement.classList.add("correct");
+      if (window.updateMascotState) window.updateMascotState("correct");
       if (animationsEnabled) {
         buttonElement.classList.add("correct-glow");
         if (window.showConfettiBurst) window.showConfettiBurst(buttonElement);
@@ -1363,13 +1540,13 @@
       AudioEngine.playSuccess();
     } else {
       buttonElement.classList.add("incorrect");
+      if (window.updateMascotState) window.updateMascotState("incorrect");
       if (animationsEnabled) {
         buttonElement.classList.add("incorrect-shake");
       }
       // Find and highlight correct answer
       buttons.forEach(btn => {
-        // Simple comparison of text
-        if (btn.querySelector("span").innerText === currentCard.translation) {
+        if (btn.dataset.wordId === currentCard.id.toString()) {
           btn.classList.add("correct");
         }
       });
@@ -1383,7 +1560,18 @@
   // Writing Setup
   function setupWritingLayout() {
     document.getElementById("writing-category").innerText = currentCard.category;
-    document.getElementById("writing-prompt-translation").innerText = currentCard.translation;
+    
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+
+    const promptText = window.getOrTriggerTranslation(
+      currentCard.id,
+      currentCard.translation,
+      nativeLang,
+      (translatedVal) => {
+        document.getElementById("writing-prompt-translation").innerText = translatedVal;
+      }
+    );
+    document.getElementById("writing-prompt-translation").innerText = promptText;
     
     const showTranslit = SRS.getSetting("showTranslit", true);
     const translitEl = document.getElementById("writing-prompt-translit");
@@ -1394,7 +1582,16 @@
       translitEl.style.display = "none";
     }
 
-    window.setRevealableText("writing-prompt-example-en", currentCard.exampleEn ? `"${currentCard.exampleEn}"` : "");
+    let exampleEnRaw = currentCard.exampleEn || "";
+    const exampleTextText = window.getOrTriggerTranslation(
+      currentCard.id,
+      exampleEnRaw,
+      nativeLang,
+      (translatedVal) => {
+        window.setRevealableText("writing-prompt-example-en", translatedVal ? `"${translatedVal}"` : "");
+      }
+    );
+    window.setRevealableText("writing-prompt-example-en", exampleTextText ? `"${exampleTextText}"` : "");
 
     const checkBtn = document.getElementById("writing-check-btn");
     checkBtn.innerText = "Submit Answer";
@@ -1453,10 +1650,12 @@
       diffContainer.innerHTML = `<span class="diff-char-correct" style="font-weight:700;">✓ Correct: ${currentCard.word}</span>`;
       
       AudioEngine.playSuccess();
+      if (window.updateMascotState) window.updateMascotState("correct");
       if (animationsEnabled && window.showConfettiBurst) window.showConfettiBurst(checkBtn);
     } else {
       checkBtn.innerText = "Next Word";
       checkBtn.className = "btn btn-danger";
+      if (window.updateMascotState) window.updateMascotState("incorrect");
       if (animationsEnabled) {
         input.classList.add("incorrect-shake");
       }
@@ -1532,6 +1731,14 @@
     document.getElementById("complete-xp-gain").innerText = `+${sessionXpGained} XP`;
     document.getElementById("complete-accuracy").innerText = `${accuracy}%`;
     document.getElementById("complete-streak").innerText = `${stats.streak} days`;
+
+    // Update Mascot state for completion page
+    if (window.updateMascotState) {
+      window.updateMascotState("sleep", `Outstanding session! You gained +${sessionXpGained} XP! Rest up or study again!`);
+    }
+
+    // Schedule next reminder offline since we completed a study session
+    scheduleLocalReminder();
     
     AudioEngine.playLevelUp();
   }
@@ -1634,6 +1841,8 @@
     
     if (start >= dictFilteredPool.length) return;
 
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+
     for (let i = start; i < end; i++) {
       const card = dictFilteredPool[i];
       const prog = SRS.getCardProgress(card.id);
@@ -1641,6 +1850,29 @@
       const cardEl = document.createElement("div");
       cardEl.className = "card vocab-card";
       
+      const translationText = window.getOrTriggerTranslation(
+        card.id, 
+        card.translation, 
+        nativeLang, 
+        (translatedVal) => {
+          const el = cardEl.querySelector(".vocab-card-translation");
+          if (el) el.innerText = translatedVal;
+        }
+      );
+
+      let exampleEnText = card.exampleEn || "";
+      if (card.exampleEn) {
+        exampleEnText = window.getOrTriggerTranslation(
+          card.id, 
+          card.exampleEn, 
+          nativeLang, 
+          (translatedVal) => {
+            const el = cardEl.querySelector(".vocab-card-example-en");
+            if (el) el.innerText = translatedVal;
+          }
+        );
+      }
+
       cardEl.innerHTML = `
         <div class="vocab-card-header">
           <div class="vocab-word-display">
@@ -1667,12 +1899,12 @@
           </select>
         </div>
 
-        <div class="vocab-card-translation">${card.translation}</div>
+        <div class="vocab-card-translation">${translationText}</div>
         
         ${card.exampleRu ? `
           <div class="vocab-card-example">
             <div class="vocab-card-example-ru">${card.exampleRu}</div>
-            <div style="font-size:0.9em; opacity:0.8;">${card.exampleEn}</div>
+            <div class="vocab-card-example-en" style="font-size:0.9em; opacity:0.8;">${exampleEnText}</div>
           </div>
         ` : ""}
       `;
@@ -2128,6 +2360,16 @@
       });
     }
 
+    const nativeLangSelect = document.getElementById("settings-native-lang");
+    if (nativeLangSelect) {
+      nativeLangSelect.value = SRS.getSetting("nativeLanguage", "en");
+      nativeLangSelect.addEventListener("change", () => {
+        SRS.setSetting("nativeLanguage", nativeLangSelect.value);
+        // Clear cached translations when target language changes
+        localStorage.removeItem("voc_translations_cache");
+      });
+    }
+
     const dueCapSelect = document.getElementById("settings-due-cap");
     if (dueCapSelect) {
       dueCapSelect.value = SRS.getSetting("dueCap", 20).toString();
@@ -2147,7 +2389,14 @@
       });
     }
 
-
+    const mascotSelect = document.getElementById("settings-mascot");
+    if (mascotSelect) {
+      mascotSelect.value = SRS.getSetting("mascotCharacter", "robot");
+      mascotSelect.addEventListener("change", () => {
+        SRS.setSetting("mascotCharacter", mascotSelect.value);
+        window.updateMascotState("idle");
+      });
+    }
 
     const viewLandingBtn = document.getElementById("settings-view-landing-btn");
     if (viewLandingBtn) {
@@ -2180,8 +2429,9 @@
     const token = sessionData?.session?.access_token;
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
     const { data, error } = await window.SupabaseSync.client.functions.invoke("generate-sentence", {
-      body: { word, translation, partOfSpeech },
+      body: { word, translation, partOfSpeech, nativeLanguage: nativeLang },
       headers: headers
     });
 
@@ -2271,7 +2521,8 @@
 
       try {
         // 1. Fetch translation from Google Translate API (free public endpoint)
-        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=en&dt=t&q=${encodeURIComponent(word)}`;
+        const nativeLang = SRS.getSetting("nativeLanguage", "en");
+        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${nativeLang}&dt=t&q=${encodeURIComponent(word)}`;
         const gtRes = await fetch(googleTranslateUrl);
         if (!gtRes.ok) {
           throw new Error("Failed to contact translation service.");
@@ -2344,7 +2595,7 @@
       const translationInput = document.getElementById("add-translation-input");
       const englishText = translationInput.value.trim();
       if (!englishText) {
-        alert("Please enter an English translation first.");
+        alert("Please enter a translation first.");
         translationInput.focus();
         return;
       }
@@ -2356,8 +2607,9 @@
       statusEl.style.display = "inline-flex";
 
       try {
-        // 1. Fetch translation from Google Translate API (en -> ru)
-        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
+        // 1. Fetch translation from Google Translate API (nativeLang -> ru)
+        const nativeLang = SRS.getSetting("nativeLanguage", "en");
+        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${nativeLang}&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
         const gtRes = await fetch(googleTranslateUrl);
         if (!gtRes.ok) {
           throw new Error("Failed to contact translation service.");
@@ -2941,6 +3193,9 @@
           headers: { "Content-Type": "application/json" }
         })
       );
+
+      // Trigger reminder updates offline
+      scheduleLocalReminder();
     } catch (e) {
       console.warn("Failed to sync reminder state to cache:", e);
     }
@@ -3322,4 +3577,408 @@
       }
     }
   }
+
+  // --- MASCOT REACTIVITY & SPEECH SYSTEM ---
+  window.updateMascotState = function (stateType, optionalText = "") {
+    const mascotCharacter = SRS.getSetting("mascotCharacter", "robot");
+    
+    const mascotEmojis = {
+      robot: {
+        idle: "🤖",
+        correct: "🤖🎉",
+        incorrect: "🤖🔧",
+        remind: "🤖📢",
+        sleep: "🤖💤"
+      },
+      owl: {
+        idle: "🦉",
+        correct: "🦉✨",
+        incorrect: "🦉🧐",
+        remind: "🦉⏰",
+        sleep: "🦉💤"
+      },
+      bear: {
+        idle: "🐻",
+        correct: "🐻🎉",
+        incorrect: "🐻🧸",
+        remind: "🐻🍯",
+        sleep: "🐻💤"
+      }
+    };
+
+    const mascotTexts = {
+      robot: {
+        idle: "Привет! Ready to upgrade your vocabulary circuits today?",
+        correct: "Affirmative! Your accuracy is within optimal parameters!",
+        incorrect: "Correction detected. Learning is an iterative process. Try again!",
+        remind: "Alert! Due review stack exceeds threshold. Initiate study protocol!",
+        sleep: "All reviews complete. Standby mode activated... 💤"
+      },
+      owl: {
+        idle: "Привет! A wise learner studies every single day. Shall we?",
+        correct: "Spot on! Excellent choice, keep it up!",
+        incorrect: "A small slip! Mistakes are the best study books. Try again!",
+        remind: "Time flies! Your review cards are waiting. Let's study!",
+        sleep: "Quiet night. All tasks complete. Rest well... 💤"
+      },
+      bear: {
+        idle: "Привет! Let's crush today's Russian review session!",
+        correct: "Awesome! That's exactly right!",
+        incorrect: "Not quite! But don't worry, you'll nail it next time!",
+        remind: "Hey there! Don't let your cards pile up. Time for a quick review!",
+        sleep: "Mmm... Full belly of words. Hibernating till tomorrow... 💤"
+      }
+    };
+
+    const emoji = mascotEmojis[mascotCharacter]?.[stateType] || mascotEmojis.robot.idle;
+    const defaultText = mascotTexts[mascotCharacter]?.[stateType] || mascotTexts.robot.idle;
+    const speechText = optionalText || defaultText;
+
+    const dashAvatar = document.getElementById("dashboard-mascot-avatar");
+    const dashText = document.getElementById("dashboard-mascot-text");
+    if (dashAvatar && dashText) {
+      dashAvatar.textContent = emoji;
+      dashText.textContent = speechText;
+      
+      dashAvatar.className = ""; 
+      void dashAvatar.offsetWidth; 
+      if (stateType === "correct") {
+        dashAvatar.className = "mascot-animation-bounce";
+      } else if (stateType === "incorrect") {
+        dashAvatar.className = "mascot-animation-shake";
+      } else if (stateType === "sleep") {
+        dashAvatar.className = "mascot-animation-pulse";
+      } else {
+        dashAvatar.className = "mascot-animation-idle";
+      }
+    }
+
+    const completeAvatar = document.getElementById("complete-mascot-avatar");
+    const completeText = document.getElementById("complete-mascot-text");
+    if (completeAvatar && completeText) {
+      completeAvatar.textContent = emoji;
+      completeText.textContent = speechText;
+    }
+  };
+
+  // --- SMART VOCABULARY RECOMMENDATION CARD ---
+  let activeRecommendationWord = null;
+
+  function renderVocabularyRecommendation() {
+    const recCard = document.getElementById("dashboard-recommendation-card");
+    if (!recCard) return;
+
+    const allWords = SRS.getAllWords();
+    if (allWords.length === 0) {
+      recCard.style.display = "none";
+      return;
+    }
+
+    // Determine user's estimated vocab level
+    const allActiveWords = allWords.filter(w => !SRS.getCardProgress(w.id).hidden);
+    let totalWeight = 0;
+    allActiveWords.forEach(w => {
+      const prog = SRS.getCardProgress(w.id);
+      totalWeight += Math.max(0, (prog.box || 1) - 1);
+    });
+    const maxWeight = allActiveWords.length * 4;
+    const vocabPct = maxWeight > 0 ? Math.round((totalWeight / maxWeight) * 100) : 0;
+    
+    let vocabLevel = "A1";
+    if (vocabPct >= 25 && vocabPct < 50) vocabLevel = "A2";
+    else if (vocabPct >= 50 && vocabPct < 75) vocabLevel = "B1";
+    else if (vocabPct >= 75) vocabLevel = "B2";
+
+    const levelCategories = {
+      A1: ["Essentials", "Pronouns & Questions"],
+      A2: ["Nouns", "Verbs", "Adjectives"],
+      B1: ["Travel & Dining", "Time & Weather", "Shopping"],
+      B2: []
+    };
+
+    // Calculate category weaknesses (lowest average box level)
+    const categoryBoxAvg = {};
+    const categoryCount = {};
+    allWords.forEach(w => {
+      const prog = SRS.getCardProgress(w.id);
+      const studied = (prog.correctCount > 0 || prog.wrongCount > 0);
+      if (!categoryBoxAvg[w.category]) {
+        categoryBoxAvg[w.category] = 0;
+        categoryCount[w.category] = 0;
+      }
+      if (studied) {
+        categoryBoxAvg[w.category] += (prog.box || 1);
+        categoryCount[w.category]++;
+      }
+    });
+
+    const categoryStrengths = {};
+    Object.keys(categoryBoxAvg).forEach(cat => {
+      const count = categoryCount[cat] || 0;
+      categoryStrengths[cat] = count > 0 ? (categoryBoxAvg[cat] / count) : 1; 
+    });
+
+    // Find candidates: unstudied words
+    const progressMap = SRS.getCardProgressMap() || {};
+    let candidates = allWords.filter(w => {
+      const prog = progressMap[w.id];
+      if (!prog) return true;
+      return prog.correctCount === 0 && prog.wrongCount === 0;
+    });
+
+    if (candidates.length === 0) {
+      recCard.style.display = "none";
+      return;
+    }
+
+    // Filter candidates matching user level
+    const targetCats = levelCategories[vocabLevel] || [];
+    let levelCandidates = candidates.filter(w => targetCats.includes(w.category));
+    if (levelCandidates.length === 0) {
+      levelCandidates = candidates;
+    }
+
+    // Sort by category weakness (lower average box first)
+    levelCandidates.sort((a, b) => {
+      const strengthA = categoryStrengths[a.category] || 1;
+      const strengthB = categoryStrengths[b.category] || 1;
+      return strengthA - strengthB;
+    });
+
+    const recommended = levelCandidates[Math.floor(Math.random() * Math.min(5, levelCandidates.length))];
+    activeRecommendationWord = recommended;
+
+    document.getElementById("recommend-reason-badge").textContent = `Suggested for ${vocabLevel} - ${recommended.category}`;
+    document.getElementById("recommend-word-ru").textContent = recommended.word;
+    document.getElementById("recommend-word-translit").textContent = recommended.transliteration ? `[${recommended.transliteration}]` : "";
+    
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+    if (nativeLang !== "en" && window.getOrTriggerTranslation) {
+      document.getElementById("recommend-word-translation").textContent = "Loading translation...";
+      window.getOrTriggerTranslation(recommended.id, recommended.translation, nativeLang, (translated) => {
+        if (activeRecommendationWord && activeRecommendationWord.id === recommended.id) {
+          document.getElementById("recommend-word-translation").textContent = translated;
+        }
+      });
+    } else {
+      document.getElementById("recommend-word-translation").textContent = recommended.translation;
+    }
+
+    recCard.style.display = "block";
+  }
+
+  // --- DEDICATED STATISTICS PAGE ---
+  function renderStatisticsPage() {
+    const stats = SRS.getGlobalStats();
+    
+    const currentStreak = stats.streak || 0;
+    const maxStreak = Math.max(currentStreak, stats.settings?.maxStreak || 0);
+    if (!stats.settings) stats.settings = {};
+    if (maxStreak > (stats.settings.maxStreak || 0)) {
+      stats.settings.maxStreak = maxStreak;
+      SRS.setSetting("maxStreak", maxStreak);
+    }
+
+    const streakVal = document.getElementById("stats-streak-value");
+    if (streakVal) streakVal.textContent = currentStreak;
+    const streakMax = document.getElementById("stats-streak-max");
+    if (streakMax) streakMax.textContent = `${maxStreak} days`;
+
+    const circle = document.getElementById("stats-streak-circle");
+    if (circle) {
+      const radius = 16;
+      const circumference = 2 * Math.PI * radius;
+      const target = 7;
+      const pct = Math.min(currentStreak / target, 1.0);
+      const strokeDashoffset = circumference - pct * circumference;
+      circle.style.strokeDasharray = `${circumference} ${circumference}`;
+      circle.style.strokeDashoffset = strokeDashoffset;
+    }
+
+    const leitnerContainer = document.getElementById("stats-leitner-container");
+    if (leitnerContainer) {
+      const allWords = SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden);
+      const counts = [0, 0, 0, 0, 0];
+      allWords.forEach(w => {
+        const prog = SRS.getCardProgress(w.id);
+        const box = Math.max(1, Math.min(5, prog.box || 1));
+        counts[box - 1]++;
+      });
+
+      const maxCount = Math.max(...counts, 1);
+      const boxesInfo = [
+        { name: "Box 1: New / Difficult", interval: "Review daily" },
+        { name: "Box 2: Familiar", interval: "Review every 2d" },
+        { name: "Box 3: Moderate", interval: "Review every 4d" },
+        { name: "Box 4: Advanced", interval: "Review every 7d" },
+        { name: "Box 5: Mastered", interval: "Review every 14d" }
+      ];
+
+      let html = "";
+      boxesInfo.forEach((box, i) => {
+        const count = counts[i];
+        const pct = Math.round((count / maxCount) * 100);
+        html += `
+          <div class="box-item">
+            <div class="box-label-row" style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.15rem;">
+              <span class="box-title" style="font-weight: 600; color: var(--color-text-main);">${box.name}</span>
+              <span class="box-interval" style="font-size: 0.75rem; color: var(--color-text-muted); margin-left: auto; margin-right: 10px;">${box.interval}</span>
+              <span class="box-count" style="font-weight: 700; color: var(--color-primary-hover);">${count}</span>
+            </div>
+            <div class="progress-track-bar" style="height: 6px; background: var(--bg-input); border-radius: var(--border-radius-pill); overflow: hidden; border: 1px solid var(--border-glass); margin-bottom: 0.5rem;">
+              <div style="width: ${pct}%; height: 100%; background: var(--color-primary); border-radius: var(--border-radius-pill);"></div>
+            </div>
+          </div>
+        `;
+      });
+      leitnerContainer.innerHTML = html;
+    }
+
+    const weeklyData = SRS.getLast7DaysXp();
+    const barsGroup = document.getElementById("stats-chart-bars-group");
+    const labelsGroup = document.getElementById("stats-chart-labels-group");
+    if (barsGroup && labelsGroup) {
+      barsGroup.innerHTML = "";
+      labelsGroup.innerHTML = "";
+      const maxVal = Math.max(...weeklyData.map(d => d.xp), 50);
+      const chartHeight = 150;
+      const barWidth = 32;
+      const startX = 55;
+      const stepX = 46;
+
+      weeklyData.forEach((day, index) => {
+        const x = startX + index * stepX;
+        const barHeight = (day.xp / maxVal) * chartHeight;
+        const y = 170 - barHeight;
+
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", x - barWidth / 2);
+        rect.setAttribute("y", y);
+        rect.setAttribute("width", barWidth);
+        rect.setAttribute("height", barHeight);
+        rect.setAttribute("rx", 6);
+        rect.setAttribute("class", "chart-bar");
+        rect.innerHTML = `<title>${day.xp} XP earned on ${day.label}</title>`;
+        barsGroup.appendChild(rect);
+
+        if (day.xp > 0) {
+          const valText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          valText.setAttribute("x", x);
+          valText.setAttribute("y", Math.min(y - 6, 160));
+          valText.setAttribute("class", "chart-text");
+          valText.setAttribute("style", "fill: var(--color-text-main); font-weight: 600; font-size: 9px;");
+          valText.textContent = day.xp;
+          barsGroup.appendChild(valText);
+        }
+
+        const labelText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        labelText.setAttribute("x", x);
+        labelText.setAttribute("y", 188);
+        labelText.setAttribute("class", "chart-text");
+        labelText.textContent = day.label;
+        labelsGroup.appendChild(labelText);
+      });
+    }
+
+    const masteryGrid = document.getElementById("stats-grammar-mastery-grid");
+    if (masteryGrid) {
+      const progressMap = window.GrammarManager ? window.GrammarManager.getGrammarProgressMap() : {};
+      const TOPICS_MAP = {
+        nominative_case: "Nominative Case",
+        accusative_case: "Accusative Case",
+        genitive_case: "Genitive Case",
+        dative_case: "Dative Case",
+        instrumental_case: "Instrumental Case",
+        prepositional_case: "Prepositional Case",
+        verb_aspects: "Verb Aspects",
+        verbs_of_motion: "Verbs of Motion",
+        verb_conjugations: "Verb Conjugations",
+        past_tense: "Past Tense",
+        future_tense: "Future Tense",
+        adjectives_declension: "Adjectives Declension",
+        pronouns_declension: "Pronouns Declension",
+        noun_plurals: "Noun Plurals"
+      };
+
+      let html = "";
+      Object.entries(TOPICS_MAP).forEach(([id, name]) => {
+        const progress = progressMap[id] || {};
+        const lessonCompleted = (progress.lessonsCompleted || 0) > 0;
+        const quizzesTaken = progress.quizzesTaken || 0;
+        const avgScore = progress.avgScore || 0;
+        const topicMastery = Math.min(100, Math.round((lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0)));
+
+        html += `
+          <div class="card stat-card" style="padding: 1rem; border: 1px solid var(--border-glass); background: var(--bg-input); display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; border-radius: var(--border-radius-md);">
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-text-main); font-family: var(--font-heading);">${name}</div>
+            <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.8rem; color: var(--color-text-muted);">
+              <span>Mastery:</span>
+              <strong style="color: var(--color-primary-hover); font-size: 0.9rem;">${topicMastery}%</strong>
+            </div>
+            <div class="progress-track-bar" style="height: 6px; background: rgba(255,255,255,0.05); border-radius: var(--border-radius-pill); overflow: hidden; border: 1px solid var(--border-glass);">
+              <div style="width: ${topicMastery}%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill);"></div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
+              <span>📖 Lesson: ${lessonCompleted ? "✓" : "✗"}</span>
+              <span>📝 Quizzes: ${quizzesTaken}</span>
+            </div>
+          </div>
+        `;
+      });
+      masteryGrid.innerHTML = html;
+    }
+  }
+
+  // --- OFFLINE NOTIFICATION REMINDER TRIGGER SCHEDULER ---
+  async function scheduleLocalReminder() {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      if (!registration.showNotification) return;
+
+      const enabled = SRS.getSetting("dailyReminders", true);
+      
+      if ('getNotifications' in registration) {
+        const activeNotifications = await registration.getNotifications({ tag: "daily-reminder-local", includeTriggered: true });
+        for (const n of activeNotifications) {
+          n.close();
+        }
+      }
+
+      if (!enabled || Notification.permission !== "granted") {
+        return;
+      }
+
+      if (typeof TimestampTrigger === 'undefined') {
+        console.warn("TimestampTrigger is not supported in this browser.");
+        return;
+      }
+
+      const reminderTime = SRS.getSetting("reminderTime", "19:00");
+      const [hour, minute] = reminderTime.split(":").map(Number);
+      
+      const now = new Date();
+      const triggerTime = new Date();
+      triggerTime.setHours(hour, minute, 0, 0);
+
+      const stats = SRS.getGlobalStats();
+      const todayStr = getTodayDateString();
+      if (triggerTime <= now || stats.lastActiveDate === todayStr) {
+        triggerTime.setDate(triggerTime.getDate() + 1);
+      }
+
+      await registration.showNotification("Keep your streak active! 🇷🇺", {
+        body: `Keep your ${stats.streak || 0}-day streak alive! Take a few minutes to review your Russian vocabulary today.`,
+        icon: "./logo.png",
+        tag: "daily-reminder-local",
+        showTrigger: new TimestampTrigger(triggerTime.getTime()),
+        requireInteraction: true
+      });
+      console.log("Local reminder scheduled offline via TimestampTrigger for:", triggerTime);
+    } catch (e) {
+      console.warn("Failed to register TimestampTrigger notification:", e);
+    }
+  }
+  window.scheduleLocalReminder = scheduleLocalReminder;
 })();

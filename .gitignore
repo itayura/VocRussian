@@ -31,6 +31,7 @@ gradlew.bat
 settings.gradle
 store_icon.png
 play_store_feature_graphic.png
-
-
-
+# Local build artifacts
+.gradle/
+build/
+*.apk

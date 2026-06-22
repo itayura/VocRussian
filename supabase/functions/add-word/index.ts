@@ -107,7 +107,7 @@ serve(async (req) => {
     const isAnon = token === supabaseAnonKey;
     if (isAnon) {
       return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
+        error: "Unauthorized: You must be signed in to add words to your vocabulary.",
         details: "The request used the anonymous key. You must be logged in to invoke this function."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -126,7 +126,7 @@ serve(async (req) => {
       }
     } catch (jwtErr) {
       return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
+        error: "Unauthorized: You must be signed in to add words to your vocabulary.",
         details: `Token verification failed: ${jwtErr.message}`
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -137,7 +137,7 @@ serve(async (req) => {
     // Verify it is an authenticated user role
     if (payload.role !== "authenticated") {
       return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
+        error: "Unauthorized: You must be signed in to add words to your vocabulary.",
         details: "JWT role is not authenticated."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -145,10 +145,10 @@ serve(async (req) => {
       });
     }
 
-    const { word, translation, partOfSpeech, nativeLanguage } = await req.json();
+    const { word, language, nativeLanguage, deckId } = await req.json();
 
-    if (!word || !translation) {
-      throw new Error("Missing required fields: word, translation");
+    if (!word) {
+      throw new Error("Missing required field: word");
     }
 
     const apiKey = Deno.env.get("GEMINI_API_KEY");
@@ -163,14 +163,31 @@ serve(async (req) => {
       fr: "French"
     };
     const targetLang = langMap[nativeLanguage] || "English";
+    const srcLangContext = language ? `which is explicitly in "${langMap[language] || language}" language` : "of auto-detected language";
 
     const model = "gemini-3.1-flash-lite";
-    const posContext = partOfSpeech ? ` as a ${partOfSpeech}` : "";
-    const prompt = `You are a helpful Russian teacher. Generate a single, clear, natural, and grammatically correct example sentence in Russian using the Russian word "${word}" (meaning "${translation}"${posContext}). Keep the sentence simple, suitable for a beginner/intermediate language learner.
-Provide the output strictly as a JSON object with the following schema:
+    const prompt = `You are a helpful Russian teacher.
+The user wants to add the word or phrase "${word}" (${srcLangContext}) to their Russian vocabulary list.
+
+If the input is already in Russian:
+- Translate it to English.
+- If nativeLanguage "${nativeLanguage}" is specified and is not "en", also translate it into that native language.
+
+If the input is NOT in Russian (e.g. English, Hebrew, Spanish, French, etc.):
+- Translate it into Russian (this will be the 'word' field).
+- Translate the Russian word into English.
+- If nativeLanguage "${nativeLanguage}" is specified and is not "en", also translate the Russian word into that native language.
+
+Analyze the word and provide the output strictly as a JSON object matching the following schema:
 {
-  "sentence_ru": "the Russian sentence (include stress marks on vowels if helpful, e.g. кни́га)",
-  "sentence_en": "the exact translation of the Russian sentence in ${targetLang}"
+  "word": "the base Russian word in Cyrillic (e.g., вода)",
+  "accented": "the Russian word with stress marks on vowels (e.g., вода́)",
+  "translation": "the English translation (e.g., water)",
+  "transliteration": "the English transliteration of the Russian word (e.g., voda)",
+  "pos": "the part of speech (lowercase, e.g., noun, verb, adjective, adverb, pronoun, preposition, conjunction, particle, interjection, phrase)",
+  "category": "a single-word or short phrase category (e.g., Food, Travel, Essentials, Family, Verbs)",
+  "exampleRu": "a simple, natural Russian example sentence using this word, with stress marks (e.g., Да́йте мне стака́н воды́, пожа́луйста.)",
+  "exampleEn": "the translation of the example sentence in the user's native language (${targetLang}) (e.g., Please give me a glass of water.)"
 }
 Do not include any markdown formatting, backticks, or explanation outside of the raw JSON object.`;
 
@@ -193,14 +210,20 @@ Do not include any markdown formatting, backticks, or explanation outside of the
         generationConfig: {
           responseMimeType: "application/json",
           temperature: 0.3,
-          maxOutputTokens: 150,
+          maxOutputTokens: 250,
           responseSchema: {
             type: "OBJECT",
             properties: {
-              sentence_ru: { type: "STRING" },
-              sentence_en: { type: "STRING", description: `The exact translation in ${targetLang}` },
+              word: { type: "STRING" },
+              accented: { type: "STRING" },
+              translation: { type: "STRING" },
+              transliteration: { type: "STRING" },
+              pos: { type: "STRING" },
+              category: { type: "STRING" },
+              exampleRu: { type: "STRING" },
+              exampleEn: { type: "STRING" },
             },
-            required: ["sentence_ru", "sentence_en"],
+            required: ["word", "accented", "translation", "transliteration", "pos", "category", "exampleRu", "exampleEn"],
           },
         },
       }),
@@ -218,11 +241,110 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     }
 
     const result = JSON.parse(textResponse.trim());
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Supabase URL or Anon Key is not configured on the server.");
+    }
+
+    const targetDeckId = deckId || "custom";
+    const wordId = `custom_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    
+    // 1. Insert word to voc_words
+    const wordPayload = {
+      id: wordId,
+      user_id: payload.sub,
+      word: result.word,
+      accented: result.accented,
+      translation: result.translation,
+      transliteration: result.transliteration,
+      pos: result.pos,
+      category: result.category,
+      example_ru: result.exampleRu,
+      example_en: result.exampleEn,
+      deck_id: targetDeckId,
+      updated_at: new Date().toISOString()
+    };
+
+    const wordInsertRes = await fetch(`${supabaseUrl}/rest/v1/voc_words`, {
+      method: "POST",
+      headers: {
+        "apikey": supabaseAnonKey,
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(wordPayload)
+    });
+
+    if (!wordInsertRes.ok) {
+      // In case deck_id is not supported, fallback without it
+      const fallbackPayload = { ...wordPayload };
+      delete (fallbackPayload as any).deck_id;
+
+      const fallbackInsertRes = await fetch(`${supabaseUrl}/rest/v1/voc_words`, {
+        method: "POST",
+        headers: {
+          "apikey": supabaseAnonKey,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        body: JSON.stringify(fallbackPayload)
+      });
+
+      if (!fallbackInsertRes.ok) {
+        const errText = await fallbackInsertRes.text();
+        throw new Error(`Failed to save word to database: ${errText}`);
+      }
+    }
+
+    // 2. Initialize progress to Box 1 in voc_progress
+    const progressPayload = {
+      user_id: payload.sub,
+      word_id: wordId,
+      box: 1,
+      next_review: Date.now(),
+      correct_count: 0,
+      wrong_count: 0,
+      starred: false,
+      hidden: false,
+      updated_at: new Date().toISOString()
+    };
+
+    const progressInsertRes = await fetch(`${supabaseUrl}/rest/v1/voc_progress`, {
+      method: "POST",
+      headers: {
+        "apikey": supabaseAnonKey,
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(progressPayload)
+    });
+
+    if (!progressInsertRes.ok) {
+      const errText = await progressInsertRes.text();
+      throw new Error(`Failed to initialize card progress in database: ${errText}`);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        sentenceRu: result.sentence_ru,
-        sentenceEn: result.sentence_en,
+        word: {
+          id: wordId,
+          word: result.word,
+          accented: result.accented,
+          translation: result.translation,
+          transliteration: result.transliteration,
+          pos: result.pos,
+          category: result.category,
+          exampleRu: result.exampleRu,
+          exampleEn: result.exampleEn,
+          deckId: targetDeckId,
+          updatedAt: Date.now()
+        }
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

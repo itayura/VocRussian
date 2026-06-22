@@ -99,6 +99,26 @@
               <span>Account</span>
             </button>
           </li>
+          <li class="nav-item" data-target="stats">
+            <button id="nav-btn-stats">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+              <span>Stats</span>
+            </button>
+          </li>
+          <li class="nav-item" data-target="alphabet">
+            <button id="nav-btn-alphabet">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <text x="6" y="15" font-family="'Courier New', Courier, monospace" font-size="12" font-weight="bold" fill="currentColor">А</text>
+                <text x="13" y="15" font-family="'Courier New', Courier, monospace" font-size="12" font-weight="bold" fill="currentColor">Б</text>
+              </svg>
+              <span>Alphabet</span>
+            </button>
+          </li>
           <li class="nav-item" data-target="settings">
             <button id="nav-btn-settings">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -262,6 +282,39 @@
           <div style="display: flex; gap: 0.5rem;">
             <button type="button" id="notification-banner-enable-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 32px; font-weight: bold;">Enable Reminders</button>
             <button type="button" id="notification-banner-dismiss-btn" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 32px; background: transparent; border-color: transparent; color: var(--color-text-muted);" title="Dismiss">✕</button>
+          </div>
+        </div>
+
+        <!-- Mascot Interactive Card -->
+        <div id="dashboard-mascot-card" class="card" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.25rem 1.5rem;">
+          <div id="dashboard-mascot-avatar" style="font-size: 3rem; line-height: 1; user-select: none; transition: transform 0.2s ease; cursor: pointer;" class="mascot-animation-idle">🤖</div>
+          <div style="flex: 1; position: relative;">
+            <div class="speech-bubble" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.75rem 1rem; color: var(--color-text-main); font-size: 0.95rem; line-height: 1.4; position: relative;">
+              <span id="dashboard-mascot-text">Привет! Ready to review your due cards?</span>
+              <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 14px; height: 14px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recommended Word Card -->
+        <div id="dashboard-recommendation-card" class="card" style="margin-bottom: 1.5rem; display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <span class="vocab-label-badge" style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background-color: var(--color-primary-glow); border-color: var(--color-primary); color: var(--color-primary-hover);" id="recommend-reason-badge">Recommended for A1</span>
+              <h3 style="font-family: var(--font-heading); margin-top: 0.35rem; margin-bottom: 0.25rem;">Vocabulary Recommendation</h3>
+            </div>
+            <button id="recommend-refresh-btn" class="vocab-action-btn" title="Show Another Recommendation" style="background: transparent; border: none; font-size: 1.15rem; cursor: pointer;">🔄</button>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-text-main); font-family: var(--font-heading); display: flex; align-items: center; gap: 0.5rem;">
+                <span id="recommend-word-ru">Слово</span>
+                <button id="recommend-speak-btn" class="vocab-action-btn" style="background: transparent; border: none; font-size: 1rem; cursor: pointer; padding: 0;" title="Speak word">🔊</button>
+              </div>
+              <div style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 0.25rem;" id="recommend-word-translit">[slova]</div>
+              <div style="font-size: 1rem; font-weight: 600; color: var(--color-primary-hover);" id="recommend-word-translation">Translation</div>
+            </div>
+            <button id="recommend-add-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 36px;">Add to Study Deck</button>
           </div>
         </div>
         
@@ -611,6 +664,17 @@
             <div class="card study-completion-card">
               <div class="congrats-emoji">🎉</div>
               <h2 style="font-family: var(--font-heading); font-size: 1.75rem;">Session Complete!</h2>
+              
+              <!-- Session Complete Mascot Card -->
+              <div id="complete-mascot-card" style="margin-top: 0.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1.25rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 0.85rem 1.25rem; text-align: left; width: 100%;">
+                <div id="complete-mascot-avatar" style="font-size: 2.5rem; line-height: 1; user-select: none;">🤖</div>
+                <div style="flex: 1; position: relative;">
+                  <div class="speech-bubble" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.6rem 0.85rem; color: var(--color-text-main); font-size: 0.9rem; line-height: 1.4; position: relative;">
+                    <span id="complete-mascot-text">Amazing work! You're making progress every single day!</span>
+                    <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 12px; height: 12px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
+                  </div>
+                </div>
+              </div>
               <p class="page-subtitle">Great job reviewing Russian vocabulary today.</p>
               
               <div class="dashboard-grid" style="width: 100%; margin: 1.5rem 0; grid-template-columns: repeat(2, 1fr);">
@@ -1260,6 +1324,23 @@
 
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
               <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Native Language</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Select target language for dictionary translations and grammar explanations.
+                </span>
+              </div>
+              <select id="settings-native-lang" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
+                <option value="en">English</option>
+                <option value="he">Hebrew (עברית)</option>
+                <option value="es">Spanish (Español)</option>
+                <option value="fr">French (Français)</option>
+              </select>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
                 <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Daily Due Review Cap</strong>
                 <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
                   Limit the number of due cards shown on your dashboard and reviewed in a single batch. (Use 999 for no limit)
@@ -1281,6 +1362,22 @@
                 <input type="checkbox" id="settings-animations-enabled" checked>
                 <span class="switch-slider"></span>
               </label>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Select Mascot</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Choose the companion that accompanies you throughout your learning journey.
+                </span>
+              </div>
+              <select id="settings-mascot" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
+                <option value="robot">🤖 Robo-Tutor (Default)</option>
+                <option value="owl">🦉 Viktor the Owl</option>
+                <option value="bear">🐻 Misha the Bear</option>
+              </select>
             </div>
           </div>
         </div>
@@ -1343,7 +1440,145 @@
           </button>
         </div>
       </section>
-      
+
+      <!-- VIEW: STATISTICS -->
+      <section id="view-stats" class="view-section">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Learning Stats</h1>
+            <p class="page-subtitle">Deep dive into your Russian learning metrics and achievements.</p>
+          </div>
+        </div>
+
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); margin-bottom: 1.5rem;">
+          <!-- Streak Progress & Stats Card -->
+          <div class="card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem;">
+            <h3 style="font-family: var(--font-heading); margin-bottom: 1.5rem;">Daily Streak Goal</h3>
+            <div style="position: relative; width: 140px; height: 140px; margin-bottom: 1.5rem;">
+              <svg width="100%" height="100%" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="16" fill="none" stroke="var(--border-glass)" stroke-width="3"></circle>
+                <circle id="stats-streak-circle" cx="20" cy="20" r="16" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-dasharray="100.5" stroke-dashoffset="100.5" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%;"></circle>
+              </svg>
+              <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <span id="stats-streak-value" style="font-size: 1.75rem; font-weight: 800; font-family: var(--font-heading); line-height: 1.2;">0</span>
+                <span style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">Days</span>
+              </div>
+            </div>
+            <div style="width: 100%; text-align: left; background: var(--bg-input); border-radius: var(--border-radius-md); padding: 0.75rem 1rem; border: 1px solid var(--border-glass);">
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.35rem;">
+                <span style="color: var(--color-text-muted);">Max Streak Record:</span>
+                <strong id="stats-streak-max" style="color: var(--color-text-main);">0 days</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                <span style="color: var(--color-text-muted);">Daily Goal:</span>
+                <span style="color: var(--color-text-main);">20 XP / day</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leitner Box Distribution Card -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Leitner Box Distribution</h3>
+              <p class="page-subtitle" style="margin-bottom: 1.5rem;">How your cards are distributed across study boxes.</p>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="stats-leitner-container">
+              <!-- Populated dynamically by JS -->
+            </div>
+          </div>
+
+          <!-- Weekly Activity Card -->
+          <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Weekly XP Progression</h3>
+              <p class="page-subtitle" style="margin-bottom: 1rem;">XP earned daily over the last 7 days.</p>
+            </div>
+            <div class="chart-container" style="margin-top: 1rem;">
+              <svg id="stats-weekly-chart" class="bar-chart-svg" viewBox="0 0 400 200">
+                <line x1="40" y1="20" x2="380" y2="20" class="chart-grid" />
+                <line x1="40" y1="70" x2="380" y2="70" class="chart-grid" />
+                <line x1="40" y1="120" x2="380" y2="120" class="chart-grid" />
+                <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-glass-hover)" stroke-width="1.5" />
+                <g id="stats-chart-bars-group"></g>
+                <g id="stats-chart-labels-group"></g>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject/Category Mastery Section -->
+        <div class="card">
+          <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Russian Grammar Topic Mastery</h3>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Your computed level of mastery for the core grammar modules.</p>
+          <div id="stats-grammar-mastery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: ALPHABET -->
+      <section id="view-alphabet" class="view-section">
+        <div class="page-header" style="justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h1 class="page-title">Russian Alphabet</h1>
+            <p class="page-subtitle">Learn the 33 Cyrillic letters, their sounds, and practice them.</p>
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button id="alphabet-quiz-btn" class="btn btn-primary">🎯 Practice Game</button>
+          </div>
+        </div>
+
+        <!-- Mini-Game Panel (Hidden by default) -->
+        <div id="alphabet-quiz-panel" class="card" style="display: none; margin-bottom: 1.5rem; text-align: center; padding: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <span style="font-weight: 700; color: var(--color-primary-hover);" id="alphabet-quiz-score-display">Score: 0 / 0</span>
+            <span style="font-size: 0.85rem; color: var(--color-text-muted);" id="alphabet-quiz-progress-text">Question 1/10</span>
+            <button id="alphabet-quiz-close-btn" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;">Exit Game</button>
+          </div>
+
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem; max-width: 500px; margin: 0 auto;">
+            <div id="alphabet-game-mode-toggle" style="display: flex; background: var(--bg-input); border-radius: 20px; padding: 0.25rem; border: 1px solid var(--border-glass); width: 100%;">
+              <button id="game-mode-sound" class="btn active" style="flex: 1; border-radius: 18px; padding: 0.5rem; font-size: 0.85rem; border: none; background: var(--color-primary); color: var(--color-text-main);">🔊 Sound Match</button>
+              <button id="game-mode-typing" class="btn" style="flex: 1; border-radius: 18px; padding: 0.5rem; font-size: 0.85rem; border: none; background: transparent; color: var(--color-text-muted);">⌨️ Typing Practice</button>
+            </div>
+
+            <!-- Quiz Display Area -->
+            <div style="min-height: 120px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+              <div id="alphabet-quiz-question-sound" style="font-size: 4rem; cursor: pointer; user-select: none;" title="Play Audio">🔊</div>
+              <div id="alphabet-quiz-question-char" style="font-size: 3rem; font-weight: 800; display: none;">А</div>
+              <p id="alphabet-quiz-instruction" class="page-subtitle" style="margin-top: 0.5rem;">Click the speaker to hear the sound, then choose the matching letter.</p>
+            </div>
+
+            <!-- Answers Area (Choice Mode) -->
+            <div id="alphabet-quiz-choices" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%;">
+              <!-- Buttons populated by JS -->
+            </div>
+
+            <!-- Answers Area (Typing Mode) -->
+            <div id="alphabet-quiz-typing-container" style="display: none; width: 100%; flex-direction: column; gap: 1rem;">
+              <input type="text" id="alphabet-typing-input" class="filter-input" placeholder="Type the character..." style="text-align: center; font-size: 1.5rem; font-weight: 700;" autocomplete="off">
+              
+              <!-- Custom Cyrillic On-screen Keyboard -->
+              <div id="alphabet-custom-keyboard" style="display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px; width: 100%;">
+                <!-- Populated with all 33 Cyrillic characters for easy mobile typing -->
+              </div>
+
+              <button id="alphabet-typing-submit-btn" class="btn btn-primary" style="width: 100%;">Check Answer</button>
+            </div>
+
+            <div id="alphabet-quiz-feedback" style="min-height: 24px; font-weight: bold; font-size: 1.1rem; width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Grid of 33 Letters -->
+        <div class="card">
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem;" id="alphabet-grid-container">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -1578,6 +1813,7 @@
   <script src="js/srs.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/grammar.js"></script>
+  <script src="js/alphabet.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

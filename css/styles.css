@@ -2027,5 +2027,64 @@ body.theme-light select option {
   }
 }
 
+/* --- MASCOT KEYFRAME ANIMATIONS --- */
+@keyframes mascot-idle {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes mascot-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(0.9); }
+  50% { transform: translateY(0) scale(1.1, 0.85); }
+  70% { transform: translateY(-6px) scale(0.95); }
+}
+
+@keyframes mascot-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px) rotate(-4deg); }
+  40%, 80% { transform: translateX(6px) rotate(4deg); }
+}
+
+@keyframes mascot-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mascot-animation-idle {
+  animation: mascot-idle 3s ease-in-out infinite;
+}
+
+.mascot-animation-bounce {
+  animation: mascot-bounce 0.8s ease-in-out;
+}
+
+.mascot-animation-shake {
+  animation: mascot-shake 0.5s ease-in-out;
+}
+
+.mascot-animation-pulse {
+  animation: mascot-pulse 2.5s ease-in-out infinite;
+}
+
+/* --- ALPHABET INTERACTIVE STYLES --- */
+.alphabet-letter-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary-hover) !important;
+  box-shadow: 0 10px 25px rgba(124, 77, 255, 0.15);
+}
+
+#alphabet-game-mode-toggle button {
+  transition: var(--transition-fast);
+}
+
+#alphabet-game-mode-toggle button.active {
+  background: var(--color-primary);
+  color: var(--color-text-main);
+}
+
+
 
 

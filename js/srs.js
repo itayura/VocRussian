@@ -60,6 +60,10 @@
   }
 
   function saveToStorage() {
+    if (globalStats && globalStats.settings) {
+      globalStats.settings.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      globalStats.settings.timezoneOffset = -new Date().getTimezoneOffset(); // offset in minutes
+    }
     localStorage.setItem(STORAGE_KEYS.PROGRESS, JSON.stringify(cardProgress));
     localStorage.setItem(STORAGE_KEYS.CUSTOM_WORDS, JSON.stringify(customWords));
     localStorage.setItem(STORAGE_KEYS.GLOBAL_STATS, JSON.stringify(globalStats));
