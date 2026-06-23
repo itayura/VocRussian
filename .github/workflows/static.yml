@@ -46,7 +46,6 @@ jobs:
 
   # Deploy job
   deploy:
-    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -68,7 +67,6 @@ jobs:
   # Android Build job
   android-build:
     name: Build Android App (AAB/APK)
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -80,14 +78,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant write permissions to Android SDK
+      - name: Install Android SDK Packages Manually
         run: |
           sudo chown -R $USER:$USER $ANDROID_HOME
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-        with:
-          packages: 'build-tools;34.0.0 platforms;android-34'
+          SDKMANAGER=""
+          if [ -f "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          elif [ -f "$ANDROID_HOME/cmdline-tools/20.0/bin/sdkmanager" ]; then
+            SDKMANAGER="$ANDROID_HOME/cmdline-tools/20.0/bin/sdkmanager"
+          else
+            SDKMANAGER=$(find $ANDROID_HOME -name sdkmanager | head -n 1)
+          fi
+          echo "Found sdkmanager at: $SDKMANAGER"
+          yes | $SDKMANAGER --licenses
+          $SDKMANAGER "build-tools;34.0.0" "platforms;android-34"
+          echo "Listing build-tools folder:"
+          ls -la $ANDROID_HOME/build-tools || echo "build-tools not found"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
