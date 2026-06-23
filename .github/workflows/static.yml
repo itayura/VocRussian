@@ -80,6 +80,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Grant write permissions to Android SDK
+        run: |
+          sudo chown -R $USER:$USER $ANDROID_HOME
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
