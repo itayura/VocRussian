@@ -91,7 +91,7 @@ jobs:
 
       - name: Configure Bubblewrap
         run: |
-          bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
+          yes n | bubblewrap updateConfig --jdkPath="$JAVA_HOME" --androidSdkPath="$ANDROID_HOME"
           bubblewrap doctor
 
       - name: Generate Android Project
