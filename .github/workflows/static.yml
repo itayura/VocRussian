@@ -92,6 +92,14 @@ jobs:
           echo "Found sdkmanager at: $SDKMANAGER"
           yes | $SDKMANAGER --licenses
           yes | $SDKMANAGER "build-tools;34.0.0" "platforms;android-34"
+          
+          # Create symlink for Bubblewrap compatibility
+          if [ ! -d "$ANDROID_HOME/tools" ] && [ ! -L "$ANDROID_HOME/tools" ]; then
+            ln -s cmdline-tools/latest $ANDROID_HOME/tools
+          fi
+          
+          echo "Listing tools/bin folder:"
+          ls -la $ANDROID_HOME/tools/bin || echo "tools/bin not found"
           echo "Listing build-tools folder:"
           ls -la $ANDROID_HOME/build-tools || echo "build-tools not found"
 
