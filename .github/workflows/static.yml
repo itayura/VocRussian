@@ -122,9 +122,16 @@ jobs:
         run: |
           bubblewrap update --skipVersionUpgrade
 
-      - name: Build Android App Bundle (AAB) & APK
+      - name: Decode Android Keystore
         run: |
-          bubblewrap build --skipSigning
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android.keystore
+
+      - name: Build Android App Bundle (AAB) & APK (Signed)
+        run: |
+          bubblewrap build
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
 
       - name: Upload Android Build Artifacts
         uses: actions/upload-artifact@v4
