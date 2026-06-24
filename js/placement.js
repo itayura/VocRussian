@@ -16,36 +16,124 @@
     },
     {
       id: 3,
+      level: "A1",
+      question: "What does the Russian word 'Спасибо' mean?",
+      choices: ["Goodbye", "Thank you", "Hello (informal)", "Please"],
+      answer: "Thank you"
+    },
+    {
+      id: 4,
       level: "A2",
-      question: "Identify the correct form of the adjective in: 'Это _____ книга.' (new)",
+      question: "Identify the correct form of the adjective in: 'Это _____ книга.'",
       choices: ["новый", "новое", "новая", "новые"],
       answer: "новая"
     },
     {
-      id: 4,
+      id: 5,
       level: "A2",
       question: "How do you say 'Where is the station?' in Russian?",
       choices: ["Где вокзал?", "Как дела?", "Где метро?", "Кто это?"],
       answer: "Где вокзал?"
     },
     {
-      id: 5,
+      id: 6,
+      level: "A2",
+      question: "Complete the sentence: 'Он _____ говорит по-русски.' (He speaks Russian well)",
+      choices: ["хорошо", "хороший", "хорошие", "хорошая"],
+      answer: "хорошо"
+    },
+    {
+      id: 7,
       level: "B1",
       question: "Which grammatical case is used after the preposition 'без' (without)?",
       choices: ["Nominative", "Genitive", "Accusative", "Dative"],
       answer: "Genitive"
     },
     {
-      id: 6,
+      id: 8,
+      level: "B1",
+      question: "Complete the sentence with the correct verb form: 'Он _____ книгу весь вечер.' (He was reading)",
+      choices: ["читал", "читать", "прочитает", "прочитал"],
+      answer: "читал"
+    },
+    {
+      id: 9,
+      level: "B1",
+      question: "Choose the correct preposition: 'Мы встретимся _____ субботу.' (We will meet on Saturday)",
+      choices: ["в", "на", "о", "с"],
+      answer: "в"
+    },
+    {
+      id: 10,
       level: "B2",
       question: "Choose the correct verb of motion: 'Каждое утро я _____ в школу пешком.' (I go/walk)",
       choices: ["иду", "хожу", "еду", "езжу"],
       answer: "хожу"
+    },
+    {
+      id: 11,
+      level: "B2",
+      question: "Complete the sentence: 'Девочка, которая сидела у окна, была _____.' (reading)",
+      choices: ["читающая", "читающий", "читающее", "читающие"],
+      answer: "читающая"
+    },
+    {
+      id: 12,
+      level: "B2",
+      question: "Choose the correct conditional form: 'Если бы я знал, я бы _____.' (came/would have come)",
+      choices: ["пришёл", "приду", "приходить", "пришли"],
+      answer: "пришёл"
+    },
+    {
+      id: 13,
+      level: "C1",
+      question: "Choose the correct verbal adverb (gerund): '_____, я встретил друга.' (Walking/While walking)",
+      choices: ["Идя", "Ходя", "Шёл", "Идя по улице"],
+      answer: "Идя"
+    },
+    {
+      id: 14,
+      level: "C1",
+      question: "Choose the correct collective numeral: 'У неё _____ детей.' (three children)",
+      choices: ["трое", "три", "тремя", "троих"],
+      answer: "трое"
+    },
+    {
+      id: 15,
+      level: "C1",
+      question: "Complete the sentence with the correct preposition: 'Он работает _____ фабрике.' (at the factory)",
+      choices: ["на", "в", "при", "у"],
+      answer: "на"
+    },
+    {
+      id: 16,
+      level: "C2",
+      question: "Complete with the correct verb: 'Она не посвятила меня в свои планы.' (she did not initiate/let in)",
+      choices: ["посвятила", "посвятил", "посвятить", "посвятили"],
+      answer: "посвятила"
+    },
+    {
+      id: 17,
+      level: "C2",
+      question: "Choose the correct particle: 'Как он ни старался, ничего не выходило.' (No matter how hard he tried)",
+      choices: ["ни", "не", "ли", "бы"],
+      answer: "ни"
+    },
+    {
+      id: 18,
+      level: "C2",
+      question: "Complete the idiom: 'Он сказал мне правду в глаза.' (He told me the truth to my face)",
+      choices: ["сказал", "говорил", "сказать", "говоря"],
+      answer: "сказал"
     }
   ];
 
-  let currentQuestionIndex = 0;
+  let currentLevelIndex = 1; // starts at A2 (0=A1, 1=A2, 2=B1, 3=B2, 4=C1, 5=C2)
+  let currentQuestionStep = 1; // 1 to 10
   let correctAnswersCount = 0;
+  const usedQuestionIds = new Set();
+  let currentQuestion = null;
+  let pendingPlacement = null; // { level, xp }
 
   function initPlacementTest() {
     const banner = document.getElementById("dashboard-placement-banner");
@@ -53,7 +141,8 @@
     const startSettingsBtn = document.getElementById("settings-placement-test-btn");
     const closeBtn = document.getElementById("modal-placement-close");
     const startTestBtn = document.getElementById("placement-start-test-btn");
-    const finishBtn = document.getElementById("placement-finish-btn");
+    const applyBtn = document.getElementById("placement-apply-btn");
+    const skipBtn = document.getElementById("placement-skip-btn");
 
     if (!banner) return;
 
@@ -69,7 +158,6 @@
 
     // Start buttons
     if (startBannerBtn) {
-      // Create new event listener to prevent duplicate binding
       startBannerBtn.replaceWith(startBannerBtn.cloneNode(true));
       document.getElementById("placement-banner-start-btn").addEventListener("click", openPlacementTest);
     }
@@ -93,16 +181,24 @@
       document.getElementById("placement-start-test-btn").addEventListener("click", startTest);
     }
 
-    // Finish test trigger
-    if (finishBtn) {
-      finishBtn.replaceWith(finishBtn.cloneNode(true));
-      document.getElementById("placement-finish-btn").addEventListener("click", finishTest);
+    // Apply / Skip button triggers
+    if (applyBtn) {
+      applyBtn.replaceWith(applyBtn.cloneNode(true));
+      document.getElementById("placement-apply-btn").addEventListener("click", handleApplyPlacement);
+    }
+
+    if (skipBtn) {
+      skipBtn.replaceWith(skipBtn.cloneNode(true));
+      document.getElementById("placement-skip-btn").addEventListener("click", handleSkipPlacement);
     }
   }
 
   function openPlacementTest() {
-    currentQuestionIndex = 0;
+    currentLevelIndex = 1;
+    currentQuestionStep = 1;
     correctAnswersCount = 0;
+    usedQuestionIds.clear();
+    pendingPlacement = null;
 
     // Reset views
     document.getElementById("placement-intro-view").style.display = "flex";
@@ -125,30 +221,72 @@
   }
 
   function startTest() {
+    currentLevelIndex = 1;
+    currentQuestionStep = 1;
+    correctAnswersCount = 0;
+    usedQuestionIds.clear();
+    pendingPlacement = null;
+
     document.getElementById("placement-intro-view").style.display = "none";
     document.getElementById("placement-question-view").style.display = "flex";
+    document.getElementById("placement-result-view").style.display = "none";
     loadQuestion();
   }
 
+  function getUnusedQuestionForLevel(levelIdx) {
+    const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
+    const targetLvl = levels[levelIdx];
+    const pool = PLACEMENT_QUESTIONS.filter(q => q.level === targetLvl && !usedQuestionIds.has(q.id));
+    if (pool.length > 0) {
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    // Search closest levels
+    for (let offset = 1; offset <= 5; offset++) {
+      for (const idx of [levelIdx - offset, levelIdx + offset]) {
+        if (idx >= 0 && idx <= 5) {
+          const fallbackLvl = levels[idx];
+          const fallbackPool = PLACEMENT_QUESTIONS.filter(q => q.level === fallbackLvl && !usedQuestionIds.has(q.id));
+          if (fallbackPool.length > 0) {
+            return fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
+          }
+        }
+      }
+    }
+
+    // Last resort
+    const unused = PLACEMENT_QUESTIONS.filter(q => !usedQuestionIds.has(q.id));
+    if (unused.length > 0) {
+      return unused[Math.floor(Math.random() * unused.length)];
+    }
+    return PLACEMENT_QUESTIONS[Math.floor(Math.random() * PLACEMENT_QUESTIONS.length)];
+  }
+
   function loadQuestion() {
-    const q = PLACEMENT_QUESTIONS[currentQuestionIndex];
-    
+    currentQuestion = getUnusedQuestionForLevel(currentLevelIndex);
+    if (!currentQuestion) {
+      console.error("[PlacementTest] No question found!");
+      showResults();
+      return;
+    }
+    usedQuestionIds.add(currentQuestion.id);
+
     // Update step and badge
-    document.getElementById("placement-question-step").innerText = `Question ${currentQuestionIndex + 1} of ${PLACEMENT_QUESTIONS.length}`;
-    document.getElementById("placement-question-level").innerText = `Level ${q.level}`;
+    document.getElementById("placement-question-step").innerText = `Question ${currentQuestionStep} of 10`;
+    document.getElementById("placement-question-level").innerText = `Level ${currentQuestion.level}`;
     
     // Progress bar
-    const pct = ((currentQuestionIndex + 1) / PLACEMENT_QUESTIONS.length) * 100;
+    const pct = (currentQuestionStep / 10) * 100;
     document.getElementById("placement-progress-bar").style.width = `${pct}%`;
 
     // Question text
-    document.getElementById("placement-question-text").innerText = q.question;
+    document.getElementById("placement-question-text").innerText = currentQuestion.question;
 
     // Choices
     const container = document.getElementById("placement-choices-container");
     container.innerHTML = "";
 
-    q.choices.forEach(choice => {
+    currentQuestion.choices.forEach(choice => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn btn-secondary choice-btn";
@@ -168,7 +306,7 @@
   }
 
   function selectAnswer(choice, selectedBtn) {
-    const q = PLACEMENT_QUESTIONS[currentQuestionIndex];
+    const q = currentQuestion;
     const container = document.getElementById("placement-choices-container");
     const buttons = container.querySelectorAll(".choice-btn");
     
@@ -185,6 +323,9 @@
       if (animationsEnabled && window.showConfettiBurst) {
         window.showConfettiBurst(selectedBtn);
       }
+      if (currentLevelIndex < 5) {
+        currentLevelIndex++;
+      }
     } else {
       selectedBtn.classList.add("incorrect-shake");
       if (window.AudioEngine) window.AudioEngine.playError();
@@ -196,11 +337,14 @@
           btn.style.background = "rgba(40, 167, 69, 0.1)";
         }
       });
+      if (currentLevelIndex > 0) {
+        currentLevelIndex--;
+      }
     }
 
     setTimeout(() => {
-      currentQuestionIndex++;
-      if (currentQuestionIndex < PLACEMENT_QUESTIONS.length) {
+      currentQuestionStep++;
+      if (currentQuestionStep <= 10) {
         loadQuestion();
       } else {
         showResults();
@@ -212,39 +356,91 @@
     document.getElementById("placement-question-view").style.display = "none";
     document.getElementById("placement-result-view").style.display = "flex";
 
-    let level = "A1";
+    const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
+    const level = levels[currentLevelIndex];
     let xp = 0;
     let desc = "";
     let avatar = "🐻";
 
-    if (correctAnswersCount <= 1) {
-      level = "A1";
+    if (level === "A1") {
       xp = 50;
       desc = "You placed at level A1 (Beginner). We have set up your starting cards in Box 1 and awarded you a kickstart reward of +50 XP!";
       avatar = "🐻";
-    } else if (correctAnswersCount >= 2 && correctAnswersCount <= 3) {
-      level = "A2";
+    } else if (level === "A2") {
       xp = 200;
       desc = "You placed at level A2 (Elementary). We have promoted your A1 vocabulary words to Box 3, marked introductory grammar lessons completed, and awarded you +200 XP!";
       avatar = "🦉";
-    } else if (correctAnswersCount >= 4 && correctAnswersCount <= 5) {
-      level = "B1";
+    } else if (level === "B1") {
       xp = 500;
       desc = "You placed at level B1 (Intermediate). We have promoted A1/A2 vocabulary words to Box 4, marked introductory/elementary grammar lessons completed, and awarded you +500 XP!";
       avatar = "🤖";
-    } else if (correctAnswersCount === 6) {
-      level = "B2";
+    } else if (level === "B2") {
       xp = 1000;
       desc = "You placed at level B2 (Upper Intermediate). We have promoted all A1/A2/B1 vocabulary words to Box 5 (Mastered), completed corresponding grammar concepts, and awarded you +1000 XP!";
       avatar = "👑";
+    } else if (level === "C1") {
+      xp = 1500;
+      desc = "You placed at level C1 (Advanced). We have promoted all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), completed corresponding grammar concepts, and awarded you +1500 XP!";
+      avatar = "🦁";
+    } else if (level === "C2") {
+      xp = 2000;
+      desc = "You placed at level C2 (Proficient). We have promoted all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), completed corresponding grammar concepts, and awarded you +2000 XP!";
+      avatar = "🧙‍♂️";
     }
 
     document.getElementById("placement-result-avatar").innerText = avatar;
     document.getElementById("placement-result-title").innerText = `Level Placed: ${level}!`;
     document.getElementById("placement-result-text").innerText = desc;
 
-    // Apply seeding algorithm
-    seedProgress(level, xp);
+    pendingPlacement = { level, xp };
+  }
+
+  async function handleApplyPlacement() {
+    if (!pendingPlacement) return;
+
+    const approved = await window.confirmCustom("Are you sure you want to apply level seeding? This will update your vocabulary card boxes and grammar lesson progress. This action will overwrite your current progress, but we will back up your current progress first.");
+    if (!approved) return;
+
+    try {
+      // Back up progress before applying
+      const backup = {
+        progress: localStorage.getItem("voc_russian_progress") ? JSON.parse(localStorage.getItem("voc_russian_progress")) : null,
+        stats: localStorage.getItem("voc_russian_stats") ? JSON.parse(localStorage.getItem("voc_russian_stats")) : null,
+        grammarProgress: localStorage.getItem("voc_grammar_progress") ? JSON.parse(localStorage.getItem("voc_grammar_progress")) : null
+      };
+      localStorage.setItem("voc_progress_backup_before_placement", JSON.stringify(backup));
+
+      seedProgress(pendingPlacement.level, pendingPlacement.xp);
+
+      localStorage.setItem("voc_placement_test_taken", "true");
+      closePlacementTest();
+
+      const banner = document.getElementById("dashboard-placement-banner");
+      if (banner) banner.style.display = "none";
+
+      if (window.updateSettingsBackupUI) window.updateSettingsBackupUI();
+      if (window.refreshAppUI) window.refreshAppUI();
+      if (window.renderDashboard) window.renderDashboard();
+      if (window.renderDictionary) window.renderDictionary();
+      if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to apply seeding: " + e.message);
+    }
+  }
+
+  function handleSkipPlacement() {
+    localStorage.setItem("voc_placement_test_taken", "true");
+    closePlacementTest();
+
+    const banner = document.getElementById("dashboard-placement-banner");
+    if (banner) banner.style.display = "none";
+
+    if (window.updateSettingsBackupUI) window.updateSettingsBackupUI();
+    if (window.refreshAppUI) window.refreshAppUI();
+    if (window.renderDashboard) window.renderDashboard();
+    if (window.renderDictionary) window.renderDictionary();
+    if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
   }
 
   function seedProgress(level, xp) {
@@ -286,6 +482,16 @@
             targetBox = 5;
             reviewDays = 30;
           }
+        } else if (level === "C1") {
+          if (wLvl === "A1" || wLvl === "A2" || wLvl === "B1" || wLvl === "B2") {
+            targetBox = 5;
+            reviewDays = 30;
+          }
+        } else if (level === "C2") {
+          if (wLvl === "A1" || wLvl === "A2" || wLvl === "B1" || wLvl === "B2" || wLvl === "C1") {
+            targetBox = 5;
+            reviewDays = 30;
+          }
         }
 
         if (targetBox > 1) {
@@ -324,6 +530,12 @@
         } else if (level === "B2") {
           shouldMarkLesson = true;
           completedLevels = ["A1", "A2", "B1"];
+        } else if (level === "C1") {
+          shouldMarkLesson = true;
+          completedLevels = ["A1", "A2", "B1", "B2"];
+        } else if (level === "C2") {
+          shouldMarkLesson = true;
+          completedLevels = ["A1", "A2", "B1", "B2", "C1"];
         }
 
         if (shouldMarkLesson) {
@@ -357,18 +569,11 @@
     localStorage.setItem("voc_placement_test_taken", "true");
   }
 
-  function finishTest() {
-    closePlacementTest();
-    
-    // Hide the banner
-    const banner = document.getElementById("dashboard-placement-banner");
-    if (banner) banner.style.display = "none";
-
-    // Refresh UI components
-    if (window.renderDashboard) window.renderDashboard();
-    if (window.renderDictionary) window.renderDictionary();
-    if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
-  }
+  // Hook to window for manual settings resets
+  window.resetPlacementTest = function () {
+    localStorage.removeItem("voc_placement_test_taken");
+    initPlacementTest();
+  };
 
   // Auto-init on script load/DOM load
   if (document.readyState === "loading") {
@@ -376,10 +581,4 @@
   } else {
     initPlacementTest();
   }
-
-  // Hook to window for manual settings resets
-  window.resetPlacementTest = function () {
-    localStorage.removeItem("voc_placement_test_taken");
-    initPlacementTest();
-  };
 })();

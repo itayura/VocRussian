@@ -1484,6 +1484,34 @@
                 Retake Placement Test
               </button>
             </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0; display: none;" id="settings-restore-placement-backup-divider">
+
+            <div style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;" id="settings-restore-placement-backup-row">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Restore Placement Test Backup</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Found a backup of your learning progress saved right before your last placement test.
+                </span>
+              </div>
+              <button type="button" id="settings-restore-placement-backup-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: var(--border-radius-md); background-color: var(--color-primary); border-color: var(--color-primary); color: white;">
+                Restore Previous Progress
+              </button>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Reset Leitner Boxes</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Revert all card progress and return all vocabulary words back to Box 1 (New), keeping your custom words.
+                </span>
+              </div>
+              <button type="button" id="settings-reset-boxes-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: var(--border-radius-md); background: #dc3545; border-color: #dc3545; color: white;">
+                Reset Card Boxes
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2068,7 +2096,10 @@
         <p style="font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; margin: 0;" id="placement-result-text">
           You placed at level **A2** (Elementary). We have seeded your study deck and awarded you +200 XP!
         </p>
-        <button type="button" id="placement-finish-btn" class="btn btn-primary" style="padding: 0.85rem; font-size: 1rem; width: 100%; font-weight: bold; margin-top: 0.5rem;">Finish & Go to Dashboard</button>
+        <div style="display: flex; gap: 0.75rem; width: 100%; margin-top: 0.5rem;">
+          <button type="button" id="placement-apply-btn" class="btn btn-primary" style="flex: 1; padding: 0.85rem; font-size: 0.95rem; font-weight: bold;">Apply Seeding & Finish</button>
+          <button type="button" id="placement-skip-btn" class="btn btn-secondary" style="flex: 1; padding: 0.85rem; font-size: 0.95rem; font-weight: bold; background: transparent; border-color: var(--border-glass); color: var(--color-text-muted);">Finish without Seeding</button>
+        </div>
       </div>
     </div>
   </div>

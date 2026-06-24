@@ -934,6 +934,8 @@
       if (window.AlphabetManager) {
         window.AlphabetManager.init();
       }
+    } else if (targetViewId === "settings") {
+      updateSettingsBackupUI();
     }
 
     // Google Analytics Virtual Page View Tracking
@@ -944,6 +946,22 @@
       });
     }
   }
+
+  function updateSettingsBackupUI() {
+    const divider = document.getElementById("settings-restore-placement-backup-divider");
+    const row = document.getElementById("settings-restore-placement-backup-row");
+    if (divider && row) {
+      const backup = localStorage.getItem("voc_progress_backup_before_placement");
+      if (backup) {
+        divider.style.display = "block";
+        row.style.display = "flex";
+      } else {
+        divider.style.display = "none";
+        row.style.display = "none";
+      }
+    }
+  }
+  window.updateSettingsBackupUI = updateSettingsBackupUI;
 
   // --- EXPANSION HELPERS & PAGINATION ---
   function updateCategoryDropdowns() {
@@ -2614,6 +2632,88 @@
     // Load/render submitted AI appeals list
     if (window.renderAppealsList) {
       window.renderAppealsList();
+    }
+
+    // Restore Backup Button
+    const restoreBackupBtn = document.getElementById("settings-restore-placement-backup-btn");
+    if (restoreBackupBtn) {
+      restoreBackupBtn.addEventListener("click", async () => {
+        const approved = await window.confirmCustom("Are you sure you want to restore your learning progress before the last placement test? This will overwrite your current flashcard boxes, grammar lessons, and XP stats.");
+        if (approved) {
+          try {
+            const backupStr = localStorage.getItem("voc_progress_backup_before_placement");
+            if (!backupStr) {
+              alert("No pre-placement backup was found.");
+              return;
+            }
+            const backup = JSON.parse(backupStr);
+            if (backup.progress) {
+              localStorage.setItem("voc_russian_progress", JSON.stringify(backup.progress));
+            } else {
+              localStorage.removeItem("voc_russian_progress");
+            }
+            if (backup.stats) {
+              localStorage.setItem("voc_russian_stats", JSON.stringify(backup.stats));
+            } else {
+              localStorage.removeItem("voc_russian_stats");
+            }
+            if (backup.grammarProgress) {
+              localStorage.setItem("voc_grammar_progress", JSON.stringify(backup.grammarProgress));
+            } else {
+              localStorage.removeItem("voc_grammar_progress");
+            }
+            localStorage.removeItem("voc_progress_backup_before_placement");
+            
+            // Re-init SRS
+            SRS.init();
+            
+            // Refresh
+            updateSettingsBackupUI();
+            if (window.refreshAppUI) window.refreshAppUI();
+            if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
+            
+            alert("Progress backup successfully restored!");
+          } catch (e) {
+            console.error(e);
+            alert("Failed to restore backup: " + e.message);
+          }
+        }
+      });
+    }
+
+    // Reset Leitner Boxes Button
+    const resetBoxesBtn = document.getElementById("settings-reset-boxes-btn");
+    if (resetBoxesBtn) {
+      resetBoxesBtn.addEventListener("click", async () => {
+        const approved = await window.confirmCustom("Are you sure you want to reset all vocabulary card progress back to Box 1? This will not delete your custom words but will reset your Leitner review schedules.");
+        if (approved) {
+          try {
+            const progressStr = localStorage.getItem("voc_russian_progress");
+            if (progressStr) {
+              const progress = JSON.parse(progressStr);
+              Object.keys(progress).forEach(id => {
+                progress[id].box = 1;
+                progress[id].nextReview = Date.now();
+                progress[id].correctCount = 0;
+                progress[id].wrongCount = 0;
+                progress[id].updatedAt = Date.now();
+              });
+              localStorage.setItem("voc_russian_progress", JSON.stringify(progress));
+            }
+            
+            // Re-init SRS
+            SRS.init();
+            
+            if (window.refreshAppUI) window.refreshAppUI();
+            if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
+            
+            alert("All vocabulary card progress has been reset to Box 1.");
+          } catch (e) {
+            console.error(e);
+            alert("Failed to reset card progress: " + e.message);
+          }
+        }
+      });
     }
   }
 

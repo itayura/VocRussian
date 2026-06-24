@@ -22,6 +22,18 @@ test.describe('VocRussian E2E Test Suite', () => {
   }
 
   test.beforeEach(async ({ page }) => {
+    page.on('console', msg => {
+      console.log(`[Browser Console] ${msg.type().toUpperCase()}: ${msg.text()}`);
+    });
+    page.on('pageerror', err => {
+      console.error(`[Browser PageError]: ${err.message}`);
+    });
+    page.on('request', request => {
+      if (request.url().endsWith('.js')) {
+        console.log(`[Browser JS Request] ${request.url()}`);
+      }
+    });
+
     // Intercept Supabase Auth Calls
     await page.route('**/auth/v1/token*', async (route) => {
       if (route.request().method() === 'POST') {
@@ -661,12 +673,48 @@ test.describe('VocRussian E2E Test Suite', () => {
   });
 
   test('Adaptive Placement Test workflow seeds stats, XP, and updates levels correctly', async ({ page }) => {
-    page.on('console', msg => {
-      console.log(`[Browser Console] ${msg.type().toUpperCase()}: ${msg.text()}`);
-    });
-    page.on('pageerror', err => {
-      console.error(`[Browser PageError]: ${err.message}`);
-    });
+    test.slow();
+    const qaMap = {
+      "Привет": "Hello (informal)",
+      "pronouns means 'We'": "Мы",
+      "Спасибо": "Thank you",
+      "Это _____ книга": "новая",
+      "Where is the station": "Где вокзал?",
+      "Он _____ говорит по-русски": "хорошо",
+      "preposition 'без'": "Genitive",
+      "книгу весь вечер": "читал",
+      "встретимся _____ субботу": "в",
+      "в школу пешком": "хожу",
+      "сидела у окна": "читающая",
+      "Если бы я знал": "пришёл",
+      "я встретил друга": "Идя",
+      "детей": "трое",
+      "работает _____ фабрике": "на",
+      "в свои планы": "посвятила",
+      "он ни старался": "ни",
+      "мне правду": "сказал"
+    };
+
+    async function answerActiveQuestionCorrectly() {
+      const questionText = await page.locator('#placement-question-text').innerText();
+      let foundAnswer = null;
+      for (const [key, val] of Object.entries(qaMap)) {
+        if (questionText.includes(key)) {
+          foundAnswer = val;
+          break;
+        }
+      }
+      const buttons = page.locator('#placement-choices-container button');
+      const count = await buttons.count();
+      for (let i = 0; i < count; i++) {
+        const text = await buttons.nth(i).innerText();
+        if (text.trim() === foundAnswer) {
+          await buttons.nth(i).click();
+          return;
+        }
+      }
+      throw new Error(`Button with text "${foundAnswer}" not found`);
+    }
 
     // 1. Verify that the placement test banner is visible on the dashboard for a new user (0 XP)
     const banner = page.locator('#dashboard-placement-banner');
@@ -681,57 +729,91 @@ test.describe('VocRussian E2E Test Suite', () => {
     await page.locator('#placement-start-test-btn').click();
     await expect(page.locator('#placement-question-view')).toBeVisible();
 
-    // 4. Answer all 6 questions correctly to get B2 placement
-    // Question 1 (A1)
-    await expect(page.locator('#placement-question-step')).toHaveText('Question 1 of 6');
-    await page.locator('#placement-choices-container button', { hasText: 'Hello (informal)' }).click();
-    
-    // Question 2 (A1)
-    await expect(page.locator('#placement-question-step')).toHaveText('Question 2 of 6');
-    await page.locator('#placement-choices-container button', { hasText: 'Мы' }).click();
+    // 4. Answer all 10 questions correctly to get C2 placement
+    for (let step = 1; step <= 10; step++) {
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 10`);
+      await answerActiveQuestionCorrectly();
+    }
 
-    // Question 3 (A2)
-    await expect(page.locator('#placement-question-step')).toHaveText('Question 3 of 6');
-    await page.locator('#placement-choices-container button', { hasText: 'новая' }).click();
-
-    // Question 4 (A2)
-    await expect(page.locator('#placement-question-step')).toHaveText('Question 4 of 6');
-    await page.locator('#placement-choices-container button', { hasText: 'Где вокзал?' }).click();
-
-    // Question 5 (B1)
-    await expect(page.locator('#placement-question-step')).toHaveText('Question 5 of 6');
-    await page.locator('#placement-choices-container button', { hasText: 'Genitive' }).click();
-
-    // Question 6 (B2)
-    await expect(page.locator('#placement-question-step')).toHaveText('Question 6 of 6');
-    await page.locator('#placement-choices-container button', { hasText: 'хожу' }).click();
-
-    // 5. Verify results screen shows B2 level and B2 avatar
+    // 5. Verify results screen shows C2 level and C2 avatar
     await expect(page.locator('#placement-result-view')).toBeVisible();
-    await expect(page.locator('#placement-result-title')).toHaveText('Level Placed: B2!');
-    await expect(page.locator('#placement-result-text')).toContainText('You placed at level B2');
+    await expect(page.locator('#placement-result-title')).toHaveText('Level Placed: C2!');
+    await expect(page.locator('#placement-result-text')).toContainText('You placed at level C2');
 
-    // 6. Click Finish & Go to Dashboard
-    await page.locator('#placement-finish-btn').click();
+    // 6. Test permission gate: click "Finish without Seeding"
+    await page.locator('#placement-skip-btn').click();
     await expect(page.locator('#modal-placement-test')).not.toBeVisible();
 
-    // 7. Verify XP has been seeded (1000 XP for B2)
-    await expect(page.locator('#sidebar-xp-val')).toHaveText('1000');
-
-    // 8. Verify the placement banner is now hidden
+    // Verify XP is still 0
+    await expect(page.locator('#sidebar-xp-val')).toHaveText('0');
+    // Placement banner is now hidden
     await expect(banner).not.toBeVisible();
 
-    // 9. Go to Settings and verify placement retake button resets it
+    // 7. Retake test to apply seeding
     await page.locator('.nav-item[data-target="settings"]').click({ force: true });
     await page.locator('#settings-placement-test-btn').click();
-
-    // The modal should open again on the intro view
     await expect(page.locator('#modal-placement-test')).toBeVisible();
-    await expect(page.locator('#placement-intro-view')).toBeVisible();
+    await page.locator('#placement-start-test-btn').click();
 
-    // Close the modal
-    await page.locator('#modal-placement-close').click();
+    // Answer all 10 questions correctly again
+    for (let step = 1; step <= 10; step++) {
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 10`);
+      await answerActiveQuestionCorrectly();
+    }
+
+    // Click "Apply Seeding & Finish"
+    await page.locator('#placement-apply-btn').click();
+    
+    // Expect custom confirm modal
+    const confirmModal = page.locator('#custom-confirm-modal');
+    await expect(confirmModal).toHaveClass(/active/);
+    
+    // Cancel confirmation first
+    await page.locator('#custom-confirm-cancel-btn').click();
+    await expect(confirmModal).not.toHaveClass(/active/);
+    await expect(page.locator('#modal-placement-test')).toBeVisible();
+
+    // Apply and OK confirmation
+    await page.locator('#placement-apply-btn').click();
+    await page.locator('#custom-confirm-ok-btn').click();
     await expect(page.locator('#modal-placement-test')).not.toBeVisible();
+
+    // Verify XP has been seeded (2000 XP for C2)
+    await expect(page.locator('#sidebar-xp-val')).toHaveText('2000');
+
+    // 8. Go to Settings and verify restore backup is visible
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    
+    const restoreRow = page.locator('#settings-restore-placement-backup-row');
+    await expect(restoreRow).toBeVisible();
+
+    // Click restore and cancel
+    await page.locator('#settings-restore-placement-backup-btn').click();
+    await expect(confirmModal).toHaveClass(/active/);
+    await page.locator('#custom-confirm-cancel-btn').click();
+    await expect(confirmModal).not.toHaveClass(/active/);
+
+    // Click restore and approve
+    await page.locator('#settings-restore-placement-backup-btn').click();
+    await page.locator('#custom-confirm-ok-btn').click();
+
+    // Expect page alert modal "Progress backup successfully restored!" and click ok
+    const alertModal = page.locator('#custom-alert-modal');
+    await expect(alertModal).toHaveClass(/active/);
+    await page.locator('#custom-alert-ok-btn').click();
+
+    // Verify XP has reverted back to 0
+    await expect(page.locator('#sidebar-xp-val')).toHaveText('0');
+    await expect(restoreRow).not.toBeVisible();
+
+    // 9. Verify Reset Leitner Boxes button works
+    await page.locator('#settings-reset-boxes-btn').click();
+    await expect(confirmModal).toHaveClass(/active/);
+    await page.locator('#custom-confirm-ok-btn').click();
+    
+    // Dismiss success alert
+    await expect(alertModal).toHaveClass(/active/);
+    await page.locator('#custom-alert-ok-btn').click();
   });
 
 });
