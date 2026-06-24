@@ -1038,6 +1038,7 @@ kbd {
   justify-content: center;
   padding: 1.5rem;
   animation: fadeIn var(--transition-fast) forwards;
+  overflow-y: auto;
 }
 
 .modal-overlay.active {
@@ -1055,18 +1056,32 @@ kbd {
   animation: scaleUp var(--transition-normal) forwards;
   position: relative;
 }
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 1rem;
+  }
+  .modal-content {
+    padding: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+}
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  pointer-events: none;
 }
 
 .modal-title {
   font-family: var(--font-heading);
   font-size: 1.5rem;
   font-weight: 700;
+  margin-right: 1.5rem;
+  pointer-events: none;
 }
 
 .modal-close-btn {
@@ -1075,6 +1090,15 @@ kbd {
   color: var(--color-text-muted);
   font-size: 1.5rem;
   cursor: pointer;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 .modal-close-btn:hover {
   color: var(--color-text-main);
@@ -1171,13 +1195,13 @@ kbd {
   
   aside {
     width: 100%;
-    height: 70px;
+    height: calc(70px + env(safe-area-inset-bottom, 0px));
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     flex-direction: row;
-    padding: 0 0.5rem;
+    padding: 0 0.5rem env(safe-area-inset-bottom, 0px) 0.5rem;
     border-right: none;
     border-top: 1px solid var(--border-glass);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
@@ -1217,7 +1241,7 @@ kbd {
   
   main {
     margin-left: 0;
-    padding: 1.5rem 1.5rem 6rem 1.5rem; /* bottom padding clears the nav bar */
+    padding: 1.5rem 1.5rem calc(6rem + env(safe-area-inset-bottom, 0px)) 1.5rem; /* bottom padding clears the nav bar */
     width: 100%;
   }
 
@@ -1288,18 +1312,7 @@ kbd {
    --- LANDING PAGE STYLES ---
    ========================================================================== */
 
-body.landing-mode {
-  flex-direction: column !important;
-}
-body.landing-mode aside {
-  display: none !important;
-}
-body.landing-mode main {
-  margin-left: 0 !important;
-  max-width: 100% !important;
-  width: 100% !important;
-  padding: 0 !important;
-}
+/* landing-mode overrides removed to allow persistent sidebar navigation */
 
 /* Landing Section General spacing */
 #view-landing {
@@ -2003,6 +2016,12 @@ body.theme-light select option {
   grid-template-columns: 1fr 2.2fr;
   gap: 1.5rem;
   width: 100%;
+  transition: grid-template-columns 0.3s ease;
+}
+
+.tutor-grid-container.sidebar-collapsed {
+  grid-template-columns: 1fr;
+  gap: 0;
 }
 
 .tutor-topics-sidebar {
@@ -2011,6 +2030,10 @@ body.theme-light select option {
   gap: 0.75rem;
   border-right: 1px solid var(--border-glass);
   padding-right: 1.5rem;
+}
+
+.tutor-grid-container.sidebar-collapsed .tutor-topics-sidebar {
+  display: none !important;
 }
 
 @media (max-width: 768px) {
@@ -2024,6 +2047,14 @@ body.theme-light select option {
     border-bottom: 1px solid var(--border-glass);
     padding-right: 0;
     padding-bottom: 1.5rem;
+  }
+  
+  .tutor-topic-select-mobile-container {
+    display: block !important;
+  }
+  
+  .grammar-topic-list {
+    display: none !important;
   }
 }
 
@@ -2084,6 +2115,88 @@ body.theme-light select option {
   background: var(--color-primary);
   color: var(--color-text-main);
 }
+
+/* Clickable Russian words inside grammar content */
+.clickable-ru-word {
+  cursor: pointer;
+  border-bottom: 1.5px dashed var(--color-primary);
+  color: var(--color-primary-hover);
+  background-color: var(--color-primary-glow);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline;
+  padding: 2px 6px;
+  margin: 0 2px;
+  border-radius: 4px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.clickable-ru-word:hover {
+  background-color: rgba(138, 43, 226, 0.35);
+  color: var(--color-text-main);
+  border-bottom-style: solid;
+  border-bottom-color: var(--color-primary-hover);
+}
+
+/* --- DICTIONARY WORD INFLECTIONS MODAL STYLES --- */
+.inflection-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-sm);
+  margin-top: 0.5rem;
+}
+
+.inflection-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.inflection-table th {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 2px solid var(--border-glass);
+  padding: 0.65rem 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-primary-hover);
+  font-family: var(--font-heading);
+}
+
+.inflection-table td {
+  border-bottom: 1px solid var(--border-glass);
+  padding: 0.65rem 0.85rem;
+  color: var(--color-text-main);
+  line-height: 1.4;
+}
+
+.inflection-table tr:last-child td {
+  border-bottom: none;
+}
+
+.inflection-table tr:hover td {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.inflection-table-title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  margin-top: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.inflection-not-applicable {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
 
 
 

@@ -471,6 +471,169 @@
     }
   };
 
+  window.wrapCyrillicWords = function (html) {
+    if (!html) return "";
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
+    const container = doc.body.firstChild;
+    
+    function walk(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.nodeValue;
+        const cyrillicRegex = /[\u0400-\u04FF\u0301]+(?:-[\u0400-\u04FF\u0301]+)*/g;
+        
+        if (cyrillicRegex.test(text)) {
+          cyrillicRegex.lastIndex = 0;
+          const parent = node.parentNode;
+          if (parent && (parent.tagName === 'SPAN' && parent.classList.contains('clickable-ru-word'))) {
+            return;
+          }
+          if (parent && (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE' || parent.tagName === 'TEXTAREA' || parent.tagName === 'INPUT')) {
+            return;
+          }
+          
+          const fragments = [];
+          let lastIdx = 0;
+          let match;
+          while ((match = cyrillicRegex.exec(text)) !== null) {
+            const matchIndex = match.index;
+            const matchText = match[0];
+            
+            if (matchIndex > lastIdx) {
+              fragments.push(document.createTextNode(text.substring(lastIdx, matchIndex)));
+            }
+            
+            const span = document.createElement("span");
+            span.className = "clickable-ru-word";
+            span.textContent = matchText;
+            span.title = "Click to view translation / Add to vocabulary";
+            fragments.push(span);
+            
+            lastIdx = cyrillicRegex.lastIndex;
+          }
+          
+          if (lastIdx < text.length) {
+            fragments.push(document.createTextNode(text.substring(lastIdx)));
+          }
+          
+          const nextNode = node.nextSibling;
+          fragments.forEach(frag => {
+            if (nextNode) {
+              parent.insertBefore(frag, nextNode);
+            } else {
+              parent.appendChild(frag);
+            }
+          });
+          parent.removeChild(node);
+        }
+      } else {
+        const children = Array.from(node.childNodes);
+        children.forEach(walk);
+      }
+    }
+    
+    walk(container);
+    return container.innerHTML;
+  };
+
+  window.showWordPreviewModal = async function (wordText) {
+    const rawWord = wordText.trim();
+    const cleanWord = rawWord
+      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"'0-9a-zA-Z]/g, "")
+      .trim();
+
+    if (!cleanWord) return;
+
+    openModal("modal-click-word-preview");
+
+    const wordRuEl = document.getElementById("preview-word-ru");
+    if (wordRuEl) wordRuEl.textContent = cleanWord;
+
+    const ttsBtn = document.getElementById("preview-word-tts-btn");
+    if (ttsBtn) {
+      const newTtsBtn = ttsBtn.cloneNode(true);
+      ttsBtn.parentNode.replaceChild(newTtsBtn, ttsBtn);
+      newTtsBtn.addEventListener("click", () => {
+        if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
+          window.AudioEngine.speak(cleanWord.replace(/[́]/g, ""));
+        }
+      });
+    }
+
+    const existing = window.SRS ? window.SRS.getAllWords().find(w => {
+      const cleanExisting = w.word.replace(/[\u0301]/g, "").trim().toLowerCase();
+      const cleanClicked = cleanWord.replace(/[\u0301]/g, "").trim().toLowerCase();
+      return cleanExisting === cleanClicked;
+    }) : null;
+
+    const statusEl = document.getElementById("preview-word-status");
+    const statusTextEl = document.getElementById("preview-word-status-text");
+    const addBtn = document.getElementById("preview-word-add-btn");
+    const translationEl = document.getElementById("preview-word-translation");
+    const loadingEl = document.getElementById("preview-word-loading");
+
+    if (loadingEl) loadingEl.style.display = "flex";
+    if (translationEl) translationEl.style.display = "none";
+
+    if (addBtn) {
+      const newAddBtn = addBtn.cloneNode(true);
+      addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+      
+      if (existing) {
+        newAddBtn.innerHTML = "✏️ Edit in Deck";
+        newAddBtn.className = "btn btn-secondary";
+        newAddBtn.addEventListener("click", () => {
+          closeModal("modal-click-word-preview");
+          if (window.openEditWordModal) {
+            window.openEditWordModal(existing.id);
+          }
+        });
+      } else {
+        newAddBtn.innerHTML = "➕ Add to Vocab";
+        newAddBtn.className = "btn btn-primary";
+        newAddBtn.addEventListener("click", () => {
+          closeModal("modal-click-word-preview");
+          if (window.openAddWordWithDefaults) {
+            window.openAddWordWithDefaults(cleanWord);
+          }
+        });
+      }
+    }
+
+    if (existing) {
+      if (statusEl) statusEl.style.display = "flex";
+      if (statusTextEl) statusTextEl.textContent = `Already in deck: "${existing.translation}"`;
+      if (loadingEl) loadingEl.style.display = "none";
+      if (translationEl) {
+        translationEl.style.display = "block";
+        translationEl.textContent = existing.translation;
+      }
+    } else {
+      if (statusEl) statusEl.style.display = "none";
+      try {
+        const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=ru&tl=${nativeLang}&q=${encodeURIComponent(cleanWord)}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Translation API error");
+        const data = await response.json();
+        const translation = data && data[0] && data[0][0] && data[0][0][0] ? data[0][0][0] : "Translation not found";
+        
+        if (loadingEl) loadingEl.style.display = "none";
+        if (translationEl) {
+          translationEl.style.display = "block";
+          translationEl.textContent = translation;
+        }
+      } catch (err) {
+        console.error("Google Translate API translation failed:", err);
+        if (loadingEl) loadingEl.style.display = "none";
+        if (translationEl) {
+          translationEl.style.display = "block";
+          translationEl.textContent = "Error loading translation";
+        }
+      }
+    }
+  };
+
   // Setup the floating selection tooltip to capture and add grammar words to decks
   function setupFloatingSelectionTooltip() {
     const tooltip = document.createElement("div");
@@ -631,6 +794,7 @@
     setupDictionary();
     setupSync();
     setupModals();
+    setupAutofillListeners();
     setupSettings();
     initDailyReminders();
     setupLandingPage();
@@ -649,6 +813,11 @@
     
     updateCategoryDropdowns();
     setupScrollLoading();
+
+    // Export functions to window so they can be called by placement.js
+    window.renderDashboard = renderDashboard;
+    window.renderDictionary = renderDictionary;
+    window.updateLevelAssessmentUI = updateLevelAssessmentUI;
 
     // Global UI refresh callback for sync downloads
     window.refreshAppUI = function () {
@@ -707,10 +876,6 @@
       const button = item.querySelector("button");
       button.addEventListener("click", () => {
         const target = item.getAttribute("data-target");
-        if (target === "grammar" && item.classList.contains("disabled")) {
-          alert("Account Sign-in Required: Please sign in or create an account under the 'Account' tab to unlock AI Grammar features.");
-          return;
-        }
         switchView(target);
       });
     });
@@ -722,39 +887,15 @@
   }
 
   window.updateAIGrammarLockState = function () {
-    const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
     const grammarTab = document.querySelector('.nav-item[data-target="grammar"]');
     if (grammarTab) {
-      grammarTab.classList.toggle("disabled", !isLoggedIn);
-    }
-    
-    // If the grammar section is currently active and the user is not logged in, redirect them
-    if (!isLoggedIn && views.grammar && views.grammar.classList.contains("active")) {
-      // Check if they have local progress to go to dashboard, otherwise landing
-      let hasLocalProgress = false;
-      try {
-        const statsStr = localStorage.getItem("voc_russian_stats");
-        const progressStr = localStorage.getItem("voc_russian_progress");
-        if ((statsStr && statsStr !== "{}") || (progressStr && progressStr !== "{}")) {
-          hasLocalProgress = true;
-        }
-      } catch (e) {}
-      
-      if (hasLocalProgress) {
-        switchView("dashboard");
-      } else {
-        switchView("landing");
-      }
+      grammarTab.classList.remove("disabled");
     }
   };
 
   function switchView(targetViewId) {
-    // Toggle full-screen landing-mode class on body
-    if (targetViewId === "landing") {
-      document.body.classList.add("landing-mode");
-    } else {
-      document.body.classList.remove("landing-mode");
-    }
+    // landing-mode toggling removed to keep sidebar persistent
+
 
     // Un-activate all nav links
     navItems.forEach(item => {
@@ -916,7 +1057,7 @@
           prog.starred = true;
           prog.nextReview = Date.now();
           prog.hidden = false;
-          SRS.saveToStorage();
+          SRS.saveToStorage(activeRecommendationWord.id, prog);
           
           alert(`"${activeRecommendationWord.word}" added to review queue and starred!`);
           renderDashboard();
@@ -1005,6 +1146,7 @@
   function updateSelectedCategoryMasteryUI() {
     const activeDb = document.getElementById("study-filter-db").value;
     const category = document.getElementById("study-filter-category").value;
+    const level = document.getElementById("study-filter-level").value;
     
     // Get all words matching activeDb and category
     let allWords = [];
@@ -1021,6 +1163,10 @@
 
     if (category && category !== "all") {
       allWords = allWords.filter(w => w.category === category);
+    }
+
+    if (level && level !== "all") {
+      allWords = allWords.filter(w => SRS.getWordLevel(w) === level);
     }
 
     let totalWeight = 0;
@@ -1181,6 +1327,11 @@
       updateSelectedCategoryMasteryUI();
     });
 
+    // Level Filter Switcher
+    document.getElementById("study-filter-level").addEventListener("change", () => {
+      updateSelectedCategoryMasteryUI();
+    });
+
     // Initial load update
     updateSelectedCategoryMasteryUI();
   }
@@ -1256,6 +1407,7 @@
     
     // Get filter options from DOM
     const categoryFilter = document.getElementById("study-filter-category").value;
+    const levelFilter = document.getElementById("study-filter-level").value;
     const deckTarget = document.getElementById("study-filter-queue").value;
     const maxDeckSize = parseInt(document.getElementById("study-deck-size").value, 10);
 
@@ -1265,6 +1417,11 @@
     // Apply category filter
     if (categoryFilter !== "all") {
       pool = pool.filter(w => w.category === categoryFilter);
+    }
+
+    // Apply CEFR level filter
+    if (levelFilter !== "all") {
+      pool = pool.filter(w => SRS.getWordLevel(w) === levelFilter);
     }
 
     // Apply queue targets
@@ -1751,6 +1908,26 @@
   function setupDictionary() {
     // Add custom word button
     document.getElementById("dict-add-word-btn").addEventListener("click", () => {
+      const searchVal = document.getElementById("dict-search").value.trim();
+      if (searchVal) {
+        const isCyrillic = /[а-яА-ЯёЁ]/.test(searchVal);
+        if (isCyrillic) {
+          document.getElementById("add-word-input").value = searchVal;
+          document.getElementById("add-translation-input").value = "";
+          setTimeout(() => {
+            document.getElementById("add-word-input").dispatchEvent(new Event("blur"));
+          }, 100);
+        } else {
+          document.getElementById("add-translation-input").value = searchVal;
+          document.getElementById("add-word-input").value = "";
+          setTimeout(() => {
+            document.getElementById("add-translation-input").dispatchEvent(new Event("blur"));
+          }, 100);
+        }
+      } else {
+        document.getElementById("add-word-input").value = "";
+        document.getElementById("add-translation-input").value = "";
+      }
       openModal("modal-add-word");
     });
 
@@ -1758,6 +1935,7 @@
     document.getElementById("dict-search").addEventListener("input", renderDictionary);
     document.getElementById("dict-filter-category").addEventListener("change", renderDictionary);
     document.getElementById("dict-filter-status").addEventListener("change", renderDictionary);
+    document.getElementById("dict-filter-level").addEventListener("change", renderDictionary);
 
     // Database Deck Switcher
     document.getElementById("dict-filter-db").addEventListener("change", (e) => {
@@ -1781,6 +1959,7 @@
     const searchVal = document.getElementById("dict-search").value.toLowerCase().trim();
     const categoryVal = document.getElementById("dict-filter-category").value;
     const statusVal = document.getElementById("dict-filter-status").value;
+    const levelVal = document.getElementById("dict-filter-level").value;
 
     let pool = SRS.getAllWords();
     
@@ -1799,6 +1978,11 @@
     // Apply category filter
     if (categoryVal !== "all") {
       pool = pool.filter(w => w.category === categoryVal);
+    }
+
+    // Apply CEFR level filter
+    if (levelVal !== "all") {
+      pool = pool.filter(w => SRS.getWordLevel(w) === levelVal);
     }
 
     // Apply status filter
@@ -1877,6 +2061,17 @@
         );
       }
 
+      const wordLevel = SRS.getWordLevel(card);
+      let levelColor = "hsl(142, 76%, 40%)";
+      let levelBg = "hsla(142, 76%, 40%, 0.15)";
+      if (wordLevel === "B1" || wordLevel === "B2") {
+        levelColor = "hsl(217, 91%, 60%)";
+        levelBg = "rgba(37, 99, 235, 0.15)";
+      } else if (wordLevel === "C1" || wordLevel === "C2") {
+        levelColor = "hsl(350, 89%, 60%)";
+        levelBg = "hsla(350, 89%, 60%, 0.15)";
+      }
+
       cardEl.innerHTML = `
         <div class="vocab-card-header">
           <div class="vocab-word-display">
@@ -1886,6 +2081,7 @@
           
           <div class="vocab-actions">
             <button class="vocab-action-btn star-toggle ${prog.starred ? 'starred' : ''}" style="color:${prog.starred ? 'hsl(45, 100%, 50%)' : 'var(--color-text-muted)'}" title="Star Word">★</button>
+            <button class="vocab-action-btn details" title="Word Inflections">ℹ️</button>
             <button class="vocab-action-btn edit" title="Edit Word">✍️</button>
             <button class="vocab-action-btn delete" title="Delete Word">🗑️</button>
           </div>
@@ -1893,6 +2089,7 @@
 
         <div class="vocab-info-row">
           <span class="vocab-label-badge" style="text-transform: capitalize;">${card.pos}</span>
+          <span class="vocab-label-badge" style="color: ${levelColor}; background-color: ${levelBg}; border-color: ${levelColor}; font-weight: bold;">${wordLevel}</span>
           <span class="vocab-label-badge">${card.category}</span>
           <select class="vocab-box-select" style="background-color: var(--color-primary-glow); color: var(--color-primary); border: 1px solid var(--border-glass); border-radius: 4px; font-size: 0.8rem; padding: 2px 4px; font-family: var(--font-body); cursor: pointer; outline: none; font-weight: bold; height: 24px;">
             <option value="1" ${prog.box === 1 ? 'selected' : ''}>Box 1</option>
@@ -1931,6 +2128,11 @@
         const newBox = parseInt(e.target.value, 10);
         SRS.setCardBox(card.id, newBox);
         renderDashboard();
+      });
+
+      // View Word Inflections
+      cardEl.querySelector(".details").addEventListener("click", () => {
+        openWordDetailsModal(card.id);
       });
 
       // Edit Word
@@ -2395,7 +2597,7 @@
 
     const mascotSelect = document.getElementById("settings-mascot");
     if (mascotSelect) {
-      mascotSelect.value = SRS.getSetting("mascotCharacter", "robot");
+      mascotSelect.value = SRS.getSetting("mascotCharacter", "bear");
       mascotSelect.addEventListener("change", () => {
         SRS.setSetting("mascotCharacter", mascotSelect.value);
         window.updateMascotState("idle");
@@ -2457,7 +2659,9 @@
   const modals = {
     "modal-add-word": document.getElementById("modal-add-word"),
     "modal-edit-word": document.getElementById("modal-edit-word"),
-    "modal-manage-decks": document.getElementById("modal-manage-decks")
+    "modal-manage-decks": document.getElementById("modal-manage-decks"),
+    "modal-grammar-cta": document.getElementById("modal-grammar-cta"),
+    "modal-word-details": document.getElementById("modal-word-details")
   };
 
   function setupModals() {
@@ -2470,6 +2674,38 @@
     
     document.getElementById("modal-decks-close").addEventListener("click", () => closeModal("modal-manage-decks"));
     document.getElementById("modal-decks-close-footer").addEventListener("click", () => closeModal("modal-manage-decks"));
+
+    document.getElementById("modal-details-close").addEventListener("click", () => closeModal("modal-word-details"));
+    document.getElementById("modal-details-close-btn").addEventListener("click", () => closeModal("modal-word-details"));
+
+    document.getElementById("grammar-cta-close-btn").addEventListener("click", () => closeModal("modal-grammar-cta"));
+    document.getElementById("grammar-cta-signin-btn").addEventListener("click", () => {
+      closeModal("modal-grammar-cta");
+      switchView("sync");
+    });
+
+    const modalPreviewClose = document.getElementById("modal-preview-close");
+    if (modalPreviewClose) {
+      modalPreviewClose.addEventListener("click", () => closeModal("modal-click-word-preview"));
+    }
+    const modalPreviewCancel = document.getElementById("modal-preview-cancel");
+    if (modalPreviewCancel) {
+      modalPreviewCancel.addEventListener("click", () => closeModal("modal-click-word-preview"));
+    }
+
+    // Click delegation for clickable Cyrillic words
+    const appContainer = document.getElementById("app-container");
+    if (appContainer) {
+      appContainer.addEventListener("click", (e) => {
+        const clickedWord = e.target.closest(".clickable-ru-word");
+        if (clickedWord) {
+          e.preventDefault();
+          e.stopPropagation();
+          const wordText = clickedWord.textContent;
+          window.showWordPreviewModal(wordText);
+        }
+      });
+    }
 
     // Folder button clicks to open Manage Decks
     document.getElementById("dict-manage-decks-btn").addEventListener("click", () => {
@@ -2506,8 +2742,45 @@
       handleImportDeck(code);
       codeInput.value = "";
     });
+  }
 
-    // Autofill trigger from Google Translate & Wiktionary
+  async function previewWordWithGemini(wordOrTranslation, isReverse = false) {
+    const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+    if (!isLoggedIn) {
+      return null;
+    }
+    if (!window.SupabaseSync || !window.SupabaseSync.client) {
+      return null;
+    }
+
+    const { data: sessionData } = await window.SupabaseSync.client.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+    const { data, error } = await window.SupabaseSync.client.functions.invoke("add-word", {
+      body: { 
+        word: wordOrTranslation, 
+        nativeLanguage: nativeLang, 
+        preview: true 
+      },
+      headers: headers
+    });
+
+    if (error) {
+      throw new Error(`Edge Function add-word error: ${error.message || error}`);
+    }
+
+    if (data && data.success && data.word) {
+      return data.word;
+    }
+
+    return null;
+  }
+
+  // Setup the modal event listeners for auto-filling from AI / Google Translate
+  function setupAutofillListeners() {
+    // Autofill trigger from Google Translate & AI
     document.getElementById("modal-add-autofill-btn").addEventListener("click", async () => {
       const wordInput = document.getElementById("add-word-input");
       const word = wordInput.value.trim();
@@ -2524,66 +2797,84 @@
       statusEl.style.display = "inline-flex";
 
       try {
-        // 1. Fetch translation from Google Translate API (free public endpoint)
-        const nativeLang = SRS.getSetting("nativeLanguage", "en");
-        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${nativeLang}&dt=t&q=${encodeURIComponent(word)}`;
-        const gtRes = await fetch(googleTranslateUrl);
-        if (!gtRes.ok) {
-          throw new Error("Failed to contact translation service.");
-        }
-        const gtData = await gtRes.json();
-        const translation = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
-          ? gtData[0][0][0].trim() 
-          : "";
-          
-        if (!translation) {
-          throw new Error("Could not find a translation for this word.");
-        }
-
-        // Skip Wiktionary REST query and only use translation
-        let posVal = "noun";
-        let cleanDef = translation; 
-        let accented = word;
-        let exampleRu = "";
-        let exampleEn = "";
-
-        // 2. Try generating example sentences with Gemini if logged in
         const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
 
         if (isLoggedIn) {
-          try {
-            const spinnerStatusText = statusEl.querySelector("span:last-child");
-            if (spinnerStatusText) {
-              spinnerStatusText.innerText = "Generating AI sentences...";
-            }
-            const aiSentence = await generateSentenceWithGemini(word, cleanDef, posVal);
-            if (aiSentence) {
-              exampleRu = aiSentence.sentenceRu;
-              exampleEn = aiSentence.sentenceEn;
-            }
-          } catch (e) {
-            console.warn("Gemini sentence generation failed.", e);
-            alert(`AI Sentence Generation failed: ${e.message || e}`);
+          const spinnerStatusText = statusEl.querySelector("span:last-child");
+          if (spinnerStatusText) {
+            spinnerStatusText.innerText = "Querying AI translation & details...";
           }
-        }
+          const aiWord = await previewWordWithGemini(word, false);
+          if (aiWord) {
+            document.getElementById("add-accented-input").value = aiWord.accented || aiWord.word;
+            document.getElementById("add-translation-input").value = aiWord.translation;
+            document.getElementById("add-translit-input").value = aiWord.transliteration || "";
+            
+            const posSelect = document.getElementById("add-pos-input");
+            const posVal = (aiWord.pos || "noun").toLowerCase();
+            let posOptionExists = Array.from(posSelect.options).some(opt => opt.value === posVal);
+            if (posOptionExists) {
+              posSelect.value = posVal;
+            } else {
+              posSelect.value = "noun";
+            }
 
-        // Fill elements
-        document.getElementById("add-accented-input").value = accented;
-        document.getElementById("add-translation-input").value = cleanDef;
-        document.getElementById("add-translit-input").value = transliterateWord(word);
-        document.getElementById("add-pos-input").value = posVal;
-        document.getElementById("add-exampleru-input").value = exampleRu;
-        document.getElementById("add-exampleen-input").value = exampleEn;
+            const catSelect = document.getElementById("add-category-input");
+            const catVal = aiWord.category || "Custom";
+            let catOptionExists = Array.from(catSelect.options).some(opt => opt.value === catVal);
+            if (!catOptionExists) {
+              const newOpt = document.createElement("option");
+              newOpt.value = catVal;
+              newOpt.text = catVal;
+              catSelect.add(newOpt);
+            }
+            catSelect.value = catVal;
+
+            const levelSelect = document.getElementById("add-level-input");
+            levelSelect.value = aiWord.level || "A1";
+
+            document.getElementById("add-exampleru-input").value = aiWord.exampleRu || "";
+            document.getElementById("add-exampleen-input").value = aiWord.exampleEn || "";
+          } else {
+            throw new Error("Failed to receive preview word details from AI.");
+          }
+        } else {
+          // Fallback to simple Google Translate logic if not signed in
+          const nativeLang = SRS.getSetting("nativeLanguage", "en");
+          const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${nativeLang}&dt=t&q=${encodeURIComponent(word)}`;
+          const gtRes = await fetch(googleTranslateUrl);
+          if (!gtRes.ok) {
+            throw new Error("Failed to contact translation service.");
+          }
+          const gtData = await gtRes.json();
+          const translation = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
+            ? gtData[0][0][0].trim() 
+            : "";
+            
+          if (!translation) {
+            throw new Error("Could not find a translation for this word.");
+          }
+
+          document.getElementById("add-accented-input").value = word;
+          document.getElementById("add-translation-input").value = translation;
+          document.getElementById("add-translit-input").value = transliterateWord(word);
+          document.getElementById("add-pos-input").value = "noun";
+          document.getElementById("add-exampleru-input").value = "";
+          document.getElementById("add-exampleen-input").value = "";
+          document.getElementById("add-level-input").value = "A1";
+        }
 
         // Visual success pulse
         const inputs = [
           "add-accented-input", "add-translation-input", "add-translit-input",
-          "add-pos-input", "add-exampleru-input", "add-exampleen-input"
+          "add-pos-input", "add-category-input", "add-level-input", "add-exampleru-input", "add-exampleen-input"
         ];
         inputs.forEach(id => {
           const el = document.getElementById(id);
-          el.style.borderColor = "var(--color-success)";
-          setTimeout(() => el.style.borderColor = "", 1000);
+          if (el) {
+            el.style.borderColor = "var(--color-success)";
+            setTimeout(() => el.style.borderColor = "", 1000);
+          }
         });
 
       } catch (err) {
@@ -2611,74 +2902,92 @@
       statusEl.style.display = "inline-flex";
 
       try {
-        // 1. Fetch translation from Google Translate API (nativeLang -> ru)
-        const nativeLang = SRS.getSetting("nativeLanguage", "en");
-        const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${nativeLang}&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
-        const gtRes = await fetch(googleTranslateUrl);
-        if (!gtRes.ok) {
-          throw new Error("Failed to contact translation service.");
-        }
-        const gtData = await gtRes.json();
-        let russianWord = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
-          ? gtData[0][0][0].trim() 
-          : "";
-          
-        if (!russianWord) {
-          throw new Error("Could not find a Russian translation for this word.");
-        }
-
-        // Clean up any trailing punctuation or casing if Google Translate returns capitalized or dotted
-        russianWord = russianWord.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").trim().toLowerCase();
-
-        if (!russianWord) {
-          throw new Error("Invalid Russian translation returned.");
-        }
-
-        // Skip Wiktionary REST query and only use translation
-        let posVal = "noun";
-        let cleanDef = englishText; 
-        let accented = russianWord;
-        let exampleRu = "";
-        let exampleEn = "";
-
-        // 2. Try generating example sentences with Gemini if logged in
         const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
 
         if (isLoggedIn) {
-          try {
-            const spinnerStatusText = statusEl.querySelector("span:last-child");
-            if (spinnerStatusText) {
-              spinnerStatusText.innerText = "Generating AI sentences...";
-            }
-            const aiSentence = await generateSentenceWithGemini(russianWord, cleanDef, posVal);
-            if (aiSentence) {
-              exampleRu = aiSentence.sentenceRu;
-              exampleEn = aiSentence.sentenceEn;
-            }
-          } catch (e) {
-            console.warn("Gemini sentence generation failed.", e);
-            alert(`AI Sentence Generation failed: ${e.message || e}`);
+          const spinnerStatusText = statusEl.querySelector("span:last-child");
+          if (spinnerStatusText) {
+            spinnerStatusText.innerText = "Querying AI translation & details...";
           }
-        }
+          const aiWord = await previewWordWithGemini(englishText, true);
+          if (aiWord) {
+            document.getElementById("add-word-input").value = aiWord.word;
+            document.getElementById("add-accented-input").value = aiWord.accented || aiWord.word;
+            document.getElementById("add-translation-input").value = aiWord.translation;
+            document.getElementById("add-translit-input").value = aiWord.transliteration || "";
+            
+            const posSelect = document.getElementById("add-pos-input");
+            const posVal = (aiWord.pos || "noun").toLowerCase();
+            let posOptionExists = Array.from(posSelect.options).some(opt => opt.value === posVal);
+            if (posOptionExists) {
+              posSelect.value = posVal;
+            } else {
+              posSelect.value = "noun";
+            }
 
-        // Fill elements (including Russian Word field)
-        document.getElementById("add-word-input").value = russianWord.charAt(0).toUpperCase() + russianWord.slice(1);
-        document.getElementById("add-accented-input").value = accented.charAt(0).toUpperCase() + accented.slice(1);
-        document.getElementById("add-translation-input").value = cleanDef;
-        document.getElementById("add-translit-input").value = transliterateWord(russianWord);
-        document.getElementById("add-pos-input").value = posVal;
-        document.getElementById("add-exampleru-input").value = exampleRu;
-        document.getElementById("add-exampleen-input").value = exampleEn;
+            const catSelect = document.getElementById("add-category-input");
+            const catVal = aiWord.category || "Custom";
+            let catOptionExists = Array.from(catSelect.options).some(opt => opt.value === catVal);
+            if (!catOptionExists) {
+              const newOpt = document.createElement("option");
+              newOpt.value = catVal;
+              newOpt.text = catVal;
+              catSelect.add(newOpt);
+            }
+            catSelect.value = catVal;
+
+            const levelSelect = document.getElementById("add-level-input");
+            levelSelect.value = aiWord.level || "A1";
+
+            document.getElementById("add-exampleru-input").value = aiWord.exampleRu || "";
+            document.getElementById("add-exampleen-input").value = aiWord.exampleEn || "";
+          } else {
+            throw new Error("Failed to receive preview word details from AI.");
+          }
+        } else {
+          // Fallback to simple Google Translate logic if not signed in
+          const nativeLang = SRS.getSetting("nativeLanguage", "en");
+          const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${nativeLang}&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
+          const gtRes = await fetch(googleTranslateUrl);
+          if (!gtRes.ok) {
+            throw new Error("Failed to contact translation service.");
+          }
+          const gtData = await gtRes.json();
+          let russianWord = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
+            ? gtData[0][0][0].trim() 
+            : "";
+            
+          if (!russianWord) {
+            throw new Error("Could not find a Russian translation for this word.");
+          }
+
+          russianWord = russianWord.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").trim().toLowerCase();
+          if (!russianWord) {
+            throw new Error("Invalid Russian translation returned.");
+          }
+
+          const capitalizedRu = russianWord.charAt(0).toUpperCase() + russianWord.slice(1);
+
+          document.getElementById("add-word-input").value = capitalizedRu;
+          document.getElementById("add-accented-input").value = capitalizedRu;
+          document.getElementById("add-translit-input").value = transliterateWord(russianWord);
+          document.getElementById("add-pos-input").value = "noun";
+          document.getElementById("add-exampleru-input").value = "";
+          document.getElementById("add-exampleen-input").value = "";
+          document.getElementById("add-level-input").value = "A1";
+        }
 
         // Visual success pulse
         const inputs = [
           "add-word-input", "add-accented-input", "add-translation-input", "add-translit-input",
-          "add-pos-input", "add-exampleru-input", "add-exampleen-input"
+          "add-pos-input", "add-category-input", "add-level-input", "add-exampleru-input", "add-exampleen-input"
         ];
         inputs.forEach(id => {
           const el = document.getElementById(id);
-          el.style.borderColor = "var(--color-success)";
-          setTimeout(() => el.style.borderColor = "", 1000);
+          if (el) {
+            el.style.borderColor = "var(--color-success)";
+            setTimeout(() => el.style.borderColor = "", 1000);
+          }
         });
 
       } catch (err) {
@@ -2686,6 +2995,25 @@
       } finally {
         reverseAutofillBtn.disabled = false;
         statusEl.style.display = "none";
+      }
+    });
+
+    // Automatic blur triggers for dynamic autofill
+    document.getElementById("add-word-input").addEventListener("blur", () => {
+      const word = document.getElementById("add-word-input").value.trim();
+      const translation = document.getElementById("add-translation-input").value.trim();
+      const autofillBtn = document.getElementById("modal-add-autofill-btn");
+      if (word && !translation && !autofillBtn.disabled) {
+        autofillBtn.click();
+      }
+    });
+
+    document.getElementById("add-translation-input").addEventListener("blur", () => {
+      const word = document.getElementById("add-word-input").value.trim();
+      const translation = document.getElementById("add-translation-input").value.trim();
+      const reverseAutofillBtn = document.getElementById("modal-add-reverse-autofill-btn");
+      if (translation && !word && !reverseAutofillBtn.disabled) {
+        reverseAutofillBtn.click();
       }
     });
 
@@ -2697,11 +3025,12 @@
       const translit = document.getElementById("add-translit-input").value;
       const pos = document.getElementById("add-pos-input").value;
       const category = document.getElementById("add-category-input").value;
+      const level = document.getElementById("add-level-input").value;
       const exampleRu = document.getElementById("add-exampleru-input").value;
       const exampleEn = document.getElementById("add-exampleen-input").value;
 
       const added = SRS.addCustomWord({
-        word, accented, translation, transliteration: translit, pos, category, exampleRu, exampleEn
+        word, accented, translation, transliteration: translit, pos, category, level, exampleRu, exampleEn
       });
 
       if (added) {
@@ -2722,11 +3051,12 @@
       const translit = document.getElementById("edit-translit-input").value;
       const pos = document.getElementById("edit-pos-input").value;
       const category = document.getElementById("edit-category-input").value;
+      const level = document.getElementById("edit-level-input").value;
       const exampleRu = document.getElementById("edit-exampleru-input").value;
       const exampleEn = document.getElementById("edit-exampleen-input").value;
 
       const updated = SRS.editWord(id, {
-        word, accented, translation, transliteration: translit, pos, category, exampleRu, exampleEn
+        word, accented, translation, transliteration: translit, pos, category, level, exampleRu, exampleEn
       });
 
       if (updated) {
@@ -2755,12 +3085,25 @@
   }
 
   function openModal(id) {
-    modals[id].classList.add("active");
+    if (modals[id]) {
+      modals[id].classList.add("active");
+    } else {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("active");
+    }
   }
 
   function closeModal(id) {
-    modals[id].classList.remove("active");
+    if (modals[id]) {
+      modals[id].classList.remove("active");
+    } else {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove("active");
+    }
   }
+
+  window.openModal = openModal;
+  window.closeModal = closeModal;
 
   function openEditWordModal(id) {
     const card = SRS.getWord(id);
@@ -2773,10 +3116,247 @@
     document.getElementById("edit-translit-input").value = card.transliteration || "";
     document.getElementById("edit-pos-input").value = card.pos || "noun";
     document.getElementById("edit-category-input").value = card.category || "Custom";
-    document.getElementById("edit-exampleru-input").value = card.exampleRu || "";
-    document.getElementById("edit-exampleen-input").value = card.exampleEn || "";
+    document.getElementById("edit-level-input").value = SRS.getWordLevel(card);
+    document.getElementById("edit-exampleru-input").value = card.exampleRu || card.example_ru || "";
+    document.getElementById("edit-exampleen-input").value = card.exampleEn || card.example_en || "";
 
     openModal("modal-edit-word");
+  }
+
+  async function openWordDetailsModal(cardId) {
+    // Check if user is logged in first
+    if (!window.SupabaseSync || window.SupabaseSync.connectionState !== "connected" || !window.SupabaseSync.user) {
+      openModal("modal-grammar-cta");
+      return;
+    }
+
+    const card = SRS.getWord(cardId);
+    if (!card) return;
+
+    openModal("modal-word-details");
+
+    const loadingEl = document.getElementById("details-loading");
+    const contentEl = document.getElementById("details-content");
+    const titleEl = document.getElementById("details-modal-title");
+    const ruWordEl = document.getElementById("details-ru-word");
+    const posBadgeEl = document.getElementById("details-pos-badge");
+    const translationTextEl = document.getElementById("details-translation-text");
+    const ttsBtn = document.getElementById("details-tts-btn");
+    const tablesContainer = document.getElementById("details-tables-container");
+
+    loadingEl.style.display = "flex";
+    contentEl.style.display = "none";
+    tablesContainer.innerHTML = "";
+
+    titleEl.innerText = `Inflections: ${card.word}`;
+    ruWordEl.innerText = card.accented || card.word;
+    posBadgeEl.innerText = card.pos || "Noun";
+    translationTextEl.innerText = `Translation: ${card.translation}`;
+
+    // Speak button
+    ttsBtn.onclick = () => {
+      AudioEngine.speak(card.word);
+    };
+
+    // Cache key
+    const cacheKey = "voc_word_inflections_cache";
+    let inflectionsCache = {};
+    try {
+      inflectionsCache = JSON.parse(localStorage.getItem(cacheKey)) || {};
+    } catch (e) {
+      console.warn("Failed to parse inflections cache", e);
+    }
+
+    const wordKey = `${card.word.toLowerCase()}_${(card.pos || "noun").toLowerCase()}`;
+
+    if (inflectionsCache[wordKey]) {
+      renderInflections(inflectionsCache[wordKey]);
+      return;
+    }
+
+    try {
+      const client = window.SupabaseSync.client;
+      if (!client) throw new Error("Database client not available.");
+      
+      const { data: sessionData } = await client.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const nativeLang = SRS.getSetting("nativeLanguage", "en") || "en";
+      const { data, error } = await client.functions.invoke("ai-grammar", {
+        body: { action: "inflections", word: card.word, pos: card.pos || "noun", nativeLanguage: nativeLang },
+        headers: headers
+      });
+
+      if (error) throw new Error(error.message || error);
+      if (!data || !data.success || !data.data) throw new Error("Invalid response payload from inflections engine.");
+
+      const result = data.data;
+      
+      // Save cache
+      try {
+        inflectionsCache[wordKey] = result;
+        localStorage.setItem(cacheKey, JSON.stringify(inflectionsCache));
+      } catch (cacheErr) {
+        console.warn("Failed to write to inflections cache:", cacheErr);
+      }
+
+      renderInflections(result);
+
+    } catch (err) {
+      loadingEl.style.display = "none";
+      console.error("Failed to load inflections:", err);
+      tablesContainer.innerHTML = `<div style="color:var(--color-error); padding: 1.5rem 0; text-align: center;">Error loading inflections: ${err.message || err}</div>`;
+      contentEl.style.display = "flex";
+    }
+
+    function renderInflections(data) {
+      loadingEl.style.display = "none";
+      contentEl.style.display = "flex";
+      tablesContainer.innerHTML = "";
+
+      if (data.type === "not_applicable") {
+        tablesContainer.innerHTML = `<div class="inflection-not-applicable">${data.message || "This word does not undergo declension or conjugation."}</div>`;
+        return;
+      }
+
+      if (data.type === "conjugation" && data.forms) {
+        // Render present/future tense table
+        if (Array.isArray(data.forms.presentFuture) && data.forms.presentFuture.length > 0) {
+          const pfTitle = document.createElement("div");
+          pfTitle.className = "inflection-table-title";
+          pfTitle.innerText = "Present / Future Tense Conjugation";
+          tablesContainer.appendChild(pfTitle);
+
+          const pfWrapper = document.createElement("div");
+          pfWrapper.className = "inflection-table-wrapper";
+          pfWrapper.innerHTML = `
+            <table class="inflection-table">
+              <thead>
+                <tr>
+                  <th style="width: 30%;">Pronoun</th>
+                  <th style="width: 40%;">Conjugated Form</th>
+                  <th style="width: 30%;">Translation</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.forms.presentFuture.map(f => `
+                  <tr>
+                    <td><strong>${f.pronoun}</strong></td>
+                    <td class="clickable-ru-word-wrap">${f.form}</td>
+                    <td>${f.english}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+          tablesContainer.appendChild(pfWrapper);
+        }
+
+        // Render past tense table
+        if (Array.isArray(data.forms.past) && data.forms.past.length > 0) {
+          const pastTitle = document.createElement("div");
+          pastTitle.className = "inflection-table-title";
+          pastTitle.innerText = "Past Tense Forms";
+          tablesContainer.appendChild(pastTitle);
+
+          const pastWrapper = document.createElement("div");
+          pastWrapper.className = "inflection-table-wrapper";
+          pastWrapper.innerHTML = `
+            <table class="inflection-table">
+              <thead>
+                <tr>
+                  <th style="width: 30%;">Gender/Number</th>
+                  <th style="width: 40%;">Form</th>
+                  <th style="width: 30%;">Translation</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.forms.past.map(f => `
+                  <tr>
+                    <td><strong>${f.gender}</strong></td>
+                    <td class="clickable-ru-word-wrap">${f.form}</td>
+                    <td>${f.english}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+          tablesContainer.appendChild(pastWrapper);
+        }
+
+        // Render imperative table
+        if (Array.isArray(data.forms.imperative) && data.forms.imperative.length > 0) {
+          const impTitle = document.createElement("div");
+          impTitle.className = "inflection-table-title";
+          impTitle.innerText = "Imperative Mood";
+          tablesContainer.appendChild(impTitle);
+
+          const impWrapper = document.createElement("div");
+          impWrapper.className = "inflection-table-wrapper";
+          impWrapper.innerHTML = `
+            <table class="inflection-table">
+              <thead>
+                <tr>
+                  <th style="width: 30%;">Type</th>
+                  <th style="width: 40%;">Form</th>
+                  <th style="width: 30%;">Translation</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.forms.imperative.map(f => `
+                  <tr>
+                    <td><strong>${f.type}</strong></td>
+                    <td class="clickable-ru-word-wrap">${f.form}</td>
+                    <td>${f.english}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+          tablesContainer.appendChild(impWrapper);
+        }
+      }
+
+      if (data.type === "declension" && data.forms && Array.isArray(data.forms.declensions)) {
+        const decTitle = document.createElement("div");
+        decTitle.className = "inflection-table-title";
+        decTitle.innerText = "Case Declensions";
+        tablesContainer.appendChild(decTitle);
+
+        const decWrapper = document.createElement("div");
+        decWrapper.className = "inflection-table-wrapper";
+        decWrapper.innerHTML = `
+          <table class="inflection-table">
+            <thead>
+              <tr>
+                <th style="width: 40%;">Case</th>
+                <th style="width: 30%;">Singular</th>
+                <th style="width: 30%;">Plural</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.forms.declensions.map(f => `
+                <tr>
+                  <td><strong>${f.case}</strong></td>
+                  <td class="clickable-ru-word-wrap">${f.singular}</td>
+                  <td class="clickable-ru-word-wrap">${f.plural}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+        tablesContainer.appendChild(decWrapper);
+      }
+
+      // Wrap Cyrillic words in inflections tables for clickable audio and translation tooltips
+      tablesContainer.querySelectorAll(".clickable-ru-word-wrap").forEach(td => {
+        const text = td.innerText.trim();
+        if (text && text !== "-" && text !== "N/A" && text !== "none" && text !== "—") {
+          td.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(text) : `<span class="clickable-ru-word">${text}</span>`;
+        }
+      });
+    }
   }
 
   // --- KEYBOARD SHORTCUTS ENGINE ---
@@ -2947,6 +3527,47 @@
         handleDemoRating(rating);
       });
     });
+
+    const welcomeAddBtn = document.getElementById("welcome-add-to-deck-btn");
+    if (welcomeAddBtn) {
+      welcomeAddBtn.addEventListener("click", () => {
+        const demoWord = demoWords[demoIndex];
+        const cleanWord = demoWord.word.replace(/[!?,.]/g, '').trim().toLowerCase();
+        const dictWord = SRS.getAllWords().find(w => w.word.replace(/[!?,.]/g, '').trim().toLowerCase() === cleanWord);
+        
+        if (dictWord) {
+          const prog = SRS.getCardProgress(dictWord.id);
+          prog.starred = true;
+          prog.nextReview = Date.now();
+          prog.hidden = false;
+          SRS.saveToStorage(dictWord.id, prog);
+          alert(`"${dictWord.word}" added to review queue and starred!`);
+        } else {
+          // If not in database, add as custom word
+          const added = SRS.addCustomWord({
+            word: demoWord.word,
+            translation: demoWord.translation,
+            transliteration: demoWord.translit ? demoWord.translit.replace(/[\[\]]/g, '') : "",
+            pos: demoWord.pos,
+            category: "Greetings",
+            exampleRu: demoWord.exampleRu,
+            exampleEn: demoWord.exampleEn
+          });
+          alert(`"${added.word}" added to review queue as custom word!`);
+        }
+        
+        const container = document.getElementById("demo-xp-container");
+        if (container) {
+          const toast = document.createElement("div");
+          toast.className = "xp-toast";
+          toast.innerText = "Added! ✨";
+          container.appendChild(toast);
+          setTimeout(() => toast.remove(), 1200);
+        }
+        
+        renderDashboard();
+      });
+    }
   }
 
   function handleDemoRating(rating) {
@@ -3584,7 +4205,7 @@
 
   // --- MASCOT REACTIVITY & SPEECH SYSTEM ---
   window.updateMascotState = function (stateType, optionalText = "") {
-    const mascotCharacter = SRS.getSetting("mascotCharacter", "robot");
+    const mascotCharacter = SRS.getSetting("mascotCharacter", "bear");
     
     const mascotEmojis = {
       robot: {
@@ -3634,8 +4255,8 @@
       }
     };
 
-    const emoji = mascotEmojis[mascotCharacter]?.[stateType] || mascotEmojis.robot.idle;
-    const defaultText = mascotTexts[mascotCharacter]?.[stateType] || mascotTexts.robot.idle;
+    const emoji = mascotEmojis[mascotCharacter]?.[stateType] || mascotEmojis.bear.idle;
+    const defaultText = mascotTexts[mascotCharacter]?.[stateType] || mascotTexts.bear.idle;
     const speechText = optionalText || defaultText;
 
     const dashAvatar = document.getElementById("dashboard-mascot-avatar");

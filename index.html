@@ -11,7 +11,7 @@
     gtag('config', 'G-T304HGQC95');
   </script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>VocRussian - Russian Vocabulary Master</title>
   <meta name="description" content="A premium, local spaced repetition app to learn Russian vocabulary words and phrases.">
   <link rel="stylesheet" href="css/styles.css">
@@ -51,6 +51,15 @@
       
       <nav>
         <ul class="nav-links">
+          <li class="nav-item" data-target="landing">
+            <button id="nav-btn-landing">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <span>Welcome</span>
+            </button>
+          </li>
           <li class="nav-item active" data-target="dashboard">
             <button id="nav-btn-dashboard">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -200,6 +209,9 @@
                 <button class="demo-rating-btn good" data-rating="good">Good</button>
                 <button class="demo-rating-btn easy" data-rating="easy">Easy</button>
               </div>
+              <button id="welcome-add-to-deck-btn" class="btn btn-secondary" style="margin-top: 0.75rem; width: 100%; font-size: 0.85rem; padding: 0.5rem 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>➕ Add to Study Deck</span>
+              </button>
             </div>
             
             <div class="xp-toast-container" id="demo-xp-container"></div>
@@ -269,6 +281,18 @@
             <span id="dash-due-btn-badge" class="btn-pill" style="background: rgba(255,255,255,0.25);">0</span>
           </button>
         </div>
+
+        <!-- Placement Test Banner -->
+        <div id="dashboard-placement-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px solid var(--color-primary); background: var(--bg-glass); padding: 1.25rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 2.2rem;">🎓</span>
+            <div>
+              <strong style="color: var(--color-text-main); font-size: 1.05rem; display: block; margin-bottom: 0.15rem;">Not sure where to start?</strong>
+              <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">Take our quick 6-question adaptive placement test to skip basics and seed your study deck!</span>
+            </div>
+          </div>
+          <button type="button" id="placement-banner-start-btn" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: bold; border-radius: var(--border-radius-md);">Take Placement Test</button>
+        </div>
         
         <!-- Notification Opt-in Banner -->
         <div id="dashboard-notification-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px dashed var(--color-primary); background: var(--color-primary-glow); padding: 1rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
@@ -287,10 +311,10 @@
 
         <!-- Mascot Interactive Card -->
         <div id="dashboard-mascot-card" class="card" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.25rem 1.5rem;">
-          <div id="dashboard-mascot-avatar" style="font-size: 3rem; line-height: 1; user-select: none; transition: transform 0.2s ease; cursor: pointer;" class="mascot-animation-idle">🤖</div>
+          <div id="dashboard-mascot-avatar" style="font-size: 3rem; line-height: 1; user-select: none; transition: transform 0.2s ease; cursor: pointer;" class="mascot-animation-idle">🐻</div>
           <div style="flex: 1; position: relative;">
             <div class="speech-bubble" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.75rem 1rem; color: var(--color-text-main); font-size: 0.95rem; line-height: 1.4; position: relative;">
-              <span id="dashboard-mascot-text">Привет! Ready to review your due cards?</span>
+              <span id="dashboard-mascot-text">Привет! Let's crush today's Russian review session!</span>
               <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 14px; height: 14px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
             </div>
           </div>
@@ -516,6 +540,18 @@
               <label for="study-filter-category">Limit Category</label>
               <select id="study-filter-category" class="filter-select">
                 <!-- Populated dynamically by JS -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="study-filter-level">Limit CEFR Level</label>
+              <select id="study-filter-level" class="filter-select">
+                <option value="all">All Levels</option>
+                <option value="A1">A1 - Beginner</option>
+                <option value="A2">A2 - Elementary</option>
+                <option value="B1">B1 - Intermediate</option>
+                <option value="B2">B2 - Upper Intermediate</option>
+                <option value="C1">C1 - Advanced</option>
+                <option value="C2">C2 - Proficiency</option>
               </select>
             </div>
             <div class="form-group">
@@ -777,6 +813,19 @@
               <option value="box5">Box 5 (Mastered)</option>
             </select>
           </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="dict-filter-level" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">CEFR Level</label>
+            <select id="dict-filter-level" class="filter-select">
+              <option value="all">All Levels</option>
+              <option value="A1">A1 - Beginner</option>
+              <option value="A2">A2 - Elementary</option>
+              <option value="B1">B1 - Intermediate</option>
+              <option value="B2">B2 - Upper Intermediate</option>
+              <option value="C1">C1 - Advanced</option>
+              <option value="C2">C2 - Proficiency</option>
+            </select>
+          </div>
         </div>
 
         <!-- Word Grid -->
@@ -819,7 +868,31 @@
           <div class="tutor-grid-container">
             <!-- Left Side: Lesson Topics List -->
             <div class="tutor-topics-sidebar">
-              <h3 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 0.5rem;">Grammar Topics</h3>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; width: 100%;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.15rem; margin: 0;">Grammar Topics</h3>
+                <button type="button" id="tutor-sidebar-collapse-btn" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); cursor: pointer; color: var(--color-text-muted);" title="Collapse topic list">◀ Hide</button>
+              </div>
+              
+              <!-- Mobile Selector (visible on mobile only) -->
+              <div class="tutor-topic-select-mobile-container" style="display: none; margin-bottom: 1rem; width: 100%;">
+                <select id="tutor-topic-select-mobile" class="filter-select" style="width: 100%; box-sizing: border-box; background-color: var(--bg-input);">
+                  <option value="nominative_case">Nominative Case (Именительный)</option>
+                  <option value="accusative_case">Accusative Case (Винительный)</option>
+                  <option value="genitive_case">Genitive Case (Родительный)</option>
+                  <option value="dative_case">Dative Case (Дательный)</option>
+                  <option value="instrumental_case">Instrumental Case (Творительный)</option>
+                  <option value="prepositional_case">Prepositional Case (Предложный)</option>
+                  <option value="verb_aspects">Verb Aspects (Aspects)</option>
+                  <option value="verbs_of_motion">Verbs of Motion (Движение)</option>
+                  <option value="verb_conjugations">Verb Conjugations (Спряжение)</option>
+                  <option value="past_tense">Past Tense (Прошедшее время)</option>
+                  <option value="future_tense">Future Tense (Будущее время)</option>
+                  <option value="adjectives_declension">Adjectives Declension (Прилагательные)</option>
+                  <option value="pronouns_declension">Pronouns Declension (Местоимения)</option>
+                  <option value="noun_plurals">Noun Plurals (Множественное число)</option>
+                </select>
+              </div>
+
               <div class="grammar-topic-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
                 <button type="button" class="grammar-topic-btn active" data-topic="nominative_case" style="text-align: left; background: var(--bg-input); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-main); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Nominative Case (Именительный)</button>
                 <button type="button" class="grammar-topic-btn" data-topic="accusative_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Accusative Case (Винительный)</button>
@@ -841,6 +914,13 @@
             <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 400px; flex: 1; width: 100%;">
               <!-- Explanation Display Area -->
               <div id="tutor-explanation-content" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                <button type="button" id="tutor-sidebar-expand-btn" class="btn btn-secondary" style="display: none; align-items: center; gap: 0.5rem; align-self: flex-start; margin-bottom: 0.25rem; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); cursor: pointer; color: var(--color-text-main); font-weight: bold;">
+                  ▶ Show Topics List
+                </button>
+                <div class="info-banner" style="background: rgba(138, 43, 226, 0.15); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--color-text-main); display: flex; align-items: center; gap: 0.5rem; box-sizing: border-box; width: 100%;">
+                  <span>💡</span>
+                  <span><strong>Tip:</strong> Click or tap any Russian word in the explanation text below to instantly translate and save it to your vocabulary!</span>
+                </div>
                 <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%;">
                   <span id="tutor-initial-msg" style="color: var(--color-text-muted);">Select a topic from the left to load its grammar explanation!</span>
                 </div>
@@ -1058,6 +1138,10 @@
 
           <!-- Sandbox Feedback Results -->
           <div id="sandbox-results-panel" style="display: none; flex-direction: column; gap: 1.5rem; animation: fadeIn 0.3s forwards; border-top: 1px solid var(--border-glass); padding-top: 1.5rem;">
+            <div class="info-banner" style="background: rgba(138, 43, 226, 0.15); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--color-text-main); display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; box-sizing: border-box; width: 100%;">
+              <span>💡</span>
+              <span><strong>Tip:</strong> Click or tap any Russian word in the results below to instantly translate and save it to your vocabulary!</span>
+            </div>
             <h3 style="font-family: var(--font-heading); font-size: 1.25rem;">Analysis Feedback</h3>
             
             <div class="dashboard-row-2" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
@@ -1381,10 +1465,24 @@
                 </span>
               </div>
               <select id="settings-mascot" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
-                <option value="robot">🤖 Robo-Tutor (Default)</option>
+                <option value="bear" selected>🐻 Misha the Bear (Default)</option>
+                <option value="robot">🤖 Robo-Tutor</option>
                 <option value="owl">🦉 Viktor the Owl</option>
-                <option value="bear">🐻 Misha the Bear</option>
               </select>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Adaptive Placement Test</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Reset or retake the placement test to redefine your starting levels.
+                </span>
+              </div>
+              <button type="button" id="settings-placement-test-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: var(--border-radius-md);">
+                Retake Placement Test
+              </button>
             </div>
           </div>
         </div>
@@ -1636,7 +1734,7 @@
           <input type="text" id="add-translit-input" class="filter-input" placeholder="e.g., kot">
         </div>
 
-        <div class="dictionary-filter-bar" style="grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="dictionary-filter-bar" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
           <div class="form-group">
             <label for="add-pos-input">Part of Speech</label>
             <select id="add-pos-input" class="filter-select">
@@ -1662,6 +1760,18 @@
               <option value="Verbs">Verbs</option>
               <option value="Adjectives">Adjectives</option>
               <option value="Conversation">Conversation</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="add-level-input">CEFR Level</label>
+            <select id="add-level-input" class="filter-select">
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="C1">C1</option>
+              <option value="C2">C2</option>
             </select>
           </div>
         </div>
@@ -1715,7 +1825,7 @@
           <input type="text" id="edit-translit-input" class="filter-input">
         </div>
 
-        <div class="dictionary-filter-bar" style="grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+        <div class="dictionary-filter-bar" style="grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
           <div class="form-group">
             <label for="edit-pos-input">Part of Speech</label>
             <select id="edit-pos-input" class="filter-select">
@@ -1744,6 +1854,18 @@
               <option value="Numbers & Time">Numbers & Time</option>
               <option value="Conversation">Conversation</option>
               <option value="Custom">Custom Words</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-level-input">CEFR Level</label>
+            <select id="edit-level-input" class="filter-select">
+              <option value="A1">A1</option>
+              <option value="A2">A2</option>
+              <option value="B1">B1</option>
+              <option value="B2">B2</option>
+              <option value="C1">C1</option>
+              <option value="C2">C2</option>
             </select>
           </div>
         </div>
@@ -1812,6 +1934,145 @@
     </div>
   </div>
 
+  <!-- MODAL: WORD CLICK PREVIEW -->
+  <div class="modal-overlay" id="modal-click-word-preview">
+    <div class="modal-content" style="max-width: 420px; padding: 1.5rem; text-align: left;">
+      <div class="modal-header" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
+        <h3 class="modal-title" style="font-family: var(--font-heading); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          🔍 Quick Word Preview
+        </h3>
+        <button class="modal-close-btn" id="modal-preview-close" style="background: transparent; border: none; font-size: 1.5rem; color: var(--color-text-muted); cursor: pointer;">×</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <div>
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-primary-hover); font-weight: bold; letter-spacing: 0.05em;">Russian Word</label>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.15rem;">
+            <span id="preview-word-ru" style="font-size: 1.8rem; font-weight: bold; color: var(--color-text-main);">Слово</span>
+            <button type="button" class="audio-btn" id="preview-word-tts-btn" style="width: 32px; height: 32px; font-size: 0.9rem; border: 1px solid var(--border-glass); background: var(--bg-input); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%;">🔊</button>
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-muted); font-weight: bold; letter-spacing: 0.05em;">Instant Translation</label>
+          <div id="preview-word-translation-container" style="margin-top: 0.25rem;">
+            <div id="preview-word-loading" style="display: flex; align-items: center; gap: 0.5rem; color: var(--color-text-muted);">
+              <span class="spinner" style="display: inline-block; width: 14px; height: 14px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></span>
+              <span>Translating...</span>
+            </div>
+            <div id="preview-word-translation" style="font-size: 1.2rem; font-weight: 500; color: var(--color-text-main); display: none;">Word</div>
+          </div>
+        </div>
+
+        <div id="preview-word-status" style="font-size: 0.85rem; color: var(--color-success); font-weight: 500; display: none; align-items: center; gap: 0.35rem; margin-top: 0.25rem; background: rgba(40, 167, 69, 0.1); padding: 0.5rem; border-radius: 4px;">
+          <span>✓</span> <span id="preview-word-status-text">Already in your vocabulary deck</span>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border-glass); display: flex; gap: 0.75rem;">
+        <button type="button" class="btn btn-secondary" id="modal-preview-cancel" style="flex: 1; padding: 0.75rem;">Close</button>
+        <button type="button" class="btn btn-primary" id="preview-word-add-btn" style="flex: 1.2; padding: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.35rem;">
+          ➕ Add to Vocab
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GRAMMAR GUEST CTA -->
+  <div class="modal-overlay" id="modal-grammar-cta">
+    <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2rem;">
+      <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔒</div>
+      <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.75rem;">Account Sign-in Required</h3>
+      <p class="page-subtitle" style="margin-bottom: 1.5rem;">AI Tutor explanations, Practice Arena quizzes, and Writing Sandbox corrections require a signed-in account to sync progress and manage AI API usage limits.</p>
+      <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+        <button type="button" id="grammar-cta-signin-btn" class="btn btn-primary" style="width: 100%; padding: 0.85rem;">Sign In / Sign Up</button>
+        <button type="button" id="grammar-cta-close-btn" class="btn btn-secondary" style="width: 100%; padding: 0.85rem;">Continue Browsing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: WORD DETAILS (DECLENSIONS & CONJUGATIONS) -->
+  <div class="modal-overlay" id="modal-word-details">
+    <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 85vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="details-modal-title">Word Inflections</h3>
+        <button class="modal-close-btn" id="modal-details-close">×</button>
+      </div>
+      <div id="details-modal-body" style="overflow-y: auto; flex: 1; padding: 1rem 0; display: flex; flex-direction: column; gap: 1rem;">
+        <!-- Loading State -->
+        <div id="details-loading" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 3rem 0;">
+          <div class="spinner"></div>
+          <span class="page-subtitle" style="margin: 0;">Generating inflection tables with AI...</span>
+        </div>
+        <!-- Content Container -->
+        <div id="details-content" style="display: none; flex-direction: column; gap: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; background: rgba(255, 255, 255, 0.02); padding: 0.85rem 1.25rem; border-radius: var(--border-radius-md); border: 1px solid var(--border-glass);">
+            <div>
+              <strong id="details-ru-word" style="font-size: 1.6rem; color: var(--color-primary-hover); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">дом</strong>
+              <span id="details-pos-badge" class="vocab-label-badge" style="font-size: 0.75rem; text-transform: uppercase; margin-left: 0.5rem; vertical-align: middle;">Noun</span>
+            </div>
+            <button type="button" id="details-tts-btn" class="audio-btn" style="width: 38px; height: 38px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card);">🔊</button>
+          </div>
+          <div class="page-subtitle" id="details-translation-text" style="font-size: 1.05rem; margin: 0; font-weight: 500; color: var(--color-text-main);">Translation: house</div>
+          <div id="details-tables-container" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+            <!-- Dynamically populated tables -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding-top: 1rem; border-top: 1px solid var(--border-glass); margin-top: auto;">
+        <button type="button" class="btn btn-secondary" id="modal-details-close-btn" style="width: 100%; padding: 0.85rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADAPTIVE PLACEMENT TEST -->
+  <div class="modal-overlay" id="modal-placement-test">
+    <div class="modal-content" style="max-width: 500px; width: 92%; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
+      <div class="modal-header" style="justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 0.25rem;">
+        <h3 class="modal-title" style="font-family: var(--font-heading); font-size: 1.25rem;">Adaptive Placement Test</h3>
+        <button class="modal-close-btn" id="modal-placement-close" style="font-size: 1.5rem; background: transparent; border: none; color: var(--color-text-muted); cursor: pointer;">×</button>
+      </div>
+
+      <div id="placement-intro-view" style="display: flex; flex-direction: column; gap: 1rem; text-align: center;">
+        <div style="font-size: 3.5rem;">🎯</div>
+        <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--color-text-main); margin: 0;">Assess Your Russian Level</h4>
+        <p style="font-family: var(--font-body); font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; margin: 0;">
+          Answer 6 short multiple-choice questions. Our system will adapt the difficulty to your responses and seed your initial vocabulary boxes and grammar lessons so you can skip what you already know!
+        </p>
+        <button type="button" id="placement-start-test-btn" class="btn btn-primary" style="padding: 0.85rem; font-size: 1rem; width: 100%; font-weight: bold; margin-top: 0.5rem;">Start Assessment</button>
+      </div>
+
+      <div id="placement-question-view" style="display: none; flex-direction: column; gap: 1.25rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8rem; font-weight: bold; color: var(--color-primary-hover);" id="placement-question-step">Question 1 of 6</span>
+          <span class="vocab-label-badge" id="placement-question-level" style="font-size: 0.75rem;">Level A1</span>
+        </div>
+        
+        <!-- Progress bar -->
+        <div style="width: 100%; height: 6px; background: var(--border-glass); border-radius: 3px; overflow: hidden;">
+          <div id="placement-progress-bar" style="width: 16.66%; height: 100%; background: var(--color-primary); transition: width 0.3s ease;"></div>
+        </div>
+
+        <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); padding: 1.5rem; border-radius: var(--border-radius-md); text-align: center;">
+          <h4 id="placement-question-text" style="font-family: var(--font-heading); font-size: 1.2rem; color: var(--color-text-main); margin: 0; line-height: 1.4;">What is the meaning of "Спасибо"?</h4>
+        </div>
+
+        <div id="placement-choices-container" style="display: grid; grid-template-columns: 1fr; gap: 0.75rem; width: 100%;">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <div id="placement-result-view" style="display: none; flex-direction: column; gap: 1.25rem; text-align: center;">
+        <div style="font-size: 3.5rem;" id="placement-result-avatar">🐻</div>
+        <h4 style="font-family: var(--font-heading); font-size: 1.25rem; color: var(--color-text-main); margin: 0;" id="placement-result-title">Congratulations!</h4>
+        <p style="font-family: var(--font-body); font-size: 0.95rem; color: var(--color-text-muted); line-height: 1.5; margin: 0;" id="placement-result-text">
+          You placed at level **A2** (Elementary). We have seeded your study deck and awarded you +200 XP!
+        </p>
+        <button type="button" id="placement-finish-btn" class="btn btn-primary" style="padding: 0.85rem; font-size: 1rem; width: 100%; font-weight: bold; margin-top: 0.5rem;">Finish & Go to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
   <!-- BOOTSTRAP SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/supabase.js"></script>
@@ -1821,6 +2082,7 @@
   <script src="js/audio.js"></script>
   <script src="js/grammar.js"></script>
   <script src="js/alphabet.js"></script>
+  <script src="js/placement.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

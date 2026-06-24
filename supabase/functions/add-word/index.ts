@@ -145,7 +145,7 @@ serve(async (req) => {
       });
     }
 
-    const { word, language, nativeLanguage, deckId } = await req.json();
+    const { word, language, nativeLanguage, deckId, preview } = await req.json();
 
     if (!word) {
       throw new Error("Missing required field: word");
@@ -178,6 +178,8 @@ If the input is NOT in Russian (e.g. English, Hebrew, Spanish, French, etc.):
 - Translate the Russian word into English.
 - If nativeLanguage "${nativeLanguage}" is specified and is not "en", also translate the Russian word into that native language.
 
+Determine the CEFR level (A1, A2, B1, B2, C1, or C2) of the Russian word.
+
 Analyze the word and provide the output strictly as a JSON object matching the following schema:
 {
   "word": "the base Russian word in Cyrillic (e.g., вода)",
@@ -186,6 +188,7 @@ Analyze the word and provide the output strictly as a JSON object matching the f
   "transliteration": "the English transliteration of the Russian word (e.g., voda)",
   "pos": "the part of speech (lowercase, e.g., noun, verb, adjective, adverb, pronoun, preposition, conjunction, particle, interjection, phrase)",
   "category": "a single-word or short phrase category (e.g., Food, Travel, Essentials, Family, Verbs)",
+  "level": "the CEFR level (one of: A1, A2, B1, B2, C1, C2)",
   "exampleRu": "a simple, natural Russian example sentence using this word, with stress marks (e.g., Да́йте мне стака́н воды́, пожа́луйста.)",
   "exampleEn": "the translation of the example sentence in the user's native language (${targetLang}) (e.g., Please give me a glass of water.)"
 }
@@ -220,10 +223,11 @@ Do not include any markdown formatting, backticks, or explanation outside of the
               transliteration: { type: "STRING" },
               pos: { type: "STRING" },
               category: { type: "STRING" },
+              level: { type: "STRING" },
               exampleRu: { type: "STRING" },
               exampleEn: { type: "STRING" },
             },
-            required: ["word", "accented", "translation", "transliteration", "pos", "category", "exampleRu", "exampleEn"],
+            required: ["word", "accented", "translation", "transliteration", "pos", "category", "level", "exampleRu", "exampleEn"],
           },
         },
       }),
@@ -241,6 +245,32 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     }
 
     const result = JSON.parse(textResponse.trim());
+
+    if (preview) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          word: {
+            id: `preview_${Date.now()}`,
+            word: result.word,
+            accented: result.accented,
+            translation: result.translation,
+            transliteration: result.transliteration,
+            pos: result.pos,
+            category: result.category,
+            level: result.level || "A1",
+            exampleRu: result.exampleRu,
+            exampleEn: result.exampleEn,
+            deckId: deckId || "custom",
+            updatedAt: Date.now()
+          }
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
@@ -261,6 +291,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
       transliteration: result.transliteration,
       pos: result.pos,
       category: result.category,
+      level: result.level || "A1",
       example_ru: result.exampleRu,
       example_en: result.exampleEn,
       deck_id: targetDeckId,
@@ -340,6 +371,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
           transliteration: result.transliteration,
           pos: result.pos,
           category: result.category,
+          level: result.level || "A1",
           exampleRu: result.exampleRu,
           exampleEn: result.exampleEn,
           deckId: targetDeckId,

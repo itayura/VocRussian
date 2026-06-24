@@ -193,6 +193,7 @@
             transliteration: data.transliteration || "",
             pos: data.pos || "noun",
             category: data.category || "Custom",
+            level: data.level || "A1",
             example_ru: data.exampleRu || data.example_ru || "",
             example_en: data.exampleEn || data.example_en || "",
             deck_id: data.deckId || "custom",
@@ -284,6 +285,7 @@
               transliteration: dbW.transliteration || "",
               pos: dbW.pos || "noun",
               category: dbW.category || "Custom",
+              level: dbW.level || "A1",
               exampleRu: dbW.example_ru || "",
               exampleEn: dbW.example_en || "",
               deckId: dbW.deck_id || "custom",
@@ -312,6 +314,7 @@
                 transliteration: dbW.transliteration || "",
                 pos: dbW.pos || "noun",
                 category: dbW.category || "Custom",
+                level: dbW.level || "A1",
                 exampleRu: dbW.example_ru || "",
                 exampleEn: dbW.example_en || "",
                 deckId: dbW.deck_id || "custom",
@@ -345,6 +348,7 @@
             transliteration: w.transliteration || "",
             pos: w.pos || "noun",
             category: w.category || "Custom",
+            level: w.level || "A1",
             example_ru: w.exampleRu || w.example_ru || "",
             example_en: w.exampleEn || w.example_en || "",
             deck_id: w.deckId || "custom",
@@ -577,6 +581,9 @@
             console.log("Auto-sync on login complete.");
             if (window.syncPushSubscriptionWithCloud) {
               window.syncPushSubscriptionWithCloud();
+            }
+            if (window.GrammarManager && typeof window.GrammarManager.prefetchQuizToBuffer === "function") {
+              window.GrammarManager.prefetchQuizToBuffer();
             }
           }
         });

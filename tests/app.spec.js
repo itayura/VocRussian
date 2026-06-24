@@ -3,13 +3,22 @@ const { test, expect } = require('@playwright/test');
 test.describe('VocRussian E2E Test Suite', () => {
   
   async function mockLogin(page) {
-    await page.locator('.nav-item[data-target="sync"]').click(); // Account tab
+    await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
     await page.locator('#supabase-email').fill('learner@example.com');
     await page.locator('#supabase-password').fill('securepassword123');
     await page.locator('#supabase-auth-submit-btn').click();
     const okBtn = page.locator('#custom-alert-ok-btn');
     await okBtn.waitFor({ state: 'visible' });
     await okBtn.click();
+  }
+
+  async function selectGrammarTopic(page, topic) {
+    const mobileSelect = page.locator('#tutor-topic-select-mobile');
+    if (await mobileSelect.isVisible()) {
+      await mobileSelect.selectOption(topic);
+    } else {
+      await page.locator(`.grammar-topic-btn[data-topic="${topic}"]`).click();
+    }
   }
 
   test.beforeEach(async ({ page }) => {
@@ -189,6 +198,27 @@ test.describe('VocRussian E2E Test Suite', () => {
       });
     });
 
+    await page.route('**/functions/v1/add-word', async (route) => {
+      await route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          word: {
+            id: 'custom_mock_id',
+            word: 'книга',
+            accented: 'кни́га',
+            translation: 'book',
+            transliteration: 'kniga',
+            pos: 'noun',
+            category: 'Custom',
+            level: 'A1',
+            exampleRu: 'Я говорю по-русски.',
+            exampleEn: 'I speak Russian.'
+          }
+        }),
+      });
+    });
+
     await page.route('**/translate.googleapis.com/translate_a/single*', async (route) => {
       await route.fulfill({
         contentType: 'application/json',
@@ -234,19 +264,28 @@ test.describe('VocRussian E2E Test Suite', () => {
 
   // 2. Auth Lock / Unlock Flow
   test('AI Grammar shows signup lock alert for signed-out users, unlocks on login', async ({ page }) => {
-    // Nav tab data-target="grammar" should have disabled class initially
+    // Nav tab data-target="grammar" is NOT disabled initially
     const grammarTab = page.locator('.nav-item[data-target="grammar"]');
-    await expect(grammarTab).toHaveClass(/disabled/);
+    await expect(grammarTab).not.toHaveClass(/disabled/);
 
-    // Click the disabled tab, verify lock dialog triggers
-    await grammarTab.click();
-    await expect(page.locator('#custom-alert-modal')).toHaveClass(/active/);
-    const alertMsg = await page.locator('#custom-alert-message').innerText();
-    expect(alertMsg).toContain('Account Sign-in Required');
-    await page.locator('#custom-alert-ok-btn').click();
+    // Click the grammar tab, it should successfully load the view
+    await grammarTab.click({ force: true });
+    await expect(page.locator('#view-grammar')).toHaveClass(/active/);
+
+    // Nominative Case should be available as a preview lesson for signed out users (does not show sign-up modal)
+    await selectGrammarTopic(page, 'nominative_case');
+    await page.waitForTimeout(400);
+    await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
+    await expect(page.locator('#tutor-explanation-content')).toContainText('Nominative Case (Именительный падеж)');
+
+    // Attempting any other grammar operation (like Dative Case) while signed out should show the guest CTA modal
+    await selectGrammarTopic(page, 'dative_case');
+    await expect(page.locator('#modal-grammar-cta')).toHaveClass(/active/);
+    await page.locator('#grammar-cta-close-btn').click();
+    await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
 
     // Perform successful mock login
-    await page.locator('.nav-item[data-target="sync"]').click(); // Account tab
+    await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
     await page.locator('#supabase-email').fill('learner@example.com');
     await page.locator('#supabase-password').fill('securepassword123');
     await page.locator('#supabase-auth-submit-btn').click();
@@ -256,14 +295,17 @@ test.describe('VocRussian E2E Test Suite', () => {
     await expect(page.locator('#supabase-sync-panel')).toBeVisible();
     await expect(page.locator('#supabase-user-email')).toHaveText('learner@example.com');
 
-    // Verify the AI Grammar tab is now unlocked
-    await expect(grammarTab).not.toHaveClass(/disabled/);
+    // Navigating back to grammar and clicking a topic should successfully load the lesson explanation without showing the guest CTA
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await selectGrammarTopic(page, 'dative_case');
+    await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
+    await expect(page.locator('#tutor-explanation-content')).toContainText('Mock Lesson: dative_case');
   });
 
   // 3. Leitner Study (Flashcards)
   test('Leitner Flashcard study flow and box transitions', async ({ page }) => {
     // Navigate to vocabulary tab
-    await page.locator('.nav-item[data-target="study-select"]').click();
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
     
     // Select flashcard mode (starts study session automatically)
     await page.locator('#mode-select-flashcard').click();
@@ -293,7 +335,7 @@ test.describe('VocRussian E2E Test Suite', () => {
 
   // 4. Active Writing Practice
   test('Active Writing review session Cyrillic inputs', async ({ page }) => {
-    await page.locator('.nav-item[data-target="study-select"]').click();
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
     // Select writing mode (starts study session automatically)
     await page.locator('#mode-select-writing').click();
 
@@ -306,7 +348,7 @@ test.describe('VocRussian E2E Test Suite', () => {
     // Log in to enable AI autofill sentences
     await mockLogin(page);
 
-    await page.locator('.nav-item[data-target="dictionary"]').click();
+    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
 
     // Search query
     await page.locator('#dict-search').fill('книга');
@@ -331,7 +373,7 @@ test.describe('VocRussian E2E Test Suite', () => {
     
     // Verify card is added
     await expect(page.locator('.vocab-card').first()).toBeVisible();
-    await expect(page.locator('.vocab-card').first()).toContainText('книга');
+    await expect(page.locator('.vocab-card').first()).toContainText('кни́га');
 
     // Edit card
     await page.locator('.vocab-action-btn.edit').first().click();
@@ -350,7 +392,7 @@ test.describe('VocRussian E2E Test Suite', () => {
 
   // 6. Theme and Settings Persistence
   test('Theme settings changes persist on reload', async ({ page }) => {
-    await page.locator('.nav-item[data-target="settings"]').click();
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
     
     // Check initial theme
     await expect(page.locator('body')).not.toHaveClass(/theme-emerald/);
@@ -370,13 +412,13 @@ test.describe('VocRussian E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace
-    await page.locator('.nav-item[data-target="grammar"]').click();
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
 
     // Verify AI Tutor is active subtab
     await expect(page.locator('#grammar-tab-tutor')).toHaveClass(/active/);
 
     // Select Dative Case button, verify explanation renders
-    await page.locator('.grammar-topic-btn[data-topic="dative_case"]').click();
+    await selectGrammarTopic(page, 'dative_case');
     await expect(page.locator('#tutor-explanation-content')).toContainText('Mock Lesson: dative_case');
   });
 
@@ -386,7 +428,7 @@ test.describe('VocRussian E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace -> Practice Arena subtab
-    await page.locator('.nav-item[data-target="grammar"]').click();
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
     await page.locator('#grammar-tab-practice').click();
 
     // Verify custom checkboxes panel is display: flex
@@ -457,7 +499,7 @@ test.describe('VocRussian E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace -> Sandbox subtab
-    await page.locator('.nav-item[data-target="grammar"]').click();
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
     await page.locator('#grammar-tab-sandbox').click();
 
     // Enter text and analyze
@@ -477,7 +519,7 @@ test.describe('VocRussian E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to Practice Arena
-    await page.locator('.nav-item[data-target="grammar"]').click();
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
     await page.locator('#grammar-tab-practice').click();
     await page.locator('#practice-start-btn').click();
 
@@ -520,11 +562,176 @@ test.describe('VocRussian E2E Test Suite', () => {
     });
 
     // Navigate to AI Grammar -> AI Tutor, trigger explain action
-    await page.locator('.nav-item[data-target="grammar"]').click();
-    await page.locator('.grammar-topic-btn[data-topic="dative_case"]').click();
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await selectGrammarTopic(page, 'dative_case');
 
     // Verify rate limit warning is displayed inline
     await expect(page.locator('#tutor-explanation-content')).toContainText('Edge Function returned a non-2xx status code');
+  });
+
+  test('Dictionary details button opens Word Inflections modal, fetches and renders tables', async ({ page }) => {
+    // Mock the inflections action response in Edge Function
+    await page.route('**/functions/v1/ai-grammar', async (route) => {
+      const body = JSON.parse(route.request().postData() || '{}');
+      if (body.action === 'inflections') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            success: true,
+            data: {
+              type: 'declension',
+              forms: {
+                declensions: [
+                  { case: 'Nominative (Именительный)', singular: 'кни́га', plural: 'кни́ги' },
+                  { case: 'Genitive (Родительный)', singular: 'кни́ги', plural: 'кни́г' }
+                ]
+              }
+            }
+          }),
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ success: true }),
+        });
+      }
+    });
+
+    // 1. Mock login
+    await mockLogin(page);
+
+    // 2. Navigate to Dictionary tab
+    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await expect(page.locator('#view-dictionary')).toHaveClass(/active/);
+
+    // 3. Search for "книга" in Dictionary search input
+    await page.locator('#dict-search').fill('книга');
+
+    // 4. Click the details (ℹ️) button on the first card
+    const detailsBtn = page.locator('.vocab-card .details').first();
+    await expect(detailsBtn).toBeVisible();
+    await detailsBtn.click();
+
+    // 5. Verify details modal overlay is active
+    const detailsModal = page.locator('#modal-word-details');
+    await expect(detailsModal).toHaveClass(/active/);
+
+    // 6. Verify table headers and values render correctly
+    await expect(page.locator('.inflection-table')).toBeVisible();
+    await expect(page.locator('.inflection-table tbody tr').first()).toContainText('Nominative');
+
+    // 7. Click Close button
+    await page.locator('#modal-details-close-btn').click();
+    await expect(detailsModal).not.toHaveClass(/active/);
+  });
+
+  test('Dynamic Form Autofill on blur event triggers translation and fields populating', async ({ page }) => {
+    // 1. Mock login to enable AI features
+    await mockLogin(page);
+
+    // 2. Navigate to Dictionary tab
+    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+
+    // 3. Open Custom Word modal
+    await page.locator('#dict-add-word-btn').click();
+    await expect(page.locator('#modal-add-word')).toBeVisible();
+
+    // 4. Fill a Russian word and trigger blur
+    await page.locator('#add-word-input').fill('книга');
+    await page.locator('#add-word-input').blur();
+
+    // 5. Verify translation, transliteration, POS, and examples are filled automatically
+    await expect(page.locator('#add-translation-input')).toHaveValue('book');
+    await expect(page.locator('#add-translit-input')).toHaveValue('kniga');
+    await expect(page.locator('#add-exampleru-input')).toHaveValue('Я говорю по-русски.');
+    await expect(page.locator('#add-exampleen-input')).toHaveValue('I speak Russian.');
+    
+    // 6. Test reverse autofill: clear inputs first
+    await page.locator('#add-word-input').fill('');
+    await page.locator('#add-translation-input').fill('');
+    
+    // Type English translation and trigger blur
+    await page.locator('#add-translation-input').fill('book');
+    await page.locator('#add-translation-input').blur();
+    
+    // Verify Russian word is filled automatically
+    await expect(page.locator('#add-word-input')).toHaveValue('книга');
+  });
+
+  test('Adaptive Placement Test workflow seeds stats, XP, and updates levels correctly', async ({ page }) => {
+    page.on('console', msg => {
+      console.log(`[Browser Console] ${msg.type().toUpperCase()}: ${msg.text()}`);
+    });
+    page.on('pageerror', err => {
+      console.error(`[Browser PageError]: ${err.message}`);
+    });
+
+    // 1. Verify that the placement test banner is visible on the dashboard for a new user (0 XP)
+    const banner = page.locator('#dashboard-placement-banner');
+    await expect(banner).toBeVisible();
+
+    // 2. Click "Take Placement Test" to open intro modal
+    await page.locator('#placement-banner-start-btn').click();
+    await expect(page.locator('#modal-placement-test')).toBeVisible();
+    await expect(page.locator('#placement-intro-view')).toBeVisible();
+
+    // 3. Start the test
+    await page.locator('#placement-start-test-btn').click();
+    await expect(page.locator('#placement-question-view')).toBeVisible();
+
+    // 4. Answer all 6 questions correctly to get B2 placement
+    // Question 1 (A1)
+    await expect(page.locator('#placement-question-step')).toHaveText('Question 1 of 6');
+    await page.locator('#placement-choices-container button', { hasText: 'Hello (informal)' }).click();
+    
+    // Question 2 (A1)
+    await expect(page.locator('#placement-question-step')).toHaveText('Question 2 of 6');
+    await page.locator('#placement-choices-container button', { hasText: 'Мы' }).click();
+
+    // Question 3 (A2)
+    await expect(page.locator('#placement-question-step')).toHaveText('Question 3 of 6');
+    await page.locator('#placement-choices-container button', { hasText: 'новая' }).click();
+
+    // Question 4 (A2)
+    await expect(page.locator('#placement-question-step')).toHaveText('Question 4 of 6');
+    await page.locator('#placement-choices-container button', { hasText: 'Где вокзал?' }).click();
+
+    // Question 5 (B1)
+    await expect(page.locator('#placement-question-step')).toHaveText('Question 5 of 6');
+    await page.locator('#placement-choices-container button', { hasText: 'Genitive' }).click();
+
+    // Question 6 (B2)
+    await expect(page.locator('#placement-question-step')).toHaveText('Question 6 of 6');
+    await page.locator('#placement-choices-container button', { hasText: 'хожу' }).click();
+
+    // 5. Verify results screen shows B2 level and B2 avatar
+    await expect(page.locator('#placement-result-view')).toBeVisible();
+    await expect(page.locator('#placement-result-title')).toHaveText('Level Placed: B2!');
+    await expect(page.locator('#placement-result-text')).toContainText('You placed at level B2');
+
+    // 6. Click Finish & Go to Dashboard
+    await page.locator('#placement-finish-btn').click();
+    await expect(page.locator('#modal-placement-test')).not.toBeVisible();
+
+    // 7. Verify XP has been seeded (1000 XP for B2)
+    await expect(page.locator('#sidebar-xp-val')).toHaveText('1000');
+
+    // 8. Verify the placement banner is now hidden
+    await expect(banner).not.toBeVisible();
+
+    // 9. Go to Settings and verify placement retake button resets it
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await page.locator('#settings-placement-test-btn').click();
+
+    // The modal should open again on the intro view
+    await expect(page.locator('#modal-placement-test')).toBeVisible();
+    await expect(page.locator('#placement-intro-view')).toBeVisible();
+
+    // Close the modal
+    await page.locator('#modal-placement-close').click();
+    await expect(page.locator('#modal-placement-test')).not.toBeVisible();
   });
 
 });

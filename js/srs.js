@@ -175,6 +175,17 @@
       return this.getAllWords().find(w => w.id === id);
     },
 
+    // Get CEFR level of a word
+    getWordLevel: function (word) {
+      if (!word) return "A1";
+      if (word.level) return word.level;
+      if (word.category) {
+        const match = word.category.match(/^([A-C][1-2])\b/i);
+        if (match) return match[1].toUpperCase();
+      }
+      return "A1";
+    },
+
     // Get progress details for a card
     getCardProgress: function (id) {
       if (!cardProgress[id]) {
@@ -269,6 +280,7 @@
         transliteration: wordData.transliteration ? wordData.transliteration.trim() : "",
         pos: wordData.pos || "noun",
         category: wordData.category || "Custom",
+        level: wordData.level || "A1",
         exampleRu: wordData.exampleRu ? wordData.exampleRu.trim() : "",
         exampleEn: wordData.exampleEn ? wordData.exampleEn.trim() : "",
         deckId: targetDeckId,
@@ -572,6 +584,7 @@
           transliteration: w.transliteration ? w.transliteration.trim() : "",
           pos: w.pos || "noun",
           category: w.category || "Custom",
+          level: w.level || "A1",
           exampleRu: w.exampleRu ? w.exampleRu.trim() : "",
           exampleEn: w.exampleEn ? w.exampleEn.trim() : "",
           deckId: newDeckId,
@@ -589,6 +602,16 @@
       saveToStorage();
       triggerBgPush("stats", null, globalStats);
       return newDeckId;
+    },
+
+    saveToStorage: function(id = null, prog = null) {
+      saveToStorage();
+      if (id && prog) {
+        triggerBgPush("progress", id, prog);
+      }
+    },
+    addXP: function(amount) {
+      addXP(amount);
     }
   };
 

@@ -75,12 +75,35 @@
     return msg;
   }
 
+  const PREVIEW_LESSON_NOMINATIVE = {
+    title: "Nominative Case (Именительный падеж)",
+    explanation: "The Nominative case is the starting point of the Russian noun system. It represents the subject of the sentence — the person or thing that performs the action. It answers the questions <strong>Кто?</strong> (Who?) for animate subjects and <strong>Что?</strong> (What?) for inanimate ones. When you look up a word in the dictionary, it is always presented in the Nominative case.",
+    rules: [
+      { ending: "Consonant / -а / -о", rule: "Base Dictionary Form", example: "дом (house), кни́га (book), окно́ (window)" },
+      { ending: "Nouns ending in -й / -я / -е", rule: "Soft Nouns Base", example: "музе́й (museum), пе́сня (song), мо́ре (sea)" },
+      { ending: "-ы / -и / -а / -я", rule: "Plural Forms", example: "кни́ги (books), дома́ (houses)" }
+    ],
+    examples: [
+      { ru: "Студе́нт чита́ет кни́гу.", en: "The student is reading a book.", explanation: "Студент is the subject, so it remains in the Nominative case." },
+      { ru: "Кни́га лежи́т на столе́.", en: "The book is lying on the table.", explanation: "Книга is the subject, in Nominative singular." },
+      { ru: "Москва́ — столи́ца Росси́и.", en: "Moscow is the capital of Russia.", explanation: "Москва is the subject, in Nominative." }
+    ]
+  };
+
   const GrammarManager = {
+    isPrefetching: false,
+    debouncePrefetchTimeout: null,
+
     init: function () {
       this.loadFromStorage();
       this.setupEventListeners();
+      this.initCollapsibleSidebar();
       this.initCustomTopicsPanel();
       this.updateGrammarLevelUI();
+      // Trigger background prefetch on initialize if user is already logged in
+      setTimeout(() => {
+        this.prefetchQuizToBuffer();
+      }, 1500);
     },
 
     loadFromStorage: function () {
@@ -95,6 +118,30 @@
     saveToStorage: function () {
       localStorage.setItem(STORAGE_KEYS.GRAMMAR_PROGRESS, JSON.stringify(grammarProgress));
       this.updateGrammarLevelUI();
+    },
+
+    initCollapsibleSidebar: function () {
+      const gridContainer = document.querySelector(".tutor-grid-container");
+      const collapseBtn = document.getElementById("tutor-sidebar-collapse-btn");
+      const expandBtn = document.getElementById("tutor-sidebar-expand-btn");
+
+      if (!gridContainer || !collapseBtn || !expandBtn) return;
+
+      // Load collapsed state from cache
+      const isCollapsed = localStorage.getItem("voc_grammar_sidebar_collapsed") === "true";
+      if (isCollapsed) {
+        gridContainer.classList.add("sidebar-collapsed");
+      }
+
+      collapseBtn.addEventListener("click", () => {
+        gridContainer.classList.add("sidebar-collapsed");
+        localStorage.setItem("voc_grammar_sidebar_collapsed", "true");
+      });
+
+      expandBtn.addEventListener("click", () => {
+        gridContainer.classList.remove("sidebar-collapsed");
+        localStorage.setItem("voc_grammar_sidebar_collapsed", "false");
+      });
     },
 
     initCustomTopicsPanel: function () {
@@ -128,6 +175,7 @@
           activePresetName = null;
           this.updatePresetPillsHighlight();
           this.updateGrammarPracticeMasteryUI();
+          this.debouncePrefetch();
         });
 
         label.appendChild(input);
@@ -141,6 +189,7 @@
         activePresetName = null;
         this.updatePresetPillsHighlight();
         this.updateGrammarPracticeMasteryUI();
+        this.debouncePrefetch();
       });
 
       document.getElementById("topics-clear-all").addEventListener("click", () => {
@@ -148,6 +197,7 @@
         activePresetName = null;
         this.updatePresetPillsHighlight();
         this.updateGrammarPracticeMasteryUI();
+        localStorage.removeItem("voc_grammar_quiz_buffer");
       });
 
       // Hook up Save Preset Button
@@ -221,6 +271,7 @@
             });
             this.updatePresetPillsHighlight();
             this.updateGrammarPracticeMasteryUI();
+            this.prefetchQuizToBuffer();
           });
 
           const nameSpan = document.createElement("span");
@@ -508,6 +559,110 @@
       }
     },
 
+    debouncePrefetch: function () {
+      if (this.debouncePrefetchTimeout) {
+        clearTimeout(this.debouncePrefetchTimeout);
+      }
+      this.debouncePrefetchTimeout = setTimeout(() => {
+        this.prefetchQuizToBuffer();
+      }, 1000);
+    },
+
+    prefetchQuizToBuffer: async function () {
+      // 1. Only run if user is logged in
+      if (!window.SupabaseSync || window.SupabaseSync.connectionState !== "connected" || !window.SupabaseSync.user) {
+        return;
+      }
+
+      if (this.isPrefetching) {
+        return;
+      }
+
+      // 2. Determine current parameters
+      const levelEl = document.getElementById("practice-quiz-level");
+      const cefr = levelEl ? levelEl.value : "A1";
+
+      const countEl = document.getElementById("practice-quiz-count");
+      const count = countEl ? parseInt(countEl.value, 10) : 5;
+
+      const checkedTopics = [];
+      const checkedNames = [];
+      document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+        checkedTopics.push(cb.value);
+        checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
+      });
+      
+      if (checkedNames.length === 0) {
+        return;
+      }
+      const topicParam = checkedNames.join(", ");
+
+      // Check if there is already a valid buffer matching these exact parameters
+      try {
+        const currentBuffer = JSON.parse(localStorage.getItem("voc_grammar_quiz_buffer"));
+        if (currentBuffer && 
+            currentBuffer.cefr === cefr && 
+            currentBuffer.topicParam === topicParam && 
+            currentBuffer.count === count &&
+            Array.isArray(currentBuffer.questions) && 
+            currentBuffer.questions.length > 0) {
+          console.log("[GrammarManager] Buffer already exists and matches parameters. Skipping prefetch.");
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem("voc_grammar_quiz_buffer");
+      }
+
+      this.isPrefetching = true;
+      console.log("[GrammarManager] Starting background prefetch for topics:", topicParam, "cefr:", cefr, "count:", count);
+
+      try {
+        const client = window.SupabaseSync.client;
+        const { data: sessionData } = await client.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const vocabList = this.getActiveVocabWords();
+        const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
+
+        const { data, error } = await client.functions.invoke("ai-grammar", {
+          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
+          headers: headers
+        });
+
+        if (error) throw new Error(error.message || error);
+        if (!data || !data.success || !data.data.questions) throw new Error("Invalid prefetch questions payload.");
+
+        let questions = data.data.questions;
+
+        // Apply blacklist filter
+        let blacklist = [];
+        try {
+          blacklist = JSON.parse(localStorage.getItem("voc_blacklisted_sentences")) || [];
+        } catch (e) {}
+
+        if (blacklist.length > 0) {
+          questions = questions.filter(q => !blacklist.includes(q.sentencePattern));
+        }
+
+        if (questions.length > 0) {
+          const bufferData = {
+            cefr: cefr,
+            topicParam: topicParam,
+            count: count,
+            questions: questions,
+            timestamp: Date.now()
+          };
+          localStorage.setItem("voc_grammar_quiz_buffer", JSON.stringify(bufferData));
+          console.log("[GrammarManager] Background prefetch complete. Buffered", questions.length, "questions.");
+        }
+      } catch (err) {
+        console.warn("[GrammarManager] Background prefetch failed:", err);
+      } finally {
+        this.isPrefetching = false;
+      }
+    },
+
     // UI Tab controller switching
     switchSubtab: function (tabId) {
       // Deactivate all tabs
@@ -580,13 +735,48 @@
       // Tutor Topic selection buttons
       document.querySelectorAll(".grammar-topic-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
-          document.querySelectorAll(".grammar-topic-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".grammar-topic-btn").forEach(b => {
+            b.classList.remove("active");
+            b.style.background = "transparent";
+            b.style.borderColor = "transparent";
+            b.style.color = "var(--color-text-muted)";
+          });
           btn.classList.add("active");
+          btn.style.background = "var(--bg-input)";
+          btn.style.borderColor = "var(--border-glass)";
+          btn.style.color = "var(--color-text-main)";
           
           activeTopic = btn.getAttribute("data-topic");
+          const mobileSelect = document.getElementById("tutor-topic-select-mobile");
+          if (mobileSelect) {
+            mobileSelect.value = activeTopic;
+          }
           self.loadTutorLesson(activeTopic);
         });
       });
+
+      // Synchronize mobile topic select dropdown
+      const mobileSelect = document.getElementById("tutor-topic-select-mobile");
+      if (mobileSelect) {
+        mobileSelect.addEventListener("change", (e) => {
+          const val = e.target.value;
+          activeTopic = val;
+          document.querySelectorAll(".grammar-topic-btn").forEach(b => {
+            if (b.getAttribute("data-topic") === val) {
+              b.classList.add("active");
+              b.style.background = "var(--bg-input)";
+              b.style.borderColor = "var(--border-glass)";
+              b.style.color = "var(--color-text-main)";
+            } else {
+              b.classList.remove("active");
+              b.style.background = "transparent";
+              b.style.borderColor = "transparent";
+              b.style.color = "var(--color-text-muted)";
+            }
+          });
+          self.loadTutorLesson(val);
+        });
+      }
 
 
 
@@ -605,7 +795,10 @@
       }
 
       // Target settings change
-      document.getElementById("practice-quiz-level").addEventListener("change", () => self.updateGrammarPracticeMasteryUI());
+      document.getElementById("practice-quiz-level").addEventListener("change", () => {
+        self.updateGrammarPracticeMasteryUI();
+        self.prefetchQuizToBuffer();
+      });
 
       // Sandbox Buttons
       document.getElementById("sandbox-analyze-btn").addEventListener("click", () => self.analyzeSandboxWriting());
@@ -618,7 +811,11 @@
     // Check Cloud Database Connected
     ensureCloudConnected: function () {
       if (!window.SupabaseSync || !window.SupabaseSync.client || !window.SupabaseSync.user) {
-        alert("Account Sign-in Required: AI Grammar features require a signed-in account. Please sign in or create an account under the 'Account' tab first.");
+        if (window.openModal) {
+          window.openModal("modal-grammar-cta");
+        } else {
+          alert("Account Sign-in Required: AI Grammar features require a signed-in account. Please sign in or create an account under the 'Account' tab first.");
+        }
         return false;
       }
       return true;
@@ -626,13 +823,18 @@
 
     renderTutorExplanation: function (payload) {
       const contentEl = document.getElementById("tutor-explanation-content");
-      contentEl.innerHTML = `
+      const rulesCollapsed = localStorage.getItem("voc_tutor_rules_collapsed") === "true";
+      const examplesCollapsed = localStorage.getItem("voc_tutor_examples_collapsed") === "true";
+
+      const html = `
         <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
           <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin: 0 0 0.5rem 0; color: var(--color-primary-hover);">${payload.title}</h3>
           <div style="line-height: 1.6; font-size: 1rem; color: var(--color-text-main);">${payload.explanation}</div>
           
-          <h4 style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Declension / Conjugation Rules</h4>
-          <div style="overflow-x: auto; width: 100%;">
+          <h4 class="tutor-collapsible-trigger" data-target="voc_tutor_rules_collapsed" style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; user-select: none; -webkit-user-select: none;">
+            <span class="collapse-arrow" style="font-size: 0.8rem; color: var(--color-primary); transition: transform 0.2s;">${rulesCollapsed ? "▶" : "▼"}</span> Declension / Conjugation Rules
+          </h4>
+          <div id="tutor-rules-section" style="overflow-x: auto; width: 100%; display: ${rulesCollapsed ? "none" : "block"};">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
               <thead>
                 <tr style="background-color: var(--bg-input); border-bottom: 2px solid var(--border-glass);">
@@ -653,8 +855,10 @@
             </table>
           </div>
 
-          <h4 style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main);">Interactive Examples</h4>
-          <div style="display:flex; flex-direction:column; gap:0.75rem; width: 100%;">
+          <h4 class="tutor-collapsible-trigger" data-target="voc_tutor_examples_collapsed" style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; user-select: none; -webkit-user-select: none;">
+            <span class="collapse-arrow" style="font-size: 0.8rem; color: var(--color-primary); transition: transform 0.2s;">${examplesCollapsed ? "▶" : "▼"}</span> Interactive Examples
+          </h4>
+          <div id="tutor-examples-section" style="display: ${examplesCollapsed ? "none" : "flex"}; flex-direction: column; gap: 0.75rem; width: 100%;">
             ${payload.examples.map(ex => `
               <div style="background: rgba(255,255,255,0.02); border-radius: var(--border-radius-sm); padding: 0.85rem 1rem; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 0.35rem; box-sizing: border-box;">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
@@ -672,6 +876,29 @@
         </div>
       `;
 
+      contentEl.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(html) : html;
+
+      // Bind collapsible headers inside tutor explanation
+      contentEl.querySelectorAll(".tutor-collapsible-trigger").forEach(trigger => {
+        trigger.addEventListener("click", () => {
+          const cacheKey = trigger.getAttribute("data-target");
+          const sectionEl = trigger.nextElementSibling;
+          const arrowEl = trigger.querySelector(".collapse-arrow");
+          if (!sectionEl || !arrowEl) return;
+          
+          const isCollapsed = sectionEl.style.display === "none";
+          if (isCollapsed) {
+            sectionEl.style.display = cacheKey.includes("rules") ? "block" : "flex";
+            arrowEl.textContent = "▼";
+            localStorage.setItem(cacheKey, "false");
+          } else {
+            sectionEl.style.display = "none";
+            arrowEl.textContent = "▶";
+            localStorage.setItem(cacheKey, "true");
+          }
+        });
+      });
+
       // Bind TTS audio play buttons
       this.bindTutorTtsButtons();
 
@@ -688,11 +915,26 @@
 
     // --- AI TUTOR ACTION ---
     loadTutorLesson: async function (topicId) {
-      if (!this.ensureCloudConnected()) return;
-
+      const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+      
       const loader = document.getElementById("tutor-loading");
       const contentEl = document.getElementById("tutor-explanation-content");
-      
+
+      if (!isLoggedIn) {
+        if (topicId === "nominative_case") {
+          loader.style.display = "flex";
+          contentEl.innerHTML = "";
+          setTimeout(() => {
+            loader.style.display = "none";
+            this.renderTutorExplanation(PREVIEW_LESSON_NOMINATIVE);
+          }, 300);
+          return;
+        } else {
+          this.ensureCloudConnected();
+          return;
+        }
+      }
+
       loader.style.display = "flex";
       contentEl.innerHTML = "";
 
@@ -848,6 +1090,47 @@
 
       if (!this.ensureCloudConnected()) return;
 
+      // Check if we have matching buffered sentences for logged-in user
+      const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+      if (isLoggedIn) {
+        try {
+          const bufferVal = localStorage.getItem("voc_grammar_quiz_buffer");
+          if (bufferVal) {
+            const buffer = JSON.parse(bufferVal);
+            if (buffer && 
+                buffer.cefr === cefr && 
+                buffer.topicParam === topicParam && 
+                buffer.count === count &&
+                Array.isArray(buffer.questions) && 
+                buffer.questions.length > 0) {
+              
+              console.log("[GrammarManager] Buffer hit! Starting quiz instantly with buffered questions.");
+              currentQuizQuestions = buffer.questions;
+              currentQuizIndex = 0;
+              currentQuizCorrectCount = 0;
+              
+              localStorage.removeItem("voc_grammar_quiz_buffer");
+              
+              setupScreen.style.display = "none";
+              loadingScreen.style.display = "none";
+              activeScreen.style.display = "flex";
+              
+              this.renderQuizQuestion();
+              this.showXpToast("Loaded quiz instantly from buffer! ⚡");
+              
+              // Trigger prefetch for the NEXT quiz in the background
+              setTimeout(() => {
+                this.prefetchQuizToBuffer();
+              }, 1000);
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("[GrammarManager] Failed to read or parse quiz buffer:", e);
+          localStorage.removeItem("voc_grammar_quiz_buffer");
+        }
+      }
+
       setupScreen.style.display = "none";
       loadingScreen.style.display = "flex";
       activeScreen.style.display = "none";
@@ -893,6 +1176,11 @@
         currentQuizCorrectCount = 0;
 
         this.renderQuizQuestion();
+
+        // Trigger prefetch for the NEXT quiz in the background
+        setTimeout(() => {
+          this.prefetchQuizToBuffer();
+        }, 1000);
 
       } catch (err) {
         loadingScreen.style.display = "none";
@@ -1263,7 +1551,7 @@
             const badgeTypeBg = corr.type === 'spelling' ? 'rgba(220, 53, 69, 0.15)' : 'rgba(255, 193, 7, 0.15)';
             const badgeTypeColor = corr.type === 'spelling' ? '#dc3545' : '#ffc107';
 
-            card.innerHTML = `
+            const cardHtml = `
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span class="vocab-label-badge" style="font-size:0.75rem; text-transform:uppercase; padding:0.15rem 0.5rem; background:${badgeTypeBg}; color:${badgeTypeColor}; border-color:transparent;">
                   ${corr.type}
@@ -1274,6 +1562,7 @@
               </div>
               <div style="font-size:0.85rem; color:var(--color-text-muted); line-height:1.4;">${corr.reason}</div>
             `;
+            card.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(cardHtml) : cardHtml;
             correctionsList.appendChild(card);
           });
         }
@@ -1287,7 +1576,7 @@
             const card = document.createElement("div");
             card.className = "suggestion-card";
             
-            card.innerHTML = `
+            const cardHtml = `
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${sug.ru}</strong>
                 <button type="button" class="audio-btn tutor-tts-btn" data-text="${sug.ru.replace(/[́]/g, '')}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
@@ -1295,6 +1584,7 @@
               <div class="page-subtitle" style="font-size:0.85rem; margin:0.15rem 0; color:var(--color-text-main); font-weight:500;">"${sug.en}"</div>
               <div style="font-size:0.8rem; color:var(--color-text-muted); line-height:1.4;">${sug.description}</div>
             `;
+            card.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(cardHtml) : cardHtml;
             suggestionsList.appendChild(card);
           });
           

@@ -401,6 +401,131 @@ Do not include any markdown formatting, backticks, or explanation outside of the
         required: ["hasErrors", "corrections", "suggestions"],
       };
 
+    } else if (action === "inflections") {
+      const { word: infWord, pos: infPos } = requestData;
+      if (!infWord) {
+        throw new Error("Missing word for inflections action");
+      }
+
+      prompt = `You are a professional Russian language teacher. Generate a complete inflection table (declension or conjugation) for the Russian word "${infWord}" (Part of speech: "${infPos || "auto-detect"}").
+All descriptions and text explanations in the output must be in ${targetLang}.
+
+Output structure depends on the part of speech of the word:
+1. If the word is a Verb (or part of speech matches verb):
+   Provide present/future tense conjugations (Я, Ты, Он/Она, Мы, Вы, Они), past tense forms (masculine, feminine, neuter, plural), and imperative forms (singular, plural).
+   Return a JSON matching this exact structure:
+   {
+     "type": "conjugation",
+     "forms": {
+       "presentFuture": [
+         { "pronoun": "Я", "form": "Russian form with stress mark", "english": "translation of form" },
+         { "pronoun": "Ты", "form": "...", "english": "..." },
+         { "pronoun": "Он/Она", "form": "...", "english": "..." },
+         { "pronoun": "Мы", "form": "...", "english": "..." },
+         { "pronoun": "Вы", "form": "...", "english": "..." },
+         { "pronoun": "Они", "form": "...", "english": "..." }
+       ],
+       "past": [
+         { "gender": "Masculine", "form": "...", "english": "..." },
+         { "gender": "Feminine", "form": "...", "english": "..." },
+         { "gender": "Neuter", "form": "...", "english": "..." },
+         { "gender": "Plural", "form": "...", "english": "..." }
+       ],
+       "imperative": [
+         { "type": "Singular (ты)", "form": "...", "english": "..." },
+         { "type": "Plural (вы)", "form": "...", "english": "..." }
+       ]
+     }
+   }
+
+2. If the word is a Noun, Adjective, or Pronoun:
+   Provide declensions for all 6 cases (Nominative, Accusative, Genitive, Dative, Instrumental, Prepositional) in both Singular and Plural forms.
+   Return a JSON matching this exact structure:
+   {
+     "type": "declension",
+     "forms": {
+       "declensions": [
+         { "case": "Nominative (Именительный)", "singular": "Russian form with stress mark", "plural": "Russian form with stress mark" },
+         { "case": "Accusative (Винительный)", "singular": "...", "plural": "..." },
+         { "case": "Genitive (Родительный)", "singular": "...", "plural": "..." },
+         { "case": "Dative (Дательный)", "singular": "...", "plural": "..." },
+         { "case": "Instrumental (Творительный)", "singular": "...", "plural": "..." },
+         { "case": "Prepositional (Предложный)", "singular": "...", "plural": "..." }
+       ]
+     }
+   }
+
+3. If the word is any other part of speech (e.g. adverb, preposition, conjunction, particle, interjection, phrase):
+   Return a JSON indicating it is not applicable:
+   {
+     "type": "not_applicable",
+     "message": "This word does not undergo declension or conjugation."
+   }
+
+Do not include any markdown formatting, backticks, or explanation outside of the raw JSON object.`;
+
+      responseSchema = {
+        type: "OBJECT",
+        properties: {
+          type: { type: "STRING" },
+          message: { type: "STRING" },
+          forms: {
+            type: "OBJECT",
+            properties: {
+              presentFuture: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    pronoun: { type: "STRING" },
+                    form: { type: "STRING" },
+                    english: { type: "STRING" }
+                  },
+                  required: ["pronoun", "form", "english"]
+                }
+              },
+              past: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    gender: { type: "STRING" },
+                    form: { type: "STRING" },
+                    english: { type: "STRING" }
+                  },
+                  required: ["gender", "form", "english"]
+                }
+              },
+              imperative: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    type: { type: "STRING" },
+                    form: { type: "STRING" },
+                    english: { type: "STRING" }
+                  },
+                  required: ["type", "form", "english"]
+                }
+              },
+              declensions: {
+                type: "ARRAY",
+                items: {
+                  type: "OBJECT",
+                  properties: {
+                    case: { type: "STRING" },
+                    singular: { type: "STRING" },
+                    plural: { type: "STRING" }
+                  },
+                  required: ["case", "singular", "plural"]
+                }
+              }
+            }
+          }
+        },
+        required: ["type"]
+      };
+
     } else {
       throw new Error(`Unsupported action: ${action}`);
     }

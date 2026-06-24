@@ -11,6 +11,7 @@ const defaultVocabulary = [
     transliteration: "privet",
     pos: "interjection",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Привет! Как твои дела?",
     exampleEn: "Hello! How are you?"
   },
@@ -22,6 +23,7 @@ const defaultVocabulary = [
     transliteration: "zdravstvuyte",
     pos: "interjection",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Здравствуйте, господин Смирнов.",
     exampleEn: "Hello, Mr. Smirnov."
   },
@@ -33,6 +35,7 @@ const defaultVocabulary = [
     transliteration: "spasibo",
     pos: "interjection",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Большое спасибо за помощь!",
     exampleEn: "Thank you very much for the help!"
   },
@@ -44,6 +47,7 @@ const defaultVocabulary = [
     transliteration: "pozhaluysta",
     pos: "interjection",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Дайте мне воды, пожалуйста.",
     exampleEn: "Give me some water, please."
   },
@@ -55,6 +59,7 @@ const defaultVocabulary = [
     transliteration: "da",
     pos: "particle",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Да, я говорю по-русски.",
     exampleEn: "Yes, I speak Russian."
   },
@@ -66,6 +71,7 @@ const defaultVocabulary = [
     transliteration: "net",
     pos: "particle",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Нет, сегодня я занят.",
     exampleEn: "No, today I am busy."
   },
@@ -77,6 +83,7 @@ const defaultVocabulary = [
     transliteration: "do svidaniya",
     pos: "phrase",
     category: "Essentials",
+    level: "A1",
     exampleRu: "До свидания! До завтра.",
     exampleEn: "Goodbye! Until tomorrow."
   },
@@ -88,6 +95,7 @@ const defaultVocabulary = [
     transliteration: "poka",
     pos: "interjection",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Пока! Увидимся позже.",
     exampleEn: "Bye! See you later."
   },
@@ -99,6 +107,7 @@ const defaultVocabulary = [
     transliteration: "khorosho",
     pos: "adverb",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Всё будет хорошо.",
     exampleEn: "Everything will be fine."
   },
@@ -110,6 +119,7 @@ const defaultVocabulary = [
     transliteration: "plokho",
     pos: "adverb",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Я плохо себя чувствую.",
     exampleEn: "I feel bad."
   },
@@ -121,6 +131,7 @@ const defaultVocabulary = [
     transliteration: "izvinite",
     pos: "verb",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Извините, где здесь метро?",
     exampleEn: "Excuse me, where is the subway here?"
   },
@@ -134,6 +145,7 @@ const defaultVocabulary = [
     transliteration: "ya",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Я изучаю русский язык.",
     exampleEn: "I am studying the Russian language."
   },
@@ -145,6 +157,7 @@ const defaultVocabulary = [
     transliteration: "ty",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Что ты делаешь?",
     exampleEn: "What are you doing?"
   },
@@ -156,6 +169,7 @@ const defaultVocabulary = [
     transliteration: "on",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Он работает врачом.",
     exampleEn: "He works as a doctor."
   },
@@ -167,6 +181,7 @@ const defaultVocabulary = [
     transliteration: "ona",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Она очень красиво поёт.",
     exampleEn: "She sings very beautifully."
   },
@@ -178,6 +193,7 @@ const defaultVocabulary = [
     transliteration: "my",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Мы любим путешествовать.",
     exampleEn: "We like to travel."
   },
@@ -189,6 +205,7 @@ const defaultVocabulary = [
     transliteration: "vy",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Откуда вы приехали?",
     exampleEn: "Where did you come from?"
   },
@@ -200,6 +217,7 @@ const defaultVocabulary = [
     transliteration: "oni",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Они живут в Москве.",
     exampleEn: "They live in Moscow."
   },
@@ -211,6 +229,7 @@ const defaultVocabulary = [
     transliteration: "kto",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Кто этот человек?",
     exampleEn: "Who is that person?"
   },
@@ -222,6 +241,7 @@ const defaultVocabulary = [
     transliteration: "chto",
     pos: "pronoun",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Что ты хочешь сказать?",
     exampleEn: "What do you want to say?"
   },
@@ -233,6 +253,7 @@ const defaultVocabulary = [
     transliteration: "gde",
     pos: "adverb",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Где находится вокзал?",
     exampleEn: "Where is the train station located?"
   },
@@ -244,6 +265,7 @@ const defaultVocabulary = [
     transliteration: "kogda",
     pos: "adverb",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Когда начинается фильм?",
     exampleEn: "When does the movie start?"
   },
@@ -255,6 +277,7 @@ const defaultVocabulary = [
     transliteration: "pochemu",
     pos: "adverb",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Почему небо голубое?",
     exampleEn: "Why is the sky blue?"
   },
@@ -266,6 +289,7 @@ const defaultVocabulary = [
     transliteration: "kak",
     pos: "adverb",
     category: "Pronouns & Questions",
+    level: "A1",
     exampleRu: "Как это пишется?",
     exampleEn: "How is this written?"
   },
@@ -279,6 +303,7 @@ const defaultVocabulary = [
     transliteration: "chelovek",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Он хороший человек.",
     exampleEn: "He is a good person."
   },
@@ -290,6 +315,7 @@ const defaultVocabulary = [
     transliteration: "drug",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Мой друг живёт в Питере.",
     exampleEn: "My friend lives in St. Petersburg."
   },
@@ -301,6 +327,7 @@ const defaultVocabulary = [
     transliteration: "sem'ya",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "У меня большая семья.",
     exampleEn: "I have a big family."
   },
@@ -312,6 +339,7 @@ const defaultVocabulary = [
     transliteration: "dom",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Я хочу пойти домой.",
     exampleEn: "I want to go home."
   },
@@ -323,6 +351,7 @@ const defaultVocabulary = [
     transliteration: "gorod",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Москва — очень большой город.",
     exampleEn: "Moscow is a very big city."
   },
@@ -334,6 +363,7 @@ const defaultVocabulary = [
     transliteration: "strana",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Россия — самая большая страна в мире.",
     exampleEn: "Russia is the largest country in the world."
   },
@@ -345,6 +375,7 @@ const defaultVocabulary = [
     transliteration: "rabota",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Эта работа очень интересная.",
     exampleEn: "This job is very interesting."
   },
@@ -356,6 +387,7 @@ const defaultVocabulary = [
     transliteration: "kniga",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Положи книгу на стол.",
     exampleEn: "Put the book on the table."
   },
@@ -367,6 +399,7 @@ const defaultVocabulary = [
     transliteration: "voda",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Можно мне стакан воды?",
     exampleEn: "May I have a glass of water?"
   },
@@ -378,6 +411,7 @@ const defaultVocabulary = [
     transliteration: "yeda",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "На столе стоит вкусная еда.",
     exampleEn: "There is tasty food on the table."
   },
@@ -389,6 +423,7 @@ const defaultVocabulary = [
     transliteration: "den'",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Желаю вам хорошего дня!",
     exampleEn: "I wish you a good day!"
   },
@@ -400,6 +435,7 @@ const defaultVocabulary = [
     transliteration: "vremya",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "У меня нет времени.",
     exampleEn: "I don't have time."
   },
@@ -413,6 +449,7 @@ const defaultVocabulary = [
     transliteration: "byt'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Я хочу быть счастливым.",
     exampleEn: "I want to be happy."
   },
@@ -424,6 +461,7 @@ const defaultVocabulary = [
     transliteration: "idti",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Куда мы идём?",
     exampleEn: "Where are we going?"
   },
@@ -435,6 +473,7 @@ const defaultVocabulary = [
     transliteration: "yekhat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Мы едем в отпуск на машине.",
     exampleEn: "We are going on vacation by car."
   },
@@ -446,6 +485,7 @@ const defaultVocabulary = [
     transliteration: "delat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Что ты делаешь сегодня вечером?",
     exampleEn: "What are you doing tonight?"
   },
@@ -457,6 +497,7 @@ const defaultVocabulary = [
     transliteration: "govorit'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Она говорит по-английски.",
     exampleEn: "She speaks English."
   },
@@ -468,6 +509,7 @@ const defaultVocabulary = [
     transliteration: "znat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Я знаю этот город очень хорошо.",
     exampleEn: "I know this city very well."
   },
@@ -479,6 +521,7 @@ const defaultVocabulary = [
     transliteration: "dumat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "О чём ты думаешь?",
     exampleEn: "What are you thinking about?"
   },
@@ -490,6 +533,7 @@ const defaultVocabulary = [
     transliteration: "khotet'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Чего ты хочешь?",
     exampleEn: "What do you want?"
   },
@@ -501,6 +545,7 @@ const defaultVocabulary = [
     transliteration: "videt'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Я не вижу разницы.",
     exampleEn: "I don't see the difference."
   },
@@ -512,6 +557,7 @@ const defaultVocabulary = [
     transliteration: "slyshat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Ты слышишь этот звук?",
     exampleEn: "Do you hear that sound?"
   },
@@ -523,6 +569,7 @@ const defaultVocabulary = [
     transliteration: "chitat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Я люблю читать перед сном.",
     exampleEn: "I like to read before sleeping."
   },
@@ -534,6 +581,7 @@ const defaultVocabulary = [
     transliteration: "pisat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Он пишет письмо другу.",
     exampleEn: "He is writing a letter to a friend."
   },
@@ -545,6 +593,7 @@ const defaultVocabulary = [
     transliteration: "ponimat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Вы понимаете русский язык?",
     exampleEn: "Do you understand Russian?"
   },
@@ -556,6 +605,7 @@ const defaultVocabulary = [
     transliteration: "rabotat'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Я работаю пять дней в неделю.",
     exampleEn: "I work five days a week."
   },
@@ -567,6 +617,7 @@ const defaultVocabulary = [
     transliteration: "lyubit'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Я люблю классическую музыку.",
     exampleEn: "I love classical music."
   },
@@ -578,6 +629,7 @@ const defaultVocabulary = [
     transliteration: "zhit'",
     pos: "verb",
     category: "Verbs",
+    level: "A2",
     exampleRu: "Где вы живёте?",
     exampleEn: "Where do you live?"
   },
@@ -591,6 +643,7 @@ const defaultVocabulary = [
     transliteration: "novyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "У меня есть новый телефон.",
     exampleEn: "I have a new phone."
   },
@@ -602,6 +655,7 @@ const defaultVocabulary = [
     transliteration: "staryy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Это старый замок.",
     exampleEn: "This is an old castle."
   },
@@ -613,6 +667,7 @@ const defaultVocabulary = [
     transliteration: "khoroshiy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Сегодня хороший день.",
     exampleEn: "Today is a good day."
   },
@@ -624,6 +679,7 @@ const defaultVocabulary = [
     transliteration: "plokhoy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "У него плохой характер.",
     exampleEn: "He has a bad character."
   },
@@ -635,6 +691,7 @@ const defaultVocabulary = [
     transliteration: "bol'shoy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "У нас большой дом.",
     exampleEn: "We have a big house."
   },
@@ -646,6 +703,7 @@ const defaultVocabulary = [
     transliteration: "malen'kiy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Котёнок ещё очень маленький.",
     exampleEn: "The kitten is still very small."
   },
@@ -657,6 +715,7 @@ const defaultVocabulary = [
     transliteration: "krasivyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Это очень красивое место.",
     exampleEn: "This is a very beautiful place."
   },
@@ -668,6 +727,7 @@ const defaultVocabulary = [
     transliteration: "bystryy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Леопард — очень быстрое животное.",
     exampleEn: "A leopard is a very fast animal."
   },
@@ -679,6 +739,7 @@ const defaultVocabulary = [
     transliteration: "medlennyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Улитка — медленное существо.",
     exampleEn: "A snail is a slow creature."
   },
@@ -690,6 +751,7 @@ const defaultVocabulary = [
     transliteration: "dorogoy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Этот ресторан слишком дорогой.",
     exampleEn: "This restaurant is too expensive."
   },
@@ -701,6 +763,7 @@ const defaultVocabulary = [
     transliteration: "deshovyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Я купил дешёвые билеты.",
     exampleEn: "I bought cheap tickets."
   },
@@ -712,6 +775,7 @@ const defaultVocabulary = [
     transliteration: "kholodnyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Мне нравится холодный чай.",
     exampleEn: "I like cold tea."
   },
@@ -723,6 +787,7 @@ const defaultVocabulary = [
     transliteration: "goryachiy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Осторожно, суп горячий!",
     exampleEn: "Be careful, the soup is hot!"
   },
@@ -734,6 +799,7 @@ const defaultVocabulary = [
     transliteration: "trudnyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Это был трудный экзамен.",
     exampleEn: "It was a difficult exam."
   },
@@ -745,6 +811,7 @@ const defaultVocabulary = [
     transliteration: "lyogkiy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Русский язык не самый лёгкий.",
     exampleEn: "Russian language is not the easiest."
   },
@@ -758,6 +825,7 @@ const defaultVocabulary = [
     transliteration: "aeroport",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Где находится международный аэропорт?",
     exampleEn: "Where is the international airport located?"
   },
@@ -769,6 +837,7 @@ const defaultVocabulary = [
     transliteration: "bilet",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Я купил билет на поезд онлайн.",
     exampleEn: "I bought a train ticket online."
   },
@@ -780,6 +849,7 @@ const defaultVocabulary = [
     transliteration: "gostinitsa",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Мы забронировали номер в гостинице.",
     exampleEn: "We booked a room at the hotel."
   },
@@ -791,6 +861,7 @@ const defaultVocabulary = [
     transliteration: "restoran",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Давай поужинаем в этом ресторане.",
     exampleEn: "Let's have dinner in this restaurant."
   },
@@ -802,6 +873,7 @@ const defaultVocabulary = [
     transliteration: "menyu",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Официант, принесите меню, пожалуйста.",
     exampleEn: "Waiter, bring the menu, please."
   },
@@ -813,6 +885,7 @@ const defaultVocabulary = [
     transliteration: "schot",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Можно счёт, пожалуйста?",
     exampleEn: "Can I have the bill, please?"
   },
@@ -824,6 +897,7 @@ const defaultVocabulary = [
     transliteration: "magazin",
     pos: "noun",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Этот магазин открыт круглосуточно.",
     exampleEn: "This shop is open 24/7."
   },
@@ -835,6 +909,7 @@ const defaultVocabulary = [
     transliteration: "skol'ko stoit",
     pos: "phrase",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Сколько стоит этот сувенир?",
     exampleEn: "How much does this souvenir cost?"
   },
@@ -846,6 +921,7 @@ const defaultVocabulary = [
     transliteration: "pomogite",
     pos: "phrase",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Помогите! Я потерял свой паспорт.",
     exampleEn: "Help! I lost my passport."
   },
@@ -857,6 +933,7 @@ const defaultVocabulary = [
     transliteration: "gde nakhoditsya",
     pos: "phrase",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Где находится ближайшая аптека?",
     exampleEn: "Where is the nearest pharmacy?"
   },
@@ -870,6 +947,7 @@ const defaultVocabulary = [
     transliteration: "odin",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "У меня только один билет.",
     exampleEn: "I only have one ticket."
   },
@@ -881,6 +959,7 @@ const defaultVocabulary = [
     transliteration: "dva",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Купите два литра молока.",
     exampleEn: "Buy two liters of milk."
   },
@@ -892,6 +971,7 @@ const defaultVocabulary = [
     transliteration: "tri",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Они будут здесь через три часа.",
     exampleEn: "They will be here in three hours."
   },
@@ -903,6 +983,7 @@ const defaultVocabulary = [
     transliteration: "chetyre",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Времени уже четыре часа дня.",
     exampleEn: "It is already four o'clock in the afternoon."
   },
@@ -914,6 +995,7 @@ const defaultVocabulary = [
     transliteration: "pyat'",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "У нас есть пять свободных минут.",
     exampleEn: "We have five free minutes."
   },
@@ -925,6 +1007,7 @@ const defaultVocabulary = [
     transliteration: "desyat'",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Это стоит десять рублей.",
     exampleEn: "This costs ten rubles."
   },
@@ -936,6 +1019,7 @@ const defaultVocabulary = [
     transliteration: "sto",
     pos: "numeral",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "В этой книге сто страниц.",
     exampleEn: "This book has one hundred pages."
   },
@@ -947,6 +1031,7 @@ const defaultVocabulary = [
     transliteration: "sevodnya",
     pos: "adverb",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Сегодня отличная погода.",
     exampleEn: "Today the weather is excellent."
   },
@@ -958,6 +1043,7 @@ const defaultVocabulary = [
     transliteration: "vchera",
     pos: "adverb",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Вчера был сильный дождь.",
     exampleEn: "Yesterday there was heavy rain."
   },
@@ -969,6 +1055,7 @@ const defaultVocabulary = [
     transliteration: "zavtra",
     pos: "adverb",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Завтра у меня выходной.",
     exampleEn: "Tomorrow is my day off."
   },
@@ -980,6 +1067,7 @@ const defaultVocabulary = [
     transliteration: "chas",
     pos: "noun",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Встретимся через час.",
     exampleEn: "Let's meet in an hour."
   },
@@ -991,6 +1079,7 @@ const defaultVocabulary = [
     transliteration: "nedelya",
     pos: "noun",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Прошла целая неделя.",
     exampleEn: "A whole week has passed."
   },
@@ -1002,6 +1091,7 @@ const defaultVocabulary = [
     transliteration: "mesyats",
     pos: "noun",
     category: "Numbers & Time",
+    level: "A2",
     exampleRu: "Я поеду в отпуск в следующем месяце.",
     exampleEn: "I will go on vacation next month."
   },
@@ -1015,6 +1105,7 @@ const defaultVocabulary = [
     transliteration: "kak dela",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Привет, друг! Как дела?",
     exampleEn: "Hello, friend! How are you?"
   },
@@ -1026,6 +1117,7 @@ const defaultVocabulary = [
     transliteration: "kak vas zovut",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Здравствуйте, как вас зовут?",
     exampleEn: "Hello, what is your name?"
   },
@@ -1037,6 +1129,7 @@ const defaultVocabulary = [
     transliteration: "ochen' priyatno",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "— Меня зовут Анна. — Очень приятно!",
     exampleEn: "— My name is Anna. — Nice to meet you!"
   },
@@ -1048,6 +1141,7 @@ const defaultVocabulary = [
     transliteration: "ya ne ponimayu",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Пожалуйста, говорите медленнее, я не понимаю.",
     exampleEn: "Please speak slower, I don't understand."
   },
@@ -1059,6 +1153,7 @@ const defaultVocabulary = [
     transliteration: "vy govorite po-angliyski",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Извините, вы говорите по-английски?",
     exampleEn: "Excuse me, do you speak English?"
   },
@@ -1070,6 +1165,7 @@ const defaultVocabulary = [
     transliteration: "gde tualet",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Подскажите, пожалуйста, где туалет?",
     exampleEn: "Could you tell me, please, where the restroom is?"
   },
@@ -1083,6 +1179,7 @@ const defaultVocabulary = [
     transliteration: "lyubov'",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Любовь спасёт мир.",
     exampleEn: "Love will save the world."
   },
@@ -1094,6 +1191,7 @@ const defaultVocabulary = [
     transliteration: "schast'ye",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Желаю вам здоровья и счастья.",
     exampleEn: "I wish you health and happiness."
   },
@@ -1105,6 +1203,7 @@ const defaultVocabulary = [
     transliteration: "solntse",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Сегодня ярко светит солнце.",
     exampleEn: "Today the sun is shining brightly."
   },
@@ -1116,6 +1215,7 @@ const defaultVocabulary = [
     transliteration: "pogoda",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Какая завтра будет погода?",
     exampleEn: "What will the weather be like tomorrow?"
   },
@@ -1127,6 +1227,7 @@ const defaultVocabulary = [
     transliteration: "umnyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Он очень умный мальчик.",
     exampleEn: "He is a very smart boy."
   },
@@ -1138,6 +1239,7 @@ const defaultVocabulary = [
     transliteration: "grustnyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Почему у тебя такое грустное лицо?",
     exampleEn: "Why do you have such a sad face?"
   },
@@ -1149,6 +1251,7 @@ const defaultVocabulary = [
     transliteration: "schastlivyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Мы провели счастливое детство.",
     exampleEn: "We had a happy childhood."
   },
@@ -1160,6 +1263,7 @@ const defaultVocabulary = [
     transliteration: "vkusnyy",
     pos: "adjective",
     category: "Adjectives",
+    level: "A2",
     exampleRu: "Этот яблочный пирог очень вкусный.",
     exampleEn: "This apple pie is very tasty."
   },
@@ -1171,6 +1275,7 @@ const defaultVocabulary = [
     transliteration: "khleb",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Я всегда покупаю свежий хлеб.",
     exampleEn: "I always buy fresh bread."
   },
@@ -1182,6 +1287,7 @@ const defaultVocabulary = [
     transliteration: "chay",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Хочешь чаю или кофе?",
     exampleEn: "Do you want tea or coffee?"
   },
@@ -1193,6 +1299,7 @@ const defaultVocabulary = [
     transliteration: "kofe",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Я пью чёрный кофе без сахара.",
     exampleEn: "I drink black coffee without sugar."
   },
@@ -1204,6 +1311,7 @@ const defaultVocabulary = [
     transliteration: "moloko",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Добавь немного молока в кофе.",
     exampleEn: "Add some milk to the coffee."
   },
@@ -1215,6 +1323,7 @@ const defaultVocabulary = [
     transliteration: "okno",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Закрой окно, на улице холодно.",
     exampleEn: "Close the window, it's cold outside."
   },
@@ -1226,6 +1335,7 @@ const defaultVocabulary = [
     transliteration: "dver'",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Кто-то стучит в дверь.",
     exampleEn: "Someone is knocking on the door."
   },
@@ -1237,6 +1347,7 @@ const defaultVocabulary = [
     transliteration: "mashina",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Моя машина сломалась.",
     exampleEn: "My car broke down."
   },
@@ -1248,6 +1359,7 @@ const defaultVocabulary = [
     transliteration: "doroga",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Эта дорога ведёт к лесу.",
     exampleEn: "This road leads to the forest."
   },
@@ -1259,6 +1371,7 @@ const defaultVocabulary = [
     transliteration: "imya",
     pos: "noun",
     category: "Nouns",
+    level: "A2",
     exampleRu: "Какое у вас имя?",
     exampleEn: "What is your name?"
   },
@@ -1270,6 +1383,7 @@ const defaultVocabulary = [
     transliteration: "govorit' po-russki",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Я учусь говорить по-русски.",
     exampleEn: "I am learning to speak Russian."
   },
@@ -1281,6 +1395,7 @@ const defaultVocabulary = [
     transliteration: "khoroshevo dnya",
     pos: "phrase",
     category: "Essentials",
+    level: "A2",
     exampleRu: "До свидания! Хорошего дня!",
     exampleEn: "Goodbye! Have a nice day!"
   },
@@ -1292,6 +1407,7 @@ const defaultVocabulary = [
     transliteration: "ponimat' po-russki",
     pos: "phrase",
     category: "Conversation",
+    level: "A2",
     exampleRu: "Я немного понимаю по-русски.",
     exampleEn: "I understand a little Russian."
   },
@@ -1303,6 +1419,7 @@ const defaultVocabulary = [
     transliteration: "skol'ko eto stoit",
     pos: "phrase",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Извините, сколько это стоит?",
     exampleEn: "Excuse me, how much is this?"
   },
@@ -1314,6 +1431,7 @@ const defaultVocabulary = [
     transliteration: "gde metro",
     pos: "phrase",
     category: "Travel & Dining",
+    level: "B1",
     exampleRu: "Скажите, пожалуйста, где метро?",
     exampleEn: "Tell me, please, where is the subway?"
   },
@@ -1325,6 +1443,7 @@ const defaultVocabulary = [
     transliteration: "ya ne znayu",
     pos: "phrase",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Я не знаю ответа на этот вопрос.",
     exampleEn: "I don't know the answer to this question."
   },
@@ -1336,6 +1455,7 @@ const defaultVocabulary = [
     transliteration: "udachi",
     pos: "phrase",
     category: "Essentials",
+    level: "A1",
     exampleRu: "Удачи тебе на экзамене!",
     exampleEn: "Good luck on your exam!"
   }
