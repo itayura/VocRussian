@@ -863,17 +863,17 @@
             </div>
             <!-- Right Side: Tutor Panel -->
             <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 400px; flex: 1; width: 100%;">
+              <button type="button" id="tutor-sidebar-expand-btn" class="btn btn-secondary" style="display: none; align-items: center; gap: 0.5rem; align-self: flex-start; margin-bottom: 0.25rem; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); cursor: pointer; color: var(--color-text-main); font-weight: bold;">
+                ▶ Show Topics List
+              </button>
               <!-- Explanation Display Area -->
               <div id="tutor-explanation-content" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                <button type="button" id="tutor-sidebar-expand-btn" class="btn btn-secondary" style="display: none; align-items: center; gap: 0.5rem; align-self: flex-start; margin-bottom: 0.25rem; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); cursor: pointer; color: var(--color-text-main); font-weight: bold;">
-                  ▶ Show Topics List
-                </button>
                 <div class="info-banner" style="background: rgba(138, 43, 226, 0.15); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--color-text-main); display: flex; align-items: center; gap: 0.5rem; box-sizing: border-box; width: 100%;">
                   <span>💡</span>
                   <span><strong>Tip:</strong> Click or tap any Russian word in the explanation text below to instantly translate and save it to your vocabulary!</span>
                 </div>
                 <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%;">
-                  <span id="tutor-initial-msg" style="color: var(--color-text-muted);">Select a topic from the left to load its grammar explanation!</span>
+                  <span id="tutor-initial-msg" style="color: var(--color-text-muted);">Select topics...</span>
                 </div>
               </div>
               

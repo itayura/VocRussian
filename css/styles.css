@@ -2036,6 +2036,10 @@ body.theme-light select option {
   display: none !important;
 }
 
+.tutor-grid-container.sidebar-collapsed #tutor-sidebar-expand-btn {
+  display: inline-flex !important;
+}
+
 @media (max-width: 768px) {
   .tutor-grid-container {
     grid-template-columns: 1fr;
