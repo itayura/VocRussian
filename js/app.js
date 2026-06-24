@@ -1347,7 +1347,7 @@
     });
   }
 
-  function startStudySession(mode) {
+  async function startStudySession(mode) {
     currentStudyMode = mode;
     
     // Get filter options from DOM
@@ -1385,7 +1385,33 @@
 
     // Check if empty deck
     if (pool.length === 0) {
-      alert("No cards match your chosen filters! Try targeting 'Entire Database', selecting a different category, or adding some custom words.");
+      if (deckTarget === "due") {
+        const renew = await window.confirmCustom("You have no due cards to review today! Would you like to renew all card schedules (make them due for review right now) so you can study them anyway?");
+        if (renew) {
+          try {
+            const progressStr = localStorage.getItem("voc_russian_progress");
+            if (progressStr) {
+              const progress = JSON.parse(progressStr);
+              Object.keys(progress).forEach(id => {
+                progress[id].nextReview = Date.now();
+                progress[id].updatedAt = Date.now();
+              });
+              localStorage.setItem("voc_russian_progress", JSON.stringify(progress));
+            }
+            if (window.SRS) window.SRS.init();
+            if (window.refreshAppUI) window.refreshAppUI();
+            if (window.renderDashboard) window.renderDashboard();
+            
+            // Re-run startStudySession with newly renewed cards
+            startStudySession(mode);
+          } catch (e) {
+            console.error(e);
+            alert("Failed to renew due cards: " + e.message);
+          }
+        }
+      } else {
+        alert("No cards match your chosen filters! Try targeting 'Entire Database', selecting a different category, or adding some custom words.");
+      }
       return;
     }
 
