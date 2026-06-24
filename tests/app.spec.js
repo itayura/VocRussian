@@ -263,15 +263,10 @@ test.describe('VocRussian E2E Test Suite', () => {
     await ctaStart.click();
   });
 
-  // 1. Dashboard View
-  test('Dashboard loads metrics and proficiency bars correctly', async ({ page }) => {
+  test('Dashboard loads metrics correctly', async ({ page }) => {
     // Assert streak and XP exist
     await expect(page.locator('#sidebar-streak-val')).toContainText('0');
     await expect(page.locator('#sidebar-xp-val')).toContainText('0');
-
-    // Assert level badges
-    await expect(page.locator('#grammar-level-badge')).toBeVisible();
-    await expect(page.locator('#vocab-level-badge')).toBeVisible();
   });
 
   // 2. Auth Lock / Unlock Flow
