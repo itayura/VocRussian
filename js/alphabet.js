@@ -1,4 +1,4 @@
-// VocRussian Cyrillic Alphabet Practice Module
+// Privyetik Cyrillic Alphabet Practice Module
 
 (function () {
   const ALPHABET_DB = [

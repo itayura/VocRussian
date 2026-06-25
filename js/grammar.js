@@ -1,4 +1,4 @@
-// VocRussian AI Grammar Learning Manager
+// Privyetik AI Grammar Learning Manager
 
 (function () {
   // Fallback for setRevealableText helper (useful if app.js is served cached)

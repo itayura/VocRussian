@@ -1,4 +1,4 @@
-// VocRussian Audio Engine: Text-to-Speech & Sound Synthesis
+// Privyetik Audio Engine: Text-to-Speech & Sound Synthesis
 
 (function () {
   let audioCtx = null;

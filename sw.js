@@ -1,4 +1,4 @@
-// VocRussian Progressive Web App Service Worker
+// Privyetik Progressive Web App Service Worker
 const CACHE_NAME = "voc-russian-cache-v19";
 const ASSETS_TO_CACHE = [
   "./",
@@ -161,12 +161,12 @@ function getTodayDateString() {
 
 // Push Event (Remote Notifications)
 self.addEventListener("push", (event) => {
-  let data = { title: "VocRussian", body: "Practice your Russian words today!" };
+  let data = { title: "Privyetik", body: "Practice your Russian today!" };
   if (event.data) {
     try {
       data = event.data.json();
     } catch (e) {
-      data = { title: "VocRussian", body: event.data.text() };
+      data = { title: "Privyetik", body: event.data.text() };
     }
   }
 

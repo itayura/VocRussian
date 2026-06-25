@@ -1,8 +1,8 @@
 {
-  "packageId": "com.itayura.vocrussian",
+  "packageId": "com.itayura.privyetik",
   "host": "itayura.github.io",
-  "name": "VocRussian - Russian Vocabulary Master",
-  "launcherName": "VocRussian",
+  "name": "Privyetik - Learn Russian",
+  "launcherName": "Privyetik",
   "display": "standalone",
   "themeColor": "#0B0F19",
   "themeColorDark": "#000000",

@@ -1,4 +1,4 @@
-// VocRussian Application Controller
+// Privyetik Application Controller
 
 (function () {
   // Override window.alert with a premium glassmorphic custom modal alert immediately

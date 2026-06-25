@@ -1,4 +1,4 @@
-// VocRussian Default Vocabulary Database
+// Privyetik Default Vocabulary Database
 // Curated list of high-frequency words and phrases to jumpstart learning.
 
 const defaultVocabulary = [

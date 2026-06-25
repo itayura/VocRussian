@@ -1,4 +1,4 @@
-// VocRussian Supabase Cloud Sync & Authentication Module
+// Privyetik Supabase Cloud Sync & Authentication Module
 
 (function () {
   const CONFIG = {

@@ -1,4 +1,4 @@
-// VocRussian Spaced Repetition System (SRS) & State Management
+// Privyetik Spaced Repetition System (SRS) & State Management
 
 (function () {
   // Leitner system intervals in milliseconds

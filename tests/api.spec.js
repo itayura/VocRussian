@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('VocRussian AI Word Ingestion API Contract Tests', () => {
+test.describe('Privyetik AI Word Ingestion API Contract Tests', () => {
 
   test('should return 200 and structured word object when input is correct', async ({ page }) => {
     // Intercept the API endpoint

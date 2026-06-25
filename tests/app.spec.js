@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test.describe('VocRussian E2E Test Suite', () => {
+test.describe('Privyetik E2E Test Suite', () => {
   
   async function mockLogin(page) {
     await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
