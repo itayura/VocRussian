@@ -667,27 +667,83 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#add-word-input')).toHaveValue('книга');
   });
 
-  test('Adaptive Placement Test workflow seeds stats, XP, and updates levels correctly', async ({ page }) => {
+  test('Assessment Test workflow seeds stats, XP, and updates levels correctly', async ({ page }) => {
     test.slow();
     const qaMap = {
+      // A1
       "Привет": "Hello (informal)",
       "pronouns means 'We'": "Мы",
       "Спасибо": "Thank you",
+      "Russian word 'Книга'": "Book",
+      "word means 'Yes'": "Да",
+      "How do you say 'How are you?'": "Как дела?",
+      "What is your name?' (informal)": "Как тебя зовут?",
+      "I speak Russian.": "Я говорю по-русски",
+      "Мама": "Мама",
+      "Goodbye' in Russian": "До свидания",
+
+      // A2
       "Это _____ книга": "новая",
-      "Where is the station": "Где вокзал?",
+      "Where is the station?": "Где вокзал?",
       "Он _____ говорит по-русски": "хорошо",
-      "preposition 'без'": "Genitive",
-      "книгу весь вечер": "читал",
-      "встретимся _____ субботу": "в",
-      "в школу пешком": "хожу",
-      "сидела у окна": "читающая",
-      "Если бы я знал": "пришёл",
-      "я встретил друга": "Идя",
-      "детей": "трое",
-      "работает _____ фабрике": "на",
+      "Я живу _____ Москве": "в",
+      "_____ нравится эта music": "Мне",
+      "_____ нравится эта музыка": "Мне",
+      "Мы _____ в кино": "идём",
+      "Мой брат — _____": "студент",
+      "Она пьёт _____": "чай",
+      "Это _____ город": "красивый",
+      "I have a cat": "У меня есть кошка",
+
+      // B1
+      "grammatical case is used after the preposition 'без'": "Genitive",
+      "Он _____ книгу весь вечер": "читал",
+      "Мы встретимся _____ субботу": "в",
+      "Я позвоню _____ завтра": "тебе",
+      "Она интересуется _____": "музыкой",
+      "Они уже _____ статью": "прочитали",
+      "_____ мне этот карандаш, пожалуйста": "Дай",
+      "Он _____ своего брата": "старше",
+      "Если завтра _____ хорошая погода": "будет",
+      "Я часто _____ на метро": "езжу",
+
+      // B2
+      "Каждое утро я _____ в школу пешком": "хожу",
+      "Девочка, _____ книгу у окна": "читающая",
+      "Если бы я знал, я бы _____": "пришёл",
+      "Он _____ домой очень поздно вчера": "пришёл",
+      "Она пишет письмо _____": "ручкой",
+      "Мы очень рады _____ успеху": "вашему",
+      "Он _____ помочь нам": "согласился",
+      "Этот фильм _____ посмотреть": "стоит",
+      "Я _____ вставать рано утром": "привык",
+      "_____ дождь, мы пошли гулять": "Несмотря на",
+
+      // C1
+      "я встретил друга": "Идя по улице",
+      "У неё _____ детей": "трое",
+      "Он работает _____ фабрике": "на",
+      "Решение, _____ на собрании, устроило всех": "принятое",
+      "_____ часа мы обсуждали новый план": "В течение",
+      "_____ помощи друга, я сдал сложный экзамен": "Благодаря",
+      "Он говорит так, _____ знает абсолютно всё": "будто",
+      "Мне не _____": "спится",
+      "Она сделала это _____ своей семьи": "ради",
+      "Чем больше я учусь, _____ лучше понимаю": "тем",
+
+      // C2
+      "в свои дальнейшие планы": "посвятила",
       "в свои планы": "посвятила",
-      "он ни старался": "ни",
-      "мне правду": "сказал"
+      "Как он _____ старался, ничего не выходило": "ни",
+      "Он сказал мне правду в _____": "глаза",
+      "мне правду": "глаза",
+      "Он _____ приедет сегодня": "вряд ли",
+      "_____ глупо отказываться от такого предложения": "Было бы",
+      "Давай сделаем это во что бы то _____": "ни стало",
+      "В этой статье речь _____ о глобальном потеплении": "идёт",
+      "Она сделала _____, что не заметила нас": "вид",
+      "Что бы _____ случилось, сохраняй спокойствие": "ни",
+      "Ему _____": "нездоровится"
     };
 
     async function answerActiveQuestionCorrectly() {
@@ -708,7 +764,7 @@ test.describe('Privyetik E2E Test Suite', () => {
           return;
         }
       }
-      throw new Error(`Button with text "${foundAnswer}" not found`);
+      throw new Error(`Button with text "${foundAnswer}" not found for question "${questionText}"`);
     }
 
     // 1. Verify that the placement test banner is visible on the dashboard for a new user (0 XP)
@@ -724,15 +780,15 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.locator('#placement-start-test-btn').click();
     await expect(page.locator('#placement-question-view')).toBeVisible();
 
-    // 4. Answer all 10 questions correctly to get C2 placement
-    for (let step = 1; step <= 10; step++) {
-      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 10`);
+    // 4. Answer all 50 questions correctly to get C2 placement
+    for (let step = 1; step <= 50; step++) {
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`);
       await answerActiveQuestionCorrectly();
     }
 
     // 5. Verify results screen shows C2 level and C2 avatar
     await expect(page.locator('#placement-result-view')).toBeVisible();
-    await expect(page.locator('#placement-result-title')).toHaveText('Level Placed: C2!');
+    await expect(page.locator('#placement-result-title')).toHaveText('Level Assessed: C2!');
     await expect(page.locator('#placement-result-text')).toContainText('You placed at level C2');
 
     // 6. Test permission gate: click "Finish without Seeding"
@@ -741,8 +797,8 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // Verify XP is still 0
     await expect(page.locator('#sidebar-xp-val')).toHaveText('0');
-    // Placement banner is now hidden
-    await expect(banner).not.toBeVisible();
+    // Assessment banner remains visible (it's persistent)
+    await expect(banner).toBeVisible();
 
     // 7. Retake test to apply seeding
     await page.locator('.nav-item[data-target="settings"]').click({ force: true });
@@ -750,9 +806,9 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#modal-placement-test')).toBeVisible();
     await page.locator('#placement-start-test-btn').click();
 
-    // Answer all 10 questions correctly again
-    for (let step = 1; step <= 10; step++) {
-      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 10`);
+    // Answer all 50 questions correctly again
+    for (let step = 1; step <= 50; step++) {
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`);
       await answerActiveQuestionCorrectly();
     }
 

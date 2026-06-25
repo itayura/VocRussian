@@ -1,5 +1,6 @@
 (function () {
   const PLACEMENT_QUESTIONS = [
+    // A1 (10 Questions)
     {
       id: 1,
       level: "A1",
@@ -23,115 +24,427 @@
     },
     {
       id: 4,
+      level: "A1",
+      question: "What does the Russian word 'Книга' mean?",
+      choices: ["Book", "Pen", "Notebook", "Pencil"],
+      answer: "Book"
+    },
+    {
+      id: 5,
+      level: "A1",
+      question: "Which word means 'Yes' in Russian?",
+      choices: ["Нет", "Да", "И", "Но"],
+      answer: "Да"
+    },
+    {
+      id: 6,
+      level: "A1",
+      question: "How do you say 'How are you?' in Russian?",
+      choices: ["Как дела?", "Кто это?", "Где это?", "Что это?"],
+      answer: "Как дела?"
+    },
+    {
+      id: 7,
+      level: "A1",
+      question: "Translate 'What is your name?' (informal) to Russian:",
+      choices: ["Как тебя зовут?", "Как вас зовут?", "Кто ты?", "Как дела?"],
+      answer: "Как тебя зовут?"
+    },
+    {
+      id: 8,
+      level: "A1",
+      question: "Choose the correct translation: 'I speak Russian.'",
+      choices: ["Я говорю по-русски", "Я знаю по-русски", "Я пишу по-русски", "Я читаю по-русски"],
+      answer: "Я говорю по-русски"
+    },
+    {
+      id: 9,
+      level: "A1",
+      question: "What does 'Мама' mean?",
+      choices: ["Mother", "Father", "Sister", "Brother"],
+      answer: "Мама"
+    },
+    {
+      id: 10,
+      level: "A1",
+      question: "Which phrase means 'Goodbye' in Russian?",
+      choices: ["До свидания", "Пожалуйста", "Привет", "Здравствуйте"],
+      answer: "До свидания"
+    },
+
+    // A2 (10 Questions)
+    {
+      id: 11,
       level: "A2",
       question: "Identify the correct form of the adjective in: 'Это _____ книга.'",
       choices: ["новый", "новое", "новая", "новые"],
       answer: "новая"
     },
     {
-      id: 5,
+      id: 12,
       level: "A2",
       question: "How do you say 'Where is the station?' in Russian?",
       choices: ["Где вокзал?", "Как дела?", "Где метро?", "Кто это?"],
       answer: "Где вокзал?"
     },
     {
-      id: 6,
+      id: 13,
       level: "A2",
       question: "Complete the sentence: 'Он _____ говорит по-русски.' (He speaks Russian well)",
       choices: ["хорошо", "хороший", "хорошие", "хорошая"],
       answer: "хорошо"
     },
     {
-      id: 7,
+      id: 14,
+      level: "A2",
+      question: "Choose the correct preposition: 'Я живу _____ Москве.' (I live in Moscow)",
+      choices: ["в", "на", "о", "к"],
+      answer: "в"
+    },
+    {
+      id: 15,
+      level: "A2",
+      question: "Choose the correct form of the pronoun: '_____ нравится эта музыка.' (I like this music)",
+      choices: ["Я", "Меня", "Мне", "Мной"],
+      answer: "Мне"
+    },
+    {
+      id: 16,
+      level: "A2",
+      question: "Complete the sentence: 'Мы _____ в кино.' (We are going to the cinema)",
+      choices: ["идём", "ходим", "едем", "ездим"],
+      answer: "идём"
+    },
+    {
+      id: 17,
+      level: "A2",
+      question: "Complete the sentence: 'Мой брат — _____.' (My brother is a student)",
+      choices: ["студент", "студенты", "студентка", "студентом"],
+      answer: "студент"
+    },
+    {
+      id: 18,
+      level: "A2",
+      question: "Complete the sentence: 'Она пьёт _____.' (She drinks tea)",
+      choices: ["чай", "чая", "чаю", "чаем"],
+      answer: "чай"
+    },
+    {
+      id: 19,
+      level: "A2",
+      question: "Choose the correct form of the adjective: 'Это _____ город.' (This is a beautiful city)",
+      choices: ["красивый", "красивая", "красивое", "красивые"],
+      answer: "красивый"
+    },
+    {
+      id: 20,
+      level: "A2",
+      question: "Choose the correct phrase for 'I have a cat':",
+      choices: ["У меня есть кошка", "Я имею кошку", "Мне есть кошка", "У меня кошка есть"],
+      answer: "У меня есть кошка"
+    },
+
+    // B1 (10 Questions)
+    {
+      id: 21,
       level: "B1",
       question: "Which grammatical case is used after the preposition 'без' (without)?",
       choices: ["Nominative", "Genitive", "Accusative", "Dative"],
       answer: "Genitive"
     },
     {
-      id: 8,
+      id: 22,
       level: "B1",
       question: "Complete the sentence with the correct verb form: 'Он _____ книгу весь вечер.' (He was reading)",
       choices: ["читал", "читать", "прочитает", "прочитал"],
       answer: "читал"
     },
     {
-      id: 9,
+      id: 23,
       level: "B1",
       question: "Choose the correct preposition: 'Мы встретимся _____ субботу.' (We will meet on Saturday)",
       choices: ["в", "на", "о", "с"],
       answer: "в"
     },
     {
-      id: 10,
+      id: 24,
+      level: "B1",
+      question: "Choose the correct pronoun form: 'Я позвоню _____ завтра.' (I will call you tomorrow)",
+      choices: ["тебя", "тобой", "тебе", "о тебе"],
+      answer: "тебе"
+    },
+    {
+      id: 25,
+      level: "B1",
+      question: "Complete the sentence: 'Она интересуется _____.' (She is interested in music)",
+      choices: ["музыка", "музыку", "музыкой", "музыке"],
+      answer: "музыкой"
+    },
+    {
+      id: 26,
+      level: "B1",
+      question: "Complete the sentence: 'Они уже _____ статью.' (They have already read/finished the article)",
+      choices: ["читали", "прочитали", "будут читать", "прочитают"],
+      answer: "прочитали"
+    },
+    {
+      id: 27,
+      level: "B1",
+      question: "Choose the correct imperative: '_____ мне этот карандаш, пожалуйста.' (Give)",
+      choices: ["Дай", "Дайте", "Давай", "Давать"],
+      answer: "Дай"
+    },
+    {
+      id: 28,
+      level: "B1",
+      question: "Complete the sentence: 'Он _____ своего брата.' (He is older than his brother)",
+      choices: ["常规", "старше", "более старый", "старее"],
+      answer: "常规" // Wait, choices: ["старше", "более старый", "самый старый", "старее"], answer: "старше"
+    },
+    {
+      id: 29,
+      level: "B1",
+      question: "Complete the sentence: 'Если завтра _____ хорошая погода, мы пойдём гулять.'",
+      choices: ["будет", "есть", "была", "будем"],
+      answer: "будет"
+    },
+    {
+      id: 30,
+      level: "B1",
+      question: "Complete the sentence: 'Я часто _____ на метро.' (I often ride/go by metro)",
+      choices: ["еду", "езжу", "хожу", "иду"],
+      answer: "езжу"
+    },
+
+    // B2 (10 Questions)
+    {
+      id: 31,
       level: "B2",
-      question: "Choose the correct verb of motion: 'Каждое утро я _____ в школу пешком.' (I go/walk)",
+      question: "Choose the correct verb of motion: 'Каждое утро я _____ в школу пешком.' (I walk)",
       choices: ["иду", "хожу", "еду", "езжу"],
       answer: "хожу"
     },
     {
-      id: 11,
+      id: 32,
       level: "B2",
-      question: "Complete the sentence: 'Девочка, которая сидела у окна, была _____.' (reading)",
+      question: "Complete the sentence: 'Девочка, _____ книгу у окна, была очень внимательна.' (reading)",
       choices: ["читающая", "читающий", "читающее", "читающие"],
       answer: "читающая"
     },
     {
-      id: 12,
+      id: 33,
       level: "B2",
       question: "Choose the correct conditional form: 'Если бы я знал, я бы _____.' (came/would have come)",
       choices: ["пришёл", "приду", "приходить", "пришли"],
       answer: "пришёл"
     },
     {
-      id: 13,
-      level: "C1",
-      question: "Choose the correct verbal adverb (gerund): '_____, я встретил друга.' (Walking/While walking)",
-      choices: ["Идя", "Ходя", "Шёл", "Идя по улице"],
-      answer: "Идя"
+      id: 34,
+      level: "B2",
+      question: "Complete the sentence with the correct verb of motion: 'Он _____ домой очень поздно вчера.' (He came/arrived)",
+      choices: ["шёл", "пришёл", "пошёл", "ходил"],
+      answer: "пришёл"
     },
     {
-      id: 14,
+      id: 35,
+      level: "B2",
+      question: "Complete the sentence: 'Она пишет письмо _____.' (She writes a letter with a pen)",
+      choices: ["ручка", "ручку", "ручкой", "ручке"],
+      answer: "ручкой"
+    },
+    {
+      id: 36,
+      level: "B2",
+      question: "Choose the correct pronoun form: 'Мы очень рады _____ успеху.' (We are very glad of your success)",
+      choices: ["вашего", "вашему", "вашим", "вашем"],
+      answer: "вашему"
+    },
+    {
+      id: 37,
+      level: "B2",
+      question: "Complete the sentence: 'Он _____ помочь нам.' (He agreed to help us)",
+      choices: ["согласился", "согласилась", "согласились", "согласиться"],
+      answer: "согласился"
+    },
+    {
+      id: 38,
+      level: "B2",
+      question: "Complete the sentence: 'Этот фильм _____ посмотреть.' (This movie is worth watching)",
+      choices: ["стоит", "должен", "нужно", "может"],
+      answer: "стоит"
+    },
+    {
+      id: 39,
+      level: "B2",
+      question: "Complete the sentence: 'Я _____ вставать рано утром.' (I got used to)",
+      choices: ["привык", "привыкла", "привыкли", "привыкнуть"],
+      answer: "привык"
+    },
+    {
+      id: 40,
+      level: "B2",
+      question: "Complete the sentence: '_____ дождь, мы пошли гулять.' (Despite the rain)",
+      choices: ["Несмотря на", "Из-за", "Благодаря", "В связи с"],
+      answer: "Несмотря на"
+    },
+
+    // C1 (10 Questions)
+    {
+      id: 41,
+      level: "C1",
+      question: "Choose the correct verbal adverb (gerund): '_____, я встретил друга.' (While walking down the street)",
+      choices: ["Идя по улице", "Ходя по улице", "Шёл по улице", "Прогулявшись по улице"],
+      answer: "Идя по улице"
+    },
+    {
+      id: 42,
       level: "C1",
       question: "Choose the correct collective numeral: 'У неё _____ детей.' (three children)",
       choices: ["трое", "три", "тремя", "троих"],
       answer: "трое"
     },
     {
-      id: 15,
+      id: 43,
       level: "C1",
       question: "Complete the sentence with the correct preposition: 'Он работает _____ фабрике.' (at the factory)",
       choices: ["на", "в", "при", "у"],
       answer: "на"
     },
     {
-      id: 16,
+      id: 44,
+      level: "C1",
+      question: "Choose the correct passive participle form: 'Решение, _____ на собрании, устроило всех.' (taken/adopted)",
+      choices: ["принятое", "принятый", "принятая", "принятые"],
+      answer: "принятое"
+    },
+    {
+      id: 45,
+      level: "C1",
+      question: "Choose the correct preposition: '_____ часа мы обсуждали новый план.' (During / In the course of)",
+      choices: ["В течение", "В течении", "За время", "В продолжении"],
+      answer: "В течение"
+    },
+    {
+      id: 46,
+      level: "C1",
+      question: "Choose the correct preposition: '_____ помощи друга, я сдал сложный экзамен.' (Thanks to)",
+      choices: ["Благодаря", "Из-за", "Несмотря на", "Вследствие"],
+      answer: "Благодаря"
+    },
+    {
+      id: 47,
+      level: "C1",
+      question: "Complete the sentence: 'Он говорит так, _____ знает абсолютно всё.' (as if)",
+      choices: ["будто", "что", "чтобы", "как"],
+      answer: "будто"
+    },
+    {
+      id: 48,
+      level: "C1",
+      question: "Complete the impersonal sentence: 'Мне не _____.' (I don't feel like sleeping)",
+      choices: ["спится", "хочется спать", "сплю", "спать"],
+      answer: "спится"
+    },
+    {
+      id: 49,
+      level: "C1",
+      question: "Complete the sentence with the correct preposition: 'Она сделала это _____ своей семьи.' (for the sake of)",
+      choices: ["ради", "для", "за", "ради интересов"],
+      answer: "ради"
+    },
+    {
+      id: 50,
+      level: "C1",
+      question: "Complete the double conjunction: 'Чем больше я учусь, _____ лучше понимаю русский язык.'",
+      choices: ["тем", "то", "так", "чем"],
+      answer: "тем"
+    },
+
+    // C2 (10 Questions)
+    {
+      id: 51,
       level: "C2",
-      question: "Complete with the correct verb: 'Она не посвятила меня в свои планы.' (she did not initiate/let in)",
+      question: "Complete the sentence: 'Она не _____ меня в свои дальнейшие планы.' (did not initiate/let in)",
       choices: ["посвятила", "посвятил", "посвятить", "посвятили"],
       answer: "посвятила"
     },
     {
-      id: 17,
+      id: 52,
       level: "C2",
-      question: "Choose the correct particle: 'Как он ни старался, ничего не выходило.' (No matter how hard he tried)",
+      question: "Choose the correct particle: 'Как он _____ старался, ничего не выходило.' (No matter how hard he tried)",
       choices: ["ни", "не", "ли", "бы"],
       answer: "ни"
     },
     {
-      id: 18,
+      id: 53,
       level: "C2",
-      question: "Complete the idiom: 'Он сказал мне правду в глаза.' (He told me the truth to my face)",
-      choices: ["сказал", "говорил", "сказать", "говоря"],
-      answer: "сказал"
+      question: "Complete the idiom: 'Он сказал мне правду в _____.' (He told me the truth to my face)",
+      choices: ["глаза", "лицо", "лоб", "уши"],
+      answer: "глаза"
+    },
+    {
+      id: 54,
+      level: "C2",
+      question: "Complete the sentence: 'Он _____ приедет сегодня.' (He is unlikely/hardly going to arrive today)",
+      choices: ["вряд ли", "едва ли", "почти не", "навряд"],
+      answer: "вряд ли"
+    },
+    {
+      id: 55,
+      level: "C2",
+      question: "Choose the correct conditional phrasing: '_____ глупо отказываться от такого предложения.' (It would be)",
+      choices: ["Было бы", "Есть", "Будет", "Было"],
+      answer: "Было бы"
+    },
+    {
+      id: 56,
+      level: "C2",
+      question: "Complete the idiom: 'Давай сделаем это во что бы то _____.' (at all costs / no matter what)",
+      choices: ["ни стало", "не стало", "ни было", "не было"],
+      answer: "ни стало"
+    },
+    {
+      id: 57,
+      level: "C2",
+      question: "Complete the idiom: 'В этой статье речь _____ о глобальном потеплении.' (It is about / The issue is)",
+      choices: ["идёт", "говорится", "пишется", "ведет"],
+      answer: "идёт"
+    },
+    {
+      id: 58,
+      level: "C2",
+      question: "Complete the idiom: 'Она сделала _____, что не заметила нас.' (She pretended)",
+      choices: ["вид", "форму", "маску", "лицо"],
+      answer: "вид"
+    },
+    {
+      id: 59,
+      level: "C2",
+      question: "Choose the correct particle: 'Что бы _____ случилось, сохраняй спокойствие.' (Whatever happens)",
+      choices: ["ни", "не", "ли", "бы"],
+      answer: "ни"
+    },
+    {
+      id: 60,
+      level: "C2",
+      question: "Complete the impersonal idiom: 'Ему _____.' (He feels under the weather / sick)",
+      choices: ["нездоровится", "болеет", "плохо", "нездоровится ему"],
+      answer: "нездоровится"
     }
   ];
 
-  let currentLevelIndex = 1; // starts at A2 (0=A1, 1=A2, 2=B1, 3=B2, 4=C1, 5=C2)
-  let currentQuestionStep = 1; // 1 to 10
+  // Fix B1 Question 28 target content
+  for (let q of PLACEMENT_QUESTIONS) {
+    if (q.id === 28) {
+      q.choices = ["старше", "более старый", "самый старый", "старее"];
+      q.answer = "старше";
+    }
+  }
+
+  let selectedQuestions = [];
+  let currentQuestionIndex = 0; // 0 to 49
   let correctAnswersCount = 0;
-  const usedQuestionIds = new Set();
+  let correctByLevel = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 };
   let currentQuestion = null;
   let pendingPlacement = null; // { level, xp }
 
@@ -146,15 +459,8 @@
 
     if (!banner) return;
 
-    // Show/hide banner on Dashboard load
-    const taken = localStorage.getItem("voc_placement_test_taken") === "true";
-    const currentXp = window.SRS ? (window.SRS.getGlobalStats().xp || 0) : 0;
-
-    if (!taken && currentXp === 0) {
-      banner.style.display = "flex";
-    } else {
-      banner.style.display = "none";
-    }
+    // The assessment test card is a permanent dashboard component.
+    banner.style.display = "flex";
 
     // Start buttons
     if (startBannerBtn) {
@@ -164,7 +470,6 @@
     if (startSettingsBtn) {
       startSettingsBtn.replaceWith(startSettingsBtn.cloneNode(true));
       document.getElementById("settings-placement-test-btn").addEventListener("click", () => {
-        localStorage.removeItem("voc_placement_test_taken");
         openPlacementTest();
       });
     }
@@ -194,10 +499,10 @@
   }
 
   function openPlacementTest() {
-    currentLevelIndex = 1;
-    currentQuestionStep = 1;
+    selectedQuestions = [];
+    currentQuestionIndex = 0;
     correctAnswersCount = 0;
-    usedQuestionIds.clear();
+    correctByLevel = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 };
     pendingPlacement = null;
 
     // Reset views
@@ -220,11 +525,30 @@
     }
   }
 
+  function shuffleArray(array) {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
   function startTest() {
-    currentLevelIndex = 1;
-    currentQuestionStep = 1;
+    // Pick stratified random selection of 50 questions
+    const a1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "A1")).slice(0, 8);
+    const a2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "A2")).slice(0, 8);
+    const b1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "B1")).slice(0, 8);
+    const b2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "B2")).slice(0, 8);
+    const c1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "C1")).slice(0, 9);
+    const c2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "C2")).slice(0, 9);
+
+    // Concatenate sequentially to display from easiest to hardest
+    selectedQuestions = [...a1Pool, ...a2Pool, ...b1Pool, ...b2Pool, ...c1Pool, ...c2Pool];
+    
+    currentQuestionIndex = 0;
     correctAnswersCount = 0;
-    usedQuestionIds.clear();
+    correctByLevel = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 };
     pendingPlacement = null;
 
     document.getElementById("placement-intro-view").style.display = "none";
@@ -233,50 +557,22 @@
     loadQuestion();
   }
 
-  function getUnusedQuestionForLevel(levelIdx) {
-    const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
-    const targetLvl = levels[levelIdx];
-    const pool = PLACEMENT_QUESTIONS.filter(q => q.level === targetLvl && !usedQuestionIds.has(q.id));
-    if (pool.length > 0) {
-      return pool[Math.floor(Math.random() * pool.length)];
-    }
-
-    // Search closest levels
-    for (let offset = 1; offset <= 5; offset++) {
-      for (const idx of [levelIdx - offset, levelIdx + offset]) {
-        if (idx >= 0 && idx <= 5) {
-          const fallbackLvl = levels[idx];
-          const fallbackPool = PLACEMENT_QUESTIONS.filter(q => q.level === fallbackLvl && !usedQuestionIds.has(q.id));
-          if (fallbackPool.length > 0) {
-            return fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
-          }
-        }
-      }
-    }
-
-    // Last resort
-    const unused = PLACEMENT_QUESTIONS.filter(q => !usedQuestionIds.has(q.id));
-    if (unused.length > 0) {
-      return unused[Math.floor(Math.random() * unused.length)];
-    }
-    return PLACEMENT_QUESTIONS[Math.floor(Math.random() * PLACEMENT_QUESTIONS.length)];
-  }
-
   function loadQuestion() {
-    currentQuestion = getUnusedQuestionForLevel(currentLevelIndex);
+    currentQuestion = selectedQuestions[currentQuestionIndex];
     if (!currentQuestion) {
-      console.error("[PlacementTest] No question found!");
+      console.error("[PlacementTest] No question found at index:", currentQuestionIndex);
       showResults();
       return;
     }
-    usedQuestionIds.add(currentQuestion.id);
+
+    const currentQuestionStep = currentQuestionIndex + 1;
 
     // Update step and badge
-    document.getElementById("placement-question-step").innerText = `Question ${currentQuestionStep} of 10`;
+    document.getElementById("placement-question-step").innerText = `Question ${currentQuestionStep} of 50`;
     document.getElementById("placement-question-level").innerText = `Level ${currentQuestion.level}`;
     
-    // Progress bar
-    const pct = (currentQuestionStep / 10) * 100;
+    // Progress bar (2% increments)
+    const pct = (currentQuestionStep / 50) * 100;
     document.getElementById("placement-progress-bar").style.width = `${pct}%`;
 
     // Question text
@@ -318,13 +614,11 @@
 
     if (isCorrect) {
       correctAnswersCount++;
+      correctByLevel[q.level]++;
       selectedBtn.classList.add("correct-glow");
       if (window.AudioEngine) window.AudioEngine.playSuccess();
       if (animationsEnabled && window.showConfettiBurst) {
         window.showConfettiBurst(selectedBtn);
-      }
-      if (currentLevelIndex < 5) {
-        currentLevelIndex++;
       }
     } else {
       selectedBtn.classList.add("incorrect-shake");
@@ -337,14 +631,11 @@
           btn.style.background = "rgba(40, 167, 69, 0.1)";
         }
       });
-      if (currentLevelIndex > 0) {
-        currentLevelIndex--;
-      }
     }
 
     setTimeout(() => {
-      currentQuestionStep++;
-      if (currentQuestionStep <= 10) {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < 50) {
         loadQuestion();
       } else {
         showResults();
@@ -357,39 +648,52 @@
     document.getElementById("placement-result-view").style.display = "flex";
 
     const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
-    const level = levels[currentLevelIndex];
+    let finalLevelIndex = 0; // default is A1
+    
+    // Determine the highest level index where they scored >= 60% accuracy
+    for (let i = 0; i < levels.length; i++) {
+      const lvl = levels[i];
+      const lvlQuestions = selectedQuestions.filter(q => q.level === lvl);
+      const lvlCorrect = correctByLevel[lvl] || 0;
+      const pct = (lvlCorrect / lvlQuestions.length) * 100;
+      if (pct >= 60) {
+        finalLevelIndex = i;
+      }
+    }
+
+    const level = levels[finalLevelIndex];
     let xp = 0;
     let desc = "";
     let avatar = "🐻";
 
     if (level === "A1") {
       xp = 50;
-      desc = "You placed at level A1 (Beginner). We have set up your starting cards in Box 1 and awarded you a kickstart reward of +50 XP!";
+      desc = `You placed at level A1 (Beginner) with a total score of ${correctAnswersCount}/50! We can seed your starting cards in Box 1 and award you a kickstart reward of +50 XP!`;
       avatar = "🐻";
     } else if (level === "A2") {
       xp = 200;
-      desc = "You placed at level A2 (Elementary). We have promoted your A1 vocabulary words to Box 3, marked introductory grammar lessons completed, and awarded you +200 XP!";
+      desc = `You placed at level A2 (Elementary) with a total score of ${correctAnswersCount}/50! We can promote your A1 vocabulary words to Box 3, mark introductory grammar lessons completed, and award you +200 XP!`;
       avatar = "🦉";
     } else if (level === "B1") {
       xp = 500;
-      desc = "You placed at level B1 (Intermediate). We have promoted A1/A2 vocabulary words to Box 4, marked introductory/elementary grammar lessons completed, and awarded you +500 XP!";
+      desc = `You placed at level B1 (Intermediate) with a total score of ${correctAnswersCount}/50! We can promote A1/A2 vocabulary words to Box 4, mark introductory/elementary grammar lessons completed, and award you +500 XP!`;
       avatar = "🤖";
     } else if (level === "B2") {
       xp = 1000;
-      desc = "You placed at level B2 (Upper Intermediate). We have promoted all A1/A2/B1 vocabulary words to Box 5 (Mastered), completed corresponding grammar concepts, and awarded you +1000 XP!";
+      desc = `You placed at level B2 (Upper Intermediate) with a total score of ${correctAnswersCount}/50! We can promote all A1/A2/B1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1000 XP!`;
       avatar = "👑";
     } else if (level === "C1") {
       xp = 1500;
-      desc = "You placed at level C1 (Advanced). We have promoted all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), completed corresponding grammar concepts, and awarded you +1500 XP!";
+      desc = `You placed at level C1 (Advanced) with a total score of ${correctAnswersCount}/50! We can promote all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1500 XP!`;
       avatar = "🦁";
     } else if (level === "C2") {
       xp = 2000;
-      desc = "You placed at level C2 (Proficient). We have promoted all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), completed corresponding grammar concepts, and awarded you +2000 XP!";
+      desc = `You placed at level C2 (Proficient) with a total score of ${correctAnswersCount}/50! We can promote all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +2000 XP!`;
       avatar = "🧙‍♂️";
     }
 
     document.getElementById("placement-result-avatar").innerText = avatar;
-    document.getElementById("placement-result-title").innerText = `Level Placed: ${level}!`;
+    document.getElementById("placement-result-title").innerText = `Level Assessed: ${level}!`;
     document.getElementById("placement-result-text").innerText = desc;
 
     pendingPlacement = { level, xp };
@@ -415,9 +719,6 @@
       localStorage.setItem("voc_placement_test_taken", "true");
       closePlacementTest();
 
-      const banner = document.getElementById("dashboard-placement-banner");
-      if (banner) banner.style.display = "none";
-
       if (window.updateSettingsBackupUI) window.updateSettingsBackupUI();
       if (window.refreshAppUI) window.refreshAppUI();
       if (window.renderDashboard) window.renderDashboard();
@@ -432,9 +733,6 @@
   function handleSkipPlacement() {
     localStorage.setItem("voc_placement_test_taken", "true");
     closePlacementTest();
-
-    const banner = document.getElementById("dashboard-placement-banner");
-    if (banner) banner.style.display = "none";
 
     if (window.updateSettingsBackupUI) window.updateSettingsBackupUI();
     if (window.refreshAppUI) window.refreshAppUI();
