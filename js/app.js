@@ -375,60 +375,6 @@
     });
   };
 
-  // Renderer for appeals list in the settings panel
-  window.renderAppealsList = function () {
-    const listEl = document.getElementById("settings-appeals-list");
-    if (!listEl) return;
-    
-    let appeals = [];
-    try {
-      appeals = JSON.parse(localStorage.getItem("voc_russian_appeals")) || [];
-    } catch (e) {}
-    
-    if (appeals.length === 0) {
-      listEl.innerHTML = `<p class="page-subtitle" style="margin: 0; color: var(--color-text-muted);" id="no-appeals-msg">You haven't submitted any appeals yet.</p>`;
-      return;
-    }
-    
-    listEl.innerHTML = appeals.map(app => {
-      const escReason = (app.reason || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      const escContext = (app.context || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      
-      return `
-        <div class="card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; border-radius: var(--border-radius-sm); box-sizing: border-box;" id="appeal-card-${app.id}">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
-            <strong style="color: var(--color-primary-hover); font-size: 0.95rem;">${escContext}</strong>
-            <span style="font-size: 0.75rem; color: var(--color-text-muted);">${app.timestamp}</span>
-          </div>
-          <div style="font-size: 0.85rem; color: var(--color-text-main); line-height: 1.4;">
-            <strong>Your Appeal Comment:</strong> ${escReason}
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem; width: 100%;">
-            <span style="font-size: 0.75rem; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: var(--border-radius-sm); border: 1px solid rgba(255, 193, 7, 0.3); background: rgba(255, 193, 7, 0.1); color: #ffc107;">
-              ${app.status}
-            </span>
-            <button type="button" class="btn btn-secondary btn-sm delete-appeal-btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--color-error); border-color: transparent; background: transparent; cursor: pointer;" data-id="${app.id}">✖ Delete Appeal</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-    
-    // Bind delete handlers
-    listEl.querySelectorAll(".delete-appeal-btn").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id = btn.getAttribute("data-id");
-        if (await window.confirmCustom("Are you sure you want to delete this appeal record?")) {
-          let currentAppeals = [];
-          try {
-            currentAppeals = JSON.parse(localStorage.getItem("voc_russian_appeals")) || [];
-          } catch (e) {}
-          currentAppeals = currentAppeals.filter(app => app.id !== id);
-          localStorage.setItem("voc_russian_appeals", JSON.stringify(currentAppeals));
-          window.renderAppealsList();
-        }
-      });
-    });
-  };
 
   // Pre-populates the "Add Custom Word" modal and fires autofill translation immediately
   window.openAddWordWithDefaults = function (wordText) {
@@ -780,7 +726,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     // Initialize SRS module
     SRS.init();
-    applyTheme(SRS.getSetting("theme", "midnight"));
+    applyTheme(SRS.getSetting("theme", "privyetik"));
     
     // Initialize Supabase Sync connection
     if (window.SupabaseSync) {
@@ -2618,7 +2564,7 @@
 
     const themeSelect = document.getElementById("settings-theme");
     if (themeSelect) {
-      themeSelect.value = SRS.getSetting("theme", "midnight");
+      themeSelect.value = SRS.getSetting("theme", "privyetik");
       themeSelect.addEventListener("change", () => {
         const theme = themeSelect.value;
         SRS.setSetting("theme", theme);
@@ -2671,10 +2617,6 @@
       });
     }
 
-    // Load/render submitted AI appeals list
-    if (window.renderAppealsList) {
-      window.renderAppealsList();
-    }
 
     // Restore Backup Button
     const restoreBackupBtn = document.getElementById("settings-restore-placement-backup-btn");
@@ -3762,7 +3704,7 @@
     // Clear existing theme classes
     document.body.classList.remove("theme-midnight", "theme-emerald", "theme-cyberpunk", "theme-light", "theme-privyetik");
     // Add selected theme class
-    if (theme !== "midnight") {
+    if (theme !== "privyetik") {
       document.body.classList.add(`theme-${theme}`);
     }
   }
