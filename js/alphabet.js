@@ -415,6 +415,9 @@
       if (window.AudioEngine) {
         window.AudioEngine.playLevelUp();
       }
+
+      // Record alphabet game completion for achievements system
+      localStorage.setItem("voc_alphabet_game_completed", "true");
       
       gameActive = false;
     }

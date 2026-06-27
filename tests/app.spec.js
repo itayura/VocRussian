@@ -679,7 +679,7 @@ test.describe('Privyetik E2E Test Suite', () => {
       "How do you say 'How are you?'": "Как дела?",
       "What is your name?' (informal)": "Как тебя зовут?",
       "I speak Russian.": "Я говорю по-русски",
-      "Мама": "Мама",
+      "Мама": "Mother",
       "Goodbye' in Russian": "До свидания",
 
       // A2

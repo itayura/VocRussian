@@ -754,6 +754,7 @@
   let sessionDeck = [];
   let sessionIndex = 0;
   let currentStudyMode = "flashcard"; // 'flashcard' | 'choice' | 'writing'
+  let currentStudyReverse = false;    // true = Native → Russian direction
   let sessionXpGained = 0;
   let currentCard = null;
   let isCardFlipped = false;
@@ -1082,6 +1083,16 @@
         }
       });
     }
+
+    // Tip of the Day refresh button
+    const tipRefreshBtn = document.getElementById("dashboard-tip-refresh-btn");
+    if (tipRefreshBtn) {
+      tipRefreshBtn.addEventListener("click", () => {
+        showRandomTip();
+      });
+    }
+    // Show initial tip
+    showRandomTip();
   }
 
   function updateLevelAssessmentUI() {
@@ -1343,7 +1354,8 @@
       switchView("dashboard");
     });
     document.getElementById("complete-again-btn").addEventListener("click", () => {
-      switchView("study-select");
+      // Restart the same study session type instead of going to menu
+      startStudySession(currentStudyMode);
     });
   }
 
@@ -1355,16 +1367,28 @@
     const levelFilter = document.getElementById("study-filter-level").value;
     const deckTarget = document.getElementById("study-filter-queue").value;
     const maxDeckSize = parseInt(document.getElementById("study-deck-size").value, 10);
+    const onlyRevisedEl = document.getElementById("study-filter-revised");
+    const onlyRevised = onlyRevisedEl ? onlyRevisedEl.checked : false;
+    const directionEl = document.getElementById("study-filter-direction");
+    currentStudyReverse = directionEl ? directionEl.value === "reverse" : false;
 
     // Filter cards
     let pool = SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden);
+
+    // Apply "Only Revised" filter (must have been reviewed at least once)
+    if (onlyRevised) {
+      pool = pool.filter(w => {
+        const prog = SRS.getCardProgress(w.id);
+        return (prog.correctCount || 0) + (prog.wrongCount || 0) > 0;
+      });
+    }
 
     // Apply category filter
     if (categoryFilter !== "all") {
       pool = pool.filter(w => w.category === categoryFilter);
     }
 
-    // Apply CEFR level filter
+    // Apply CEFR level filter – after filtering, prioritize DUE words from that level first
     if (levelFilter !== "all") {
       pool = pool.filter(w => SRS.getWordLevel(w) === levelFilter);
     }
@@ -1381,6 +1405,14 @@
         const prog = SRS.getCardProgress(w.id);
         return prog.starred;
       });
+    } else if (deckTarget === "all" && levelFilter !== "all") {
+      // For Endless mode with a CEFR filter: put due words first, then non-due
+      const now = Date.now();
+      const duePool = pool.filter(w => SRS.getCardProgress(w.id).nextReview <= now);
+      const nonDuePool = pool.filter(w => SRS.getCardProgress(w.id).nextReview > now);
+      duePool.sort(() => Math.random() - 0.5);
+      nonDuePool.sort(() => Math.random() - 0.5);
+      pool = [...duePool, ...nonDuePool];
     }
 
     // Check if empty deck
@@ -1415,8 +1447,10 @@
       return;
     }
 
-    // Shuffle and slice
-    pool.sort(() => Math.random() - 0.5);
+    // Shuffle and slice (unless we pre-ordered for CEFR priority)
+    if (!(deckTarget === "all" && levelFilter !== "all")) {
+      pool.sort(() => Math.random() - 0.5);
+    }
     sessionDeck = pool.slice(0, maxDeckSize);
     sessionIndex = 0;
     sessionXpGained = 0;
@@ -1476,44 +1510,60 @@
     wrapper.classList.remove("flipped");
 
     const updateContent = (card) => {
-      document.getElementById("fc-category-front").innerText = card.category;
-      document.getElementById("fc-word-front").innerText = card.accented || card.word;
-      document.getElementById("fc-word-translit-front").innerText = `[${card.transliteration || ""}]`;
+      const nativeLang = SRS.getSetting("nativeLanguage", "en");
+
+      if (currentStudyReverse) {
+        // REVERSE MODE: Front shows translation, Back shows Russian word
+        document.getElementById("fc-category-front").innerText = card.category;
+        const transForFront = window.getOrTriggerTranslation(
+          card.id, card.translation, nativeLang,
+          (val) => { document.getElementById("fc-word-front").innerText = val; }
+        );
+        document.getElementById("fc-word-front").innerText = transForFront;
+        document.getElementById("fc-word-translit-front").innerText = "";
+
+        // Back: show the Russian word
+        document.getElementById("fc-category-back").innerText = card.category;
+        document.getElementById("fc-word-pos-back").innerText = card.pos;
+        document.getElementById("fc-word-translation-back").innerText = card.accented || card.word;
+        document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
+        window.setRevealableText("fc-word-example-en-back", "");
+      } else {
+        // STANDARD MODE: Front shows Russian word, Back shows translation
+        document.getElementById("fc-category-front").innerText = card.category;
+        document.getElementById("fc-word-front").innerText = card.accented || card.word;
+        document.getElementById("fc-word-translit-front").innerText = `[${card.transliteration || ""}]`;
+
+        // Back card details
+        document.getElementById("fc-category-back").innerText = card.category;
+        document.getElementById("fc-word-pos-back").innerText = card.pos;
+        document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
+
+        const translationText = window.getOrTriggerTranslation(
+          card.id, card.translation, nativeLang,
+          (translatedVal) => {
+            document.getElementById("fc-word-translation-back").innerText = translatedVal;
+          }
+        );
+        document.getElementById("fc-word-translation-back").innerText = translationText;
+
+        let exampleEnText = card.exampleEn || "";
+        if (card.exampleEn) {
+          exampleEnText = window.getOrTriggerTranslation(
+            card.id, card.exampleEn, nativeLang,
+            (translatedVal) => {
+              window.setRevealableText("fc-word-example-en-back", translatedVal);
+            }
+          );
+        }
+        window.setRevealableText("fc-word-example-en-back", exampleEnText);
+      }
 
       // Star state
       const prog = SRS.getCardProgress(card.id);
       const starBtn = document.getElementById("fc-star-btn");
       starBtn.classList.toggle("starred", prog.starred);
       starBtn.innerText = prog.starred ? "★" : "☆";
-
-      // Back card details
-      document.getElementById("fc-category-back").innerText = card.category;
-      document.getElementById("fc-word-pos-back").innerText = card.pos;
-      document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
-
-      const nativeLang = SRS.getSetting("nativeLanguage", "en");
-      const translationText = window.getOrTriggerTranslation(
-        card.id,
-        card.translation,
-        nativeLang,
-        (translatedVal) => {
-          document.getElementById("fc-word-translation-back").innerText = translatedVal;
-        }
-      );
-      document.getElementById("fc-word-translation-back").innerText = translationText;
-
-      let exampleEnText = card.exampleEn || "";
-      if (card.exampleEn) {
-        exampleEnText = window.getOrTriggerTranslation(
-          card.id,
-          card.exampleEn,
-          nativeLang,
-          (translatedVal) => {
-            window.setRevealableText("fc-word-example-en-back", translatedVal);
-          }
-        );
-      }
-      window.setRevealableText("fc-word-example-en-back", exampleEnText);
     };
 
     if (wasFlipped) {
@@ -1590,9 +1640,24 @@
 
   // Multiple Choice Setup
   function setupChoiceLayout() {
-    document.getElementById("choice-category").innerText = currentCard.category;
-    document.getElementById("choice-word").innerText = currentCard.accented || currentCard.word;
-    document.getElementById("choice-word-translit").innerText = `[${currentCard.transliteration || ""}]`;
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+
+    if (currentStudyReverse) {
+      // REVERSE MODE: Prompt is a Russian word, user picks the translation
+      document.getElementById("choice-category").innerText = currentCard.category;
+      // Show translation as the prompt question
+      const promptTrans = window.getOrTriggerTranslation(
+        currentCard.id, currentCard.translation, nativeLang,
+        (val) => { document.getElementById("choice-word").innerText = val; }
+      );
+      document.getElementById("choice-word").innerText = promptTrans;
+      document.getElementById("choice-word-translit").innerText = "";
+    } else {
+      // STANDARD MODE: Prompt is a Russian word, user picks the translation
+      document.getElementById("choice-category").innerText = currentCard.category;
+      document.getElementById("choice-word").innerText = currentCard.accented || currentCard.word;
+      document.getElementById("choice-word-translit").innerText = `[${currentCard.transliteration || ""}]`;
+    }
 
     // Hide Next button
     const nextBtn = document.getElementById("choice-next-btn");
@@ -1611,39 +1676,53 @@
     distractors.sort(() => Math.random() - 0.5);
     const selectedDistractors = distractors.slice(0, 3);
 
-    // Merge correct with incorrect
-    const options = [currentCard, ...selectedDistractors].map(w => ({
-      id: w.id,
-      translation: w.translation
-    }));
-    options.sort(() => Math.random() - 0.5);
+    if (currentStudyReverse) {
+      // REVERSE: Options are Russian words, correct answer is the Russian word for currentCard
+      const options = [currentCard, ...selectedDistractors].map(w => ({
+        id: w.id,
+        label: w.accented || w.word
+      }));
+      options.sort(() => Math.random() - 0.5);
 
-    // Render options
-    const container = document.getElementById("choices-container");
-    container.innerHTML = "";
+      const container = document.getElementById("choices-container");
+      container.innerHTML = "";
+      options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.dataset.wordId = opt.id;
+        btn.innerHTML = `<span>${opt.label}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
+        btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
+        container.appendChild(btn);
+      });
+    } else {
+      // STANDARD: Options are translations
+      const options = [currentCard, ...selectedDistractors].map(w => ({
+        id: w.id,
+        translation: w.translation
+      }));
+      options.sort(() => Math.random() - 0.5);
 
-    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+      const container = document.getElementById("choices-container");
+      container.innerHTML = "";
 
-    options.forEach((opt, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "choice-btn";
-      btn.dataset.wordId = opt.id;
-      
-      const optionText = window.getOrTriggerTranslation(
-        opt.id,
-        opt.translation,
-        nativeLang,
-        (translatedVal) => {
-          const spanEl = btn.querySelector("span");
-          if (spanEl) spanEl.innerText = translatedVal;
-        }
-      );
+      options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.dataset.wordId = opt.id;
+        
+        const optionText = window.getOrTriggerTranslation(
+          opt.id, opt.translation, nativeLang,
+          (translatedVal) => {
+            const spanEl = btn.querySelector("span");
+            if (spanEl) spanEl.innerText = translatedVal;
+          }
+        );
 
-      btn.innerHTML = `<span>${optionText}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
-      
-      btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
-      container.appendChild(btn);
-    });
+        btn.innerHTML = `<span>${optionText}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
+        btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
+        container.appendChild(btn);
+      });
+    }
   }
 
   function handleChoiceSelect(buttonElement, chosenWordId) {
@@ -2112,11 +2191,11 @@
       });
 
       // Delete Word
-      cardEl.querySelector(".delete").addEventListener("click", () => {
+      cardEl.querySelector(".delete").addEventListener("click", async () => {
         const msg = card.id.startsWith("custom_") 
           ? "Are you sure you want to delete this custom word permanently?" 
           : "Are you sure you want to hide this default word? You can restore it later by clearing data.";
-        if (confirm(msg)) {
+        if (await window.confirmCustom(msg)) {
           SRS.deleteWord(card.id);
           populateDecksDropdowns();
           renderDictionary();
@@ -2140,14 +2219,14 @@
     });
 
     // Local JSON import
-    document.getElementById("sync-import-btn").addEventListener("click", () => {
+    document.getElementById("sync-import-btn").addEventListener("click", async () => {
       const jsonStr = document.getElementById("sync-import-area").value.trim();
       if (!jsonStr) {
         alert("Please paste backup text first.");
         return;
       }
       
-      if (confirm("Importing this backup will overwrite your current progress, daily logs, and custom words. Are you sure?")) {
+      if (await window.confirmCustom("Importing this backup will overwrite your current progress, daily logs, and custom words. Are you sure?")) {
         const success = SRS.importJSON(jsonStr);
         if (success) {
           alert("Backup imported successfully!");
@@ -2169,7 +2248,7 @@
         msg = "🔥 CRITICAL WARNING: You are signed into a cloud account. This will permanently delete ALL local progress AND ALL your saved backup data from the CLOUD database! This cannot be undone. Are you sure you want to proceed?";
       }
 
-      if (confirm(msg)) {
+      if (await window.confirmCustom(msg)) {
         const resetBtn = document.getElementById("sync-reset-btn");
         const origText = resetBtn.innerText;
         resetBtn.disabled = true;
@@ -2303,7 +2382,7 @@
 
     // Supabase Sign Out
     document.getElementById("supabase-logout-btn").addEventListener("click", async () => {
-      if (confirm("Are you sure you want to sign out?")) {
+      if (await window.confirmCustom("Are you sure you want to sign out?")) {
         try {
           await window.SupabaseSync.signOut();
           alert("Signed out successfully.");
@@ -2486,7 +2565,7 @@
           
           // Wire delete click listener
           itemEl.querySelector(".admin-delete-feedback-btn").addEventListener("click", async () => {
-            if (confirm("Are you sure you want to delete this feedback report permanently?")) {
+            if (await window.confirmCustom("Are you sure you want to delete this feedback report permanently?")) {
               try {
                 await window.SupabaseSync.deleteFeedback(report.id);
                 window.renderAdminFeedback();
@@ -4446,6 +4525,108 @@
   }
 
   // --- DEDICATED STATISTICS PAGE ---
+  // --- XP RANKS SYSTEM ---
+  const XP_RANKS = [
+    { title: "Новичок",       emoji: "🌱", minXp: 0 },
+    { title: "Студент",       emoji: "📚", minXp: 100 },
+    { title: "Ученик",        emoji: "✏️", minXp: 300 },
+    { title: "Знаток",        emoji: "🔎", minXp: 700 },
+    { title: "Практик",       emoji: "🧪", minXp: 1500 },
+    { title: "Умелый",        emoji: "🗣️", minXp: 3000 },
+    { title: "Эксперт",       emoji: "🏅", minXp: 6000 },
+    { title: "Мастер",        emoji: "🏆", minXp: 12000 },
+    { title: "Легенда",       emoji: "⭐", minXp: 25000 }
+  ];
+
+  function getXpRank(xp) {
+    let current = XP_RANKS[0];
+    let next = XP_RANKS[1];
+    for (let i = 0; i < XP_RANKS.length; i++) {
+      if (xp >= XP_RANKS[i].minXp) {
+        current = XP_RANKS[i];
+        next = XP_RANKS[i + 1] || null;
+      }
+    }
+    return { current, next };
+  }
+
+  function updateSidebarXpRank() {
+    const stats = SRS.getGlobalStats();
+    const xp = stats.xp || 0;
+    const { current } = getXpRank(xp);
+    const sidebarXpVal = document.getElementById("sidebar-xp-val");
+    if (sidebarXpVal) {
+      sidebarXpVal.textContent = xp;
+    }
+    const sidebarRankTitle = document.getElementById("sidebar-rank-title");
+    if (sidebarRankTitle) {
+      sidebarRankTitle.textContent = `${current.emoji} ${current.title}`;
+    }
+  }
+
+  // --- ACHIEVEMENTS SYSTEM ---
+  function computeAchievements(stats) {
+    const allWords = SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden);
+    const xp = stats.xp || 0;
+    const streak = stats.streak || 0;
+    const maxStreak = stats.settings?.maxStreak || 0;
+    const totalReviewed = allWords.filter(w => {
+      const p = SRS.getCardProgress(w.id);
+      return (p.correctCount || 0) + (p.wrongCount || 0) > 0;
+    }).length;
+    const box5Words = allWords.filter(w => SRS.getCardProgress(w.id).box === 5).length;
+    const alphabetDone = localStorage.getItem("voc_alphabet_game_completed") === "true";
+    const placementDone = localStorage.getItem("voc_placement_test_taken") === "true";
+
+    return [
+      { id: "first_review",    emoji: "🎴", title: "First Steps",         desc: "Review your first word",               unlocked: totalReviewed >= 1 },
+      { id: "review_10",       emoji: "📖", title: "Eager Learner",        desc: "Review 10 different words",             unlocked: totalReviewed >= 10 },
+      { id: "review_50",       emoji: "📚", title: "Bookworm",             desc: "Review 50 different words",             unlocked: totalReviewed >= 50 },
+      { id: "review_200",      emoji: "🧠", title: "Brain Power",          desc: "Review 200 different words",            unlocked: totalReviewed >= 200 },
+      { id: "review_500",      emoji: "🎓", title: "Scholar",              desc: "Review 500 different words",            unlocked: totalReviewed >= 500 },
+      { id: "streak_3",        emoji: "🔥", title: "On Fire",              desc: "Maintain a 3-day streak",               unlocked: maxStreak >= 3 },
+      { id: "streak_7",        emoji: "🌟", title: "Week Warrior",         desc: "Maintain a 7-day streak",               unlocked: maxStreak >= 7 },
+      { id: "streak_30",       emoji: "🏅", title: "Dedicated",            desc: "Maintain a 30-day streak",              unlocked: maxStreak >= 30 },
+      { id: "xp_500",          emoji: "✨", title: "XP Collector",         desc: "Earn 500 total XP",                     unlocked: xp >= 500 },
+      { id: "xp_5000",         emoji: "💎", title: "XP Champion",          desc: "Earn 5,000 total XP",                   unlocked: xp >= 5000 },
+      { id: "mastered_word",   emoji: "🏆", title: "Master",               desc: "Promote a word to Box 5",               unlocked: box5Words >= 1 },
+      { id: "mastered_20",     emoji: "👑", title: "Grand Master",         desc: "Promote 20 words to Box 5",             unlocked: box5Words >= 20 },
+      { id: "alphabet_done",   emoji: "🔤", title: "Alphabet Master",      desc: "Complete the Alphabet Quiz game",        unlocked: alphabetDone },
+      { id: "placement_done",  emoji: "🎓", title: "Level Assessed",       desc: "Complete the Assessment Test",           unlocked: placementDone }
+    ];
+  }
+
+  // --- TIPS SYSTEM ---
+  const TIPS_LIST = [
+    "💡 Tip: Tap any Russian word in the Grammar section to instantly add it to your vocabulary deck!",
+    "💡 Tip: Use the 'Slow' 🐢 button to hear words at half speed for clearer pronunciation.",
+    "💡 Tip: Starred words (⭐) can be filtered to create focused study sessions.",
+    "💡 Tip: Try Reverse Mode in study settings to practice recalling Russian words from their English translations!",
+    "💡 Tip: The Expanded Deck has 3,376 words — including stress marks to help you learn correct pronunciation!",
+    "💡 Tip: Cloud sync keeps your progress safe across all your devices. Sign in from the Sync tab!",
+    "💡 Tip: Writing Practice is the hardest mode — it forces you to type words from memory. Great for spelling!",
+    "💡 Tip: CEFR levels (A1–C2) let you filter words by difficulty and build vocabulary step by step.",
+    "💡 Tip: Daily streaks are built by earning at least 20 XP per day. Even 5 minutes counts!",
+    "💡 Tip: The Assessment Test places your current knowledge on the CEFR scale — take it to find your level!",
+    "💡 Tip: Each word has example sentences. Look at them on the back of the flashcard for context!",
+    "💡 Tip: Box 5 words are 'mastered' — they'll only appear every 14 days to refresh your memory.",
+    "💡 Tip: Use the 'Only Revised Words' option to drill words you've already seen at least once.",
+    "💡 Tip: The Alphabet page teaches you all 33 Cyrillic letters and includes a practice game!",
+    "💡 Tip: You can edit any word (including built-in ones) to add your own notes or example sentences."
+  ];
+
+  let lastTipIndex = -1;
+
+  function showRandomTip() {
+    let idx;
+    do {
+      idx = Math.floor(Math.random() * TIPS_LIST.length);
+    } while (idx === lastTipIndex && TIPS_LIST.length > 1);
+    lastTipIndex = idx;
+    const tipEl = document.getElementById("dashboard-tip-text");
+    if (tipEl) tipEl.textContent = TIPS_LIST[idx];
+  }
+
   function renderStatisticsPage() {
     const stats = SRS.getGlobalStats();
     
@@ -4605,6 +4786,51 @@
       });
       masteryGrid.innerHTML = html;
     }
+
+    // --- RENDER XP RANK PROGRESSION ---
+    const rankCard = document.getElementById("stats-rank-card");
+    if (rankCard) {
+      const xp = stats.xp || 0;
+      const { current, next } = getXpRank(xp);
+      const pct = next ? Math.round(((xp - current.minXp) / (next.minXp - current.minXp)) * 100) : 100;
+      rankCard.innerHTML = `
+        <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">🏅 XP Rank</h3>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <div style="font-size: 3rem; line-height: 1;">${current.emoji}</div>
+          <div>
+            <div style="font-size: 1.35rem; font-weight: 800; font-family: var(--font-heading); color: var(--color-text-main);">${current.title}</div>
+            <div style="font-size: 0.85rem; color: var(--color-text-muted);">${xp.toLocaleString()} XP earned</div>
+          </div>
+        </div>
+        ${next ? `
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.4rem;">
+            <span>Progress to ${next.emoji} ${next.title}</span>
+            <span>${pct}%</span>
+          </div>
+          <div class="level-progress-track" style="height: 0.6rem; background: var(--bg-input); border-radius: var(--border-radius-pill); overflow: hidden; border: 1px solid var(--border-glass);">
+            <div style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill);"></div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.35rem;">${(next.minXp - xp).toLocaleString()} XP to next rank</div>
+        ` : `<div style="font-size:0.9rem; color: var(--color-primary-hover); font-weight: bold;">🎉 Maximum Rank Achieved!</div>`}
+      `;
+    }
+
+    // --- RENDER ACHIEVEMENTS ---
+    const achievGrid = document.getElementById("stats-achievements-grid");
+    if (achievGrid) {
+      const achievements = computeAchievements(stats);
+      achievGrid.innerHTML = achievements.map(a => `
+        <div class="card stat-card" style="padding: 1rem; border: 1px solid ${a.unlocked ? 'var(--color-primary)' : 'var(--border-glass)'}; background: ${a.unlocked ? 'var(--color-primary-glow)' : 'var(--bg-input)'}; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; border-radius: var(--border-radius-md); ${a.unlocked ? '' : 'opacity: 0.55;'}" title="${a.desc}">
+          <div style="font-size: 2rem;"${a.unlocked ? '' : ' style="filter: grayscale(1)"'}>${a.emoji}</div>
+          <div style="font-weight: 700; font-size: 0.9rem; color: ${a.unlocked ? 'var(--color-text-main)' : 'var(--color-text-muted)'}; font-family: var(--font-heading);">${a.title}</div>
+          <div style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.3;">${a.desc}</div>
+          ${a.unlocked ? '<div style="font-size: 0.7rem; color: var(--color-primary-hover); font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">✅ Unlocked</div>' : '<div style="font-size: 0.7rem; color: var(--color-text-muted);">🔒 Locked</div>'}
+        </div>
+      `).join("");
+    }
+
+    // Update sidebar rank
+    updateSidebarXpRank();
   }
 
   // --- OFFLINE NOTIFICATION REMINDER TRIGGER SCHEDULER ---

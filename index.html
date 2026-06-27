@@ -148,6 +148,7 @@
         <div class="stats-badge-sidebar" title="Total Experience Points (XP)">
           <span>🏆</span>
           <div>XP: <span id="sidebar-xp-val">0</span></div>
+          <div id="sidebar-rank-title" style="font-size: 0.7rem; color: var(--color-primary-hover); font-weight: 600; margin-top: 0.15rem;"></div>
         </div>
       </div>
     </aside>
@@ -318,6 +319,12 @@
               <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 14px; height: 14px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
             </div>
           </div>
+        </div>
+
+        <!-- Tip of the Day Card -->
+        <div id="dashboard-tip-card" class="card" style="margin-bottom: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; justify-content: space-between;">
+          <span id="dashboard-tip-text" style="font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; flex: 1;">💡 Loading tip...</span>
+          <button id="dashboard-tip-refresh-btn" class="vocab-action-btn" title="Show another tip" style="background: transparent; border: none; font-size: 1.15rem; cursor: pointer; flex-shrink: 0;">🔄</button>
         </div>
 
         <!-- Recommended Word Card -->
@@ -526,6 +533,21 @@
               </div>
               <div class="level-progress-track" style="height: 0.75rem; background: var(--bg-input); border-radius: var(--border-radius-pill); position: relative; overflow: hidden; border: 1px solid var(--border-glass); width: 100%;">
                 <div id="study-target-mastery-fill" class="level-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill); transition: width 0.8s cubic-bezier(0.1, 0.8, 0.3, 1);"></div>
+              </div>
+            </div>
+
+            <!-- Extra Study Options: Only Revised + Direction -->
+            <div style="grid-column: 1 / -1; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-glass); margin-top: 0.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-muted); cursor: pointer; user-select: none;">
+                <input type="checkbox" id="study-filter-revised" style="width: 16px; height: 16px; accent-color: var(--color-primary); cursor: pointer;">
+                Only words I've already revised
+              </label>
+              <div class="form-group" style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <label for="study-filter-direction" style="font-size: 0.9rem; color: var(--color-text-muted); white-space: nowrap; margin: 0;">Study Direction:</label>
+                <select id="study-filter-direction" class="filter-select" style="margin: 0; min-width: 220px;">
+                  <option value="standard">Standard (Russian → Native)</option>
+                  <option value="reverse">Reverse (Native → Russian)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -1596,6 +1618,20 @@
           <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Russian Grammar Topic Mastery</h3>
           <p class="page-subtitle" style="margin-bottom: 1.5rem;">Your computed level of mastery for the core grammar modules.</p>
           <div id="stats-grammar-mastery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- XP Rank Card -->
+        <div id="stats-rank-card" class="card" style="margin-top: 1.5rem;">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <!-- Achievements Grid -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">🏅 Achievements & Badges</h3>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Milestones you've unlocked on your Russian learning journey.</p>
+          <div id="stats-achievements-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem;">
             <!-- Rendered by JS -->
           </div>
         </div>

@@ -368,8 +368,8 @@
       this.updateGrammarPracticeMasteryUI();
     },
 
-    deleteSubset: function (name) {
-      if (!confirm(`Are you sure you want to delete the preset "${name}"?`)) return;
+    deleteSubset: async function (name) {
+      if (!await window.confirmCustom(`Are you sure you want to delete the preset "${name}"?`)) return;
 
       let subsets = {};
       try {
