@@ -3704,7 +3704,8 @@
     // Clear existing theme classes
     document.body.classList.remove("theme-midnight", "theme-emerald", "theme-cyberpunk", "theme-light", "theme-privyetik");
     // Add selected theme class
-    if (theme !== "privyetik") {
+    // Add selected theme class (midnight is the CSS base — no class needed)
+    if (theme !== "midnight") {
       document.body.classList.add(`theme-${theme}`);
     }
   }
