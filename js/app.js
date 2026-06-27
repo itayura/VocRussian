@@ -1310,6 +1310,16 @@
       });
     }
 
+    const formsBtn = document.getElementById("study-word-forms-btn");
+    if (formsBtn) {
+      formsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (currentCard) {
+          openWordDetailsModal(currentCard.id);
+        }
+      });
+    }
+
     // TTS speaker buttons
     document.getElementById("tts-normal-btn").addEventListener("click", (e) => {
       e.stopPropagation();
