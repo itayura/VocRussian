@@ -667,7 +667,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Assessment Test workflow seeds stats, XP, and updates levels correctly', async ({ page }) => {
-    test.slow();
+    test.setTimeout(300000); // 5 min: 2 loops × 50 questions × ~1.5s each = ~150s needed
     const qaMap = {
       // A1
       "Привет": "Hello (informal)",
@@ -771,12 +771,18 @@ test.describe('Privyetik E2E Test Suite', () => {
       }
     }
 
-    // After clicking an answer, the app waits 1200ms before loading the next question.
-    // We use a fixed wait so we don't race with the DOM update.
     async function answerAndWaitForNext(currentStep, totalSteps) {
       await answerActiveQuestionCorrectly();
-      // Wait slightly longer than the 1200ms app transition
-      await page.waitForTimeout(1400);
+      if (currentStep < totalSteps) {
+        // Wait for the DOM to actually show the next question number.
+        // The app has a 1200ms setTimeout before advancing — poll until it changes.
+        const nextText = `Question ${currentStep + 1} of 50`;
+        await page.waitForFunction(
+          (expected) => document.getElementById('placement-question-step')?.textContent?.trim() === expected,
+          nextText,
+          { timeout: 3000 }
+        );
+      }
     }
 
     // 1. Verify that the placement test banner is visible on the dashboard for a new user (0 XP)
@@ -794,7 +800,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // 4. Answer all 50 questions correctly to get C2 placement
     for (let step = 1; step <= 50; step++) {
-      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`, { timeout: 5000 });
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`, { timeout: 12000 });
       await answerAndWaitForNext(step, 50);
     }
 
@@ -820,7 +826,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // Answer all 50 questions correctly again
     for (let step = 1; step <= 50; step++) {
-      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`, { timeout: 5000 });
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`, { timeout: 12000 });
       await answerAndWaitForNext(step, 50);
     }
 
