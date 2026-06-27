@@ -1873,6 +1873,54 @@ body.theme-light select option {
   color: var(--color-text-main);
 }
 
+/* --- THEME: PRIVYETIK (signature teal/mint — matches the app logo) --- */
+body.theme-privyetik {
+  /* Backgrounds — soft warm white with a teal tint */
+  --bg-main:        hsl(172, 35%, 96%);
+  --bg-card:        rgba(255, 255, 255, 0.55);
+  --bg-card-hover:  rgba(255, 255, 255, 0.80);
+  --bg-input:       rgba(255, 255, 255, 0.70);
+  --bg-sidebar:     hsl(172, 30%, 91%);
+  --bg-glass:       rgba(255, 255, 255, 0.40);
+
+  /* Primary — logo's teal (#3BBFB2 family) */
+  --color-primary:       hsl(175, 50%, 48%);
+  --color-primary-glow:  hsla(175, 50%, 48%, 0.20);
+  --color-primary-hover: hsl(175, 55%, 38%);
+
+  /* Text */
+  --color-text-main:  hsl(200, 25%, 18%);
+  --color-text-muted: hsl(200, 15%, 45%);
+  --color-text-dark:  hsl(200, 10%, 65%);
+
+  /* Borders */
+  --border-glass:       rgba(60, 190, 175, 0.18);
+  --border-glass-hover: rgba(60, 190, 175, 0.38);
+
+  /* Success / error stay familiar */
+  --color-success:      hsl(155, 60%, 40%);
+  --color-success-glow: hsla(155, 60%, 40%, 0.20);
+
+  /* Ambient gradient — mirrors the logo background */
+  background-image:
+    radial-gradient(at 0%   0%,   hsla(175, 60%, 75%, 0.45) 0px, transparent 55%),
+    radial-gradient(at 100% 0%,   hsla(195, 70%, 80%, 0.35) 0px, transparent 55%),
+    radial-gradient(at 50%  100%, hsla(155, 55%, 78%, 0.30) 0px, transparent 55%),
+    radial-gradient(at 50%  50%,  hsl(172, 35%, 96%)        0px, transparent 100%) !important;
+}
+
+body.theme-privyetik select option {
+  background-color: var(--bg-main);
+  color: var(--color-text-main);
+}
+
+/* Sidebar & nav need readable tones in light mode */
+body.theme-privyetik .sidebar,
+body.theme-privyetik nav {
+  background: hsl(172, 30%, 91%);
+  border-color: rgba(60, 190, 175, 0.22);
+}
+
 /* Custom font stack to fix Cyrillic combining acute accent (stress mark) rendering issues in Inter/Outfit */
 .vocab-card-word,
 .vocab-card-example-ru,
