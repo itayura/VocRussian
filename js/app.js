@@ -3101,6 +3101,243 @@
       }
     });
 
+    // Edit Word Autofill trigger
+    document.getElementById("modal-edit-autofill-btn").addEventListener("click", async () => {
+      const wordInput = document.getElementById("edit-word-input");
+      const word = wordInput.value.trim();
+      if (!word) {
+        alert("Please enter a Russian word first.");
+        wordInput.focus();
+        return;
+      }
+
+      const statusEl = document.getElementById("edit-autofill-status");
+      const autofillBtn = document.getElementById("modal-edit-autofill-btn");
+      
+      autofillBtn.disabled = true;
+      statusEl.style.display = "inline-flex";
+
+      try {
+        const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+
+        if (isLoggedIn) {
+          const spinnerStatusText = statusEl.querySelector("span:last-child");
+          if (spinnerStatusText) {
+            spinnerStatusText.innerText = "Querying AI translation & details...";
+          }
+          const aiWord = await previewWordWithGemini(word, false);
+          if (aiWord) {
+            document.getElementById("edit-accented-input").value = aiWord.accented || aiWord.word;
+            document.getElementById("edit-translation-input").value = aiWord.translation;
+            document.getElementById("edit-translit-input").value = aiWord.transliteration || "";
+            
+            const posSelect = document.getElementById("edit-pos-input");
+            const posVal = (aiWord.pos || "noun").toLowerCase();
+            let posOptionExists = Array.from(posSelect.options).some(opt => opt.value === posVal);
+            if (posOptionExists) {
+              posSelect.value = posVal;
+            } else {
+              posSelect.value = "noun";
+            }
+
+            const catSelect = document.getElementById("edit-category-input");
+            const catVal = aiWord.category || "Essentials";
+            let catOptionExists = Array.from(catSelect.options).some(opt => opt.value === catVal);
+            if (!catOptionExists) {
+              const newOpt = document.createElement("option");
+              newOpt.value = catVal;
+              newOpt.text = catVal;
+              catSelect.add(newOpt);
+            }
+            catSelect.value = catVal;
+
+            const levelSelect = document.getElementById("edit-level-input");
+            levelSelect.value = aiWord.level || "A1";
+
+            document.getElementById("edit-exampleru-input").value = aiWord.exampleRu || "";
+            document.getElementById("edit-exampleen-input").value = aiWord.exampleEn || "";
+          } else {
+            throw new Error("Failed to receive preview word details from AI.");
+          }
+        } else {
+          // Fallback to simple Google Translate logic if not signed in
+          const nativeLang = SRS.getSetting("nativeLanguage", "en");
+          const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${nativeLang}&dt=t&q=${encodeURIComponent(word)}`;
+          const gtRes = await fetch(googleTranslateUrl);
+          if (!gtRes.ok) {
+            throw new Error("Failed to contact translation service.");
+          }
+          const gtData = await gtRes.json();
+          const translation = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
+            ? gtData[0][0][0].trim() 
+            : "";
+            
+          if (!translation) {
+            throw new Error("Could not find a translation for this word.");
+          }
+
+          document.getElementById("edit-accented-input").value = word;
+          document.getElementById("edit-translation-input").value = translation;
+          document.getElementById("edit-translit-input").value = transliterateWord(word);
+          document.getElementById("edit-pos-input").value = "noun";
+          document.getElementById("edit-exampleru-input").value = "";
+          document.getElementById("edit-exampleen-input").value = "";
+          document.getElementById("edit-level-input").value = "A1";
+        }
+
+        // Visual success pulse
+        const inputs = [
+          "edit-accented-input", "edit-translation-input", "edit-translit-input",
+          "edit-pos-input", "edit-category-input", "edit-level-input", "edit-exampleru-input", "edit-exampleen-input"
+        ];
+        inputs.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.style.borderColor = "var(--color-success)";
+            setTimeout(() => el.style.borderColor = "", 1000);
+          }
+        });
+
+      } catch (err) {
+        alert(`Auto-fill Error: ${err.message || "Failed to translate word. Please fill details manually."}`);
+      } finally {
+        autofillBtn.disabled = false;
+        statusEl.style.display = "none";
+      }
+    });
+
+    // Edit Word Reverse Autofill trigger
+    document.getElementById("modal-edit-reverse-autofill-btn").addEventListener("click", async () => {
+      const translationInput = document.getElementById("edit-translation-input");
+      const englishText = translationInput.value.trim();
+      if (!englishText) {
+        alert("Please enter a translation first.");
+        translationInput.focus();
+        return;
+      }
+
+      const statusEl = document.getElementById("edit-reverse-autofill-status");
+      const reverseAutofillBtn = document.getElementById("modal-edit-reverse-autofill-btn");
+      
+      reverseAutofillBtn.disabled = true;
+      statusEl.style.display = "inline-flex";
+
+      try {
+        const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
+
+        if (isLoggedIn) {
+          const spinnerStatusText = statusEl.querySelector("span:last-child");
+          if (spinnerStatusText) {
+            spinnerStatusText.innerText = "Querying AI translation & details...";
+          }
+          const aiWord = await previewWordWithGemini(englishText, true);
+          if (aiWord) {
+            document.getElementById("edit-word-input").value = aiWord.word;
+            document.getElementById("edit-accented-input").value = aiWord.accented || aiWord.word;
+            document.getElementById("edit-translation-input").value = aiWord.translation;
+            document.getElementById("edit-translit-input").value = aiWord.transliteration || "";
+            
+            const posSelect = document.getElementById("edit-pos-input");
+            const posVal = (aiWord.pos || "noun").toLowerCase();
+            let posOptionExists = Array.from(posSelect.options).some(opt => opt.value === posVal);
+            if (posOptionExists) {
+              posSelect.value = posVal;
+            } else {
+              posSelect.value = "noun";
+            }
+
+            const catSelect = document.getElementById("edit-category-input");
+            const catVal = aiWord.category || "Essentials";
+            let catOptionExists = Array.from(catSelect.options).some(opt => opt.value === catVal);
+            if (!catOptionExists) {
+              const newOpt = document.createElement("option");
+              newOpt.value = catVal;
+              newOpt.text = catVal;
+              catSelect.add(newOpt);
+            }
+            catSelect.value = catVal;
+
+            const levelSelect = document.getElementById("edit-level-input");
+            levelSelect.value = aiWord.level || "A1";
+
+            document.getElementById("edit-exampleru-input").value = aiWord.exampleRu || "";
+            document.getElementById("edit-exampleen-input").value = aiWord.exampleEn || "";
+          } else {
+            throw new Error("Failed to receive preview word details from AI.");
+          }
+        } else {
+          // Fallback to simple Google Translate logic if not signed in
+          const nativeLang = SRS.getSetting("nativeLanguage", "en");
+          const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${nativeLang}&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
+          const gtRes = await fetch(googleTranslateUrl);
+          if (!gtRes.ok) {
+            throw new Error("Failed to contact translation service.");
+          }
+          const gtData = await gtRes.json();
+          let russianWord = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
+            ? gtData[0][0][0].trim() 
+            : "";
+            
+          if (!russianWord) {
+            throw new Error("Could not find a Russian translation for this word.");
+          }
+
+          russianWord = russianWord.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").trim().toLowerCase();
+          if (!russianWord) {
+            throw new Error("Invalid Russian translation returned.");
+          }
+
+          const capitalizedRu = russianWord.charAt(0).toUpperCase() + russianWord.slice(1);
+
+          document.getElementById("edit-word-input").value = capitalizedRu;
+          document.getElementById("edit-accented-input").value = capitalizedRu;
+          document.getElementById("edit-translit-input").value = transliterateWord(russianWord);
+          document.getElementById("edit-pos-input").value = "noun";
+          document.getElementById("edit-exampleru-input").value = "";
+          document.getElementById("edit-exampleen-input").value = "";
+          document.getElementById("edit-level-input").value = "A1";
+        }
+
+        // Visual success pulse
+        const inputs = [
+          "edit-word-input", "edit-accented-input", "edit-translation-input", "edit-translit-input",
+          "edit-pos-input", "edit-category-input", "edit-level-input", "edit-exampleru-input", "edit-exampleen-input"
+        ];
+        inputs.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.style.borderColor = "var(--color-success)";
+            setTimeout(() => el.style.borderColor = "", 1000);
+          }
+        });
+
+      } catch (err) {
+        alert(`Reverse Auto-fill Error: ${err.message || "Failed to translate word. Please fill details manually."}`);
+      } finally {
+        reverseAutofillBtn.disabled = false;
+        statusEl.style.display = "none";
+      }
+    });
+
+    // Edit Modal dynamic blur triggers
+    document.getElementById("edit-word-input").addEventListener("blur", () => {
+      const word = document.getElementById("edit-word-input").value.trim();
+      const translation = document.getElementById("edit-translation-input").value.trim();
+      const autofillBtn = document.getElementById("modal-edit-autofill-btn");
+      if (word && !translation && !autofillBtn.disabled) {
+        autofillBtn.click();
+      }
+    });
+
+    document.getElementById("edit-translation-input").addEventListener("blur", () => {
+      const word = document.getElementById("edit-word-input").value.trim();
+      const translation = document.getElementById("edit-translation-input").value.trim();
+      const reverseAutofillBtn = document.getElementById("modal-edit-reverse-autofill-btn");
+      if (translation && !word && !reverseAutofillBtn.disabled) {
+        reverseAutofillBtn.click();
+      }
+    });
+
     // Add Form Submit
     document.getElementById("add-word-form").addEventListener("submit", () => {
       const word = document.getElementById("add-word-input").value;

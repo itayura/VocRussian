@@ -525,7 +525,7 @@ const expandedVocabulary = [
     "accented": "приложе́ние",
     "translation": "attachment",
     "transliteration": "prilozhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - учёба/работа",
     "exampleRu": "Как называется приложение с картой метро?",
     "exampleEn": "What is the name of the app with a map of the metro?"
@@ -712,7 +712,7 @@ const expandedVocabulary = [
     "accented": "свида́ние",
     "translation": "appointment",
     "transliteration": "svidanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - люди, общение, свободное время",
     "exampleRu": "Мне пора идти. До свидания!",
     "exampleEn": "It’s time for me to go. Goodbye!"
@@ -756,7 +756,7 @@ const expandedVocabulary = [
     "accented": "общежи́тие",
     "translation": "dormitory",
     "transliteration": "obshchezhitie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - жильё, учёба/работа",
     "exampleRu": "Вы живёте в квартире или в общежитии?",
     "exampleEn": "Do you live in an apartment or in a student dormitory?"
@@ -1394,7 +1394,7 @@ const expandedVocabulary = [
     "accented": "упражне́ние",
     "translation": "excersise",
     "transliteration": "uprazhnenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - здоровье, свободное время, учёба/работа",
     "exampleRu": "Я не люблю упражнения на грамматику.",
     "exampleEn": "I don't like grammar exercises."
@@ -2439,7 +2439,7 @@ const expandedVocabulary = [
     "accented": "образова́ние",
     "translation": "education",
     "transliteration": "obrazovanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - учёба/работа",
     "exampleRu": "Маша работает в Министерстве образования.",
     "exampleEn": "Masha works in the ministry of education."
@@ -2725,7 +2725,7 @@ const expandedVocabulary = [
     "accented": "собы́тие",
     "translation": "event",
     "transliteration": "sobytie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - люди, время",
     "exampleRu": "Мы будем следить за развитием событий.",
     "exampleEn": "We’ll keep on watching the development of events."
@@ -3682,7 +3682,7 @@ const expandedVocabulary = [
     "accented": "жела́ние",
     "translation": "desire",
     "transliteration": "zhelanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - внутренний мир",
     "exampleRu": "Ура, моё желание сбылось!",
     "exampleEn": "Hooray, my wish came true!"
@@ -3858,7 +3858,7 @@ const expandedVocabulary = [
     "accented": "удово́льствие",
     "translation": "pleasure",
     "transliteration": "udovol'stvie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - внутренний мир",
     "exampleRu": "Я бы с удовольствием выпил, но я за рулём сегодня.",
     "exampleEn": "I'd love to have a drink but I'm driving today."
@@ -4397,7 +4397,7 @@ const expandedVocabulary = [
     "accented": "рожде́ние",
     "translation": "birth",
     "transliteration": "rozhdenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - люди, время",
     "exampleRu": "У Саши завтра день рождения.",
     "exampleEn": "Sasha has his birthday tomorrow."
@@ -4419,7 +4419,7 @@ const expandedVocabulary = [
     "accented": "учрежде́ние",
     "translation": "institution",
     "transliteration": "uchrezhdenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - учёба/работа",
     "exampleRu": "В Москве много образовательных учреждений.",
     "exampleEn": "There are a lot of educational institutions in Moscow."
@@ -4584,7 +4584,7 @@ const expandedVocabulary = [
     "accented": "зда́ние",
     "translation": "building",
     "transliteration": "zdanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A1 - жильё, учёба/работа",
     "exampleRu": "Это здание построено в девятнадцатом веке.",
     "exampleEn": "This building was built in the 19th Century."
@@ -6080,7 +6080,7 @@ const expandedVocabulary = [
     "accented": "собра́ние",
     "translation": "meeting",
     "transliteration": "sobranie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - общение, учёба/работа",
     "exampleRu": "Собрание началось вовремя.",
     "exampleEn": "The meeting started on time."
@@ -6124,7 +6124,7 @@ const expandedVocabulary = [
     "accented": "сожаление",
     "translation": "sorrow",
     "transliteration": "sozhalenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - люди, внутренний мир",
     "exampleRu": "К сожалению, платья этого размера закончились.",
     "exampleEn": "Unfortunately, all the dresses in this size are sold out."
@@ -6146,7 +6146,7 @@ const expandedVocabulary = [
     "accented": "сообще́ние",
     "translation": "message",
     "transliteration": "soobshchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - общение",
     "exampleRu": "Я не видела твоего сообщения.",
     "exampleEn": "I didn’t see your message."
@@ -6861,7 +6861,7 @@ const expandedVocabulary = [
     "accented": "чте́ние",
     "translation": "reading",
     "transliteration": "chtenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - учёба/работа, свободное время",
     "exampleRu": "Она находила радость в чтении.",
     "exampleEn": "She found joy in reading."
@@ -7477,7 +7477,7 @@ const expandedVocabulary = [
     "accented": "внима́ние",
     "translation": "attention",
     "transliteration": "vnimanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - люди, внутренний мир",
     "exampleRu": "Обратите внимание: завтра занятий не будет!",
     "exampleEn": "Attention: no classes tomorrow!"
@@ -8225,7 +8225,7 @@ const expandedVocabulary = [
     "accented": "зада́ние",
     "translation": "assignment",
     "transliteration": "zadanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - учёба/работа",
     "exampleRu": "Он задал нам слишком сложное домашнее задание.",
     "exampleEn": "He gave us homework that was too complicated."
@@ -8357,7 +8357,7 @@ const expandedVocabulary = [
     "accented": "заня́тие",
     "translation": "activity",
     "transliteration": "zanyatie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - учёба/работа",
     "exampleRu": "Мне никогда не нравились занятия футболом.",
     "exampleEn": "I never liked playing soccer."
@@ -8533,7 +8533,7 @@ const expandedVocabulary = [
     "accented": "значе́ние",
     "translation": "meaning",
     "transliteration": "znachenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - мера, внутренний мир",
     "exampleRu": "Ты придаёшь слишком большое значение случайным совпадениям.",
     "exampleEn": "You see too much meaning in random coincidences."
@@ -9457,7 +9457,7 @@ const expandedVocabulary = [
     "accented": "объявле́ние",
     "translation": "advertisment",
     "transliteration": "obyavlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - общение, учёба/работа",
     "exampleRu": "Я повесил объявления на улице.",
     "exampleEn": "I posted ads on the street."
@@ -9545,7 +9545,7 @@ const expandedVocabulary = [
     "accented": "оконча́ние",
     "translation": "end",
     "transliteration": "okonchanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - описание, время",
     "exampleRu": "Не могу дождаться окончания рабочего дня.",
     "exampleEn": "Can't wait for the end of my work day."
@@ -9644,7 +9644,7 @@ const expandedVocabulary = [
     "accented": "откры́тие",
     "translation": "opening",
     "transliteration": "otkrytie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - учёба/работа, жильё",
     "exampleRu": "Я ушёл с церемонии открытия, потому что было очень скучно.",
     "exampleEn": "I left the opening ceremony because it was very boring"
@@ -9655,7 +9655,7 @@ const expandedVocabulary = [
     "accented": "отноше́ние",
     "translation": "relation",
     "transliteration": "otnoshenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "A2 - внутренний мир, общение, политика",
     "exampleRu": "Мне не нравится такое отношение с вашей стороны.",
     "exampleEn": "I don't like that attitude from you."
@@ -10678,7 +10678,7 @@ const expandedVocabulary = [
     "accented": "наклоне́ние",
     "translation": "inclination",
     "transliteration": "naklonenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа, общение",
     "exampleRu": "Смотрите! Такая форма глагола называется повелительным наклонением, или императивом.",
     "exampleEn": "Look! This verb form is called the imperative."
@@ -10711,7 +10711,7 @@ const expandedVocabulary = [
     "accented": "произведе́ние",
     "translation": "creation",
     "transliteration": "proizvedenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - свободное время",
     "exampleRu": "На выставке представлено около ста произведений итальянской живописи и графики второй половины девятнадцатого века.",
     "exampleEn": "About a hundred works of Italian painting and graphics of the second half of the nineteenth century are on display at the exhibition."
@@ -10755,7 +10755,7 @@ const expandedVocabulary = [
     "accented": "произноше́ние",
     "translation": "pronunciation",
     "transliteration": "proiznoshenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, учёба/работа, свободное время",
     "exampleRu": "Омонимы — слова, одинаковые в произношении, но разные по смыслу.",
     "exampleEn": "Homonyms are words that are pronounced the same way but mean different things."
@@ -11008,7 +11008,7 @@ const expandedVocabulary = [
     "accented": "разви́тие",
     "translation": "development",
     "transliteration": "razvitie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - внутренний мир, учёба/работа",
     "exampleRu": "Игры с другими детьми очень полезны для развития ребёнка.",
     "exampleEn": "Games with other children are very good for the development of a child."
@@ -11063,7 +11063,7 @@ const expandedVocabulary = [
     "accented": "расписа́ние",
     "translation": "schedule",
     "transliteration": "raspisanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Учёба начинается через неделю, а у нас всё ещё нет расписания занятий.",
     "exampleEn": "School starts in a week, and we still don't have a schedule of classes."
@@ -11701,7 +11701,7 @@ const expandedVocabulary = [
     "accented": "соревнова́ние",
     "translation": "competition",
     "transliteration": "sorevnovanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, свободное время",
     "exampleRu": "Каждый участник соревнований застрахован от несчастного случая.",
     "exampleEn": "Each competitor is insured against an accident."
@@ -12537,7 +12537,7 @@ const expandedVocabulary = [
     "accented": "увлече́ние",
     "translation": "pasttime",
     "transliteration": "uvlechenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - свободное время",
     "exampleRu": "Ему, как и многим мальчикам, нравится футбол, но главное его увлечение — это, конечно, фотография.",
     "exampleEn": "Like many boys, he likes soccer but his main hobby is, of course, photography."
@@ -12614,7 +12614,7 @@ const expandedVocabulary = [
     "accented": "удивле́ние",
     "translation": "astonishment",
     "transliteration": "udivlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, внутренний мир",
     "exampleRu": "С удивлением я узнал, что здесь нас никто не ждёт.",
     "exampleEn": "I was surprised to learn that no one was waiting for us here."
@@ -12779,7 +12779,7 @@ const expandedVocabulary = [
     "accented": "усло́вие",
     "translation": "condition",
     "transliteration": "uslovie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "В таких политических условиях оппозиции невозможно выиграть на выборах.",
     "exampleEn": "It is impossible for the opposition to win the elections in such political conditions."
@@ -12845,7 +12845,7 @@ const expandedVocabulary = [
     "accented": "уча́стие",
     "translation": "participation",
     "transliteration": "uchastie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа, общение",
     "exampleRu": "Более пятисот человек приняли участие в конференции.",
     "exampleEn": "More than five hundred people participated in the conference."
@@ -14176,7 +14176,7 @@ const expandedVocabulary = [
     "accented": "воспита́ние",
     "translation": "upbringing",
     "transliteration": "vospitanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, внутренний мир",
     "exampleRu": "Поведение человека сильно зависит от его воспитания.",
     "exampleEn": "A person’s behavior is strongly dependent on their upbringing."
@@ -14198,7 +14198,7 @@ const expandedVocabulary = [
     "accented": "воспомина́ние",
     "translation": "memory",
     "transliteration": "vospominanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, внутренний мир",
     "exampleRu": "В своей голове он старался стереть любые воспоминания о войне.",
     "exampleEn": "He tried to get rid of all his memories from the war."
@@ -14209,7 +14209,7 @@ const expandedVocabulary = [
     "accented": "впечатле́ние",
     "translation": "impression",
     "transliteration": "vpechatlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, внутренний мир, путешествие",
     "exampleRu": "Создаётся впечатление, что вы никогда не были в музее.",
     "exampleEn": "It seems like you’ve never been to a museum."
@@ -14319,7 +14319,7 @@ const expandedVocabulary = [
     "accented": "выступле́ние",
     "translation": "performance",
     "transliteration": "vystuplenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - свободное время, общение, учёба/работа",
     "exampleRu": "Успех выступления во многом зависит от количества репетиций.",
     "exampleEn": "The success of a performance largely depends on the number of rehearsals."
@@ -14638,7 +14638,7 @@ const expandedVocabulary = [
     "accented": "движе́ние",
     "translation": "movement",
     "transliteration": "dvizhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, транспорт, путешествие",
     "exampleRu": "После этого он вскрикнул и несколько минут сидел без движения.",
     "exampleEn": "After that he shouted and for several minutes sat still without moving."
@@ -14935,7 +14935,7 @@ const expandedVocabulary = [
     "accented": "достиже́ние",
     "translation": "achievement",
     "transliteration": "dostizhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Что, на ваш взгляд, необходимо для достижения успеха в жизни?",
     "exampleEn": "What, in your opinion, is essential for achieving success in life?"
@@ -15441,7 +15441,7 @@ const expandedVocabulary = [
     "accented": "заявле́ние",
     "translation": "application",
     "transliteration": "zayavlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа, политика, общение",
     "exampleRu": "Я хочу написать заявление об уходе с работы. Я больше не могу там работать!",
     "exampleEn": "I want to write a letter of resignation from work. I can't work there anymore!"
@@ -15496,7 +15496,7 @@ const expandedVocabulary = [
     "accented": "землетрясе́ние",
     "translation": "earthquake",
     "transliteration": "zemletryasenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - погода",
     "exampleRu": "В результате землетрясения обрушились сотни зданий.",
     "exampleEn": "As the result of an earthquake, hundreds of buildings got destroyed."
@@ -15529,7 +15529,7 @@ const expandedVocabulary = [
     "accented": "зна́ние",
     "translation": "knowledge",
     "transliteration": "znanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа, внутренний мир",
     "exampleRu": "Для того, чтобы написать книгу, помимо знаний нужен ещё и талант.",
     "exampleEn": "In order to write a book, besides knowing a lot, one needs talent."
@@ -15540,7 +15540,7 @@ const expandedVocabulary = [
     "accented": "зре́ние",
     "translation": "eyesight",
     "transliteration": "zrenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - здоровье",
     "exampleRu": "С точки зрения науки, Земля вращается вокруг Солнца.",
     "exampleEn": "From a scientific point of view, the Earth revolves around the Sun."
@@ -15573,7 +15573,7 @@ const expandedVocabulary = [
     "accented": "языкозна́ние",
     "translation": "linguistics",
     "transliteration": "yazykoznanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Он долгое время работал в Институте языкознания.",
     "exampleEn": "He has been working at the Institute of Linguistics for a long time."
@@ -15639,7 +15639,7 @@ const expandedVocabulary = [
     "accented": "изуче́ние",
     "translation": "learning",
     "transliteration": "izuchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Этот вопрос требует тщательного изучения со стороны экологов.",
     "exampleEn": "This issue demands careful study by environmentalists."
@@ -15760,7 +15760,7 @@ const expandedVocabulary = [
     "accented": "иссле́дование",
     "translation": "study",
     "transliteration": "issledovanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Что показали результаты исследования?",
     "exampleEn": "What have the results of the research revealed?"
@@ -15848,7 +15848,7 @@ const expandedVocabulary = [
     "accented": "ката́ние",
     "translation": "riding",
     "transliteration": "katanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - свободное время",
     "exampleRu": "Ирину называли королевой фигурного катания.",
     "exampleEn": "Irina was called the queen of figure skating."
@@ -16497,7 +16497,7 @@ const expandedVocabulary = [
     "accented": "чередова́ние",
     "translation": "alternation",
     "transliteration": "cheredovanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Это слово с чередованием согласных в корне.",
     "exampleEn": "This word contains a consonant alternation in the root."
@@ -16695,7 +16695,7 @@ const expandedVocabulary = [
     "accented": "мне́ние",
     "translation": "opinion",
     "transliteration": "mnenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - общение",
     "exampleRu": "По мнению экспертов, предоставить доступ к инновационным лекарствам вполне реально.",
     "exampleEn": "According to experts, it is entirely possible to allow access to innovative drugs."
@@ -16915,7 +16915,7 @@ const expandedVocabulary = [
     "accented": "назва́ние",
     "translation": "name",
     "transliteration": "nazvanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - свободное время, учёба/работа",
     "exampleRu": "Мне кажется, уже существует песня с таким названием.",
     "exampleEn": "I think that there already is a song with that name."
@@ -16959,7 +16959,7 @@ const expandedVocabulary = [
     "accented": "направле́ние",
     "translation": "direction",
     "transliteration": "napravlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - путешествие",
     "exampleRu": "Медленно и осторожно они двинулись в направлении таинственного звука.",
     "exampleEn": "They moved slowly and carefully in the direction of the mysterious sound."
@@ -16970,7 +16970,7 @@ const expandedVocabulary = [
     "accented": "населе́ние",
     "translation": "population",
     "transliteration": "naselenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, политика",
     "exampleRu": "Москва отличается от других городов и областей России по уровню дохода на душу населения.",
     "exampleEn": "Moscow differs from other Russian cities and regions in terms of per capita income."
@@ -16992,7 +16992,7 @@ const expandedVocabulary = [
     "accented": "настрое́ние",
     "translation": "mood",
     "transliteration": "nastroenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - внутренний мир, общение",
     "exampleRu": "У меня сегодня такое хорошее настроение!",
     "exampleEn": "I'm in such a good mood today!"
@@ -17377,7 +17377,7 @@ const expandedVocabulary = [
     "accented": "обуче́ние",
     "translation": "education",
     "transliteration": "obuchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, общение, учёба/работа",
     "exampleRu": "Как вы думаете, какие есть плюсы и минусы у обучения онлайн?",
     "exampleEn": "What are the pros and cons of learning online in your opinion?"
@@ -17432,7 +17432,7 @@ const expandedVocabulary = [
     "accented": "объясне́ние",
     "translation": "explanation",
     "transliteration": "obyasnenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - люди, общение",
     "exampleRu": "Я вчера звонила Саше, но он просто бросил трубку без объяснения причин.",
     "exampleEn": "I called Sasha yesterday but he just hung up the phone without explaining why."
@@ -17641,7 +17641,7 @@ const expandedVocabulary = [
     "accented": "ору́жие",
     "translation": "weapon",
     "transliteration": "oruzhie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - политика",
     "exampleRu": "Сейчас сложно получить разрешение на ношение оружия.",
     "exampleEn": "Nowadays it's difficult to get a license to carry a gun."
@@ -18587,7 +18587,7 @@ const expandedVocabulary = [
     "accented": "прича́стие",
     "translation": "participle",
     "transliteration": "prichastie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - учёба/работа",
     "exampleRu": "Причастие ― это особая форма глагола.",
     "exampleEn": "A participle is a special form of a verb."
@@ -18642,7 +18642,7 @@ const expandedVocabulary = [
     "accented": "пораже́ние",
     "translation": "defeat",
     "transliteration": "porazhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - внутренний мир, политика",
     "exampleRu": "После поражения в полуфинале команда вылетела из игры.",
     "exampleEn": "The team was eliminated after their defeat in the semifinals."
@@ -18829,7 +18829,7 @@ const expandedVocabulary = [
     "accented": "предложе́ние",
     "translation": "suggestion",
     "transliteration": "predlozhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B1 - общение, учёба/работа",
     "exampleRu": "Сейчас есть ряд предложений по борьбе с преступностью.",
     "exampleEn": "Now we have a set of proposals for crime prevention."
@@ -19049,7 +19049,7 @@ const expandedVocabulary = [
     "accented": "наси́лие",
     "translation": "violence",
     "transliteration": "nasilie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - здоровье",
     "exampleRu": "В полицейском протоколе говорится, что к жертве применялось физическое насилие.",
     "exampleEn": "The police protocol states that physical abuse has been inflicted upon the victim."
@@ -19126,7 +19126,7 @@ const expandedVocabulary = [
     "accented": "наступле́ние",
     "translation": "beginning",
     "transliteration": "nastuplenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - время",
     "exampleRu": "Дети должны вернуться домой до наступления темноты.",
     "exampleEn": "The children are supposed to come back home before dark."
@@ -19951,7 +19951,7 @@ const expandedVocabulary = [
     "accented": "обвине́ние",
     "translation": "accusation",
     "transliteration": "obvinenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - политика",
     "exampleRu": "Динаре предъявлены обвинения в воровстве.",
     "exampleEn": "Dinara has been charged with theft."
@@ -20017,7 +20017,7 @@ const expandedVocabulary = [
     "accented": "обеща́ние",
     "translation": "promise",
     "transliteration": "obeshchanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение",
     "exampleRu": "Алексей никогда не выполняет свои обещания.",
     "exampleEn": "Alexey never fulfills his promises."
@@ -20237,7 +20237,7 @@ const expandedVocabulary = [
     "accented": "обобще́ние",
     "translation": "generalization",
     "transliteration": "obobshchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - описание",
     "exampleRu": "Доклад профессора является обобщением его практического опыта.",
     "exampleEn": "The professor's report is a summary of his practical experience."
@@ -20303,7 +20303,7 @@ const expandedVocabulary = [
     "accented": "обостре́ние",
     "translation": "escalation",
     "transliteration": "obostrenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - здоровье, политика",
     "exampleRu": "Дипломаты боятся нового обострения в отношениях двух стран.",
     "exampleEn": "Diplomats fear new aggravation in relations between the two countries."
@@ -20336,7 +20336,7 @@ const expandedVocabulary = [
     "accented": "обраще́ние",
     "translation": "inquiry",
     "transliteration": "obrashchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - здоровье, политика",
     "exampleRu": "В данной ситуации не обойтись без обращения в суд.",
     "exampleEn": "In this situation one cannot avoid going to court."
@@ -20347,7 +20347,7 @@ const expandedVocabulary = [
     "accented": "обслу́живание",
     "translation": "service",
     "transliteration": "obsluzhivanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - магазин, учёба/работа, общение",
     "exampleRu": "Пожалуйста, оцените качество обслуживания в нашем магазине.",
     "exampleEn": "Please rate the quality of service in our store."
@@ -20391,7 +20391,7 @@ const expandedVocabulary = [
     "accented": "обще́ние",
     "translation": "communication",
     "transliteration": "obshchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение, люди",
     "exampleRu": "Жителям больших городов не хватает общения.",
     "exampleEn": "Residents of big cities suffer from a lack of human interaction."
@@ -20424,7 +20424,7 @@ const expandedVocabulary = [
     "accented": "объедине́ние",
     "translation": "union",
     "transliteration": "obedinenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа, политика",
     "exampleRu": "Победа невозможна без объединения сил всех участников.",
     "exampleEn": "Victory is impossible without an alliance of the forces of all participants."
@@ -20545,7 +20545,7 @@ const expandedVocabulary = [
     "accented": "ограниче́ние",
     "translation": "limitation",
     "transliteration": "ogranichenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - транспорт, мера",
     "exampleRu": "Это судно класса \"река-море\", оно имеет ограничения для плавания по морям.",
     "exampleEn": "This vessel has \"river-see\" certification, it has limitations on sailing on the sea."
@@ -20710,7 +20710,7 @@ const expandedVocabulary = [
     "accented": "ожида́ние",
     "translation": "anticipation",
     "transliteration": "ozhidanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Время ожидания в очереди не превышает десяти минут.",
     "exampleEn": "Waiting time in the line does not exceed ten minutes."
@@ -20908,7 +20908,7 @@ const expandedVocabulary = [
     "accented": "описа́ние",
     "translation": "description",
     "transliteration": "opisanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - описание",
     "exampleRu": "Отношения Маяковского и Лили Брик заслуживают отдельного описания.",
     "exampleEn": "The relationship between Mayakovsky and Lilya Brik deserves a separate description."
@@ -20930,7 +20930,7 @@ const expandedVocabulary = [
     "accented": "опозда́ние",
     "translation": "delay",
     "transliteration": "opozdanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - транспорт, учёба/работа",
     "exampleRu": "Владелец компании явился на пресс-конференцию с огромным опозданием.",
     "exampleEn": "The owner of the company arrived at the press conference very late."
@@ -20985,7 +20985,7 @@ const expandedVocabulary = [
     "accented": "определе́ние",
     "translation": "definition",
     "transliteration": "opredelenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа, описание",
     "exampleRu": "Для определения объёма тела необходимо погрузить его в жидкость.",
     "exampleEn": "In order to measure the volume of an object, one should immerse it in liquid."
@@ -21007,7 +21007,7 @@ const expandedVocabulary = [
     "accented": "опроверже́ние",
     "translation": "refutation",
     "transliteration": "oproverzhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение, политика",
     "exampleRu": "Не существует научного опровержения теории Дарвина.",
     "exampleEn": "There is no scientific refutation of Darwin's theory."
@@ -21194,7 +21194,7 @@ const expandedVocabulary = [
     "accented": "освеще́ние",
     "translation": "lighting",
     "transliteration": "osveshchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - жильё",
     "exampleRu": "Цвет камня может казаться синим или зелёным, в зависимости от освещения.",
     "exampleEn": "The color of the stone may appear blue or green, depending on the lighting."
@@ -21249,7 +21249,7 @@ const expandedVocabulary = [
     "accented": "осложне́ние",
     "translation": "complication",
     "transliteration": "oslozhnenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - здоровье",
     "exampleRu": "Грипп опасен тем, что после него могут возникнуть тяжёлые осложнения.",
     "exampleEn": "The flu is so dangerous because it can cause serious complications."
@@ -21381,7 +21381,7 @@ const expandedVocabulary = [
     "accented": "отделе́ние",
     "translation": "branch",
     "transliteration": "otdelenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "У нашего банка уже более ста отделений по всей России.",
     "exampleEn": "Our bank has already more than a hundred branches throughout Russia."
@@ -21502,7 +21502,7 @@ const expandedVocabulary = [
     "accented": "отли́чие",
     "translation": "distinction",
     "transliteration": "otlichie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - описание",
     "exampleRu": "В отличие от своего брата, Антон уже стал знаменитым.",
     "exampleEn": "Unlike his brother, Anton has already become famous."
@@ -21557,7 +21557,7 @@ const expandedVocabulary = [
     "accented": "отопле́ние",
     "translation": "heating",
     "transliteration": "otoplenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - жильё",
     "exampleRu": "В гостинице не было отопления, поэтому все замёрзли.",
     "exampleEn": "There was no heating in the hotel, so everyone was freezing."
@@ -21722,7 +21722,7 @@ const expandedVocabulary = [
     "accented": "оформле́ние",
     "translation": "processing",
     "transliteration": "oformlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "Для оформления визы необходимо предоставить в посольство ряд документов.",
     "exampleEn": "To apply for a visa, you must submit a number of documents to the embassy."
@@ -21854,7 +21854,7 @@ const expandedVocabulary = [
     "accented": "ощуще́ние",
     "translation": "feeling",
     "transliteration": "oshchushchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "У меня такое ощущение, что нам скоро придётся уехать.",
     "exampleEn": "I have a feeling that we will have to leave soon."
@@ -21865,7 +21865,7 @@ const expandedVocabulary = [
     "accented": "паде́ние",
     "translation": "fall",
     "transliteration": "padenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - мера",
     "exampleRu": "История жизни Вениамина - это история взлёта и падения.",
     "exampleEn": "Benjamin's lifestory is a story of ups and downs."
@@ -22932,7 +22932,7 @@ const expandedVocabulary = [
     "accented": "поведе́ние",
     "translation": "behavior",
     "transliteration": "povedenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир, общение",
     "exampleRu": "Ученики должны соблюдать правила поведения в школе.",
     "exampleEn": "The pupils must abide by the school rules."
@@ -22987,7 +22987,7 @@ const expandedVocabulary = [
     "accented": "повествова́ние",
     "translation": "narration",
     "transliteration": "povestvovanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение, свободное время",
     "exampleRu": "В центре повествования находится девочка с необычными способностями.",
     "exampleEn": "At the heart of the story there is a girl with unusual abilities."
@@ -23053,7 +23053,7 @@ const expandedVocabulary = [
     "accented": "поврежде́ние",
     "translation": "injury",
     "transliteration": "povrezhdenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - здоровье, транспорт",
     "exampleRu": "Повреждения обоих двигателей привели к падению самолёта.",
     "exampleEn": "Damage to both engines led to the plane crash."
@@ -23075,7 +23075,7 @@ const expandedVocabulary = [
     "accented": "повторе́ние",
     "translation": "repetition",
     "transliteration": "povtorenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - время, учёба/работа",
     "exampleRu": "Никто не хочет повторения событий прошлого года.",
     "exampleEn": "No one wants to repeat the events of last year."
@@ -23658,7 +23658,7 @@ const expandedVocabulary = [
     "accented": "пожела́ние",
     "translation": "wish",
     "transliteration": "pozhelanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение",
     "exampleRu": "Все пожелания и предложения принимаются по электронной почте.",
     "exampleEn": "All suggestions and proposals are accepted by email."
@@ -23834,7 +23834,7 @@ const expandedVocabulary = [
     "accented": "поколе́ние",
     "translation": "generation",
     "transliteration": "pokolenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - люди, мера, время",
     "exampleRu": "Проблема нашего поколения в том, что мы перестали видеть прекрасное в простоте.",
     "exampleEn": "The problem of our generation is that we do not see beauty in simplicity any more."
@@ -23988,7 +23988,7 @@ const expandedVocabulary = [
     "accented": "положе́ние",
     "translation": "position",
     "transliteration": "polozhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - люди",
     "exampleRu": "Моё положение в обществе не позволяет мне выходить на улицу без охраны.",
     "exampleEn": "My social status does not allow me to go outside without a security guard."
@@ -24142,7 +24142,7 @@ const expandedVocabulary = [
     "accented": "помеще́ние",
     "translation": "room",
     "transliteration": "pomeshchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - жильё",
     "exampleRu": "Перенесите оборудование из тёплого помещения в холодное.",
     "exampleEn": "Move the equipment from a warm room to a cold one."
@@ -24241,7 +24241,7 @@ const expandedVocabulary = [
     "accented": "понима́ние",
     "translation": "understanding",
     "transliteration": "ponimanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение, внутренний мир",
     "exampleRu": "Для понимания ситуации я должен знать все подробности.",
     "exampleEn": "In order to understand the situation I need to know all the details."
@@ -24890,7 +24890,7 @@ const expandedVocabulary = [
     "accented": "похолода́ние",
     "translation": "fall of temperature",
     "transliteration": "pokholodanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - погода",
     "exampleRu": "На следующей неделе в Москве ожидается похолодание.",
     "exampleEn": "The temperature is expected to fall in Moscow next week."
@@ -26067,7 +26067,7 @@ const expandedVocabulary = [
     "accented": "бе́дствие",
     "translation": "disaster",
     "transliteration": "bedstvie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - погода",
     "exampleRu": "В Японии регулярно проводят учения на случай стихийных бедствий, таких как землетрясения или цунами.",
     "exampleEn": "There are regular safety drills in Japan in case of natural disasters such as earthquakes or tsunamis."
@@ -27046,7 +27046,7 @@ const expandedVocabulary = [
     "accented": "бракосочетание",
     "translation": "wedding ceremony",
     "transliteration": "brakosochetanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - люди",
     "exampleRu": "Бракосочетание прошло в усадьбе Шереметьевых.",
     "exampleEn": "The wedding took place in the Sheremetevs’ palace."
@@ -27530,7 +27530,7 @@ const expandedVocabulary = [
     "accented": "введе́ние",
     "translation": "introduction",
     "transliteration": "vvedenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа, общение",
     "exampleRu": "После введения в научных текстах обычно помещают обзор литературы.",
     "exampleEn": "In scientific texts a literature review is usually placed after the introduction."
@@ -27618,7 +27618,7 @@ const expandedVocabulary = [
     "accented": "вдохнове́ние",
     "translation": "inspiration",
     "transliteration": "vdokhnovenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Она уже несколько лет не ощущала такого сильного вдохновения.",
     "exampleEn": "She hadn't felt so inspired in years."
@@ -27970,7 +27970,7 @@ const expandedVocabulary = [
     "accented": "взаимоде́йствие",
     "translation": "interaction",
     "transliteration": "vzaimodeystvie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - люди, общение",
     "exampleRu": "Примеры взаимодействия банков с почтовыми отделениями существуют и в России.",
     "exampleEn": "Examples of interaction between banks and post offices exist in Russia too."
@@ -28300,7 +28300,7 @@ const expandedVocabulary = [
     "accented": "влия́ние",
     "translation": "influence",
     "transliteration": "vliyanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир, политика",
     "exampleRu": "Круг общения человека оказывает значительное влияние на формирование его личности.",
     "exampleEn": "A person's social circle has a significant influence on the formation of his or her personality."
@@ -28498,7 +28498,7 @@ const expandedVocabulary = [
     "accented": "возраже́ние",
     "translation": "objection",
     "transliteration": "vozrazhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение, учёба/работа",
     "exampleRu": "Эта норма также вызвала массу возражений у участников заседания.",
     "exampleEn": "This rule also provoked a lot of objections from the participants of the meeting."
@@ -28509,7 +28509,7 @@ const expandedVocabulary = [
     "accented": "возрожде́ние",
     "translation": "revival",
     "transliteration": "vozrozhdenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа, свободное время",
     "exampleRu": "В этом зале размещены картины мастеров эпохи Возрождения.",
     "exampleEn": "There are paintings of Renaissance masters in this hall."
@@ -28553,7 +28553,7 @@ const expandedVocabulary = [
     "accented": "волне́ние",
     "translation": "excitement",
     "transliteration": "volnenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - политика, внутренний мир",
     "exampleRu": "Было видно, что он задыхается от волнения.",
     "exampleEn": "It was evident that he was choking from excitement."
@@ -28564,7 +28564,7 @@ const expandedVocabulary = [
     "accented": "воображе́ние",
     "translation": "imagination",
     "transliteration": "voobrazhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Ну почему у тебя совсем нет воображения!",
     "exampleEn": "Why don't you have any imagination?"
@@ -28696,7 +28696,7 @@ const expandedVocabulary = [
     "accented": "восста́ние",
     "translation": "rebellion",
     "transliteration": "vosstanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - политика",
     "exampleRu": "Уроки Ирландского восстания и противостояния в Северной Ирландии не прошли даром.",
     "exampleEn": "The lessons of the Irish rebellion and opposition in Northern Ireland were not in vain."
@@ -28894,7 +28894,7 @@ const expandedVocabulary = [
     "accented": "вступле́ние",
     "translation": "introduction",
     "transliteration": "vstuplenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "После вступления Литвы в Евросоюз, цены на товары в стране выросли.",
     "exampleEn": "After Lithuania joined the European Union, the prices for goods in the country increased."
@@ -29246,7 +29246,7 @@ const expandedVocabulary = [
     "accented": "выска́зывание",
     "translation": "statement",
     "transliteration": "vyskazyvanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение",
     "exampleRu": "Подобные высказывания учёных пробуждают наши давние, потаённые мечты и будят воображение писателей-фантастов.",
     "exampleEn": "Those kinds of statements by scientists awaken both our old, secret dreams and the imagination of science fiction writers."
@@ -30423,7 +30423,7 @@ const expandedVocabulary = [
     "accented": "давле́ние",
     "translation": "pressure",
     "transliteration": "davlenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - погода, здоровье",
     "exampleRu": "Как будут изменяться показания динамометра при изменении атмосферного давления?",
     "exampleEn": "How will the dynamometer readings change when the atmospheric pressure changes?"
@@ -31061,7 +31061,7 @@ const expandedVocabulary = [
     "accented": "дове́рие",
     "translation": "trust",
     "transliteration": "doverie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Необходимо осуществить ряд мер по укреплению доверия вкладчиков к банкам.",
     "exampleEn": "A number of measures need to be implemented to strengthen investors' confidence in banks."
@@ -31534,7 +31534,7 @@ const expandedVocabulary = [
     "accented": "ева́нгелие",
     "translation": "gospel",
     "transliteration": "evangelie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Этот сюжет был взят из Евангелия.",
     "exampleEn": "This story was taken from the New Testament."
@@ -32051,7 +32051,7 @@ const expandedVocabulary = [
     "accented": "завеща́ние",
     "translation": "last will",
     "transliteration": "zaveshchanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение",
     "exampleRu": "Он упомянул жену и детей в своём завещании.",
     "exampleEn": "He mentioned his wife and children in the will."
@@ -32216,7 +32216,7 @@ const expandedVocabulary = [
     "accented": "загрязне́ние",
     "translation": "pollution",
     "transliteration": "zagryaznenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - животные/растения, погода",
     "exampleRu": "Растения страдают из-за загрязнения атмосферы.",
     "exampleEn": "The plants are suffering because of air pollution."
@@ -32304,7 +32304,7 @@ const expandedVocabulary = [
     "accented": "заключе́ние",
     "translation": "conclusion",
     "transliteration": "zaklyuchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - мера, учёба/работа",
     "exampleRu": "Эксперты предоставили официальное заключение о причине пожара.",
     "exampleEn": "The experts provided an official final report on the cause of the fire."
@@ -32392,7 +32392,7 @@ const expandedVocabulary = [
     "accented": "замеча́ние",
     "translation": "note",
     "transliteration": "zamechanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - общение, учёба/работа",
     "exampleRu": "Саша сделал мне замечание, но я не расстроился.",
     "exampleEn": "Sasha gave me criticism, but I did not get upset."
@@ -32524,7 +32524,7 @@ const expandedVocabulary = [
     "accented": "заседа́ние",
     "translation": "meeting",
     "transliteration": "zasedanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - политика, учёба/работа, общение",
     "exampleRu": "На сегодняшнем заседании мы обсудили планы на будущий год.",
     "exampleEn": "At today's meeting we discussed plans for the next year."
@@ -32909,7 +32909,7 @@ const expandedVocabulary = [
     "accented": "извине́ние",
     "translation": "apology",
     "transliteration": "izvinenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир, общение",
     "exampleRu": "Ты должен принести извинения за свой поступок.",
     "exampleEn": "You should apologize for what you've done."
@@ -32964,7 +32964,7 @@ const expandedVocabulary = [
     "accented": "измене́ние",
     "translation": "change",
     "transliteration": "izmenenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - описание",
     "exampleRu": "Я не против кардинального изменения своей причёски.",
     "exampleEn": "I'm not against making a radical change to my hairstyle."
@@ -32986,7 +32986,7 @@ const expandedVocabulary = [
     "accented": "изображе́ние",
     "translation": "image",
     "transliteration": "izobrazhenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - свободное время, учёба/работа",
     "exampleRu": "Я немного увеличил контрастность изображения.",
     "exampleEn": "I increased image contrast a bit."
@@ -33008,7 +33008,7 @@ const expandedVocabulary = [
     "accented": "изобрете́ние",
     "translation": "invention",
     "transliteration": "izobretenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - люди, свободное время, учёба/работа",
     "exampleRu": "Изобретение книгопечатания оказало сильное влияние на жизнь человека.",
     "exampleEn": "The invention of typography has had a major impact on humanity."
@@ -33536,7 +33536,7 @@ const expandedVocabulary = [
     "accented": "исключе́ние",
     "translation": "exclusion",
     "transliteration": "isklyuchenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "За редким исключением, деятельность по борьбе с нищетой не принесла тех результатов, на которые рассчитывали.",
     "exampleEn": "With rare exceptions, the fight to alleviate poverty has not yielded the hoped-for results."
@@ -34372,7 +34372,7 @@ const expandedVocabulary = [
     "accented": "коллекциони́рование",
     "translation": "collect",
     "transliteration": "kollektsionirovanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - люди, описание, свободное время",
     "exampleRu": "В семнадцатом веке происходит распространение частного коллекционирования в Нидерландах.",
     "exampleEn": "In the seventeenth century private collecting began to spread in the Netherlands."
@@ -36088,7 +36088,7 @@ const expandedVocabulary = [
     "accented": "мгнове́ние",
     "translation": "moment",
     "transliteration": "mgnovenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - время",
     "exampleRu": "На мгновение мне показалось, что на площади уже стоит новогодняя ёлка.",
     "exampleEn": "For a moment I thought that there was a Christmas tree in the square."
@@ -36132,7 +36132,7 @@ const expandedVocabulary = [
     "accented": "междоме́тие",
     "translation": "interjection",
     "transliteration": "mezhdometie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "Каждое слово она сопровождала длинным междометием «мммммм».",
     "exampleEn": "She accompanied each word with a long interjection of \"hmmmmmm\"."
@@ -36352,7 +36352,7 @@ const expandedVocabulary = [
     "accented": "мировоззре́ние",
     "translation": "outlook",
     "transliteration": "mirovozzrenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "В сорок лет у меня произошла кардинальная смена мировоззрения.",
     "exampleEn": "At forty my outlook on life changed drastically."
@@ -36715,7 +36715,7 @@ const expandedVocabulary = [
     "accented": "наводне́ние",
     "translation": "flood",
     "transliteration": "navodnenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - погода",
     "exampleRu": "Ущерб от наводнения в Венеции оценивается в десятки миллионов евро.",
     "exampleEn": "Flood damage in Venice is estimated at tens of millions of euros."
@@ -36847,7 +36847,7 @@ const expandedVocabulary = [
     "accented": "наказа́ние",
     "translation": "punishment",
     "transliteration": "nakazanie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - политика",
     "exampleRu": "Преступнику удалось избежать наказания.",
     "exampleEn": "The criminal managed to escape punishment."
@@ -37001,7 +37001,7 @@ const expandedVocabulary = [
     "accented": "наме́рение",
     "translation": "intention",
     "transliteration": "namerenie",
-    "pos": "adjective",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "В Екатеринбурге объявили о намерении не менять цены на общественный транспорт в следующем году.",
     "exampleEn": "In Yekaterinburg they announced their intention to not change the price of public transport next year."

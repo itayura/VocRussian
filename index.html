@@ -1816,7 +1816,16 @@
         
         <div class="form-group">
           <label for="edit-word-input">Russian Word (Clean Cyrillic)*</label>
-          <input type="text" id="edit-word-input" class="filter-input" required>
+          <div style="display:flex; gap:0.5rem; width:100%;">
+            <input type="text" id="edit-word-input" class="filter-input" required style="flex:1;">
+            <button type="button" id="modal-edit-autofill-btn" class="btn btn-secondary" style="padding: 0 1rem; font-size: 0.85rem;" title="Auto-fill translation using Google Translate and optional AI sentences">
+              ⚡ Auto-fill
+            </button>
+          </div>
+          <div id="edit-autofill-status" style="font-size:0.75rem; color:var(--color-primary); margin-top:0.25rem; display:none; align-items:center; gap:0.25rem;">
+            <span class="spinner" style="display:inline-block; width:12px; height:12px; border:2px solid var(--color-primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
+            <span>Translating and filling data...</span>
+          </div>
         </div>
         
         <div class="form-group">
@@ -1826,7 +1835,16 @@
 
         <div class="form-group">
           <label for="edit-translation-input">English Translation*</label>
-          <input type="text" id="edit-translation-input" class="filter-input" required>
+          <div style="display:flex; gap:0.5rem; width:100%;">
+            <input type="text" id="edit-translation-input" class="filter-input" required style="flex:1;">
+            <button type="button" id="modal-edit-reverse-autofill-btn" class="btn btn-secondary" style="padding: 0 1rem; font-size: 0.85rem;" title="Auto-fill Russian word and optional AI sentences from translation">
+              ⚡ Auto-fill
+            </button>
+          </div>
+          <div id="edit-reverse-autofill-status" style="font-size:0.75rem; color:var(--color-primary); margin-top:0.25rem; display:none; align-items:center; gap:0.25rem;">
+            <span class="spinner" style="display:inline-block; width:12px; height:12px; border:2px solid var(--color-primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></span>
+            <span>Translating and filling data...</span>
+          </div>
         </div>
 
         <div class="form-group">

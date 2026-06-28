@@ -1208,6 +1208,10 @@ kbd {
     align-items: center;
     justify-content: space-around;
     z-index: 100;
+    /* Prevent mobile scroll/swipe rendering bugs (disappearing/flicker) */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
   }
   
   .logo-container, .sidebar-footer {
