@@ -2829,37 +2829,79 @@
   }
 
   async function previewWordWithGemini(wordOrTranslation, isReverse = false) {
-    const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
-    if (!isLoggedIn) {
-      return null;
-    }
-    if (!window.SupabaseSync || !window.SupabaseSync.client) {
-      return null;
-    }
-
-    const { data: sessionData } = await window.SupabaseSync.client.auth.getSession();
-    const token = sessionData?.session?.access_token;
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
     const nativeLang = SRS.getSetting("nativeLanguage", "en");
-    const { data, error } = await window.SupabaseSync.client.functions.invoke("add-word", {
-      body: { 
-        word: wordOrTranslation, 
-        nativeLanguage: nativeLang, 
-        preview: true 
-      },
-      headers: headers
-    });
-
-    if (error) {
-      throw new Error(`Edge Function add-word error: ${error.message || error}`);
+    // Determine auth token if logged in
+    let token = null;
+    if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
+      try {
+        const { data: sessionData } = await window.SupabaseSync.client.auth.getSession();
+        token = sessionData?.session?.access_token;
+      } catch (e) {
+        console.warn("Failed to get Supabase session token:", e);
+      }
     }
-
-    if (data && data.success && data.word) {
-      return data.word;
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    // Attempt Supabase Edge Function (Gemini) preview if client exists
+    if (window.SupabaseSync && window.SupabaseSync.client) {
+      try {
+        const { data, error } = await window.SupabaseSync.client.functions.invoke("add-word", {
+          body: { word: wordOrTranslation, nativeLanguage: nativeLang, preview: true },
+          headers: headers
+        });
+        if (!error && data && data.success) {
+          // Edge may return full object or just a word string
+          if (typeof data.word === "object" && data.word !== null) {
+            return data.word;
+          }
+          if (typeof data.word === "string") {
+            // Use Google Translate to get translation for missing fields
+            const sl = isReverse ? nativeLang : "ru";
+            const tl = isReverse ? "ru" : nativeLang;
+            const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(data.word)}`;
+            const gtRes = await fetch(gtUrl);
+            const gtJson = await gtRes.json();
+            const translation = gtJson && gtJson[0] && gtJson[0][0] && gtJson[0][0][0] ? gtJson[0][0][0].trim() : "";
+            return {
+              word: data.word,
+              accented: data.word,
+              translation: translation,
+              transliteration: "",
+              pos: "noun",
+              level: "A1",
+              category: "Custom",
+              exampleRu: "",
+              exampleEn: ""
+            };
+          }
+        }
+      } catch (e) {
+        console.warn("Edge function preview failed, will fallback:", e);
+      }
     }
-
-    return null;
+    // Fallback: Google Translate directly
+    const sl = isReverse ? nativeLang : "ru";
+    const tl = isReverse ? "ru" : nativeLang;
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(wordOrTranslation)}`;
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      const translation = json && json[0] && json[0][0] && json[0][0][0] ? json[0][0][0].trim() : "";
+      if (!translation) throw new Error("No translation returned");
+      return {
+        word: isReverse ? translation : wordOrTranslation,
+        accented: isReverse ? translation : wordOrTranslation,
+        translation: isReverse ? wordOrTranslation : translation,
+        transliteration: "",
+        pos: "noun",
+        level: "A1",
+        category: "Custom",
+        exampleRu: "",
+        exampleEn: ""
+      };
+    } catch (e) {
+      console.error("Fallback translation failed:", e);
+      return null;
+    }
   }
 
   // Setup the modal event listeners for auto-filling from AI / Google Translate

@@ -273,7 +273,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    // supabaseAnonKey already defined earlier; using existing const
     if (!supabaseUrl || !supabaseAnonKey) {
       throw new Error("Supabase URL or Anon Key is not configured on the server.");
     }
