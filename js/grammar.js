@@ -829,7 +829,7 @@
       const html = `
         <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
           <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin: 0 0 0.5rem 0; color: var(--color-primary-hover);">${payload.title}</h3>
-          <div style="line-height: 1.6; font-size: 1rem; color: var(--color-text-main);">${payload.explanation}</div>
+          <div class="tutor-explanation-text" style="line-height: 1.6; font-size: 1rem; color: var(--color-text-main); word-break: break-word; overflow-wrap: break-word; max-width: 100%; overflow-x: auto;">${payload.explanation}</div>
           
           <h4 class="tutor-collapsible-trigger" data-target="voc_tutor_rules_collapsed" style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; user-select: none; -webkit-user-select: none;">
             <span class="collapse-arrow" style="font-size: 0.8rem; color: var(--color-primary); transition: transform 0.2s;">${rulesCollapsed ? "▶" : "▼"}</span> Declension / Conjugation Rules

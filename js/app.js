@@ -759,6 +759,7 @@
     checkSharedDeckImport();
     
     updateCategoryDropdowns();
+    loadStudySessionSettings();
     setupScrollLoading();
 
     // Export functions to window so they can be called by placement.js
@@ -1203,7 +1204,87 @@
   }
 
   // --- STUDY SELECTION CONTROLLERS ---
+  const sessionSettingIds = [
+    "study-filter-category",
+    "study-filter-level",
+    "study-filter-queue",
+    "study-deck-size",
+    "study-filter-revised",
+    "study-filter-direction"
+  ];
+
+  function saveStudySessionSettings() {
+    const categoryEl = document.getElementById("study-filter-category");
+    const levelEl = document.getElementById("study-filter-level");
+    const queueEl = document.getElementById("study-filter-queue");
+    const deckSizeEl = document.getElementById("study-deck-size");
+    const revisedEl = document.getElementById("study-filter-revised");
+    const directionEl = document.getElementById("study-filter-direction");
+
+    const settings = {
+      category: categoryEl ? categoryEl.value : "all",
+      level: levelEl ? levelEl.value : "all",
+      queue: queueEl ? queueEl.value : "due",
+      deckSize: deckSizeEl ? deckSizeEl.value : "20",
+      revised: revisedEl ? revisedEl.checked : false,
+      direction: directionEl ? directionEl.value : "standard"
+    };
+    localStorage.setItem("voc_russian_session_settings", JSON.stringify(settings));
+  }
+
+  function loadStudySessionSettings() {
+    try {
+      const saved = localStorage.getItem("voc_russian_session_settings");
+      if (!saved) return;
+      const settings = JSON.parse(saved);
+      
+      const categoryEl = document.getElementById("study-filter-category");
+      const levelEl = document.getElementById("study-filter-level");
+      const queueEl = document.getElementById("study-filter-queue");
+      const deckSizeEl = document.getElementById("study-deck-size");
+      const revisedEl = document.getElementById("study-filter-revised");
+      const directionEl = document.getElementById("study-filter-direction");
+
+      if (categoryEl && settings.category) {
+        categoryEl.value = settings.category;
+      }
+      if (levelEl && settings.level) {
+        levelEl.value = settings.level;
+      }
+      if (queueEl && settings.queue) {
+        queueEl.value = settings.queue;
+      }
+      if (deckSizeEl && settings.deckSize) {
+        deckSizeEl.value = settings.deckSize;
+      }
+      if (revisedEl && settings.revised !== undefined) {
+        revisedEl.checked = settings.revised;
+      }
+      if (directionEl && settings.direction) {
+        directionEl.value = settings.direction;
+      }
+      
+      updateSelectedCategoryMasteryUI();
+    } catch (e) {
+      console.warn("Failed to load study session settings", e);
+    }
+  }
+
+  // Export to window so it can be called from DOMContentLoaded
+  window.loadStudySessionSettings = loadStudySessionSettings;
+
   function setupStudySelect() {
+    // Save settings on change
+    sessionSettingIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("change", saveStudySessionSettings);
+        if (el.tagName === "INPUT") {
+          el.addEventListener("input", saveStudySessionSettings);
+        }
+      }
+    });
+
     document.getElementById("mode-select-flashcard").addEventListener("click", () => {
       startStudySession("flashcard");
     });
