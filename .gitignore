@@ -25,6 +25,7 @@ playwright/.cache/
 android.keystore
 app/
 store_icon.png
+store_icon.jpeg
 play_store_feature_graphic.png
 # Local build artifacts
 .gradle/

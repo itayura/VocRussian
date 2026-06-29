@@ -4113,7 +4113,7 @@
             try {
               new Notification("🔔 Daily Reminders Active!", {
                 body: `We'll remind you daily at ${reminderTimeInput.value} to practice your Russian words!`,
-                icon: "./logo.png"
+                icon: "./logo.jpeg"
               });
             } catch (e) {
               console.warn("Failed to trigger test notification:", e);
@@ -4159,7 +4159,7 @@
           try {
             new Notification("🔔 Daily Reminders Active!", {
               body: `We'll remind you daily at ${reminderTimeInput.value} to practice your Russian words!`,
-              icon: "./logo.png"
+              icon: "./logo.jpeg"
             });
           } catch (e) {
             console.warn("Failed to trigger test notification:", e);
@@ -4349,7 +4349,7 @@
       try {
         new Notification("Keep your streak active! 🇷🇺", {
           body: `Keep your ${stats.streak || 0}-day streak alive! Take a few minutes to review your Russian vocabulary today.`,
-          icon: "./logo.png",
+          icon: "./logo.jpeg",
           tag: "daily-reminder-fg",
           requireInteraction: true
         });
@@ -5187,7 +5187,7 @@
 
       await registration.showNotification("Keep your streak active! 🇷🇺", {
         body: `Keep your ${stats.streak || 0}-day streak alive! Take a few minutes to review your Russian vocabulary today.`,
-        icon: "./logo.png",
+        icon: "./logo.jpeg",
         tag: "daily-reminder-local",
         showTrigger: new TimestampTrigger(triggerTime.getTime()),
         requireInteraction: true

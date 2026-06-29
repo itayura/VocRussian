@@ -4,7 +4,7 @@ const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./logo.png",
+  "./logo.jpeg",
   "./css/styles.css",
   "./js/app.js",
   "./js/audio.js",
@@ -113,7 +113,7 @@ async function showDailyReminderNotification() {
       // Show notification
       await self.registration.showNotification("Keep your streak active! 🇷🇺", {
         body: `Keep your ${data.streak || 0}-day streak alive! Take a few minutes to review your Russian vocabulary today.`,
-        icon: "./logo.png",
+        icon: "./logo.jpeg",
         tag: "daily-reminder-bg",
         requireInteraction: true
       });
@@ -172,8 +172,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: "./logo.png",
-    badge: "./logo.png",
+    icon: "./logo.jpeg",
+    badge: "./logo.jpeg",
     tag: "remote-push",
     requireInteraction: true
   };
