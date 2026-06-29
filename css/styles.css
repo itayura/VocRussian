@@ -1207,11 +1207,12 @@ kbd {
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
     align-items: center;
     justify-content: space-around;
-    z-index: 100;
+    z-index: 999; /* Increased z-index to stay above all scrollable content */
     /* Prevent mobile scroll/swipe rendering bugs (disappearing/flicker) */
-    transform: translate3d(0, 0, 0);
     -webkit-transform: translate3d(0, 0, 0);
-    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
   }
   
   .logo-container, .sidebar-footer {

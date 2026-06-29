@@ -613,7 +613,7 @@ const expandedVocabulary = [
     "accented": "специа́льность",
     "translation": "profession",
     "transliteration": "spetsial'nost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A1 - учёба/работа",
     "exampleRu": "Кто ты по специальности?",
     "exampleEn": "What’s your profession?"
@@ -1185,7 +1185,7 @@ const expandedVocabulary = [
     "accented": "национа́льность",
     "translation": "nationality",
     "transliteration": "natsional'nost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A1 - политика, люди",
     "exampleRu": "Какой национальности твои родители?",
     "exampleEn": "What is your parents’ nationality?"
@@ -2142,7 +2142,7 @@ const expandedVocabulary = [
     "accented": "часть",
     "translation": "part",
     "transliteration": "chast'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A1 - мера",
     "exampleRu": "Общение — важная часть нашей жизни.",
     "exampleEn": "Communication is an important part of our life."
@@ -2826,8 +2826,8 @@ const expandedVocabulary = [
     "transliteration": "konchat'",
     "pos": "verb",
     "category": "A1 - мера, время",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Мы конча́ем рабо́ту в пять часо́в.",
+    "exampleEn": "We finish work at five o'clock."
   },
   {
     "id": "ve_258",
@@ -3539,7 +3539,7 @@ const expandedVocabulary = [
     "accented": "гость",
     "translation": "guest",
     "transliteration": "gost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A1 - люди",
     "exampleRu": "Вечером придут гости, нужно накрыть на стол.",
     "exampleEn": "The guests are coming in the evening, we need to set the table."
@@ -4639,7 +4639,7 @@ const expandedVocabulary = [
     "accented": "но́вость",
     "translation": "news",
     "transliteration": "novost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A1 - политика, общение",
     "exampleRu": "Большинство новостей я узнаю из интернета.",
     "exampleEn": "I get most of my news from the Internet."
@@ -5607,7 +5607,7 @@ const expandedVocabulary = [
     "accented": "ра́дость",
     "translation": "joy",
     "transliteration": "radost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A2 - внутренний мир",
     "exampleRu": "Мои дети — моя радость.",
     "exampleEn": "My children are my joy."
@@ -6245,7 +6245,7 @@ const expandedVocabulary = [
     "accented": "ста́рость",
     "translation": "old age",
     "transliteration": "starost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A2 - люди, время",
     "exampleRu": "Мой компьютер сломался от старости.",
     "exampleEn": "My computer broke because it was old."
@@ -7015,7 +7015,7 @@ const expandedVocabulary = [
     "accented": "ю́ность",
     "translation": "youth",
     "transliteration": "yunost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A2 - люди, время",
     "exampleRu": "В юности она занималась волейболом.",
     "exampleEn": "She played volleyball when she was young."
@@ -7466,7 +7466,7 @@ const expandedVocabulary = [
     "accented": "власть",
     "translation": "power",
     "transliteration": "vlast'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A2 - люди, политика",
     "exampleRu": "Брежневу удавалось оставаться у власти восемнадцать лет.",
     "exampleEn": "Brezhnev managed to stay inl power for 18 years."
@@ -9182,7 +9182,7 @@ const expandedVocabulary = [
     "accented": "мо́лодость",
     "translation": "youth",
     "transliteration": "molodost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "A2 - время, люди",
     "exampleRu": "Во времена моей молодости такого не было.",
     "exampleEn": "Things like that didn't happen in the days of my youth."
@@ -10647,8 +10647,8 @@ const expandedVocabulary = [
     "transliteration": "videofil'm",
     "pos": "noun",
     "category": "B1 - свободное время",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Они́ смотре́ли но́вый видеофи́льм.",
+    "exampleEn": "They watched a new video film."
   },
   {
     "id": "ve_969",
@@ -10777,7 +10777,7 @@ const expandedVocabulary = [
     "accented": "промы́шленность",
     "translation": "industry",
     "transliteration": "promyshlennost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - учёба/работа, магазин",
     "exampleRu": "Для российской промышленности ― это путь в никуда.",
     "exampleEn": "For Russian industry this path leads nowhere."
@@ -10900,8 +10900,8 @@ const expandedVocabulary = [
     "transliteration": "negde",
     "pos": "noun",
     "category": "B1 - описание",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Здесь не́где сесть.",
+    "exampleEn": "There is nowhere to sit here."
   },
   {
     "id": "ve_992",
@@ -11252,8 +11252,8 @@ const expandedVocabulary = [
     "transliteration": "nekogda",
     "pos": "noun",
     "category": "B1 - ",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Мне сего́дня не́когда гуля́ть.",
+    "exampleEn": "I have no time to walk today."
   },
   {
     "id": "ve_1024",
@@ -11514,7 +11514,7 @@ const expandedVocabulary = [
     "accented": "ско́рость",
     "translation": "speed",
     "transliteration": "skorost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - транспорт, мера",
     "exampleRu": "В момент аварии он ехал со скоростью восемьдесят километров в час.",
     "exampleEn": "At the time of the accident he was driving at a speed of eighty kilometers per hour."
@@ -12405,7 +12405,7 @@ const expandedVocabulary = [
     "accented": "тро́йка",
     "translation": "three",
     "transliteration": "troyka",
-    "pos": "numeral",
+    "pos": "noun",
     "category": "B1 - учёба/работа, мера",
     "exampleRu": "Он расстроился из-за того, что получил тройку за сочинение.",
     "exampleEn": "He was upset that he got a \"C\" on his essay."
@@ -15949,8 +15949,8 @@ const expandedVocabulary = [
     "transliteration": "podymat'",
     "pos": "verb",
     "category": "B1 - учёба/работа",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Он помога́ет подыма́ть тяжёлые сумки.",
+    "exampleEn": "He helps to lift heavy bags."
   },
   {
     "id": "ve_1451",
@@ -17036,7 +17036,7 @@ const expandedVocabulary = [
     "accented": "незави́симость",
     "translation": "independence",
     "transliteration": "nezavisimost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - политика",
     "exampleRu": "Декларация независимости США была принята четвертого июля 1776 года.",
     "exampleEn": "The United States’ Declaration of Independence was adopted on July 4, 1776."
@@ -17069,7 +17069,7 @@ const expandedVocabulary = [
     "accented": "неприя́тность",
     "translation": "trouble",
     "transliteration": "nepriyatnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - внутренний мир, общение",
     "exampleRu": "Будь осторожна, у тебя могут быть неприятности.",
     "exampleEn": "Be careful, you could get into trouble."
@@ -17267,7 +17267,7 @@ const expandedVocabulary = [
     "accented": "о́бласть",
     "translation": "field",
     "transliteration": "oblast'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - жильё, политика, учёба/работа",
     "exampleRu": "Моя семья живёт в Московской области.",
     "exampleEn": "My family lives in the Moscow region."
@@ -17522,8 +17522,8 @@ const expandedVocabulary = [
     "transliteration": "nekuda",
     "pos": "noun",
     "category": "B1 - ",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Мне не́куда идти́.",
+    "exampleEn": "I have nowhere to go."
   },
   {
     "id": "ve_1594",
@@ -17542,7 +17542,7 @@ const expandedVocabulary = [
     "accented": "опа́сность",
     "translation": "danger",
     "transliteration": "opasnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - здоровье",
     "exampleRu": "Крупные дикие звери представляют серьёзную опасность для человека.",
     "exampleEn": "Large wild animals are a serious danger for people."
@@ -17729,7 +17729,7 @@ const expandedVocabulary = [
     "accented": "осо́бенность",
     "translation": "feature",
     "transliteration": "osobennost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - здоровье, описание, учёба/работа",
     "exampleRu": "Телосложение человека зависит от особенностей организма.",
     "exampleEn": "A person's figure depends on the characteristics of their body."
@@ -18103,7 +18103,7 @@ const expandedVocabulary = [
     "accented": "четвёрка",
     "translation": "four",
     "transliteration": "chetvyorka",
-    "pos": "numeral",
+    "pos": "noun",
     "category": "B1 - учёба/работа, мера",
     "exampleRu": "Четвёрка ― это хорошая оценка, но ты можешь и лучше!",
     "exampleEn": "A B is a good grade, but you can do better!"
@@ -18127,8 +18127,8 @@ const expandedVocabulary = [
     "transliteration": "perenashivat'",
     "pos": "verb",
     "category": "B1 - описание",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Врач реши́л перена́шивать приём.",
+    "exampleEn": "The doctor decided to postpone the appointment."
   },
   {
     "id": "ve_1649",
@@ -18237,8 +18237,8 @@ const expandedVocabulary = [
     "transliteration": "nechego",
     "pos": "pronoun",
     "category": "B1 - ",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Нам не́чего теря́ть.",
+    "exampleEn": "We have nothing to lose."
   },
   {
     "id": "ve_1659",
@@ -18611,8 +18611,8 @@ const expandedVocabulary = [
     "transliteration": "disketa",
     "pos": "noun",
     "category": "B1 - учёба/работа",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "У него́ сохрани́лась ста́рая диске́та.",
+    "exampleEn": "He has kept an old floppy disk."
   },
   {
     "id": "ve_1693",
@@ -18840,7 +18840,7 @@ const expandedVocabulary = [
     "accented": "весть",
     "translation": "news",
     "transliteration": "vest'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B1 - общение",
     "exampleRu": "Наташа сначала была в шоке от радостной вести. Она скоро станет мамой!",
     "exampleEn": "At first Natasha was really shocked by the good news. She will become a mother soon!"
@@ -19401,7 +19401,7 @@ const expandedVocabulary = [
     "accented": "не́нависть",
     "translation": "hatred",
     "transliteration": "nenavist'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Раньше Алиса ни к кому не чувствовала такой ненависти.",
     "exampleEn": "Alice never felt such hatred towards anyone before."
@@ -19423,7 +19423,7 @@ const expandedVocabulary = [
     "accented": "необходи́мость",
     "translation": "necessity",
     "transliteration": "neobkhodimost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Начальник попросил объяснить, есть ли необходимость в дополнительных расходах.",
     "exampleEn": "The boss asked us to explain whether there is any need for additional costs."
@@ -19566,7 +19566,7 @@ const expandedVocabulary = [
     "accented": "несправедли́вость",
     "translation": "injustice",
     "transliteration": "nespravedlivost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - политика, общение",
     "exampleRu": "Приезжие нередко сталкиваются с чудовищной социальной несправедливостью.",
     "exampleEn": "Newcomers often encounter terrible social injustice."
@@ -20490,7 +20490,7 @@ const expandedVocabulary = [
     "accented": "обя́занность",
     "translation": "duty",
     "transliteration": "obyazannost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "Сотрудник уволен, потому что он не выполняет свои обязанности.",
     "exampleEn": "The employee was fired because he is not fulfilling his duties."
@@ -21359,7 +21359,7 @@ const expandedVocabulary = [
     "accented": "отве́тственность",
     "translation": "responsibility",
     "transliteration": "otvetstvennost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир, политика, учёба/работа",
     "exampleRu": "Груз ответственности за проект не даёт Валерии уснуть.",
     "exampleEn": "The burden of responsibility for the project keeps Valeria awake at night"
@@ -22976,7 +22976,7 @@ const expandedVocabulary = [
     "accented": "пове́рхность",
     "translation": "surface",
     "transliteration": "poverkhnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - описание",
     "exampleRu": "Марсоход нашёл воду на поверхности Марса.",
     "exampleEn": "The Mars rover found water on the surface of Mars."
@@ -22998,7 +22998,7 @@ const expandedVocabulary = [
     "accented": "по́весть",
     "translation": "novel",
     "transliteration": "povest'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - свободное время",
     "exampleRu": "Повесть была опубликована в литературном журнале.",
     "exampleEn": "The story was published in a literary magazine."
@@ -23462,7 +23462,7 @@ const expandedVocabulary = [
     "transliteration": "podeshevet'",
     "pos": "verb",
     "category": "B2 - _",
-    "exampleRu": "",
+    "exampleRu": "Биле́ты должны́ подешеве́ть осе́нью.",
     "exampleEn": "_"
   },
   {
@@ -24791,7 +24791,7 @@ const expandedVocabulary = [
     "accented": "потре́бность",
     "translation": "need",
     "transliteration": "potrebnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир, здоровье, люди",
     "exampleRu": "Голод - это потребность организма в пище.",
     "exampleEn": "Hunger is the body's need for food."
@@ -26056,7 +26056,7 @@ const expandedVocabulary = [
     "accented": "бе́дность",
     "translation": "poverty",
     "transliteration": "bednost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - магазин, политика, мера",
     "exampleRu": "В России больше двух миллионов человек живёт за чертой бедности.",
     "exampleEn": "More than 2 million people live in Russia below the poverty level."
@@ -26254,7 +26254,7 @@ const expandedVocabulary = [
     "accented": "безопа́сность",
     "translation": "safety",
     "transliteration": "bezopasnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - люди",
     "exampleRu": "Уважаемые пассажиры, в целях вашей безопасности курить запрещено на протяжении всего полёта.",
     "exampleEn": "Dear passengers, for your safety smoking is strictly prohibited during the whole flight."
@@ -27761,7 +27761,7 @@ const expandedVocabulary = [
     "accented": "ве́рность",
     "translation": "loyalty",
     "transliteration": "vernost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - люди, внутренний мир",
     "exampleRu": "Новый император должен был присягнуть на верность Конституции.",
     "exampleEn": "The new emperor had to swear allegiance to the Constitution."
@@ -27772,7 +27772,7 @@ const expandedVocabulary = [
     "accented": "вероя́тность",
     "translation": "probability",
     "transliteration": "veroyatnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - мера, учёба/работа",
     "exampleRu": "Вероятность погибнуть в авиакатастрофе очень мала.",
     "exampleEn": "The probability of dying in a plane crash is very small."
@@ -28104,7 +28104,7 @@ const expandedVocabulary = [
     "transliteration": "videomagnitofon",
     "pos": "noun",
     "category": "B2 - свободное время",
-    "exampleRu": "",
+    "exampleRu": "У нас ра́ньше был видеомагнитофо́н.",
     "exampleEn": "_"
   },
   {
@@ -28443,7 +28443,7 @@ const expandedVocabulary = [
     "accented": "возмо́жность",
     "translation": "opportunity",
     "transliteration": "vozmozhnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - учёба/работа, политика",
     "exampleRu": "Нельзя было не использовать такую возможность.",
     "exampleEn": "It was impossible not to take advantage of such an opportunity."
@@ -29818,7 +29818,7 @@ const expandedVocabulary = [
     "accented": "глу́пость",
     "translation": "stupidity",
     "transliteration": "glupost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Мне кажется, это полная глупость!",
     "exampleEn": "To me it seems to be complete nonsense."
@@ -30170,7 +30170,7 @@ const expandedVocabulary = [
     "accented": "грусть",
     "translation": "sadness",
     "transliteration": "grust'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Люба спокойно, но с небольшой грустью смотрела на него.",
     "exampleEn": "Lyuba looked at him calmly but with a faint sadness."
@@ -31193,7 +31193,7 @@ const expandedVocabulary = [
     "accented": "до́лжность",
     "translation": "position",
     "transliteration": "dolzhnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - учёба/работа",
     "exampleRu": "Дима давно хотел получить эту должность.",
     "exampleEn": "Dima has wanted to get this position for a long time."
@@ -31347,7 +31347,7 @@ const expandedVocabulary = [
     "accented": "достопримеча́тельность",
     "translation": "place of interest",
     "transliteration": "dostoprimechatel'nost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - путешествие",
     "exampleRu": "После обеда мы с Машей пошли знакомиться с местными достопримечательностями.",
     "exampleEn": "After lunch Masha and I went to see the local sights."
@@ -31677,7 +31677,7 @@ const expandedVocabulary = [
     "accented": "жа́дность",
     "translation": "greed",
     "transliteration": "zhadnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Он от жадности совсем с ума сошёл.",
     "exampleEn": "He went completely crazy with greed."
@@ -31721,7 +31721,7 @@ const expandedVocabulary = [
     "accented": "жа́лость",
     "translation": "pity",
     "transliteration": "zhalost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Жалость к себе — неприятное чувство.",
     "exampleEn": "Self pity is an unpleasant feeling."
@@ -32018,7 +32018,7 @@ const expandedVocabulary = [
     "accented": "за́висть",
     "translation": "envy",
     "transliteration": "zavist'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - внутренний мир",
     "exampleRu": "Мои подруги просто умерли от зависти.",
     "exampleEn": "My friends simply ate their hearts out from jealousy."
@@ -32581,8 +32581,8 @@ const expandedVocabulary = [
     "transliteration": "zatormazhivat'",
     "pos": "verb",
     "category": "B2 - описание",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "По́езд начина́ет заторма́живать у ста́нции.",
+    "exampleEn": "The train begins to slow down near the station."
   },
   {
     "id": "ve_2963",
@@ -34889,7 +34889,7 @@ const expandedVocabulary = [
     "accented": "кость",
     "translation": "bone",
     "transliteration": "kost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - еда",
     "exampleRu": "Брось собаке кость.",
     "exampleEn": "Give the dog a bone."
@@ -35010,7 +35010,7 @@ const expandedVocabulary = [
     "accented": "кре́пость",
     "translation": "fortress",
     "transliteration": "krepost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - жильё, политика",
     "exampleRu": "Воины защищали старую крепость.",
     "exampleEn": "The warriors defended the old fortress."
@@ -35692,7 +35692,7 @@ const expandedVocabulary = [
     "accented": "ли́чность",
     "translation": "personality",
     "transliteration": "lichnost'",
-    "pos": "verb",
+    "pos": "noun",
     "category": "B2 - люди, внутренний мир",
     "exampleRu": "Развитие личности продолжается всю жизнь.",
     "exampleEn": "Personal development lasts a lifetime."
@@ -36981,8 +36981,8 @@ const expandedVocabulary = [
     "transliteration": "namachivat'",
     "pos": "verb",
     "category": "B2 - погода",
-    "exampleRu": "",
-    "exampleEn": ""
+    "exampleRu": "Не ну́жно нама́чивать эти докуме́нты.",
+    "exampleEn": "You shouldn't get these documents wet."
   },
   {
     "id": "ve_3363",
@@ -37139,5 +37139,3 @@ const expandedVocabulary = [
     "exampleEn": "The well-dressed children who were shyly holding their mothers' hands, were afraid to go to the Christmas tree, by which artists were performing for them."
   }
 ];
-
-window.expandedVocabulary = expandedVocabulary;
