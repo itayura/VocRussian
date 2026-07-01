@@ -62,7 +62,7 @@
       level: "A1",
       question: "What does 'Мама' mean?",
       choices: ["Mother", "Father", "Sister", "Brother"],
-      answer: "Мама"
+      answer: "Mother"
     },
     {
       id: 10,
@@ -198,8 +198,8 @@
       id: 28,
       level: "B1",
       question: "Complete the sentence: 'Он _____ своего брата.' (He is older than his brother)",
-      choices: ["常规", "старше", "более старый", "старее"],
-      answer: "常规" // Wait, choices: ["старше", "более старый", "самый старый", "старее"], answer: "старше"
+      choices: ["старше", "более старый", "самый старый", "старее"],
+      answer: "старше"
     },
     {
       id: 29,
@@ -433,14 +433,6 @@
     }
   ];
 
-  // Fix B1 Question 28 target content
-  for (let q of PLACEMENT_QUESTIONS) {
-    if (q.id === 28) {
-      q.choices = ["старше", "более старый", "самый старый", "старее"];
-      q.answer = "старше";
-    }
-  }
-
   let selectedQuestions = [];
   let currentQuestionIndex = 0; // 0 to 49
   let correctAnswersCount = 0;
@@ -582,7 +574,8 @@
     const container = document.getElementById("placement-choices-container");
     container.innerHTML = "";
 
-    currentQuestion.choices.forEach(choice => {
+    const shuffledChoices = shuffleArray(currentQuestion.choices);
+    shuffledChoices.forEach(choice => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn btn-secondary choice-btn";

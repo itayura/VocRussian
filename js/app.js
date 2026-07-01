@@ -120,9 +120,9 @@
   };
 
   // Dynamic translation helper with caching for multi-language dictionary and reviews
-  window.translateTextWithCache = async function (cardId, textToTranslate, targetLang) {
+  window.translateTextWithCache = async function (cardId, textToTranslate, targetLang, sourceLang = "en") {
     if (!textToTranslate) return "";
-    if (targetLang === "en") return textToTranslate;
+    if (targetLang === sourceLang) return textToTranslate;
 
     let cache = {};
     try {
@@ -135,7 +135,7 @@
     }
 
     try {
-      const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
+      const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
       const res = await fetch(googleTranslateUrl);
       if (res.ok) {
         const data = await res.json();
@@ -153,8 +153,8 @@
     return textToTranslate;
   };
 
-  window.getOrTriggerTranslation = function (cardId, textToTranslate, targetLang, callback) {
-    if (!textToTranslate || targetLang === "en") {
+  window.getOrTriggerTranslation = function (cardId, textToTranslate, targetLang, callback, sourceLang = "en") {
+    if (!textToTranslate || targetLang === sourceLang) {
       return textToTranslate;
     }
 
@@ -169,7 +169,7 @@
     }
 
     // Call async translate and trigger callback
-    window.translateTextWithCache(cardId, textToTranslate, targetLang).then(translated => {
+    window.translateTextWithCache(cardId, textToTranslate, targetLang, sourceLang).then(translated => {
       if (callback) callback(translated);
     });
 
@@ -762,6 +762,17 @@
     loadStudySessionSettings();
     setupScrollLoading();
 
+    // Check for add_word query parameter (from PROCESS_TEXT intent on Android)
+    const urlParams = new URLSearchParams(window.location.search);
+    const addWord = urlParams.get('add_word');
+    if (addWord && window.openAddWordWithDefaults) {
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+      setTimeout(() => {
+        window.openAddWordWithDefaults(addWord);
+      }, 500);
+    }
+
     // Export functions to window so they can be called by placement.js
     window.renderDashboard = renderDashboard;
     window.renderDictionary = renderDictionary;
@@ -1038,6 +1049,22 @@
         showRandomTip();
       });
     }
+    // Dashboard Deck Switcher
+    const dashDbSelect = document.getElementById("dashboard-filter-db");
+    if (dashDbSelect) {
+      dashDbSelect.addEventListener("change", (e) => {
+        SRS.setActiveDb(e.target.value);
+        // Sync other dropdowns
+        const studyDb = document.getElementById("study-filter-db");
+        if (studyDb) studyDb.value = e.target.value;
+        const dictDb = document.getElementById("dict-filter-db");
+        if (dictDb) dictDb.value = e.target.value;
+        updateCategoryDropdowns();
+        renderDashboard();
+        updateSelectedCategoryMasteryUI();
+      });
+    }
+
     // Show initial tip
     showRandomTip();
   }
@@ -1552,10 +1579,14 @@
       if (currentStudyReverse) {
         // REVERSE MODE: Front shows translation, Back shows Russian word
         document.getElementById("fc-category-front").innerText = card.category;
-        const transForFront = window.getOrTriggerTranslation(
-          card.id, card.translation, nativeLang,
-          (val) => { document.getElementById("fc-word-front").innerText = val; }
-        );
+        let transForFront = card.translation;
+        if (nativeLang !== "en") {
+          transForFront = window.getOrTriggerTranslation(
+            card.id, card.word, nativeLang,
+            (val) => { document.getElementById("fc-word-front").innerText = val; },
+            "ru"
+          );
+        }
         document.getElementById("fc-word-front").innerText = transForFront;
         document.getElementById("fc-word-translit-front").innerText = "";
 
@@ -1576,12 +1607,23 @@
         document.getElementById("fc-word-pos-back").innerText = card.pos;
         document.getElementById("fc-word-example-ru-back").innerText = card.exampleRu || "";
 
-        const translationText = window.getOrTriggerTranslation(
-          card.id, card.translation, nativeLang,
-          (translatedVal) => {
-            document.getElementById("fc-word-translation-back").innerText = translatedVal;
-          }
-        );
+        let translationText = card.translation;
+        if (nativeLang !== "en") {
+          translationText = window.getOrTriggerTranslation(
+            card.id, card.word, nativeLang,
+            (translatedVal) => {
+              document.getElementById("fc-word-translation-back").innerText = translatedVal;
+            },
+            "ru"
+          );
+        } else {
+          translationText = window.getOrTriggerTranslation(
+            card.id, card.translation, nativeLang,
+            (translatedVal) => {
+              document.getElementById("fc-word-translation-back").innerText = translatedVal;
+            }
+          );
+        }
         document.getElementById("fc-word-translation-back").innerText = translationText;
 
         let exampleEnText = card.exampleEn || "";
@@ -1683,10 +1725,19 @@
       // REVERSE MODE: Prompt is a Russian word, user picks the translation
       document.getElementById("choice-category").innerText = currentCard.category;
       // Show translation as the prompt question
-      const promptTrans = window.getOrTriggerTranslation(
-        currentCard.id, currentCard.translation, nativeLang,
-        (val) => { document.getElementById("choice-word").innerText = val; }
-      );
+      let promptTrans = currentCard.translation;
+      if (nativeLang !== "en") {
+        promptTrans = window.getOrTriggerTranslation(
+          currentCard.id, currentCard.word, nativeLang,
+          (val) => { document.getElementById("choice-word").innerText = val; },
+          "ru"
+        );
+      } else {
+        promptTrans = window.getOrTriggerTranslation(
+          currentCard.id, currentCard.translation, nativeLang,
+          (val) => { document.getElementById("choice-word").innerText = val; }
+        );
+      }
       document.getElementById("choice-word").innerText = promptTrans;
       document.getElementById("choice-word-translit").innerText = "";
     } else {
@@ -1735,6 +1786,7 @@
       // STANDARD: Options are translations
       const options = [currentCard, ...selectedDistractors].map(w => ({
         id: w.id,
+        word: w.word,
         translation: w.translation
       }));
       options.sort(() => Math.random() - 0.5);
@@ -1747,13 +1799,25 @@
         btn.className = "choice-btn";
         btn.dataset.wordId = opt.id;
         
-        const optionText = window.getOrTriggerTranslation(
-          opt.id, opt.translation, nativeLang,
-          (translatedVal) => {
-            const spanEl = btn.querySelector("span");
-            if (spanEl) spanEl.innerText = translatedVal;
-          }
-        );
+        let optionText = opt.translation;
+        if (nativeLang !== "en") {
+          optionText = window.getOrTriggerTranslation(
+            opt.id, opt.word, nativeLang,
+            (translatedVal) => {
+              const spanEl = btn.querySelector("span");
+              if (spanEl) spanEl.innerText = translatedVal;
+            },
+            "ru"
+          );
+        } else {
+          optionText = window.getOrTriggerTranslation(
+            opt.id, opt.translation, nativeLang,
+            (translatedVal) => {
+              const spanEl = btn.querySelector("span");
+              if (spanEl) spanEl.innerText = translatedVal;
+            }
+          );
+        }
 
         btn.innerHTML = `<span>${optionText}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
         btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
@@ -1811,14 +1875,27 @@
     
     const nativeLang = SRS.getSetting("nativeLanguage", "en");
 
-    const promptText = window.getOrTriggerTranslation(
-      currentCard.id,
-      currentCard.translation,
-      nativeLang,
-      (translatedVal) => {
-        document.getElementById("writing-prompt-translation").innerText = translatedVal;
-      }
-    );
+    let promptText = currentCard.translation;
+    if (nativeLang !== "en") {
+      promptText = window.getOrTriggerTranslation(
+        currentCard.id,
+        currentCard.word,
+        nativeLang,
+        (translatedVal) => {
+          document.getElementById("writing-prompt-translation").innerText = translatedVal;
+        },
+        "ru"
+      );
+    } else {
+      promptText = window.getOrTriggerTranslation(
+        currentCard.id,
+        currentCard.translation,
+        nativeLang,
+        (translatedVal) => {
+          document.getElementById("writing-prompt-translation").innerText = translatedVal;
+        }
+      );
+    }
     document.getElementById("writing-prompt-translation").innerText = promptText;
     
     const showTranslit = SRS.getSetting("showTranslit", true);
@@ -2125,15 +2202,29 @@
       const cardEl = document.createElement("div");
       cardEl.className = "card vocab-card";
       
-      const translationText = window.getOrTriggerTranslation(
-        card.id, 
-        card.translation, 
-        nativeLang, 
-        (translatedVal) => {
-          const el = cardEl.querySelector(".vocab-card-translation");
-          if (el) el.innerText = translatedVal;
-        }
-      );
+      let translationText = card.translation;
+      if (nativeLang !== "en") {
+        translationText = window.getOrTriggerTranslation(
+          card.id, 
+          card.word, 
+          nativeLang, 
+          (translatedVal) => {
+            const el = cardEl.querySelector(".vocab-card-translation");
+            if (el) el.innerText = translatedVal;
+          },
+          "ru"
+        );
+      } else {
+        translationText = window.getOrTriggerTranslation(
+          card.id, 
+          card.translation, 
+          nativeLang, 
+          (translatedVal) => {
+            const el = cardEl.querySelector(".vocab-card-translation");
+            if (el) el.innerText = translatedVal;
+          }
+        );
+      }
 
       let exampleEnText = card.exampleEn || "";
       if (card.exampleEn) {
@@ -3892,52 +3983,43 @@
   }
 
   // --- LANDING PAGE CONTROLLER ---
-  const demoWords = [
-    {
-      word: "Здравствуйте!",
-      pos: "phrase",
-      translation: "Hello / How do you do",
-      translit: "[zdrav-stvuy-te]",
-      exampleRu: "Здравствуйте, как ваши дела?",
-      exampleEn: "Hello, how are you doing?"
-    },
-    {
-      word: "Спасибо",
-      pos: "noun",
-      translation: "Thank you",
-      translit: "[spa-see-ba]",
-      exampleRu: "Большое спасибо за помощь!",
-      exampleEn: "Thank you very much for your help!"
-    },
-    {
-      word: "Пожалуйста",
-      pos: "adverb",
-      translation: "Please / You're welcome",
-      translit: "[pa-zhal-oo-ysta]",
-      exampleRu: "Дайте, пожалуйста, воды.",
-      exampleEn: "Please give me some water."
-    },
-    {
-      word: "Друг",
-      pos: "noun",
-      translation: "Friend",
-      translit: "[droog]",
-      exampleRu: "Он мой лучший друг.",
-      exampleEn: "He is my best friend."
-    },
-    {
-      word: "Любовь",
-      pos: "noun",
-      translation: "Love",
-      translit: "[lyu-bof']",
-      exampleRu: "Любовь спасёт мир.",
-      exampleEn: "Love will save the world."
-    }
+
+  // Hardcoded fallback words shown before the deck is loaded
+  const _demoFallback = [
+    { word: "Здравствуйте!", pos: "phrase",  translation: "Hello / How do you do",  translit: "[zdrav-stvuy-te]",   exampleRu: "Здравствуйте, как ваши дела?",  exampleEn: "Hello, how are you doing?" },
+    { word: "Спасибо",       pos: "noun",    translation: "Thank you",               translit: "[spa-see-ba]",       exampleRu: "Большое спасибо за помощь!",   exampleEn: "Thank you very much for your help!" },
+    { word: "Пожалуйста",    pos: "adverb",  translation: "Please / You're welcome", translit: "[pa-zhal-oo-ysta]", exampleRu: "Дайте, пожалуйста, воды.",      exampleEn: "Please give me some water." },
+    { word: "Друг",          pos: "noun",    translation: "Friend",                  translit: "[droog]",            exampleRu: "Он мой лучший друг.",           exampleEn: "He is my best friend." },
+    { word: "Любовь",        pos: "noun",    translation: "Love",                    translit: "[lyu-bof']",         exampleRu: "Любовь спасёт мир.",            exampleEn: "Love will save the world." }
   ];
+
+  // Returns a shuffled pool of up to 10 words from the live deck, or the fallback set
+  function buildDemoWords() {
+    const all = (typeof SRS !== "undefined" && SRS.getAllWords) ? SRS.getAllWords() : [];
+    if (!all || all.length === 0) return _demoFallback;
+    const pool = all.slice().sort(() => Math.random() - 0.5);
+    return pool.map(w => ({
+      word:        w.word            || "",
+      pos:         w.pos             || "word",
+      translation: w.translation     || "",
+      translit:    w.transliteration || "",
+      exampleRu:   w.exampleRu       || "",
+      exampleEn:   w.exampleEn       || ""
+    }));
+  }
+
+  let demoWords = _demoFallback;
   let demoIndex = 0;
 
+
   function setupLandingPage() {
+    // Refresh demo word pool from live deck on every landing page visit
+    demoWords = buildDemoWords();
+    demoIndex = 0;
+    loadDemoWord(demoWords[0]);
+
     const ctaStart = document.getElementById("landing-cta-start");
+
     if (ctaStart) {
       ctaStart.addEventListener("click", () => {
         switchView("dashboard");
@@ -4064,8 +4146,8 @@
     // Clear existing theme classes
     document.body.classList.remove("theme-midnight", "theme-emerald", "theme-cyberpunk", "theme-light", "theme-privyetik");
     // Add selected theme class
-    // Add selected theme class (midnight is the CSS base — no class needed)
-    if (theme !== "midnight") {
+    // privyetik is the CSS base — no class needed; all other themes need a class
+    if (theme !== "privyetik") {
       document.body.classList.add(`theme-${theme}`);
     }
   }
@@ -4266,6 +4348,19 @@
 
       // Trigger reminder updates offline
       scheduleLocalReminder();
+
+      // Sync native Android alarm
+      if (/android/i.test(navigator.userAgent)) {
+        try {
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = `vocrussian://settings?enabled=${enabled}&time=${reminderTime}`;
+          document.body.appendChild(iframe);
+          setTimeout(() => iframe.remove(), 1000);
+        } catch (err) {
+          console.warn("Failed to trigger native Android alarm sync:", err);
+        }
+      }
     } catch (e) {
       console.warn("Failed to sync reminder state to cache:", e);
     }
@@ -4432,6 +4527,7 @@
   function populateDecksDropdowns() {
     const studyDbSelect = document.getElementById("study-filter-db");
     const dictDbSelect = document.getElementById("dict-filter-db");
+    const dashDbSelect = document.getElementById("dashboard-filter-db");
     
     if (!studyDbSelect || !dictDbSelect) return;
     
@@ -4454,6 +4550,10 @@
     
     studyDbSelect.innerHTML = html;
     dictDbSelect.innerHTML = html;
+    if (dashDbSelect) {
+      dashDbSelect.innerHTML = html;
+      dashDbSelect.value = activeDb;
+    }
     
     studyDbSelect.value = activeDb;
     dictDbSelect.value = activeDb;
@@ -4825,11 +4925,11 @@
     const nativeLang = SRS.getSetting("nativeLanguage", "en");
     if (nativeLang !== "en" && window.getOrTriggerTranslation) {
       document.getElementById("recommend-word-translation").textContent = "Loading translation...";
-      window.getOrTriggerTranslation(recommended.id, recommended.translation, nativeLang, (translated) => {
+      window.getOrTriggerTranslation(recommended.id, recommended.word, nativeLang, (translated) => {
         if (activeRecommendationWord && activeRecommendationWord.id === recommended.id) {
           document.getElementById("recommend-word-translation").textContent = translated;
         }
-      });
+      }, "ru");
     } else {
       document.getElementById("recommend-word-translation").textContent = recommended.translation;
     }

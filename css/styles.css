@@ -4,39 +4,41 @@
 
 /* --- CUSTOM VARIABLES & DESIGN SYSTEM --- */
 :root {
-  --bg-main: hsl(224, 25%, 8%);
-  --bg-card: hsla(224, 25%, 14%, 0.6);
-  --bg-card-hover: hsla(224, 25%, 18%, 0.85);
-  --bg-input: hsl(224, 20%, 12%);
-  --bg-sidebar: hsl(224, 25%, 6%);
-  
-  --color-primary: hsl(252, 90%, 68%);
-  --color-primary-glow: hsla(252, 90%, 68%, 0.25);
-  --color-primary-hover: hsl(252, 95%, 75%);
-  
-  --color-success: hsl(142, 76%, 40%);
-  --color-success-glow: hsla(142, 76%, 40%, 0.2);
-  --color-error: hsl(350, 89%, 60%);
-  --color-error-glow: hsla(350, 89%, 60%, 0.15);
-  
-  --color-text-main: hsl(210, 40%, 98%);
-  --color-text-muted: hsl(217, 18%, 65%);
-  --color-text-dark: hsl(220, 20%, 30%);
-  
-  --border-glass: hsla(217, 30%, 90%, 0.07);
-  --border-glass-hover: hsla(217, 30%, 90%, 0.15);
-  
-  --shadow-main: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  /* === PRIVYETIK (default) === */
+  --bg-main:        hsl(172, 35%, 96%);
+  --bg-card:        rgba(255, 255, 255, 0.55);
+  --bg-card-hover:  rgba(255, 255, 255, 0.80);
+  --bg-input:       rgba(255, 255, 255, 0.70);
+  --bg-sidebar:     hsl(172, 30%, 91%);
+  --bg-glass:       rgba(255, 255, 255, 0.40);
+
+  --color-primary:       hsl(175, 50%, 48%);
+  --color-primary-glow:  hsla(175, 50%, 48%, 0.20);
+  --color-primary-hover: hsl(175, 55%, 38%);
+
+  --color-success:      hsl(155, 60%, 40%);
+  --color-success-glow: hsla(155, 60%, 40%, 0.20);
+  --color-error:        hsl(350, 89%, 60%);
+  --color-error-glow:   hsla(350, 89%, 60%, 0.15);
+
+  --color-text-main:  hsl(200, 25%, 18%);
+  --color-text-muted: hsl(200, 15%, 45%);
+  --color-text-dark:  hsl(200, 10%, 65%);
+
+  --border-glass:       rgba(60, 190, 175, 0.18);
+  --border-glass-hover: rgba(60, 190, 175, 0.38);
+
+  --shadow-main: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
   --shadow-glow: 0 0 20px 0 var(--color-primary-glow);
-  
+
   --border-radius-sm: 8px;
   --border-radius-md: 16px;
   --border-radius-lg: 24px;
   --border-radius-circle: 50%;
-  
+
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  
+
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -57,10 +59,11 @@ body {
   min-height: 100vh;
   display: flex;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(at 10% 20%, hsla(252, 90%, 68%, 0.08) 0px, transparent 50%),
-    radial-gradient(at 90% 80%, hsla(142, 76%, 40%, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, hsla(224, 25%, 8%, 1) 0px, transparent 100%);
+  background-image:
+    radial-gradient(at 0%   0%,   hsla(175, 60%, 75%, 0.45) 0px, transparent 55%),
+    radial-gradient(at 100% 0%,   hsla(195, 70%, 80%, 0.35) 0px, transparent 55%),
+    radial-gradient(at 50%  100%, hsla(155, 55%, 78%, 0.30) 0px, transparent 55%),
+    radial-gradient(at 50%  50%,  hsl(172, 35%, 96%)        0px, transparent 100%);
   background-attachment: fixed;
 }
 
@@ -1194,7 +1197,7 @@ kbd {
   }
   
   aside {
-    width: 100%;
+    width: 100vw;
     height: calc(70px + env(safe-area-inset-bottom, 0px));
     position: fixed;
     bottom: 0;
@@ -1812,6 +1815,43 @@ kbd {
    --- APPS THEMES DEFINITIONS ---
    ========================================================================== */
 
+/* --- THEME: MIDNIGHT DARK (original dark mode) --- */
+body.theme-midnight {
+  --bg-main: hsl(224, 25%, 8%);
+  --bg-card: hsla(224, 25%, 14%, 0.6);
+  --bg-card-hover: hsla(224, 25%, 18%, 0.85);
+  --bg-input: hsl(224, 20%, 12%);
+  --bg-sidebar: hsl(224, 25%, 6%);
+
+  --color-primary: hsl(252, 90%, 68%);
+  --color-primary-glow: hsla(252, 90%, 68%, 0.25);
+  --color-primary-hover: hsl(252, 95%, 75%);
+
+  --color-success: hsl(142, 76%, 40%);
+  --color-success-glow: hsla(142, 76%, 40%, 0.2);
+  --color-error: hsl(350, 89%, 60%);
+  --color-error-glow: hsla(350, 89%, 60%, 0.15);
+
+  --color-text-main: hsl(210, 40%, 98%);
+  --color-text-muted: hsl(217, 18%, 65%);
+  --color-text-dark: hsl(220, 20%, 30%);
+
+  --border-glass: hsla(217, 30%, 90%, 0.07);
+  --border-glass-hover: hsla(217, 30%, 90%, 0.15);
+
+  --shadow-main: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+
+  background-image:
+    radial-gradient(at 10% 20%, hsla(252, 90%, 68%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, hsla(142, 76%, 40%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, hsla(224, 25%, 8%, 1) 0px, transparent 100%) !important;
+}
+
+body.theme-midnight select option {
+  background-color: var(--bg-main);
+  color: var(--color-text-main);
+}
+
 /* --- THEME: AURORA EMERALD --- */
 body.theme-emerald {
   --bg-main: hsl(160, 25%, 6%);
@@ -1878,52 +1918,18 @@ body.theme-light select option {
   color: var(--color-text-main);
 }
 
-/* --- THEME: PRIVYETIK (signature teal/mint — matches the app logo) --- */
-body.theme-privyetik {
-  /* Backgrounds — soft warm white with a teal tint */
-  --bg-main:        hsl(172, 35%, 96%);
-  --bg-card:        rgba(255, 255, 255, 0.55);
-  --bg-card-hover:  rgba(255, 255, 255, 0.80);
-  --bg-input:       rgba(255, 255, 255, 0.70);
-  --bg-sidebar:     hsl(172, 30%, 91%);
-  --bg-glass:       rgba(255, 255, 255, 0.40);
-
-  /* Primary — logo's teal (#3BBFB2 family) */
-  --color-primary:       hsl(175, 50%, 48%);
-  --color-primary-glow:  hsla(175, 50%, 48%, 0.20);
-  --color-primary-hover: hsl(175, 55%, 38%);
-
-  /* Text */
-  --color-text-main:  hsl(200, 25%, 18%);
-  --color-text-muted: hsl(200, 15%, 45%);
-  --color-text-dark:  hsl(200, 10%, 65%);
-
-  /* Borders */
-  --border-glass:       rgba(60, 190, 175, 0.18);
-  --border-glass-hover: rgba(60, 190, 175, 0.38);
-
-  /* Success / error stay familiar */
-  --color-success:      hsl(155, 60%, 40%);
-  --color-success-glow: hsla(155, 60%, 40%, 0.20);
-
-  /* Ambient gradient — mirrors the logo background */
-  background-image:
-    radial-gradient(at 0%   0%,   hsla(175, 60%, 75%, 0.45) 0px, transparent 55%),
-    radial-gradient(at 100% 0%,   hsla(195, 70%, 80%, 0.35) 0px, transparent 55%),
-    radial-gradient(at 50%  100%, hsla(155, 55%, 78%, 0.30) 0px, transparent 55%),
-    radial-gradient(at 50%  50%,  hsl(172, 35%, 96%)        0px, transparent 100%) !important;
-}
-
-body.theme-privyetik select option {
-  background-color: var(--bg-main);
-  color: var(--color-text-main);
-}
-
-/* Sidebar & nav need readable tones in light mode */
-body.theme-privyetik .sidebar,
-body.theme-privyetik nav {
+/* Sidebar & nav readable tones in default (privyetik) mode */
+.sidebar,
+nav {
   background: hsl(172, 30%, 91%);
   border-color: rgba(60, 190, 175, 0.22);
+}
+
+/* Override back to dark for midnight theme */
+body.theme-midnight .sidebar,
+body.theme-midnight nav {
+  background: hsl(224, 25%, 6%);
+  border-color: hsla(217, 30%, 90%, 0.07);
 }
 
 /* Custom font stack to fix Cyrillic combining acute accent (stress mark) rendering issues in Inter/Outfit */

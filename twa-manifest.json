@@ -11,7 +11,7 @@
   "navigationDividerColor": "#000000",
   "navigationDividerColorDark": "#000000",
   "backgroundColor": "#0B0F19",
-  "enableNotifications": false,
+  "enableNotifications": true,
   "startUrl": "/VocRussian/",
   "iconUrl": "https://raw.githubusercontent.com/itayura/VocRussian/main/logo.jpeg",
   "splashScreenFadeOutDuration": 300,
