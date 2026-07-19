@@ -4226,6 +4226,71 @@
       }
     }
 
+    // Show/hide dashboard notification opt-in popup
+    const notificationPopup = document.getElementById("modal-notification-prompt");
+    const popupEnableBtn = document.getElementById("notification-prompt-enable-btn");
+    const popupCloseBtn = document.getElementById("notification-prompt-close-btn");
+    const popupReminderTimeInput = document.getElementById("popup-reminder-time");
+
+    if (notificationPopup) {
+      const popupDismissed = localStorage.getItem("voc_notification_popup_dismissed") === "true";
+      
+      if ("Notification" in window && Notification.permission === "default" && !popupDismissed) {
+        setTimeout(() => {
+          const currentView = document.querySelector(".view-section.active")?.id;
+          if (currentView === "view-dashboard" || currentView === "view-landing") {
+            notificationPopup.classList.add("active");
+          }
+        }, 1500);
+      }
+
+      if (popupEnableBtn) {
+        popupEnableBtn.addEventListener("click", async () => {
+          const selectedTime = popupReminderTimeInput ? popupReminderTimeInput.value : "19:00";
+          const permission = await Notification.requestPermission();
+          
+          if (permission === "granted") {
+            SRS.setSetting("dailyReminders", true);
+            SRS.setSetting("reminderTime", selectedTime);
+            
+            remindersToggle.checked = true;
+            reminderTimeInput.value = selectedTime;
+            updateReminderStatusText();
+            await syncReminderStateToCache();
+
+            try {
+              new Notification("🔔 Daily Reminders Active!", {
+                body: `We'll remind you daily at ${selectedTime} to practice your Russian words!`,
+                icon: "./logo.jpeg"
+              });
+            } catch (e) {
+              console.warn("Failed to trigger test notification:", e);
+            }
+
+            await window.syncPushSubscriptionWithCloud();
+            registerPeriodicSync();
+          } else {
+            remindersToggle.checked = false;
+            SRS.setSetting("dailyReminders", false);
+            updateReminderStatusText();
+            if (permission === "denied") {
+              alert("Notification permission was denied. If you want to receive study reminders, please enable notifications in your browser settings.");
+            }
+          }
+          
+          notificationPopup.classList.remove("active");
+          localStorage.setItem("voc_notification_popup_dismissed", "true");
+        });
+      }
+
+      if (popupCloseBtn) {
+        popupCloseBtn.addEventListener("click", () => {
+          notificationPopup.classList.remove("active");
+          localStorage.setItem("voc_notification_popup_dismissed", "true");
+        });
+      }
+    }
+
     // Set up settings change listeners
     remindersToggle.addEventListener("change", async () => {
       const enabled = remindersToggle.checked;

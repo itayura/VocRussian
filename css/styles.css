@@ -1198,20 +1198,18 @@ kbd {
   
   aside {
     width: 100vw;
-    height: calc(70px + env(safe-area-inset-bottom, 0px));
+    height: calc(65px + env(safe-area-inset-bottom, 0px));
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
     flex-direction: row;
-    padding: 0 0.5rem env(safe-area-inset-bottom, 0px) 0.5rem;
+    padding: 0;
     border-right: none;
     border-top: 1px solid var(--border-glass);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
     align-items: center;
-    justify-content: space-around;
-    z-index: 999; /* Increased z-index to stay above all scrollable content */
-    /* Prevent mobile scroll/swipe rendering bugs (disappearing/flicker) */
+    z-index: 999;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
     -webkit-backface-visibility: hidden;
@@ -1221,11 +1219,34 @@ kbd {
   .logo-container, .sidebar-footer {
     display: none;
   }
+
+  aside nav {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
+    display: flex;
+    align-items: center;
+  }
+
+  aside nav::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
   
   .nav-links {
     flex-direction: row;
-    width: 100%;
-    justify-content: space-around;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: max-content;
+    min-width: 100%;
+    gap: 0.35rem;
+    padding: 0 0.75rem env(safe-area-inset-bottom, 0px) 0.75rem;
+  }
+  
+  .nav-item {
+    flex-shrink: 0;
   }
   
   .nav-item button {
@@ -1233,7 +1254,7 @@ kbd {
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.65rem;
     font-size: 0.7rem;
     border-radius: var(--border-radius-sm);
   }
@@ -1243,8 +1264,8 @@ kbd {
   }
   
   .nav-item button svg {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
   
   main {

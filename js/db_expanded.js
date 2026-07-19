@@ -1027,10 +1027,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_94",
-    "word": "��иний",
-    "accented": "��иний",
+    "word": "синий",
+    "accented": "си́ний",
     "translation": "dark blue",
-    "transliteration": "��iniy",
+    "transliteration": "siniy",
     "pos": "adjective",
     "category": "A1 - описание",
     "exampleRu": "Синий автобус подъехал к остановке.",
@@ -1544,10 +1544,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_141",
-    "word": "с��азать",
-    "accented": "с��азать",
+    "word": "сказать",
+    "accented": "сказа́ть",
     "translation": "say",
-    "transliteration": "s��azat'",
+    "transliteration": "skazat'",
     "pos": "verb",
     "category": "A1 - общение",
     "exampleRu": "Я не знаю, как сказать это по-русски.",
@@ -4388,7 +4388,7 @@ const expandedVocabulary = [
     "transliteration": "odezhda",
     "pos": "noun",
     "category": "A1 - магазин",
-    "exampleRu": "У ��аши так много красивой одежды!",
+    "exampleRu": "У Маши так много красивой одежды!",
     "exampleEn": "Masha has so many beautiful clothes!"
   },
   {
@@ -7880,10 +7880,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_717",
-    "word": "гос��дарство",
-    "accented": "гос��дарство",
+    "word": "государство",
+    "accented": "госуда́рство",
     "translation": "state",
-    "transliteration": "gos��darstvo",
+    "transliteration": "gosudarstvo",
     "pos": "noun",
     "category": "A2 - политика",
     "exampleRu": "Лидеры пяти государств собрались на саммит в Санкт-Петербурге.",
@@ -11306,7 +11306,7 @@ const expandedVocabulary = [
     "translation": "twist",
     "transliteration": "vit'sya",
     "pos": "verb",
-    "category": "B1 - животные/раст��ния",
+    "category": "B1 - животные/растения",
     "exampleRu": "Когда твои волосы перестали виться?",
     "exampleEn": "When did your hair stop being curly?"
   },
@@ -12373,7 +12373,7 @@ const expandedVocabulary = [
     "translation": "train",
     "transliteration": "trenirovat'",
     "pos": "verb",
-    "category": "B1 - учёба/раб��та, свободное время",
+    "category": "B1 - учёба/работа, свободное время",
     "exampleRu": "Запоминая стихи, я тренирую свою память.",
     "exampleEn": "I train my memory by memorizing poems."
   },
@@ -13353,7 +13353,7 @@ const expandedVocabulary = [
     "transliteration": "elektronika",
     "pos": "noun",
     "category": "B1 - магазин",
-    "exampleRu": "Моя сестра работает в маг��зине электроники.",
+    "exampleRu": "Моя сестра работает в магазине электроники.",
     "exampleEn": "My sister works in an electronics store."
   },
   {
@@ -17258,7 +17258,7 @@ const expandedVocabulary = [
     "transliteration": "nesovershennyy",
     "pos": "adjective",
     "category": "B1 - описание",
-    "exampleRu": "Это следствие несовершенных технологий ��роизводства.",
+    "exampleRu": "Это следствие несовершенных технологий производства.",
     "exampleEn": "This is a result of imperfect production technologies."
   },
   {
@@ -18017,7 +18017,7 @@ const expandedVocabulary = [
     "transliteration": "oformlyat'",
     "pos": "verb",
     "category": "B1 - общение, учёба/работа",
-    "exampleRu": "Сейчас конец весны, поэтому многие люди оформляют визы для п��тешествий.",
+    "exampleRu": "Сейчас конец весны, поэтому многие люди оформляют визы для путешествий.",
     "exampleEn": "In late spring many people apply for travel visas."
   },
   {
@@ -23995,10 +23995,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_2182",
-    "word": "положительн��й",
-    "accented": "положительн��й",
+    "word": "положительный",
+    "accented": "положи́тельный",
     "translation": "positive",
-    "transliteration": "polozhitel'n��y",
+    "transliteration": "polozhitel'nyy",
     "pos": "noun",
     "category": "B2 - описание, мера",
     "exampleRu": "Даже в самых плохих людях всегда есть что-то положительное.",
@@ -28137,7 +28137,7 @@ const expandedVocabulary = [
     "transliteration": "vizit",
     "pos": "noun",
     "category": "B2 - люди, общение",
-    "exampleRu": "В программу визита входили встречи с ведущими менеджерами в центральном офисе и с р��зработчиками в исследовательском центре.",
+    "exampleRu": "В программу визита входили встречи с ведущими менеджерами в центральном офисе и с разработчиками в исследовательском центре.",
     "exampleEn": "The program of the visit included meetings with leading managers in the central office and with developers in the research center."
   },
   {
@@ -29182,7 +29182,7 @@ const expandedVocabulary = [
     "transliteration": "vyrashchivat'",
     "pos": "verb",
     "category": "B2 - люди, животные/растения",
-    "exampleRu": "Тропические растения в нашем клим��те возможно выращивать только в больших теплицах.",
+    "exampleRu": "Тропические растения в нашем климате возможно выращивать только в больших теплицах.",
     "exampleEn": "In terms of our climate, tropical plants can be only grown in large greenhouses."
   },
   {
@@ -30348,7 +30348,7 @@ const expandedVocabulary = [
     "transliteration": "gryaz'",
     "pos": "noun",
     "category": "B2 - погода",
-    "exampleRu": "Я наклонился и стал ��бирать грязь с груди лежащего.",
+    "exampleRu": "Я наклонился и стал убирать грязь с груди лежащего.",
     "exampleEn": "I leaned over and began to remove dirt from the chest of the man who was lying down."
   },
   {
@@ -30799,7 +30799,7 @@ const expandedVocabulary = [
     "transliteration": "dogadyvat'sya",
     "pos": "verb",
     "category": "B2 - люди, внутренний мир",
-    "exampleRu": "Я и не дог��дывался, что мне предложат новую должность.",
+    "exampleRu": "Я и не догадывался, что мне предложат новую должность.",
     "exampleEn": "I had no idea that I would be offered a new position."
   },
   {
@@ -31816,10 +31816,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_2893",
-    "word": "жерт��а",
-    "accented": "жерт��а",
+    "word": "жертва",
+    "accented": "же́ртва",
     "translation": "victim",
-    "transliteration": "zhert��a",
+    "transliteration": "zhertva",
     "pos": "noun",
     "category": "B2 - здоровье, общение",
     "exampleRu": "Мне кажется, жертв можно было избежать.",
@@ -32542,10 +32542,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_2959",
-    "word": "засте��нуть",
-    "accented": "засте��нуть",
+    "word": "застегнуть",
+    "accented": "застегну́ть",
     "translation": "buckle",
-    "transliteration": "zaste��nut'",
+    "transliteration": "zastegnut'",
     "pos": "verb",
     "category": "B2 - одежда",
     "exampleRu": "Маша, проверь, все ли пуговицы у тебя на пальто застёгнуты. На улице очень холодно!",
@@ -36876,10 +36876,10 @@ const expandedVocabulary = [
   },
   {
     "id": "ve_3353",
-    "word": "на��азывать",
-    "accented": "на��азывать",
+    "word": "наказывать",
+    "accented": "нака́зывать",
     "translation": "punish",
-    "transliteration": "na��azyvat'",
+    "transliteration": "nakazyvat'",
     "pos": "verb",
     "category": "B2 - политика",
     "exampleRu": "Если я вмешиваюсь в разговор, меня наказывают.",
@@ -37139,5 +37139,3 @@ const expandedVocabulary = [
     "exampleEn": "The well-dressed children who were shyly holding their mothers' hands, were afraid to go to the Christmas tree, by which artists were performing for them."
   }
 ];
-
-window.expandedVocabulary = expandedVocabulary;
