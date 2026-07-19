@@ -15,10 +15,17 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Debug Project ID
+      - name: Debug DNS and Host info
         run: |
-          echo "Project ID Base64:"
-          echo -n "${{ secrets.SUPABASE_PROJECT_ID }}" | base64
+          RAW_PROJECT_ID="${{ secrets.SUPABASE_PROJECT_ID }}"
+          CLEAN_PROJECT_ID=$(echo "$RAW_PROJECT_ID" | tr -d '\r' | grep -oE '[a-zA-Z0-9]{20}' | head -n 1)
+          if [ -z "$CLEAN_PROJECT_ID" ]; then
+            CLEAN_PROJECT_ID=$(echo "$RAW_PROJECT_ID" | tr -d '\r' | xargs)
+          fi
+          echo "Project ID: $CLEAN_PROJECT_ID"
+          echo "nslookup output:"
+          nslookup "$CLEAN_PROJECT_ID.supabase.co" || true
+          nslookup "db.$CLEAN_PROJECT_ID.supabase.co" || true
 
       - name: Install PostgreSQL Client
         run: |
