@@ -22,11 +22,11 @@ jobs:
 
       - name: Execute SQL Queries
         run: |
-          CLEAN_PROJECT_ID=$(echo "${{ secrets.SUPABASE_PROJECT_ID }}" | xargs)
-          CLEAN_PASSWORD=$(echo "${{ secrets.SUPABASE_DB_PASSWORD }}" | xargs)
+          CLEAN_PROJECT_ID=$(echo "${{ secrets.SUPABASE_PROJECT_ID }}" | tr -d '\r' | xargs)
+          CLEAN_PASSWORD=$(echo "${{ secrets.SUPABASE_DB_PASSWORD }}" | tr -d '\r' | xargs)
           SERVICE_ROLE_KEY=$(echo -n "c2Jfc2VjcmV0X1JYOWxGWW95M2JvaWI3QVhvY1ZkZ3dfUG42Tmp1OUs=" | base64 --decode)
           
-          PGPASSWORD="$CLEAN_PASSWORD" psql -h "db.${CLEAN_PROJECT_ID}.supabase.co" -p 6543 -U "postgres" -d "postgres" -c "
+          PGPASSWORD="$CLEAN_PASSWORD" psql -h "aws-0-ap-northeast-2.pooler.supabase.com" -p 6543 -U "postgres.${CLEAN_PROJECT_ID}" -d "postgres" -c "
             -- Create app config table
             CREATE TABLE IF NOT EXISTS public.app_config (
                 key text PRIMARY KEY,
@@ -49,4 +49,4 @@ jobs:
           "
           
           # Run the scheduled_reminders.sql migration
-          PGPASSWORD="$CLEAN_PASSWORD" psql -h "db.${CLEAN_PROJECT_ID}.supabase.co" -p 6543 -U "postgres" -d "postgres" -f supabase/migrations/20260622000000_scheduled_reminders.sql
+          PGPASSWORD="$CLEAN_PASSWORD" psql -h "aws-0-ap-northeast-2.pooler.supabase.com" -p 6543 -U "postgres.${CLEAN_PROJECT_ID}" -d "postgres" -f supabase/migrations/20260622000000_scheduled_reminders.sql
