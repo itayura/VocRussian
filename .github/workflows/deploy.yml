@@ -24,14 +24,22 @@ jobs:
 
       - name: Deploy Edge Functions
         run: |
-          CLEAN_PROJECT_ID=$(echo "${{ secrets.SUPABASE_PROJECT_ID }}" | xargs)
+          RAW_PROJECT_ID="${{ secrets.SUPABASE_PROJECT_ID }}"
+          CLEAN_PROJECT_ID=$(echo "$RAW_PROJECT_ID" | tr -d '\r' | grep -oE '[a-z0-9]{20}' | head -n 1)
+          if [ -z "$CLEAN_PROJECT_ID" ]; then
+            CLEAN_PROJECT_ID=$(echo "$RAW_PROJECT_ID" | tr -d '\r' | xargs)
+          fi
           supabase functions deploy --project-ref "$CLEAN_PROJECT_ID"
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Push Database Migrations
         run: |
-          CLEAN_PROJECT_ID=$(echo "${{ secrets.SUPABASE_PROJECT_ID }}" | xargs)
-          CLEAN_PASSWORD=$(echo "${{ secrets.SUPABASE_DB_PASSWORD }}" | xargs)
+          RAW_PROJECT_ID="${{ secrets.SUPABASE_PROJECT_ID }}"
+          CLEAN_PROJECT_ID=$(echo "$RAW_PROJECT_ID" | tr -d '\r' | grep -oE '[a-z0-9]{20}' | head -n 1)
+          if [ -z "$CLEAN_PROJECT_ID" ]; then
+            CLEAN_PROJECT_ID=$(echo "$RAW_PROJECT_ID" | tr -d '\r' | xargs)
+          fi
+          CLEAN_PASSWORD=$(echo "${{ secrets.SUPABASE_DB_PASSWORD }}" | tr -d '\r' | xargs)
           ENCODED_PASSWORD=$(python3 -c "import urllib.parse; print(urllib.parse.quote_plus('''$CLEAN_PASSWORD'''))")
           supabase db push --db-url "postgresql://postgres.${CLEAN_PROJECT_ID}:${ENCODED_PASSWORD}@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
