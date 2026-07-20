@@ -1,5 +1,5 @@
 // Privyetik Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v20";
+const CACHE_NAME = "voc-russian-cache-v21";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -177,8 +177,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: "./logo.jpeg",
-    badge: "./logo.jpeg",
+    icon: new URL("./logo.jpeg", self.location.href).href,
+    badge: new URL("./logo.jpeg", self.location.href).href,
     tag: "remote-push",
     requireInteraction: true
   };

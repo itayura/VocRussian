@@ -4560,15 +4560,32 @@
       const reg = await navigator.serviceWorker.ready;
       let subscription = await reg.pushManager.getSubscription();
       
+      const publicVapidKey = "BAqMWdlYByp62_O4sbmCP2QAIemdBADjVUkEZ9uTk55vnzKsbLvYwYDOuXVfpd-lvgnyrXWbvCgX7xjonPkxJbI";
+      
+      // Check if existing subscription has valid VAPID keys
+      if (subscription) {
+        const subJSON = subscription.toJSON();
+        if (!subJSON.keys || !subJSON.keys.p256dh || !subJSON.keys.auth) {
+          console.log("[PushSync] Existing subscription missing VAPID keys, re-subscribing...");
+          try {
+            await subscription.unsubscribe();
+          } catch (unsubErr) {
+            console.warn("[PushSync] Failed to unsubscribe invalid push token:", unsubErr);
+          }
+          subscription = null;
+        }
+      }
+
       if (!subscription) {
-        const publicVapidKey = "BAqMWdlYByp62_O4sbmCP2QAIemdBADjVUkEZ9uTk55vnzKsbLvYwYDOuXVfpd-lvgnyrXWbvCgX7xjonPkxJbI";
         subscription = await reg.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
         });
       }
       
-      await window.SupabaseSync.registerPushSubscription(subscription);
+      if (subscription) {
+        await window.SupabaseSync.registerPushSubscription(subscription);
+      }
     } catch (e) {
       console.warn("Failed to synchronize push subscription with cloud:", e);
     }
