@@ -37139,3 +37139,7 @@ const expandedVocabulary = [
     "exampleEn": "The well-dressed children who were shyly holding their mothers' hands, were afraid to go to the Christmas tree, by which artists were performing for them."
   }
 ];
+
+// Export to window object for ease of access in script-based load
+window.expandedVocabulary = expandedVocabulary;
+
