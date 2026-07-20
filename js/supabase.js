@@ -32,6 +32,9 @@
         if (data && data.session) {
           this.user = data.session.user;
           console.log("[SupabaseSync] Retrieved initial session for user:", this.user.email);
+          if (window.syncPushSubscriptionWithCloud) {
+            window.syncPushSubscriptionWithCloud();
+          }
         } else {
           console.log("[SupabaseSync] No initial session found.");
         }
