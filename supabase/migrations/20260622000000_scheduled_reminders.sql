@@ -158,6 +158,25 @@ BEGIN
                         'Authorization', 'Bearer ' || COALESCE(service_key, '')
                     )
                 ) INTO request_id;
+
+                -- Log the sent reminder in the database
+                INSERT INTO public.reminder_logs (
+                    user_id,
+                    streak,
+                    reminder_time,
+                    notification_title,
+                    notification_body,
+                    status,
+                    request_id
+                ) VALUES (
+                    r.user_id,
+                    user_streak,
+                    reminder_time,
+                    selected_msg->>'title',
+                    selected_msg->>'body',
+                    'sent',
+                    request_id
+                );
             END IF;
         END IF;
     END LOOP;

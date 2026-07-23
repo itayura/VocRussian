@@ -897,6 +897,12 @@
       updateSettingsBackupUI();
     }
 
+    // Scroll the main content viewport back to top on view changes
+    const mainEl = document.querySelector("main");
+    if (mainEl) {
+      mainEl.scrollTop = 0;
+    }
+
     // Google Analytics Virtual Page View Tracking
     if (typeof gtag === 'function') {
       gtag('event', 'page_view', {

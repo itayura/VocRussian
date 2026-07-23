@@ -75,7 +75,7 @@ jobs:
               '-c', sql
           ], env=env, check=True)
 
-          print('Running migration file...')
+          print('Running migration files...')
           subprocess.run([
               'psql',
               '-h', 'aws-1-ap-northeast-2.pooler.supabase.com',
@@ -83,6 +83,15 @@ jobs:
               '-U', f'postgres.{project_id}',
               '-d', 'postgres',
               '-f', 'supabase/migrations/20260622000000_scheduled_reminders.sql'
+          ], env=env, check=True)
+          
+          subprocess.run([
+              'psql',
+              '-h', 'aws-1-ap-northeast-2.pooler.supabase.com',
+              '-p', '6543',
+              '-U', f'postgres.{project_id}',
+              '-d', 'postgres',
+              '-f', 'supabase/migrations/20260723000000_reminder_logs.sql'
           ], env=env, check=True)
           
           print('Database configuration completed successfully!')
