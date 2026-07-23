@@ -46,6 +46,7 @@ jobs:
 
   # Deploy job
   deploy:
+    needs: test
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -66,6 +67,7 @@ jobs:
 
   # Android Build job
   android-build:
+    needs: test
     name: Build Android App (AAB/APK)
     runs-on: ubuntu-latest
     steps:
