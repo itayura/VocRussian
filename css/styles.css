@@ -1193,36 +1193,35 @@ kbd {
 /* For smaller screens: Convert Sidebar to Bottom Tab Bar */
 @media (max-width: 768px) {
   html, body {
-    height: 100%;
-    height: -webkit-fill-available;
-    overflow: hidden;
+    min-height: 100%;
+    overflow-x: hidden;
     position: relative;
   }
 
   #app-container {
-    height: 100%;
-    height: -webkit-fill-available;
-    min-height: 100% !important;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column-reverse;
+    min-height: 100vh;
+    display: block;
     width: 100%;
+    overflow-x: hidden;
   }
   
   aside {
-    width: 100%;
-    height: calc(70px + env(safe-area-inset-bottom, 0px));
-    position: relative;
-    bottom: auto;
-    left: auto;
-    right: auto;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
     flex-direction: row;
     padding: 0;
     border-right: none;
     border-top: 1px solid var(--border-glass);
+    background-color: var(--bg-sidebar);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
     align-items: center;
-    z-index: 999;
+    z-index: 99999 !important;
     flex-shrink: 0;
   }
   
@@ -1279,14 +1278,11 @@ kbd {
   }
   
   main {
-    flex: 1;
-    margin-left: 0;
-    padding: 1.5rem;
-    width: 100%;
-    min-height: 0 !important; /* Prevent main from forcing min-height 100vh and pushing nav off-screen */
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
+    margin-left: 0 !important;
+    padding: 1.25rem 1.25rem calc(85px + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    overflow-x: hidden !important;
   }
 
   .page-title {
