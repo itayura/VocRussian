@@ -42,17 +42,15 @@
         left: 0 !important;
         right: 0 !important;
         width: 100% !important;
-        height: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        height: calc(65px + env(safe-area-inset-bottom, 0px)) !important;
         flex-direction: row !important;
         padding: 0 !important;
         border-right: none !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-        background-color: #0d121f !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
+        border-top: 2px solid #3BBFB2 !important;
+        background: #0b0f19 !important;
+        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6) !important;
         align-items: center !important;
-        z-index: 99999 !important;
+        z-index: 999999 !important;
         display: flex !important;
       }
       .logo-container, .sidebar-footer {
@@ -60,30 +58,63 @@
       }
       aside nav {
         width: 100% !important;
+        height: 100% !important;
         display: flex !important;
         align-items: center !important;
         overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+      }
+      aside nav::-webkit-scrollbar {
+        display: none !important;
       }
       .nav-links {
         flex-direction: row !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: flex-start !important;
-        width: max-content !important;
-        min-width: 100% !important;
-        gap: 0.35rem !important;
-        padding: 0 0.75rem env(safe-area-inset-bottom, 0px) 0.75rem !important;
+        justify-content: space-around !important;
+        width: 100% !important;
+        min-width: max-content !important;
+        gap: 0.15rem !important;
+        padding: 0 0.25rem env(safe-area-inset-bottom, 0px) 0.25rem !important;
+        margin: 0 !important;
+        list-style: none !important;
+      }
+      .nav-item {
+        flex-shrink: 0 !important;
+      }
+      .nav-item button {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.35rem 0.5rem !important;
+        gap: 3px !important;
+        color: #8a99ad !important;
+        background: transparent !important;
+        border: none !important;
+        font-size: 0.65rem !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        cursor: pointer !important;
+      }
+      .nav-item.active button {
+        color: #3BBFB2 !important;
+        background: rgba(59, 191, 178, 0.12) !important;
       }
       .nav-item button span {
-        display: none !important;
+        display: block !important;
+        font-size: 0.65rem !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
       }
       .nav-item button svg {
-        width: 22px !important;
-        height: 22px !important;
+        width: 20px !important;
+        height: 20px !important;
       }
       main {
         margin-left: 0 !important;
-        padding: 1.25rem 1.25rem calc(85px + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
+        padding: 1.25rem 1.25rem calc(80px + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
         width: 100% !important;
         min-height: 100vh !important;
         overflow-x: hidden !important;
