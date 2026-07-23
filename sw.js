@@ -1,5 +1,5 @@
 // Privyetik Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v27";
+const CACHE_NAME = "voc-russian-cache-v28";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -9,21 +9,18 @@ const ASSETS_TO_CACHE = [
   "./js/app.js",
   "./js/audio.js",
   "./js/db.js",
-  "./js/db_expanded.js",
-  "./js/grammar.js",
-  "./js/srs.js",
-  "./js/supabase.js"
+  "./js/db_expanded.js"
 ];
 
 // Install Event
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("[Service Worker] Caching app assets...");
+      console.log("[Service Worker] Pre-caching core assets");
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
-  self.skipWaiting();
 });
 
 // Activate Event
@@ -43,9 +40,8 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch Event (Offline Fallback)
+// Fetch Event (Network-First for code/styles to guarantee instant updates)
 self.addEventListener("fetch", (event) => {
-  // Avoid interception for third-party API calls (like Wiktionary) so that they get live updates
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
@@ -62,6 +58,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Network-First for HTML, CSS, JS
+  if (
+    event.request.destination === "style" ||
+    event.request.destination === "script" ||
+    event.request.destination === "document" ||
+    event.request.mode === "navigate"
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Stale-while-revalidate for images & static assets
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
