@@ -1207,22 +1207,23 @@ kbd {
   
   aside {
     position: fixed !important;
+    top: auto !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
     height: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
-    flex-direction: row;
-    padding: 0;
-    border-right: none;
-    border-top: 1px solid var(--border-glass);
-    background-color: var(--bg-sidebar);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-    align-items: center;
+    flex-direction: row !important;
+    padding: 0 !important;
+    border-right: none !important;
+    border-top: 1px solid var(--border-glass) !important;
+    background-color: var(--bg-sidebar) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
+    align-items: center !important;
     z-index: 99999 !important;
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
   }
   
   .logo-container, .sidebar-footer {
