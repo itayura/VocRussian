@@ -917,7 +917,7 @@ kbd {
   gap: 1rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px), (pointer: coarse) {
   .dictionary-filter-bar {
     grid-template-columns: 1fr;
   }
@@ -1059,7 +1059,7 @@ kbd {
   animation: scaleUp var(--transition-normal) forwards;
   position: relative;
 }
-@media (max-width: 768px) {
+@media (max-width: 1024px), (pointer: coarse) {
   .modal-overlay {
     align-items: flex-start;
     padding: 1rem;
@@ -1190,8 +1190,8 @@ kbd {
 
 
 /* --- RESPONSIVE ADJUSTMENTS --- */
-/* For smaller screens: Convert Sidebar to Bottom Tab Bar */
-@media (max-width: 768px) {
+/* For smaller screens & touch devices: Convert Sidebar to Bottom Tab Bar */
+@media (max-width: 1024px), (pointer: coarse) {
   html, body {
     min-height: 100%;
     overflow-x: hidden;
@@ -1212,75 +1212,93 @@ kbd {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    height: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+    height: calc(65px + max(24px, env(safe-area-inset-bottom, 24px))) !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)) !important;
     flex-direction: row !important;
-    padding: 0 !important;
+    padding-top: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     border-right: none !important;
-    border-top: 1px solid var(--border-glass) !important;
-    background-color: var(--bg-sidebar) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4) !important;
+    border-top: 2px solid #3BBFB2 !important;
+    background: #0b0f19 !important;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6) !important;
     align-items: center !important;
-    z-index: 99999 !important;
+    z-index: 999999 !important;
     flex-shrink: 0 !important;
+    display: flex !important;
   }
   
   .logo-container, .sidebar-footer {
-    display: none;
+    display: none !important;
   }
 
   aside nav {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE 10+ */
-    display: flex;
-    align-items: center;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
   }
 
   aside nav::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none !important;
   }
   
   .nav-links {
-    flex-direction: row;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: max-content;
-    min-width: 100%;
-    gap: 0.35rem;
-    padding: 0 0.75rem env(safe-area-inset-bottom, 0px) 0.75rem;
+    flex-direction: row !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    width: 100% !important;
+    min-width: max-content !important;
+    gap: 0.15rem !important;
+    padding: 0 0.25rem max(20px, env(safe-area-inset-bottom, 20px)) 0.25rem !important;
+    margin: 0 !important;
+    list-style: none !important;
   }
   
   .nav-item {
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
   }
   
   .nav-item button {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    padding: 0.5rem 0.65rem;
-    font-size: 0.7rem;
-    border-radius: var(--border-radius-sm);
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0.35rem 0.5rem !important;
+    gap: 3px !important;
+    color: #8a99ad !important;
+    background: transparent !important;
+    border: none !important;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+  }
+
+  .nav-item.active button {
+    color: #3BBFB2 !important;
+    background: rgba(59, 191, 178, 0.12) !important;
   }
   
   .nav-item button span {
-    display: none;
+    display: block !important;
+    font-size: 0.65rem !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
   }
   
   .nav-item button svg {
-    width: 22px;
-    height: 22px;
+    width: 20px !important;
+    height: 20px !important;
   }
   
   main {
     margin-left: 0 !important;
-    padding: 1.25rem 1.25rem calc(85px + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
+    padding: 1.25rem 1.25rem calc(105px + max(24px, env(safe-area-inset-bottom, 24px))) 1.25rem !important;
     width: 100% !important;
     min-height: 100vh !important;
     overflow-x: hidden !important;
@@ -1851,7 +1869,7 @@ kbd {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px), (pointer: coarse) {
   .landing-stats-container {
     grid-template-columns: 1fr;
     gap: 3rem;
@@ -2146,7 +2164,7 @@ body.theme-midnight nav {
   display: inline-flex !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px), (pointer: coarse) {
   .tutor-grid-container {
     grid-template-columns: 1fr;
     gap: 1.5rem;
