@@ -1200,6 +1200,7 @@ kbd {
 
   #app-container {
     height: 100%;
+    min-height: 100% !important;
     overflow: hidden;
     display: flex;
     flex-direction: column-reverse;
@@ -1278,9 +1279,10 @@ kbd {
   main {
     flex: 1;
     margin-left: 0;
-    padding: 1.5rem 1.5rem 1.5rem 1.5rem; /* bottom padding clears the nav bar */
+    padding: 1.5rem;
     width: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -1294,6 +1296,20 @@ kbd {
   
   .card-word-title {
     font-size: 2.75rem;
+  }
+
+  /* Grid & layout overrides for extra small screens to prevent overflow */
+  .dashboard-grid,
+  .study-modes-grid,
+  .vocab-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
   }
 }
 
