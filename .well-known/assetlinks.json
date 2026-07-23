@@ -7,7 +7,8 @@
       "namespace": "android_app",
       "package_name": "com.itayura.privyetik",
       "sha256_cert_fingerprints": [
-        "CA:65:27:EE:AA:EE:D7:4A:5C:7D:24:93:22:25:34:82:BA:51:DC:30:5A:7F:A8:BA:DD:16:FC:C6:FA:8D:90:EB"
+        "CA:65:27:EE:AA:EE:D7:4A:5C:7D:24:93:22:25:34:82:BA:51:DC:30:5A:7F:A8:BA:DD:16:FC:C6:FA:8D:90:EB",
+        "29:C5:F9:52:DF:CC:F1:FF:A3:4E:EF:ED:A3:31:E4:F3:46:DF:8D:E4:3F:E4:90:E0:E1:67:69:38:AA:8C:FD:5E"
       ]
     }
   }
