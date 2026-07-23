@@ -1283,6 +1283,7 @@ kbd {
     margin-left: 0;
     padding: 1.5rem;
     width: 100%;
+    min-height: 0 !important; /* Prevent main from forcing min-height 100vh and pushing nav off-screen */
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
