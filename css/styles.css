@@ -1194,12 +1194,14 @@ kbd {
 @media (max-width: 768px) {
   html, body {
     height: 100%;
+    height: -webkit-fill-available;
     overflow: hidden;
     position: relative;
   }
 
   #app-container {
     height: 100%;
+    height: -webkit-fill-available;
     min-height: 100% !important;
     overflow: hidden;
     display: flex;
