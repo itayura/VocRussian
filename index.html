@@ -856,7 +856,7 @@
         </div>
 
         <!-- Filters -->
-        <div class="card dictionary-filter-bar" style="padding: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+        <div class="card dictionary-filter-bar">
           <div class="form-group" style="margin-bottom: 0;">
             <label for="dict-search" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Search</label>
             <input type="text" id="dict-search" class="filter-input" placeholder="Search word or translation...">
@@ -864,8 +864,8 @@
 
           <div class="form-group" style="margin-bottom: 0;">
             <label for="dict-filter-db" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Active Deck</label>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <select id="dict-filter-db" class="filter-select" style="flex: 1;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; min-width: 0;">
+              <select id="dict-filter-db" class="filter-select" style="flex: 1; min-width: 0;">
                 <option value="standard">Standard Deck (120 words)</option>
                 <option value="expanded">Expanded Deck (3,376 words)</option>
                 <option value="custom">Personal Custom Deck</option>
