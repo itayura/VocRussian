@@ -1212,8 +1212,8 @@ kbd {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    height: calc(65px + max(24px, env(safe-area-inset-bottom, 24px))) !important;
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)) !important;
+    height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
     flex-direction: row !important;
     padding-top: 0 !important;
     padding-left: 0 !important;
@@ -1254,7 +1254,7 @@ kbd {
     width: 100% !important;
     min-width: max-content !important;
     gap: 0.15rem !important;
-    padding: 0 0.25rem max(20px, env(safe-area-inset-bottom, 20px)) 0.25rem !important;
+    padding: 0 0.25rem env(safe-area-inset-bottom, 0px) 0.25rem !important;
     margin: 0 !important;
     list-style: none !important;
   }
@@ -1298,7 +1298,7 @@ kbd {
   
   main {
     margin-left: 0 !important;
-    padding: 1.25rem 1.25rem calc(105px + max(24px, env(safe-area-inset-bottom, 24px))) 1.25rem !important;
+    padding: 1.25rem 1.25rem calc(80px + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
     width: 100% !important;
     min-height: 100vh !important;
     overflow-x: hidden !important;
