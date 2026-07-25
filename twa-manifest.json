@@ -6,10 +6,10 @@
   "display": "standalone",
   "themeColor": "#3BBFB2",
   "themeColorDark": "#000000",
-  "navigationColor": "#3BBFB2",
-  "navigationColorDark": "#000000",
-  "navigationDividerColor": "#000000",
-  "navigationDividerColorDark": "#000000",
+  "navigationColor": "#0b0f19",
+  "navigationColorDark": "#0b0f19",
+  "navigationDividerColor": "#0b0f19",
+  "navigationDividerColorDark": "#0b0f19",
   "backgroundColor": "#EBF8F7",
   "enableNotifications": true,
   "startUrl": "/VocRussian/",
@@ -19,12 +19,12 @@
     "path": "./android.keystore",
     "alias": "android"
   },
-  "appVersionName": "1.0.2",
-  "appVersionCode": 5,
+  "appVersionName": "1.0.3",
+  "appVersionCode": 6,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://raw.githubusercontent.com/itayura/VocRussian/main/manifest.json",
-  "fallbackType": "customtabs",
+  "fallbackType": "webview",
   "features": {},
   "alphaDependencies": {
     "enabled": false
@@ -37,6 +37,9 @@
   "fingerprints": [
     {
       "value": "CA:65:27:EE:AA:EE:D7:4A:5C:7D:24:93:22:25:34:82:BA:51:DC:30:5A:7F:A8:BA:DD:16:FC:C6:FA:8D:90:EB"
+    },
+    {
+      "value": "FC:B2:5F:06:83:41:AE:AB:26:AC:00:A9:D5:55:01:42:6F:D1:65:77:D1:89:AD:25:27:26:32:DF:06:ED:65:28"
     }
   ],
   "additionalTrustedOrigins": [],
