@@ -207,8 +207,8 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
       expect(asideBox.height).toBeGreaterThanOrEqual(55);
       expect(asideBox.height).toBeLessThanOrEqual(95);
 
-      // Text labels should be hidden
-      await expect(firstNavLabel).toHaveCSS('display', 'none');
+      // Text labels should be visible on mobile tab bar
+      await expect(firstNavLabel).toBeVisible();
 
       // Main container margin-left should be 0 on mobile
       await expect(main).toHaveCSS('margin-left', '0px');
