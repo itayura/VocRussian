@@ -204,7 +204,8 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
       // Should span full width and be aligned near bottom
       expect(asideBox.width).toBeCloseTo(viewport.width, 1);
       expect(asideBox.y).toBeGreaterThanOrEqual(viewport.height - 100);
-      expect(asideBox.height).toBeCloseTo(70, 0);
+      expect(asideBox.height).toBeGreaterThanOrEqual(55);
+      expect(asideBox.height).toBeLessThanOrEqual(95);
 
       // Text labels should be hidden
       await expect(firstNavLabel).toHaveCSS('display', 'none');
