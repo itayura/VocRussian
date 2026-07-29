@@ -8,6 +8,20 @@ CREATE TABLE IF NOT EXISTS public.app_config (
     value text
 );
 
+ALTER TABLE public.app_config ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies WHERE tablename = 'app_config' AND policyname = 'Allow public read access to app_config'
+    ) THEN
+        CREATE POLICY "Allow public read access to app_config"
+            ON public.app_config FOR SELECT
+            TO anon, authenticated
+            USING (true);
+    END IF;
+END $$;
+
 -- Insert default production project host. Replace with your actual project ref domain if it changes.
 INSERT INTO public.app_config (key, value)
 VALUES ('project_host', 'bghuansvungabgsbxqjh.supabase.co')
