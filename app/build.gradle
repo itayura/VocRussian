@@ -28,10 +28,10 @@ def twaManifest = [
     launcherName: 'Privyetik', // The name shown on the Android Launcher.
     themeColor: '#3BBFB2', // The color used for the status bar.
     themeColorDark: '#000000', // The color used for the dark status bar.
-    navigationColor: '#3BBFB2', // The color used for the navigation bar.
-    navigationColorDark: '#000000', // The color used for the dark navbar.
-    navigationDividerColor: '#000000', // The navbar divider color.
-    navigationDividerColorDark: '#000000', // The dark navbar divider color.
+    navigationColor: '#0b0f19', // The color used for the navigation bar.
+    navigationColorDark: '#0b0f19', // The color used for the dark navbar.
+    navigationDividerColor: '#0b0f19', // The navbar divider color.
+    navigationDividerColorDark: '#0b0f19', // The dark navbar divider color.
     backgroundColor: '#EBF8F7', // The color used for the splash screen background.
     enableNotifications: true, // Set to true to enable notification delegation.
     // Every shortcut must include the following fields:
@@ -45,7 +45,7 @@ def twaManifest = [
     generatorApp: 'bubblewrap-cli', // Application that generated the Android Project
     // The fallback strategy for when Trusted Web Activity is not available. Possible values are
     // 'customtabs' and 'webview'.
-    fallbackType: 'customtabs',
+    fallbackType: 'webview',
     enableSiteSettingsShortcut: 'true',
     orientation: 'default',
 ]
@@ -57,8 +57,8 @@ android {
         applicationId "com.itayura.privyetik"
         minSdkVersion 21
         targetSdkVersion 36
-        versionCode 5
-        versionName "1.0.2"
+        versionCode 7
+        versionName "1.0.4"
 
         // The name for the application
         resValue "string", "appName", twaManifest.name
