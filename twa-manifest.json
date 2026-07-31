@@ -32,7 +32,7 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "minSdkVersion": 21,
+  "minSdkVersion": 23,
   "targetSdkVersion": 36,
   "compileSdkVersion": 36,
   "orientation": "default",

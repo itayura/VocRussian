@@ -55,7 +55,7 @@ android {
     namespace "com.itayura.privyetik"
     defaultConfig {
         applicationId "com.itayura.privyetik"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 36
         versionCode 9
         versionName "1.0.6"
