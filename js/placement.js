@@ -717,6 +717,10 @@
       if (window.renderDashboard) window.renderDashboard();
       if (window.renderDictionary) window.renderDictionary();
       if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
+
+      if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
+        window.SupabaseSync.syncBoth();
+      }
     } catch (e) {
       console.error(e);
       alert("Failed to apply seeding: " + e.message);
@@ -749,7 +753,11 @@
 
       // 2. Seed Vocabulary Cards Box Levels
       console.log("[PlacementTest] Seeding vocabulary...");
-      const allWords = window.SRS.getAllWords() || [];
+      const allWords = [
+        ...(window.defaultVocabulary || []),
+        ...(window.expandedVocabulary || []),
+        ...(window.SRS ? window.SRS.getCustomWordsList() : [])
+      ];
       console.log("[PlacementTest] Total words found:", allWords.length);
       allWords.forEach(w => {
         const wLvl = window.SRS.getWordLevel(w);

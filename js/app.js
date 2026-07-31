@@ -762,9 +762,9 @@
     loadStudySessionSettings();
     setupScrollLoading();
 
-    // Check for add_word query parameter (from PROCESS_TEXT intent on Android)
+    // Check for shared word/text query parameter (from Android Web Share Target or PROCESS_TEXT intent)
     const urlParams = new URLSearchParams(window.location.search);
-    const addWord = urlParams.get('add_word');
+    const addWord = urlParams.get('add_word') || urlParams.get('text') || urlParams.get('share_text');
     if (addWord && window.openAddWordWithDefaults) {
       const cleanUrl = window.location.pathname + window.location.hash;
       window.history.replaceState({}, document.title, cleanUrl);
@@ -2071,6 +2071,9 @@
     // Schedule next reminder offline since we completed a study session
     scheduleLocalReminder();
     
+    // Auto cloud backup on session completion
+    if (window.triggerAutoCloudBackup) window.triggerAutoCloudBackup();
+
     AudioEngine.playLevelUp();
   }
 

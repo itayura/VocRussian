@@ -113,7 +113,11 @@ serve(async (req) => {
       try {
         await webpush.sendNotification(
           pushSubscription,
-          JSON.stringify({ title, body })
+          JSON.stringify({ title, body }),
+          {
+            urgency: "high",
+            TTL: 86400,
+          }
         );
         sentCount++;
       } catch (err) {

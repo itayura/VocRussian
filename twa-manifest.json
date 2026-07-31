@@ -29,6 +29,15 @@
   "alphaDependencies": {
     "enabled": false
   },
+  "shareTarget": {
+    "action": "/VocRussian/index.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "add_word",
+      "url": "url"
+    }
+  },
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,

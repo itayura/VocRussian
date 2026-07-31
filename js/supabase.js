@@ -51,6 +51,20 @@
           }
           this.updateUI();
         });
+
+        // Setup periodic auto cloud backup (every 5 minutes)
+        setInterval(() => {
+          if (this.connectionState === "connected" && this.user) {
+            this.triggerAutoSync();
+          }
+        }, 5 * 60 * 1000);
+
+        // Setup visibility change auto-backup (when user switches or minimizes app)
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden" && this.connectionState === "connected" && this.user) {
+            this.triggerAutoSync();
+          }
+        });
       } catch (e) {
         console.error("Failed to initialize Supabase connection:", e);
         this.connectionState = "disconnected";
@@ -340,7 +354,7 @@
           if (!dbWordsMap[w.id]) toPushWords.push(w);
         });
 
-        // Push new/updated words to Supabase
+        // Push new/updated words to Supabase in chunks of 500
         if (toPushWords.length > 0) {
           const rowsToPush = toPushWords.map(w => ({
             user_id: this.user.id,
@@ -358,20 +372,24 @@
             updated_at: new Date(w.updatedAt || Date.now()).toISOString()
           }));
  
-          const { error: pushErr } = await this.client
-            .from("voc_words")
-            .upsert(rowsToPush);
-          if (pushErr) {
-            console.warn("[SupabaseSync] Syncing words with deck_id failed, retrying without it:", pushErr);
-            const fallbackRows = rowsToPush.map(row => {
-              const r = { ...row };
-              delete r.deck_id;
-              return r;
-            });
-            const { error: fallbackErr } = await this.client
+          const chunkSize = 500;
+          for (let i = 0; i < rowsToPush.length; i += chunkSize) {
+            const chunk = rowsToPush.slice(i, i + chunkSize);
+            const { error: pushErr } = await this.client
               .from("voc_words")
-              .upsert(fallbackRows);
-            if (fallbackErr) throw fallbackErr;
+              .upsert(chunk);
+            if (pushErr) {
+              console.warn("[SupabaseSync] Syncing words with deck_id failed, retrying without it:", pushErr);
+              const fallbackRows = chunk.map(row => {
+                const r = { ...row };
+                delete r.deck_id;
+                return r;
+              });
+              const { error: fallbackErr } = await this.client
+                .from("voc_words")
+                .upsert(fallbackRows);
+              if (fallbackErr) throw fallbackErr;
+            }
           }
         }
 
@@ -431,7 +449,7 @@
           }
         });
 
-        // Push new/updated progress rows
+        // Push new/updated progress rows in chunks of 500
         if (toPushProg.length > 0) {
           const rowsToPush = toPushProg.map(p => ({
             user_id: this.user.id,
@@ -445,10 +463,14 @@
             updated_at: new Date(p.updatedAt || Date.now()).toISOString()
           }));
 
-          const { error: pushProgErr } = await this.client
-            .from("voc_progress")
-            .upsert(rowsToPush);
-          if (pushProgErr) throw pushProgErr;
+          const chunkSize = 500;
+          for (let i = 0; i < rowsToPush.length; i += chunkSize) {
+            const chunk = rowsToPush.slice(i, i + chunkSize);
+            const { error: pushProgErr } = await this.client
+              .from("voc_progress")
+              .upsert(chunk);
+            if (pushProgErr) throw pushProgErr;
+          }
         }
 
 
@@ -730,6 +752,19 @@
 
       if (error) throw error;
       return data;
+    },
+
+    triggerAutoSync: function () {
+      if (this.connectionState !== "connected" || !this.user || this.isSyncing) return;
+      if (!this.isAutoSyncEnabled()) return;
+      console.log("[SupabaseSync] Triggering auto background cloud backup...");
+      this.syncBoth();
+    }
+  };
+
+  window.triggerAutoCloudBackup = function() {
+    if (window.SupabaseSync && typeof window.SupabaseSync.triggerAutoSync === "function") {
+      window.SupabaseSync.triggerAutoSync();
     }
   };
 
