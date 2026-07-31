@@ -4,7 +4,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Window;
-import com.google.androidbrowserhelper.trusted.LauncherActivity;
 
 public class LauncherActivity extends com.google.androidbrowserhelper.trusted.LauncherActivity {
 
