@@ -19,8 +19,8 @@
     "path": "./android.keystore",
     "alias": "android"
   },
-  "appVersionName": "1.0.4",
-  "appVersionCode": 7,
+  "appVersionName": "1.0.5",
+  "appVersionCode": 8,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://raw.githubusercontent.com/itayura/VocRussian/main/manifest.json",
@@ -47,5 +47,5 @@
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "1.0.4"
+  "appVersion": "1.0.5"
 }
