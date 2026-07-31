@@ -125,14 +125,7 @@ jobs:
           bubblewrap update --skipVersionUpgrade
           sed -i 's/targetSdkVersion 35/targetSdkVersion 36/g' app/build.gradle || true
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' app/build.gradle || true
-          python3 -c "
-          import re
-          with open('app/src/main/AndroidManifest.xml', 'r') as f:
-              content = f.read()
-          content = re.sub(r'<meta-data\s+android:name=\"android\.support\.customtabs\.trusted\.(STATUS_BAR|NAVIGATION_BAR)[^\"]*\"\s+android:resource=\"[^\"]*\"\s*/>', '', content)
-          with open('app/src/main/AndroidManifest.xml', 'w') as f:
-              f.write(content)
-          " || true
+          python3 scripts/patch-android-edge-to-edge.py
 
       - name: Decode Android Keystore
         env:
