@@ -1,16 +1,23 @@
 package com.itayura.privyetik;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import androidx.activity.EdgeToEdge;
-import com.google.androidbrowserhelper.trusted.LauncherActivity;
+import android.view.Window;
 
 public class LauncherActivity extends com.google.androidbrowserhelper.trusted.LauncherActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+        
+        // Edge-To-Edge display compliance for Android 15+ (API 35/36)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Window window = getWindow();
+            if (window != null) {
+                window.setDecorFitsSystemWindows(false);
+            }
+        }
     }
 
     @Override
