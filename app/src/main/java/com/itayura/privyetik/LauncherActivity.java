@@ -15,18 +15,14 @@
  */
 package com.itayura.privyetik;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-
-
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
-    
-
-    
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +43,10 @@ public class LauncherActivity
         // Get the original launch Url.
         Uri uri = super.getLaunchingUrl();
 
-        
-
+        String processText = getIntent().getStringExtra(Intent.EXTRA_PROCESS_TEXT);
+        if (processText != null && !processText.trim().isEmpty()) {
+            uri = uri.buildUpon().appendQueryParameter("text", processText).build();
+        }
         return uri;
     }
 }
