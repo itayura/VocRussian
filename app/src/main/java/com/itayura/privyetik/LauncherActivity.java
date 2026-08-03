@@ -40,12 +40,17 @@ public class LauncherActivity
 
     @Override
     protected Uri getLaunchingUrl() {
-        // Get the original launch Url.
         Uri uri = super.getLaunchingUrl();
+        Intent intent = getIntent();
+        CharSequence sharedText = intent.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
+        if (sharedText == null) {
+            sharedText = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        }
 
-        String processText = getIntent().getStringExtra(Intent.EXTRA_PROCESS_TEXT);
-        if (processText != null && !processText.trim().isEmpty()) {
-            uri = uri.buildUpon().appendQueryParameter("text", processText).build();
+        if (sharedText != null && !sharedText.toString().trim().isEmpty()) {
+            uri = uri.buildUpon()
+                    .appendQueryParameter("add_word", sharedText.toString().trim())
+                    .build();
         }
         return uri;
     }
