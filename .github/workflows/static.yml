@@ -120,13 +120,6 @@ jobs:
           echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_HOME\"}" > ~/.bubblewrap/config.json
           bubblewrap doctor
 
-      - name: Generate Android Project
-        run: |
-          bubblewrap update --skipVersionUpgrade
-          sed -i 's/targetSdkVersion 35/targetSdkVersion 36/g' app/build.gradle || true
-          sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' app/build.gradle || true
-          python3 scripts/patch-android-edge-to-edge.py
-
       - name: Bump Android version code
         env:
           RUN_NUMBER: ${{ github.run_number }}
@@ -134,9 +127,15 @@ jobs:
           # Use the workflow run number in a high range so every Play upload has
           # a unique version code, even when the checked-in manifest is stale.
           NEXT_VERSION_CODE=$((100000 + RUN_NUMBER))
-          sed -i -E "s/versionCode [0-9]+/versionCode $NEXT_VERSION_CODE/" app/build.gradle
           sed -i -E "s/\"appVersionCode\": [0-9]+/\"appVersionCode\": $NEXT_VERSION_CODE/" twa-manifest.json
           echo "Using Android versionCode $NEXT_VERSION_CODE"
+      - name: Generate Android Project
+        run: |
+          bubblewrap update --skipVersionUpgrade
+          sed -i 's/targetSdkVersion 35/targetSdkVersion 36/g' app/build.gradle || true
+          sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' app/build.gradle || true
+          python3 scripts/patch-android-edge-to-edge.py
+
 
       - name: Decode Android Keystore
         env:
