@@ -131,7 +131,7 @@ jobs:
           echo "Using Android versionCode $NEXT_VERSION_CODE"
       - name: Generate Android Project
         run: |
-          bubblewrap update --skipVersionUpgrade
+          bubblewrap update
           sed -i 's/targetSdkVersion 35/targetSdkVersion 36/g' app/build.gradle || true
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' app/build.gradle || true
           python3 scripts/patch-android-edge-to-edge.py
