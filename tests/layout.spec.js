@@ -177,15 +177,12 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
       }
       stats.settings.animationsEnabled = false;
       localStorage.setItem("voc_russian_stats", JSON.stringify(stats));
+      localStorage.setItem("voc_onboarding_completed_v1", "true");
     });
 
     // Go to homepage
     await page.goto('/');
 
-    // Bypass landing page by clicking Start CTA
-    const ctaStart = page.locator('#landing-cta-start');
-    await ctaStart.waitFor({ state: 'visible' });
-    await ctaStart.click();
   });
 
   // 1. Global Navigation Layout (Desktop vs Mobile Viewports)

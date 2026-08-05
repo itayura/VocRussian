@@ -252,21 +252,62 @@ test.describe('Privyetik E2E Test Suite', () => {
       }
       stats.settings.animationsEnabled = false;
       localStorage.setItem("voc_russian_stats", JSON.stringify(stats));
+      if (sessionStorage.getItem("test_fresh_onboarding") !== "true") {
+        localStorage.setItem("voc_onboarding_completed_v1", "true");
+      }
     });
 
     // Go to homepage
     await page.goto('/');
 
-    // Bypass landing page by clicking Start CTA
-    const ctaStart = page.locator('#landing-cta-start');
-    await ctaStart.waitFor({ state: 'visible' });
-    await ctaStart.click();
   });
 
   test('Dashboard loads metrics correctly', async ({ page }) => {
     // Assert streak and XP exist
     await expect(page.locator('#sidebar-streak-val')).toContainText('0');
     await expect(page.locator('#sidebar-xp-val')).toContainText('0');
+  });
+
+  test('New users create an account before completing their chosen learning path', async ({ page }) => {
+    await page.evaluate(() => {
+      sessionStorage.setItem('test_fresh_onboarding', 'true');
+      localStorage.removeItem('voc_onboarding_completed_v1');
+    });
+    await page.reload();
+    await expect(page.locator('#view-landing')).toHaveClass(/active/);
+    await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
+
+    const onboarding = page.locator('#onboarding-modal');
+    await expect(onboarding).toHaveClass(/active/);
+    await expect(onboarding).toContainText('built only for Russian');
+
+    await page.locator('#onboarding-next-btn').click();
+    await expect(onboarding).toContainText('Where are you with Russian?');
+    await page.locator('[data-start-target="study-select"]').click();
+    await expect(page.locator('[data-start-target="study-select"]')).toHaveAttribute('aria-checked', 'true');
+
+    await page.locator('#onboarding-next-btn').click();
+    await expect(page.locator('#onboarding-destination')).toContainText('vocabulary practice');
+    await page.locator('#onboarding-next-btn').click();
+
+    await expect(onboarding).toContainText('Create your free account');
+    await page.locator('#onboarding-next-btn').click();
+    await expect(page.locator('#onboarding-auth-error')).toContainText('valid email address');
+    await expect(onboarding).toHaveClass(/active/);
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('voc_onboarding_completed_v1'))).toBeNull();
+
+    await page.evaluate(() => {
+      window.SupabaseSync.signUp = async (email) => ({
+        user: { id: 'new-user', email },
+        session: { user: { id: 'new-user', email } }
+      });
+    });
+    await page.locator('#onboarding-email').fill('newlearner@example.com');
+    await page.locator('#onboarding-password').fill('securepassword123');
+    await page.locator('#onboarding-next-btn').click();
+    await expect(onboarding).not.toHaveClass(/active/);
+    await expect(page.locator('#view-study-select')).toHaveClass(/active/);
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('voc_onboarding_completed_v1'))).toBe('true');
   });
 
   // 2. Auth Lock / Unlock Flow

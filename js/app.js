@@ -744,6 +744,7 @@
     setupAutofillListeners();
     setupSettings();
     initDailyReminders();
+    setupOnboarding();
     setupLandingPage();
     if (window.GrammarManager) {
       window.GrammarManager.init();
@@ -822,9 +823,11 @@
       hasLocalProgress = true;
     }
     
-    if (hasLocalProgress) {
+    if (hasLocalProgress || localStorage.getItem(ONBOARDING_STORAGE_KEY) === "true") {
+      onboardingRequired = false;
       switchView("dashboard");
     } else {
+      onboardingRequired = true;
       switchView("landing");
     }
   });
@@ -854,6 +857,14 @@
 
   function switchView(targetViewId) {
     // landing-mode toggling removed to keep sidebar persistent
+
+    if (onboardingRequired && targetViewId !== "landing") {
+      const onboardingModal = document.getElementById("onboarding-modal");
+      if (onboardingModal && !onboardingModal.classList.contains("active")) {
+        openOnboarding();
+      }
+      return;
+    }
 
 
     // Un-activate all nav links
@@ -2798,6 +2809,13 @@
       });
     }
 
+    const replayOnboardingBtn = document.getElementById("settings-replay-onboarding-btn");
+    if (replayOnboardingBtn) {
+      replayOnboardingBtn.addEventListener("click", () => {
+        openOnboarding(true);
+      });
+    }
+
 
     // Restore Backup Button
     const restoreBackupBtn = document.getElementById("settings-restore-placement-backup-btn");
@@ -3991,6 +4009,289 @@
     }).join('');
   }
 
+  // --- FIRST-RUN ONBOARDING CONTROLLER ---
+  const ONBOARDING_STORAGE_KEY = "voc_onboarding_completed_v1";
+  const ONBOARDING_PENDING_TARGET_KEY = "voc_onboarding_pending_target";
+  const ONBOARDING_DESTINATIONS = {
+    alphabet: "Your first stop: Cyrillic alphabet",
+    assessment: "Your first stop: CEFR level assessment",
+    "study-select": "Your first stop: vocabulary practice"
+  };
+  let onboardingStep = 0;
+  let onboardingStartTarget = "alphabet";
+
+  let onboardingAuthMode = "signup";
+  let onboardingReplayMode = false;
+  let onboardingRequired = false;
+  function setupOnboarding() {
+    const modal = document.getElementById("onboarding-modal");
+    const nextBtn = document.getElementById("onboarding-next-btn");
+    const backBtn = document.getElementById("onboarding-back-btn");
+    const skipBtn = document.getElementById("onboarding-skip-btn");
+    const authForm = document.getElementById("onboarding-auth-form");
+    const authModeToggle = document.getElementById("onboarding-auth-mode-toggle");
+    const googleBtn = document.getElementById("onboarding-google-btn");
+    if (!modal || !nextBtn || !backBtn || !skipBtn || !authForm) return;
+
+    nextBtn.addEventListener("click", async () => {
+      if (onboardingStep < 2) {
+        onboardingStep += 1;
+        renderOnboardingStep();
+      } else if (onboardingStep === 2) {
+        if (onboardingReplayMode || window.SupabaseSync?.user) {
+          completeOnboarding(onboardingStartTarget);
+        } else {
+          showOnboardingAuth("signup");
+        }
+      } else {
+        await submitOnboardingAuth();
+      }
+    });
+
+    backBtn.addEventListener("click", () => {
+      if (onboardingStep > 0) {
+        onboardingStep -= 1;
+        renderOnboardingStep();
+      }
+    });
+
+    skipBtn.addEventListener("click", () => {
+      if (onboardingReplayMode) {
+        completeOnboarding("dashboard");
+      } else {
+        showOnboardingAuth(onboardingStep === 3 && onboardingAuthMode === "login" ? "signup" : "login");
+      }
+    });
+
+    authForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      await submitOnboardingAuth();
+    });
+
+    authModeToggle?.addEventListener("click", () => {
+      setOnboardingAuthMode(onboardingAuthMode === "signup" ? "login" : "signup");
+      document.getElementById("onboarding-email")?.focus();
+    });
+
+    googleBtn?.addEventListener("click", async () => {
+      const errorEl = document.getElementById("onboarding-auth-error");
+      if (errorEl) errorEl.textContent = "";
+      localStorage.setItem(ONBOARDING_PENDING_TARGET_KEY, onboardingStartTarget);
+      googleBtn.disabled = true;
+      googleBtn.textContent = "Opening Google sign-in...";
+      try {
+        await window.SupabaseSync.signInWithGoogle();
+      } catch (error) {
+        localStorage.removeItem(ONBOARDING_PENDING_TARGET_KEY);
+        if (errorEl) errorEl.textContent = error.message || "Google sign-in could not be started.";
+        googleBtn.disabled = false;
+        googleBtn.textContent = "Continue with Google";
+      }
+    });
+
+    modal.querySelectorAll(".onboarding-path").forEach(path => {
+      path.addEventListener("click", () => {
+        onboardingStartTarget = path.dataset.startTarget || "alphabet";
+        modal.querySelectorAll(".onboarding-path").forEach(option => {
+          const selected = option === path;
+          option.classList.toggle("active", selected);
+          option.setAttribute("aria-checked", selected ? "true" : "false");
+        });
+        updateOnboardingDestination();
+      });
+    });
+
+    document.addEventListener("keydown", event => {
+      if (!modal.classList.contains("active")) return;
+      if (event.key === "Escape" && onboardingReplayMode) {
+        completeOnboarding("dashboard");
+      } else if (event.key === "Escape" && onboardingStep > 0) {
+        onboardingStep -= 1;
+        renderOnboardingStep();
+      } else if (event.key === "ArrowLeft" && onboardingStep > 0) {
+        onboardingStep -= 1;
+        renderOnboardingStep();
+      } else if (event.key === "ArrowRight" && onboardingStep < 2) {
+        onboardingStep += 1;
+        renderOnboardingStep();
+      }
+    });
+  }
+
+  function openOnboarding(isReplay = false) {
+    const modal = document.getElementById("onboarding-modal");
+    if (!modal) return;
+    if (!isReplay && localStorage.getItem(ONBOARDING_STORAGE_KEY) === "true") {
+      switchView("dashboard");
+      return;
+    }
+
+    onboardingReplayMode = isReplay;
+    onboardingStep = 0;
+    onboardingStartTarget = "alphabet";
+    onboardingAuthMode = "signup";
+    const emailInput = document.getElementById("onboarding-email");
+    const passwordInput = document.getElementById("onboarding-password");
+    const errorEl = document.getElementById("onboarding-auth-error");
+    if (emailInput) emailInput.value = "";
+    if (passwordInput) passwordInput.value = "";
+    if (errorEl) errorEl.textContent = "";
+    modal.querySelectorAll(".onboarding-path").forEach((option, index) => {
+      option.classList.toggle("active", index === 0);
+      option.setAttribute("aria-checked", index === 0 ? "true" : "false");
+    });
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("onboarding-open");
+    renderOnboardingStep();
+    setTimeout(() => document.getElementById("onboarding-next-btn")?.focus(), 0);
+  }
+
+  function renderOnboardingStep() {
+    const modal = document.getElementById("onboarding-modal");
+    if (!modal) return;
+    modal.querySelectorAll("[data-onboarding-step]").forEach((step, index) => {
+      step.classList.toggle("active", index === onboardingStep);
+    });
+    modal.querySelectorAll("[data-onboarding-progress]").forEach((bar, index) => {
+      bar.classList.toggle("active", index <= onboardingStep);
+    });
+
+    const backBtn = document.getElementById("onboarding-back-btn");
+    const nextBtn = document.getElementById("onboarding-next-btn");
+    const skipBtn = document.getElementById("onboarding-skip-btn");
+    backBtn.hidden = onboardingStep === 0;
+    nextBtn.textContent = onboardingStep === 0
+      ? "Show me how it works"
+      : onboardingStep === 1
+        ? "Build my learning path"
+        : onboardingStep === 2
+          ? (onboardingReplayMode || window.SupabaseSync?.user ? "Start learning Russian" : "Save my learning path")
+          : (onboardingAuthMode === "signup" ? "Create free account" : "Sign in and continue");
+    skipBtn.textContent = onboardingReplayMode
+      ? "Close tour"
+      : (onboardingStep === 3 && onboardingAuthMode === "login" ? "Create an account" : "Already have an account?");
+    updateOnboardingDestination();
+  }
+
+  function updateOnboardingDestination() {
+    const destination = document.getElementById("onboarding-destination");
+    if (destination) {
+      destination.textContent = ONBOARDING_DESTINATIONS[onboardingStartTarget];
+    }
+  }
+
+  function showOnboardingAuth(mode) {
+    onboardingStep = 3;
+    setOnboardingAuthMode(mode);
+    renderOnboardingStep();
+    setTimeout(() => document.getElementById("onboarding-email")?.focus(), 0);
+  }
+
+  function setOnboardingAuthMode(mode) {
+    onboardingAuthMode = mode === "login" ? "login" : "signup";
+    const title = document.getElementById("onboarding-account-title");
+    const copy = document.getElementById("onboarding-account-copy");
+    const password = document.getElementById("onboarding-password");
+    const toggle = document.getElementById("onboarding-auth-mode-toggle");
+    const error = document.getElementById("onboarding-auth-error");
+
+    if (title) title.textContent = onboardingAuthMode === "signup" ? "Create your free account." : "Welcome back.";
+    if (copy) {
+      copy.textContent = onboardingAuthMode === "signup"
+        ? "Keep your Russian progress safe and continue learning across all your devices."
+        : "Sign in to restore your progress and continue with your selected learning path.";
+    }
+    if (password) password.autocomplete = onboardingAuthMode === "signup" ? "new-password" : "current-password";
+    if (toggle) toggle.textContent = onboardingAuthMode === "signup" ? "Already registered? Sign in" : "New to Privyetik? Create an account";
+    if (error) error.textContent = "";
+    renderOnboardingStep();
+  }
+
+  async function submitOnboardingAuth() {
+    const emailInput = document.getElementById("onboarding-email");
+    const passwordInput = document.getElementById("onboarding-password");
+    const errorEl = document.getElementById("onboarding-auth-error");
+    const nextBtn = document.getElementById("onboarding-next-btn");
+    const email = emailInput?.value.trim() || "";
+    const password = passwordInput?.value || "";
+
+    if (!email || !emailInput.validity.valid) {
+      errorEl.textContent = "Enter a valid email address.";
+      emailInput?.focus();
+      return;
+    }
+    if (password.length < 6) {
+      errorEl.textContent = "Password must be at least 6 characters long.";
+      passwordInput?.focus();
+      return;
+    }
+    if (!window.SupabaseSync?.client) {
+      errorEl.textContent = "Account services are still connecting. Please try again in a moment.";
+      return;
+    }
+
+    errorEl.textContent = "";
+    nextBtn.disabled = true;
+    nextBtn.textContent = onboardingAuthMode === "signup" ? "Creating account..." : "Signing in...";
+
+    try {
+      if (onboardingAuthMode === "signup") {
+        const result = await window.SupabaseSync.signUp(email, password);
+        completeOnboarding(onboardingStartTarget);
+        if (!result.session) {
+          alert("Account created! Check your email to verify your address, then sign in to enable cloud sync.");
+        }
+      } else {
+        await window.SupabaseSync.signIn(email, password);
+        completeOnboarding(onboardingStartTarget);
+      }
+    } catch (error) {
+      errorEl.textContent = error.message || "We could not create your account. Please try again.";
+    } finally {
+      nextBtn.disabled = false;
+      if (document.getElementById("onboarding-modal")?.classList.contains("active")) {
+        renderOnboardingStep();
+      }
+    }
+  }
+
+  window.completePendingOnboardingSignup = function () {
+    const pendingTarget = localStorage.getItem(ONBOARDING_PENDING_TARGET_KEY);
+    if (!pendingTarget) return;
+    completeOnboarding(pendingTarget);
+  };
+
+  function completeOnboarding(targetViewId) {
+    const modal = document.getElementById("onboarding-modal");
+    onboardingRequired = false;
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, "true");
+    localStorage.removeItem(ONBOARDING_PENDING_TARGET_KEY);
+    if (modal) {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("onboarding-open");
+
+    if (targetViewId === "assessment") {
+      switchView("dashboard");
+      setTimeout(() => {
+        document.getElementById("placement-banner-start-btn")?.click();
+        document.getElementById("placement-start-test-btn")?.focus();
+      }, 0);
+    } else {
+      const destinationView = targetViewId || "dashboard";
+      switchView(destinationView);
+      setTimeout(() => {
+        const heading = views[destinationView]?.querySelector(".page-title, h1");
+        if (heading) {
+          heading.setAttribute("tabindex", "-1");
+          heading.focus({ preventScroll: true });
+        }
+      }, 0);
+    }
+  }
+
   // --- LANDING PAGE CONTROLLER ---
 
   // Hardcoded fallback words shown before the deck is loaded
@@ -4031,7 +4332,11 @@
 
     if (ctaStart) {
       ctaStart.addEventListener("click", () => {
-        switchView("dashboard");
+        if (localStorage.getItem(ONBOARDING_STORAGE_KEY) === "true") {
+          switchView("dashboard");
+        } else {
+          openOnboarding();
+        }
       });
     }
 

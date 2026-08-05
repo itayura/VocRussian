@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Privyetik - Learn Russian</title>
   <meta name="description" content="A premium, local language learning app to master Russian grammar case system, alphabet, and vocabulary.">
-  <link rel="stylesheet" href="css/styles.css?v=34">
+  <link rel="stylesheet" href="css/styles.css?v=36">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b0f19">
   
@@ -1635,10 +1635,15 @@
           <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
             ℹ️ Welcome &amp; Features Page
           </h2>
-          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Learn more about the application features and interactive preview.</p>
-          <button id="settings-view-landing-btn" class="btn btn-secondary" style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
-            <span>Show Welcome &amp; Features Page</span>
-          </button>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Review the welcome page or replay the getting-started tour.</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.75rem;">
+            <button id="settings-view-landing-btn" class="btn btn-secondary" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+              <span>Show Welcome Page</span>
+            </button>
+            <button id="settings-replay-onboarding-btn" class="btn btn-primary" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+              <span>Replay Getting Started</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -2221,6 +2226,118 @@
           <button type="button" id="placement-apply-btn" class="btn btn-primary" style="flex: 1; padding: 0.85rem; font-size: 0.95rem; font-weight: bold;">Apply Seeding & Finish</button>
           <button type="button" id="placement-skip-btn" class="btn btn-secondary" style="flex: 1; padding: 0.85rem; font-size: 0.95rem; font-weight: bold; background: transparent; border-color: var(--border-glass); color: var(--color-text-muted);">Finish without Seeding</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FIRST-RUN ONBOARDING -->
+  <div class="onboarding-overlay" id="onboarding-modal" role="dialog" aria-modal="true" aria-labelledby="onboarding-title" aria-hidden="true">
+    <div class="onboarding-dialog">
+      <div class="onboarding-topbar">
+        <div class="onboarding-brand" aria-label="Privyetik">
+          <span class="onboarding-brand-mark">&#1071;</span>
+          <span>Privyetik</span>
+        </div>
+        <button type="button" id="onboarding-skip-btn" class="onboarding-skip">Already have an account?</button>
+      </div>
+
+      <div class="onboarding-progress" aria-label="Onboarding progress">
+        <span class="onboarding-progress-bar active" data-onboarding-progress="0"></span>
+        <span class="onboarding-progress-bar" data-onboarding-progress="1"></span>
+        <span class="onboarding-progress-bar" data-onboarding-progress="2"></span>
+        <span class="onboarding-progress-bar" data-onboarding-progress="3"></span>
+      </div>
+
+      <div class="onboarding-body">
+        <section class="onboarding-step active" data-onboarding-step="0">
+          <div class="onboarding-illustration" aria-hidden="true">
+            <span class="onboarding-letter onboarding-letter-large">&#1071;</span>
+            <span class="onboarding-letter onboarding-letter-small">&#1041;</span>
+            <span class="onboarding-spark onboarding-spark-one">&#10022;</span>
+            <span class="onboarding-spark onboarding-spark-two">&#10022;</span>
+          </div>
+          <p class="onboarding-eyebrow">&#1044;&#1086;&#1073;&#1088;&#1086; &#1087;&#1086;&#1078;&#1072;&#1083;&#1086;&#1074;&#1072;&#1090;&#1100; &middot; Welcome</p>
+          <h2 id="onboarding-title">Russian deserves more than a generic language app.</h2>
+          <p class="onboarding-copy">Privyetik is built only for Russian, with focused practice for Cyrillic, vocabulary, pronunciation, writing, and the case system.</p>
+          <div class="onboarding-feature-chips" aria-label="Key learning features">
+            <span>&#1040;&#1041;&#1042; Cyrillic</span>
+            <span>&#128266; Pronunciation</span>
+            <span>&#129504; Smart review</span>
+          </div>
+        </section>
+
+        <section class="onboarding-step" data-onboarding-step="1">
+          <p class="onboarding-eyebrow">Choose your starting point</p>
+          <h2>Where are you with Russian?</h2>
+          <p class="onboarding-copy">Pick the path that feels right. You can explore everything later.</p>
+          <div class="onboarding-paths" role="radiogroup" aria-label="Russian learning starting point">
+            <button type="button" class="onboarding-path active" data-start-target="alphabet" role="radio" aria-checked="true">
+              <span class="onboarding-path-icon">&#1040;&#1041;&#1042;</span>
+              <span><strong>I'm brand new</strong><small>Start with the Cyrillic alphabet</small></span>
+              <span class="onboarding-path-check">&#10003;</span>
+            </button>
+            <button type="button" class="onboarding-path" data-start-target="assessment" role="radio" aria-checked="false">
+              <span class="onboarding-path-icon">A1?</span>
+              <span><strong>I know some Russian</strong><small>Take the CEFR level assessment</small></span>
+              <span class="onboarding-path-check">&#10003;</span>
+            </button>
+            <button type="button" class="onboarding-path" data-start-target="study-select" role="radio" aria-checked="false">
+              <span class="onboarding-path-icon">10</span>
+              <span><strong>I'm ready to practise</strong><small>Begin a vocabulary session</small></span>
+              <span class="onboarding-path-check">&#10003;</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="onboarding-step" data-onboarding-step="2">
+          <div class="onboarding-illustration onboarding-routine" aria-hidden="true">&#128059;</div>
+          <p class="onboarding-eyebrow">A simple daily routine</p>
+          <h2>A few focused minutes add up.</h2>
+          <p class="onboarding-copy">Learn a small set, review words when they are due, and practise recalling them in Russian. Privyetik adapts the schedule as you improve.</p>
+          <div class="onboarding-routine-grid">
+            <div><strong>1</strong><span>Learn</span></div>
+            <div><strong>2</strong><span>Recall</span></div>
+            <div><strong>3</strong><span>Review</span></div>
+          </div>
+          <p id="onboarding-destination" class="onboarding-destination">Your first stop: Cyrillic alphabet</p>
+        </section>
+      </div>
+
+        <section class="onboarding-step onboarding-account-step" data-onboarding-step="3">
+          <p class="onboarding-eyebrow">Save your learning path</p>
+          <h2 id="onboarding-account-title">Create your free account.</h2>
+          <p id="onboarding-account-copy" class="onboarding-copy">Keep your Russian progress safe and continue learning across all your devices.</p>
+
+          <form id="onboarding-auth-form" class="onboarding-auth-form" novalidate>
+            <div class="onboarding-auth-field">
+              <label for="onboarding-email">Email address</label>
+              <input type="email" id="onboarding-email" autocomplete="email" placeholder="you@example.com" required>
+            </div>
+            <div class="onboarding-auth-field">
+              <label for="onboarding-password">Password</label>
+              <input type="password" id="onboarding-password" autocomplete="new-password" placeholder="At least 6 characters" minlength="6" required>
+            </div>
+            <p id="onboarding-auth-error" class="onboarding-auth-error" role="alert" aria-live="polite"></p>
+            <button type="submit" class="onboarding-hidden-submit" tabindex="-1" aria-hidden="true">Submit</button>
+          </form>
+
+          <button type="button" id="onboarding-google-btn" class="onboarding-google-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+
+          <button type="button" id="onboarding-auth-mode-toggle" class="onboarding-auth-mode-toggle">Already registered? Sign in</button>
+          <p class="onboarding-privacy">By continuing, you agree to securely store your learning progress. See our <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        </section>
+
+      <div class="onboarding-footer">
+        <button type="button" id="onboarding-back-btn" class="btn btn-secondary onboarding-back" hidden>Back</button>
+        <button type="button" id="onboarding-next-btn" class="btn btn-primary onboarding-next">Show me how it works</button>
       </div>
     </div>
   </div>

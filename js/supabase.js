@@ -45,6 +45,9 @@
           if (session) {
             this.user = session.user;
             this.onLoginSuccess();
+            if (typeof window.completePendingOnboardingSignup === "function") {
+              window.completePendingOnboardingSignup();
+            }
           } else {
             this.user = null;
             this.onLogout();
