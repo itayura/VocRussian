@@ -6,6 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function getDefaultPublishableKey(): string {
+  try {
+    const keys = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") ?? "{}");
+    return typeof keys?.default === "string" ? keys.default : "";
+  } catch {
+    return "";
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -29,10 +38,10 @@ serve(async (req) => {
 
     const token = authHeader.replace(/^Bearer /, "");
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    if (!supabaseUrl || !supabaseAnonKey) throw new Error("Supabase authentication is not configured.");
+    const supabasePublishableKey = getDefaultPublishableKey();
+    if (!supabaseUrl || !supabasePublishableKey) throw new Error("Supabase authentication is not configured.");
 
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    const supabaseClient = createClient(supabaseUrl, supabasePublishableKey, {
       global: { headers: { Authorization: authHeader } },
       auth: { persistSession: false, autoRefreshToken: false }
     });
@@ -193,7 +202,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     }
 
     // Reuse the authenticated Supabase configuration validated above.
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabasePublishableKey) {
       throw new Error("Supabase URL or Anon Key is not configured on the server.");
     }
 
@@ -220,7 +229,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     const wordInsertRes = await fetch(`${supabaseUrl}/rest/v1/voc_words`, {
       method: "POST",
       headers: {
-        "apikey": supabaseAnonKey,
+        "apikey": supabasePublishableKey,
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
         "Prefer": "return=representation"
@@ -249,7 +258,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     const progressInsertRes = await fetch(`${supabaseUrl}/rest/v1/voc_progress`, {
       method: "POST",
       headers: {
-        "apikey": supabaseAnonKey,
+        "apikey": supabasePublishableKey,
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
         "Prefer": "return=representation"
@@ -261,7 +270,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
       const errText = await progressInsertRes.text();
       await fetch(`${supabaseUrl}/rest/v1/voc_words?user_id=eq.${encodeURIComponent(user.id)}&id=eq.${encodeURIComponent(wordId)}`, {
         method: "DELETE",
-        headers: { "apikey": supabaseAnonKey, "Authorization": `Bearer ${token}` }
+        headers: { "apikey": supabasePublishableKey, "Authorization": `Bearer ${token}` }
       });
       throw new Error(`Failed to initialize card progress in database: ${errText}`);
     }

@@ -6,6 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function getDefaultPublishableKey(): string {
+  try {
+    const keys = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") ?? "{}");
+    return typeof keys?.default === "string" ? keys.default : "";
+  } catch {
+    return "";
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -29,11 +38,11 @@ serve(async (req) => {
 
     const token = authHeader.replace(/^Bearer /, "");
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
-    if (!supabaseUrl || !supabaseAnonKey) throw new Error("Supabase authentication is not configured.");
+    const supabasePublishableKey = getDefaultPublishableKey();
+    if (!supabaseUrl || !supabasePublishableKey) throw new Error("Supabase authentication is not configured.");
 
     // Initialize Supabase Client for database rate limits (we don't use it for getUser authentication check anymore)
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    const supabaseClient = createClient(supabaseUrl, supabasePublishableKey, {
       global: {
         headers: { Authorization: authHeader },
       },

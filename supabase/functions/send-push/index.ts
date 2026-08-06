@@ -29,23 +29,15 @@ serve(async (req) => {
 
   try {
     const suppliedApiKey = req.headers.get("apikey") ?? "";
-    const authHeader = req.headers.get("Authorization") ?? "";
-    const suppliedLegacyToken = authHeader.replace(/^Bearer\s+/i, "");
     const remindersSecretKey = getRemindersSecretKey();
-    const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-    const usesSecretKey =
-      remindersSecretKey.length > 0 && suppliedApiKey === remindersSecretKey;
-    const usesLegacyKey =
-      legacyServiceRoleKey.length > 0 && suppliedLegacyToken === legacyServiceRoleKey;
-
-    if (!suppliedApiKey && !authHeader) {
+    if (!suppliedApiKey) {
       return new Response(JSON.stringify({ error: "Unauthorized: missing internal API key." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 401,
       });
     }
-    if (!usesSecretKey && !usesLegacyKey) {
+    if (!remindersSecretKey || suppliedApiKey !== remindersSecretKey) {
       return new Response(JSON.stringify({ error: "Forbidden: push delivery is an internal service." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 403,
@@ -53,12 +45,11 @@ serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const adminKey = usesSecretKey ? remindersSecretKey : legacyServiceRoleKey;
-    if (!supabaseUrl || !adminKey) {
+    if (!supabaseUrl) {
       throw new Error("Push service is not configured.");
     }
 
-    const supabaseClient = createClient(supabaseUrl, adminKey, {
+    const supabaseClient = createClient(supabaseUrl, remindersSecretKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
 
