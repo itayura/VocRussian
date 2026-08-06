@@ -1,4 +1,3 @@
-// Trigger deployment with new GitHub secrets
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 import webpush from "npm:web-push";
@@ -8,142 +7,123 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function getRemindersSecretKey(): string {
+  try {
+    const keys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}");
+    return typeof keys?.reminders === "string" ? keys.reminders : "";
+  } catch {
+    return "";
+  }
+}
+
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed." }), {
       headers: { ...corsHeaders, "Content-Type": "application/json", "Allow": "POST" },
-      status: 405
+      status: 405,
     });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Unauthorized: missing Authorization header." }), {
+    const suppliedApiKey = req.headers.get("apikey") ?? "";
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const suppliedLegacyToken = authHeader.replace(/^Bearer\s+/i, "");
+    const remindersSecretKey = getRemindersSecretKey();
+    const legacyServiceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+    const usesSecretKey =
+      remindersSecretKey.length > 0 && suppliedApiKey === remindersSecretKey;
+    const usesLegacyKey =
+      legacyServiceRoleKey.length > 0 && suppliedLegacyToken === legacyServiceRoleKey;
+
+    if (!suppliedApiKey && !authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized: missing internal API key." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401
+        status: 401,
       });
     }
-
-    const token = authHeader.replace(/^Bearer /, "");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    if (!serviceRoleKey || !supabaseUrl) throw new Error("Push service is not configured.");
-    const isServiceRole = token.length > 0 && token === serviceRoleKey;
-    if (!isServiceRole) {
+    if (!usesSecretKey && !usesLegacyKey) {
       return new Response(JSON.stringify({ error: "Forbidden: push delivery is an internal service." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 403
+        status: 403,
       });
     }
 
-    // Internal service-role client used only by the database reminder scheduler.
-    const supabaseClient = createClient(
-      supabaseUrl,
-      serviceRoleKey,
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const adminKey = usesSecretKey ? remindersSecretKey : legacyServiceRoleKey;
+    if (!supabaseUrl || !adminKey) {
+      throw new Error("Push service is not configured.");
+    }
+
+    const supabaseClient = createClient(supabaseUrl, adminKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
     const { userId, title, body } = await req.json();
-
     if (typeof title !== "string" || typeof body !== "string" || !title.trim() || !body.trim()) {
       throw new Error("Missing required fields: title, body");
     }
-    if (title.length > 120 || body.length > 500) throw new Error("Notification content is too long.");
+    if (title.length > 120 || body.length > 500) {
+      throw new Error("Notification content is too long.");
+    }
     if (userId !== "all" && (typeof userId !== "string" || !/^[0-9a-f-]{36}$/i.test(userId))) {
       throw new Error("Invalid target user.");
     }
 
-    let subscriptions = [];
-
-    // Check if the request is a broadcast to all users
-    if (userId === "all") {
-      // Admin broadcast: Fetch all subscriptions
-      const { data, error } = await supabaseClient
-        .from("user_push_subscriptions")
-        .select("*");
-      
-      if (error) throw error;
-      subscriptions = data || [];
-    } else {
-      // Standard target push: Fetch target user's subscriptions
-      const { data, error } = await supabaseClient
-        .from("user_push_subscriptions")
-        .select("*")
-        .eq("user_id", userId);
-      
-      if (error) throw error;
-      subscriptions = data || [];
+    let query = supabaseClient.from("user_push_subscriptions").select("*");
+    if (userId !== "all") {
+      query = query.eq("user_id", userId);
     }
+    const { data: subscriptions, error: subscriptionError } = await query;
+    if (subscriptionError) throw subscriptionError;
 
-    // If no subscriptions found (or access denied by RLS)
-    if (!subscriptions || subscriptions.length === 0) {
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: "No active subscriptions found to receive this notification." 
+    if (!subscriptions?.length) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: "No active subscriptions found to receive this notification.",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Setup VAPID details (configured via Supabase environment variables)
-    const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") || "";
-    const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") || "";
-    
+    const publicKey = Deno.env.get("VAPID_PUBLIC_KEY") ?? "";
+    const privateKey = Deno.env.get("VAPID_PRIVATE_KEY") ?? "";
     if (!publicKey || !privateKey) {
       throw new Error("VAPID keys are not set in the server environment.");
     }
 
-    webpush.setVapidDetails(
-      "mailto:itayuralevich@gmail.com",
-      publicKey,
-      privateKey
-    );
+    webpush.setVapidDetails("mailto:itayuralevich@gmail.com", publicKey, privateKey);
 
     let sentCount = 0;
     let failedCount = 0;
 
     for (const sub of subscriptions) {
-      const pushSubscription = {
-        endpoint: sub.endpoint,
-        keys: {
-          p256dh: sub.p256dh,
-          auth: sub.auth,
-        },
-      };
-
       try {
         await webpush.sendNotification(
-          pushSubscription,
-          JSON.stringify({ title, body }),
           {
-            urgency: "high",
-            TTL: 86400,
-          }
+            endpoint: sub.endpoint,
+            keys: { p256dh: sub.p256dh, auth: sub.auth },
+          },
+          JSON.stringify({ title, body }),
+          { urgency: "high", TTL: 86400 },
         );
         sentCount++;
-      } catch (err) {
-        console.error(`Failed to send notification for subscription ${sub.id}:`, err);
+      } catch (error) {
         failedCount++;
-        
-        // If the subscription is expired or inactive (410 Gone / 404 Not Found), delete it
-        if (err.statusCode === 410 || err.statusCode === 404) {
-          const adminClient = createClient(
-            supabaseUrl,
-            serviceRoleKey
-          );
-          await adminClient
+        const statusCode = Number((error as { statusCode?: number })?.statusCode ?? 0);
+        console.error(`Push delivery failed for subscription ${sub.id} with status ${statusCode || "unknown"}.`);
+
+        if (statusCode === 404 || statusCode === 410) {
+          const { error: deleteError } = await supabaseClient
             .from("user_push_subscriptions")
             .delete()
             .eq("id", sub.id);
+          if (deleteError) {
+            console.error(`Failed to remove expired subscription ${sub.id}.`);
+          }
         }
       }
     }
@@ -152,9 +132,9 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
-
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unexpected push delivery error.";
+    return new Response(JSON.stringify({ error: message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
