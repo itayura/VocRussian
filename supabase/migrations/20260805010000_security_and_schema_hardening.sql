@@ -7,8 +7,15 @@ CREATE INDEX IF NOT EXISTS voc_words_user_deck_idx
 
 CREATE SCHEMA IF NOT EXISTS private;
 REVOKE ALL ON SCHEMA private FROM PUBLIC, anon, authenticated;
-REVOKE ALL ON FUNCTION private.get_service_role_key() FROM PUBLIC, anon, authenticated;
-REVOKE ALL ON FUNCTION public.check_and_send_reminders() FROM PUBLIC, anon, authenticated;
+DO $$
+BEGIN
+  IF to_regprocedure('private.get_service_role_key()') IS NOT NULL THEN
+    EXECUTE 'REVOKE ALL ON FUNCTION private.get_service_role_key() FROM PUBLIC, anon, authenticated';
+  END IF;
+  IF to_regprocedure('public.check_and_send_reminders()') IS NOT NULL THEN
+    EXECUTE 'REVOKE ALL ON FUNCTION public.check_and_send_reminders() FROM PUBLIC, anon, authenticated';
+  END IF;
+END $$;
 
 DROP FUNCTION IF EXISTS public.get_service_role_key();
 

@@ -1,29 +1,4 @@
--- Server-side daily reminder scheduler.
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-CREATE EXTENSION IF NOT EXISTS pg_net;
-
-CREATE TABLE IF NOT EXISTS public.app_config (
-    key text PRIMARY KEY,
-    value text
-);
-ALTER TABLE public.app_config ENABLE ROW LEVEL SECURITY;
-
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies
-        WHERE schemaname = 'public' AND tablename = 'app_config'
-          AND policyname = 'Allow public read access to app_config'
-    ) THEN
-        CREATE POLICY "Allow public read access to app_config"
-            ON public.app_config FOR SELECT TO anon, authenticated USING (true);
-    END IF;
-END $$;
-
-INSERT INTO public.app_config (key, value)
-VALUES ('project_host', 'bghuansvungabgsbxqjh.supabase.co')
-ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
-
+-- Apply reminder hardening to databases where the original migration is already recorded.
 CREATE SCHEMA IF NOT EXISTS private;
 REVOKE ALL ON SCHEMA private FROM PUBLIC, anon, authenticated;
 
