@@ -30,6 +30,46 @@ jobs:
           CLEAN_PROJECT_ID=$(python3 -c "import os, re; value = os.environ['SUPABASE_PROJECT_ID']; match = re.search(r'[a-zA-Z0-9]{20}', value); print(match.group(0) if match else value.strip())")
           supabase functions deploy send-push --no-verify-jwt --project-ref "$CLEAN_PROJECT_ID"
 
+      - name: Verify New Reminder Authentication
+        env:
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_REMINDERS_SECRET_KEY: ${{ secrets.SUPABASE_REMINDERS_SECRET_KEY }}
+        run: |
+          python3 -c "
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.request
+
+          project_value = os.environ['SUPABASE_PROJECT_ID']
+          match = re.search(r'[a-zA-Z0-9]{20}', project_value)
+          project_id = match.group(0) if match else project_value.strip()
+          secret_key = os.environ['SUPABASE_REMINDERS_SECRET_KEY'].strip()
+          if not secret_key.startswith('sb_secret_'):
+              raise RuntimeError('SUPABASE_REMINDERS_SECRET_KEY is missing or invalid')
+
+          request = urllib.request.Request(
+              f'https://{project_id}.supabase.co/functions/v1/send-push',
+              data=json.dumps({
+                  'userId': 'authentication-check',
+                  'title': 'Authentication check',
+                  'body': 'This request must never send a notification'
+              }).encode(),
+              headers={'Content-Type': 'application/json', 'apikey': secret_key},
+              method='POST'
+          )
+
+          try:
+              urllib.request.urlopen(request, timeout=30)
+              raise RuntimeError('Authentication check unexpectedly accepted an invalid target')
+          except urllib.error.HTTPError as error:
+              response = error.read().decode()
+              if error.code != 400 or 'Invalid target user.' not in response:
+                  raise RuntimeError(f'New reminder key authentication failed with HTTP {error.code}')
+              print('New reminders secret authenticated successfully')
+          "
+
       - name: Push Database Migrations
         env:
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
