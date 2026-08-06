@@ -25,7 +25,7 @@ jobs:
         env:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_REMINDERS_SECRET_KEY: ${{ secrets.SUPABASE_REMINDERS_SECRET_KEY }}
         run: |
           CLEAN_PROJECT_ID=$(python3 -c "import os, re; value = os.environ['SUPABASE_PROJECT_ID']; match = re.search(r'[a-zA-Z0-9]{20}', value); print(match.group(0) if match else value.strip())")
           export PGPASSWORD="$(python3 -c "import os; print(os.environ['SUPABASE_DB_PASSWORD'].strip())")"
@@ -33,7 +33,7 @@ jobs:
 
           psql             -h aws-1-ap-northeast-2.pooler.supabase.com             -p 6543             -U "postgres.${CLEAN_PROJECT_ID}"             -d postgres             -v ON_ERROR_STOP=1 <<'SQL'
           \getenv project_host SUPABASE_PROJECT_HOST
-          \getenv service_role_key SUPABASE_SERVICE_ROLE_KEY
+          \getenv reminders_secret_key SUPABASE_REMINDERS_SECRET_KEY
 
           CREATE TABLE IF NOT EXISTS public.app_config (
             key text PRIMARY KEY,
@@ -60,14 +60,14 @@ jobs:
           VALUES ('project_host', :'project_host')
           ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
-          SELECT vault.update_secret(id, :'service_role_key', 'service_role_key')
+          SELECT vault.update_secret(id, :'reminders_secret_key', 'reminders_secret_key')
           FROM vault.secrets
-          WHERE name = 'service_role_key'
-            AND :'service_role_key' <> '';
+          WHERE name = 'reminders_secret_key'
+            AND :'reminders_secret_key' <> '';
 
-          SELECT vault.create_secret(:'service_role_key', 'service_role_key')
-          WHERE :'service_role_key' <> ''
+          SELECT vault.create_secret(:'reminders_secret_key', 'reminders_secret_key')
+          WHERE :'reminders_secret_key' <> ''
             AND NOT EXISTS (
-              SELECT 1 FROM vault.secrets WHERE name = 'service_role_key'
+              SELECT 1 FROM vault.secrets WHERE name = 'reminders_secret_key'
             );
           SQL
