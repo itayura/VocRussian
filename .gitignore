@@ -31,4 +31,10 @@ play_store_feature_graphic.png
 .gradle/
 build/
 *.apk
+*.aab
+*.tgz
 screenshots/
+
+# Local scratch outputs/helpers
+scratch/*.png
+scratch/take_mobile_screenshot.js

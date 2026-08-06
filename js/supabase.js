@@ -17,6 +17,7 @@
     connectionState: "disconnected", // 'disconnected' | 'connecting' | 'connected'
     authMode: "login", // 'login' | 'signup'
     isSyncing: false,
+    pendingSyncTimeout: null,
 
     init: async function () {
       console.log("[SupabaseSync] init() started using URL:", CONFIG.URL);
@@ -175,12 +176,29 @@
 
     // Handle local state changes dynamically (called by srs.js)
     handleLocalChange: async function (type, id, data) {
-      if (this.connectionState !== "connected" || !this.user || this.isSyncing) return;
+      if (this.connectionState !== "connected" || !this.user) return;
       if (!this.isAutoSyncEnabled()) return;
+
+      // Progress and stats contain append-only event logs. Always merge the
+      // server snapshot instead of overwriting events recorded on another device.
+      if (type === "progress" || type === "stats") {
+        clearTimeout(this.pendingSyncTimeout);
+        this.pendingSyncTimeout = setTimeout(() => {
+          this.pendingSyncTimeout = null;
+          if (this.isSyncing) {
+            this.handleLocalChange(type, id, data);
+          } else {
+            this.syncBoth();
+          }
+        }, 1000);
+        return;
+      }
+
+      if (this.isSyncing) return;
 
       try {
         if (type === "progress") {
-          await this.client.from("voc_progress").upsert({
+          const { error } = await this.client.from("voc_progress").upsert({
             user_id: this.user.id,
             word_id: id,
             box: data.box,
@@ -189,10 +207,12 @@
             wrong_count: data.wrongCount || 0,
             starred: !!data.starred,
             hidden: !!data.hidden,
+            review_events: data.reviewEvents || [],
             updated_at: new Date(data.updatedAt || Date.now()).toISOString()
           });
+          if (error) throw error;
         } else if (type === "stats") {
-          await this.client.from("voc_stats").upsert({
+          const { error } = await this.client.from("voc_stats").upsert({
             user_id: this.user.id,
             xp: data.xp || 0,
             streak: data.streak || 0,
@@ -200,9 +220,11 @@
             total_correct: data.totalCorrect || 0,
             total_attempts: data.totalAttempts || 0,
             daily_xp_log: data.dailyXpLog || {},
+            activity_log: data.activityLog || [],
             settings: data.settings || {},
             updated_at: new Date(data.updatedAt || Date.now()).toISOString()
           });
+          if (error) throw error;
         } else if (type === "word") {
           const payload = {
             user_id: this.user.id,
@@ -220,23 +242,24 @@
             updated_at: new Date(data.updatedAt || Date.now()).toISOString()
           };
           const { error } = await this.client.from("voc_words").upsert(payload);
-          if (error) {
-            console.warn("[SupabaseSync] Upsert with deck_id failed, retrying without it:", error);
-            delete payload.deck_id;
-            await this.client.from("voc_words").upsert(payload);
-          }
+          if (error) throw error;
         } else if (type === "word_delete") {
-          await this.client.from("voc_words").delete().match({
-            user_id: this.user.id,
-            id: id
-          });
+          const results = await Promise.all([
+            this.client.from("voc_words").delete().match({ user_id: this.user.id, id }),
+            this.client.from("voc_progress").delete().match({ user_id: this.user.id, word_id: id })
+          ]);
+          const error = results.find(result => result.error)?.error;
+          if (error) throw error;
         } else if (type === "reset") {
           // Bulk delete on cloud
-          await Promise.all([
+          const results = await Promise.all([
             this.client.from("voc_progress").delete().match({ user_id: this.user.id }),
             this.client.from("voc_words").delete().match({ user_id: this.user.id }),
-            this.client.from("voc_stats").delete().match({ user_id: this.user.id })
+            this.client.from("voc_stats").delete().match({ user_id: this.user.id }),
+            this.client.from("voc_grammar_progress").delete().match({ user_id: this.user.id })
           ]);
+          const error = results.find(result => result.error)?.error;
+          if (error) throw error;
         }
       } catch (e) {
         console.warn("Background auto-sync failed (likely offline):", e);
@@ -250,7 +273,7 @@
         return false;
       }
 
-      if (this.isSyncing) return;
+      if (this.isSyncing) return false;
       this.isSyncing = true;
       this.updateSyncButtonState(true);
 
@@ -258,7 +281,7 @@
         console.log("[SupabaseSync] Starting bidirectional sync...");
 
         // 1. SYNC CUSTOM WORDS & OVERRIDES (voc_words)
-        const { data: dbWords, error: errWords } = await this.client
+        let { data: dbWords, error: errWords } = await this.client
           .from("voc_words")
           .select("*");
         if (errWords) throw errWords;
@@ -283,6 +306,9 @@
             .match({ user_id: this.user.id })
             .in("id", deletedCustomIds);
           if (delErr) throw delErr;
+          const { error: delProgressErr } = await this.client.from("voc_progress").delete().match({ user_id: this.user.id }).in("word_id", deletedCustomIds);
+          if (delProgressErr) throw delProgressErr;
+          dbWords = dbWords.filter(word => !deletedCustomIds.includes(word.id));
           localStorage.removeItem("voc_russian_deleted_custom_ids");
         }
 
@@ -381,187 +407,175 @@
             const { error: pushErr } = await this.client
               .from("voc_words")
               .upsert(chunk);
-            if (pushErr) {
-              console.warn("[SupabaseSync] Syncing words with deck_id failed, retrying without it:", pushErr);
-              const fallbackRows = chunk.map(row => {
-                const r = { ...row };
-                delete r.deck_id;
-                return r;
-              });
-              const { error: fallbackErr } = await this.client
-                .from("voc_words")
-                .upsert(fallbackRows);
-              if (fallbackErr) throw fallbackErr;
-            }
+            if (pushErr) throw pushErr;
           }
         }
 
 
         // 2. SYNC FLASHCARD PROGRESS (voc_progress)
-        const { data: dbProg, error: errProg } = await this.client
-          .from("voc_progress")
-          .select("*");
+        let { data: dbProg, error: errProg } = await this.client.from("voc_progress").select("*");
         if (errProg) throw errProg;
 
+        // Remove the legacy XP placeholder row; grammar activity is no longer vocabulary progress.
+        if (dbProg.some(row => row.word_id === "dummy_xp_holder")) {
+          const { error: dummyDeleteError } = await this.client.from("voc_progress").delete().match({ user_id: this.user.id, word_id: "dummy_xp_holder" });
+          if (dummyDeleteError) throw dummyDeleteError;
+          dbProg = dbProg.filter(row => row.word_id !== "dummy_xp_holder");
+        }
+
         const localProgMap = { ...window.SRS.getCardProgressMap() };
-        const dbProgMap = {};
-        dbProg.forEach(p => { dbProgMap[p.word_id] = p; });
+        delete localProgMap.dummy_xp_holder;
+        const remoteProgMap = Object.fromEntries(dbProg.map(row => [row.word_id, {
+          id: row.word_id,
+          box: row.box,
+          nextReview: Number(row.next_review),
+          correctCount: row.correct_count || 0,
+          wrongCount: row.wrong_count || 0,
+          starred: !!row.starred,
+          hidden: !!row.hidden,
+          reviewEvents: Array.isArray(row.review_events) ? row.review_events : [],
+          updatedAt: Date.parse(row.updated_at) || 0
+        }]));
 
-        const toPushProg = [];
+        const mergeProgress = (local = {}, remote = {}) => {
+          const localEvents = Array.isArray(local.reviewEvents) ? local.reviewEvents : [];
+          const remoteEvents = Array.isArray(remote.reviewEvents) ? remote.reviewEvents : [];
+          const eventsById = new Map();
+          [...localEvents, ...remoteEvents].forEach(event => eventsById.set(event.id, event));
+          const allEvents = [...eventsById.values()].sort((a, b) => (a.at || 0) - (b.at || 0));
+          const localEventCorrect = localEvents.filter(event => event.correct).length;
+          const remoteEventCorrect = remoteEvents.filter(event => event.correct).length;
+          const localEventWrong = localEvents.length - localEventCorrect;
+          const remoteEventWrong = remoteEvents.length - remoteEventCorrect;
+          const baseCorrect = Math.max(0, (local.correctCount || 0) - localEventCorrect, (remote.correctCount || 0) - remoteEventCorrect);
+          const baseWrong = Math.max(0, (local.wrongCount || 0) - localEventWrong, (remote.wrongCount || 0) - remoteEventWrong);
+          const latest = (local.updatedAt || 0) >= (remote.updatedAt || 0) ? local : remote;
+          return {
+            id: local.id || remote.id,
+            box: latest.box || 1,
+            nextReview: latest.nextReview || Date.now(),
+            correctCount: baseCorrect + allEvents.filter(event => event.correct).length,
+            wrongCount: baseWrong + allEvents.filter(event => !event.correct).length,
+            starred: !!latest.starred,
+            hidden: !!latest.hidden,
+            reviewEvents: allEvents.slice(-100),
+            updatedAt: Math.max(local.updatedAt || 0, remote.updatedAt || 0) || Date.now()
+          };
+        };
 
-        // Merge local card progress with Supabase
-        Object.keys(localProgMap).forEach(wId => {
-          const dbP = dbProgMap[wId];
-          if (dbP) {
-            const dbTime = Date.parse(dbP.updated_at);
-            const localTime = localProgMap[wId].updatedAt || 0;
-
-            if (localTime > dbTime) {
-              toPushProg.push(localProgMap[wId]);
-            } else if (dbTime > localTime) {
-              localProgMap[wId] = {
-                id: wId,
-                box: dbP.box,
-                nextReview: Number(dbP.next_review),
-                correctCount: dbP.correct_count || 0,
-                wrongCount: dbP.wrong_count || 0,
-                starred: !!dbP.starred,
-                hidden: !!dbP.hidden,
-                updatedAt: dbTime
-              };
-            }
-          } else {
-            // Exists locally but not in DB
-            toPushProg.push(localProgMap[wId]);
-          }
+        const allProgressIds = new Set([...Object.keys(localProgMap), ...Object.keys(remoteProgMap)]);
+        allProgressIds.forEach(wordId => {
+          localProgMap[wordId] = mergeProgress(localProgMap[wordId], remoteProgMap[wordId]);
         });
 
-        // Add DB cards not present locally
-        dbProg.forEach(dbP => {
-          if (!localProgMap[dbP.word_id]) {
-            localProgMap[dbP.word_id] = {
-              id: dbP.word_id,
-              box: dbP.box,
-              nextReview: Number(dbP.next_review),
-              correctCount: dbP.correct_count || 0,
-              wrongCount: dbP.wrong_count || 0,
-              starred: !!dbP.starred,
-              hidden: !!dbP.hidden,
-              updatedAt: Date.parse(dbP.updated_at)
-            };
-          }
-        });
-
-        // Push new/updated progress rows in chunks of 500
-        if (toPushProg.length > 0) {
-          const rowsToPush = toPushProg.map(p => ({
+        const progressRows = [...allProgressIds].map(wordId => {
+          const progress = localProgMap[wordId];
+          return {
             user_id: this.user.id,
-            word_id: p.id,
-            box: p.box,
-            next_review: p.nextReview,
-            correct_count: p.correctCount || 0,
-            wrong_count: p.wrongCount || 0,
-            starred: !!p.starred,
-            hidden: !!p.hidden,
-            updated_at: new Date(p.updatedAt || Date.now()).toISOString()
-          }));
-
-          const chunkSize = 500;
-          for (let i = 0; i < rowsToPush.length; i += chunkSize) {
-            const chunk = rowsToPush.slice(i, i + chunkSize);
-            const { error: pushProgErr } = await this.client
-              .from("voc_progress")
-              .upsert(chunk);
-            if (pushProgErr) throw pushProgErr;
-          }
+            word_id: wordId,
+            box: progress.box,
+            next_review: progress.nextReview,
+            correct_count: progress.correctCount || 0,
+            wrong_count: progress.wrongCount || 0,
+            starred: !!progress.starred,
+            hidden: !!progress.hidden,
+            review_events: progress.reviewEvents || [],
+            updated_at: new Date(progress.updatedAt || Date.now()).toISOString()
+          };
+        });
+        for (let i = 0; i < progressRows.length; i += 500) {
+          const { error: pushProgErr } = await this.client.from("voc_progress").upsert(progressRows.slice(i, i + 500));
+          if (pushProgErr) throw pushProgErr;
         }
 
 
         // 3. SYNC GLOBAL STATS (voc_stats)
-        const { data: dbStatsRows, error: errStats } = await this.client
-          .from("voc_stats")
-          .select("*")
-          .match({ user_id: this.user.id });
+        const { data: dbStatsRows, error: errStats } = await this.client.from("voc_stats").select("*").match({ user_id: this.user.id });
         if (errStats) throw errStats;
 
         const localStats = { ...window.SRS.getGlobalStats() };
+        const dbStats = dbStatsRows[0] || {};
+        const localEvents = Array.isArray(localStats.activityLog) ? localStats.activityLog : [];
+        const remoteEvents = Array.isArray(dbStats.activity_log) ? dbStats.activity_log : [];
+        const activityById = new Map();
+        [...localEvents, ...remoteEvents].forEach(event => activityById.set(event.id, event));
+        const mergedActivity = [...activityById.values()].sort((a, b) => (a.occurredAt || 0) - (b.occurredAt || 0));
+        const localEventXp = localEvents.reduce((sum, event) => sum + (event.xp || 0), 0);
+        const remoteEventXp = remoteEvents.reduce((sum, event) => sum + (event.xp || 0), 0);
+        const legacyXpBase = Math.max(0, (localStats.xp || 0) - localEventXp, (dbStats.xp || 0) - remoteEventXp);
+        localStats.xp = legacyXpBase + mergedActivity.reduce((sum, event) => sum + (event.xp || 0), 0);
+        localStats.activityLog = mergedActivity.slice(-500);
 
-        if (dbStatsRows.length === 0) {
-          // Push local stats to cloud
-          localStats.updatedAt = localStats.updatedAt || Date.now();
-          const { error: pushStatsErr } = await this.client
-            .from("voc_stats")
-            .upsert({
-              user_id: this.user.id,
-              xp: localStats.xp || 0,
-              streak: localStats.streak || 0,
-              last_active_date: localStats.lastActiveDate,
-              total_correct: localStats.totalCorrect || 0,
-              total_attempts: localStats.totalAttempts || 0,
-              daily_xp_log: localStats.dailyXpLog || {},
-              settings: localStats.settings || {},
-              updated_at: new Date(localStats.updatedAt).toISOString()
-            });
-          if (pushStatsErr) throw pushStatsErr;
-        } else {
-          const dbStats = dbStatsRows[0];
-          const dbTime = Date.parse(dbStats.updated_at);
-          const localTime = localStats.updatedAt || 0;
+        const allDates = new Set([
+          ...Object.keys(localStats.dailyXpLog || {}),
+          ...Object.keys(dbStats.daily_xp_log || {}),
+          ...mergedActivity.map(event => event.date).filter(Boolean)
+        ]);
+        const mergedDailyXp = {};
+        allDates.forEach(date => {
+          const localDateEvents = localEvents.filter(event => event.date === date).reduce((sum, event) => sum + (event.xp || 0), 0);
+          const remoteDateEvents = remoteEvents.filter(event => event.date === date).reduce((sum, event) => sum + (event.xp || 0), 0);
+          const mergedDateEvents = mergedActivity.filter(event => event.date === date).reduce((sum, event) => sum + (event.xp || 0), 0);
+          const base = Math.max(0, ((localStats.dailyXpLog || {})[date] || 0) - localDateEvents, ((dbStats.daily_xp_log || {})[date] || 0) - remoteDateEvents);
+          mergedDailyXp[date] = base + mergedDateEvents;
+        });
+        localStats.dailyXpLog = mergedDailyXp;
 
-          // Merge daily XP logs (take union of dates and maximum of XP per date)
-          const mergedDailyXp = { ...(dbStats.daily_xp_log || {}), ...(localStats.dailyXpLog || {}) };
-          Object.keys(mergedDailyXp).forEach(date => {
-            const dbXp = (dbStats.daily_xp_log && dbStats.daily_xp_log[date]) || 0;
-            const localXp = (localStats.dailyXpLog && localStats.dailyXpLog[date]) || 0;
-            mergedDailyXp[date] = Math.max(dbXp, localXp);
-          });
+        const reviewedProgress = Object.values(localProgMap);
+        localStats.totalCorrect = reviewedProgress.reduce((sum, progress) => sum + (progress.correctCount || 0), 0);
+        localStats.totalAttempts = reviewedProgress.reduce((sum, progress) => sum + (progress.correctCount || 0) + (progress.wrongCount || 0), 0);
+        const localTime = localStats.updatedAt || 0;
+        const dbTime = Date.parse(dbStats.updated_at) || 0;
+        const remoteSettings = dbStats.settings || {};
+        localStats.settings = localTime >= dbTime ? { ...remoteSettings, ...(localStats.settings || {}) } : { ...(localStats.settings || {}), ...remoteSettings };
 
-          localStats.dailyXpLog = mergedDailyXp;
-
-          if (localTime > dbTime) {
-            // Local stats are newer - push merged logs
-            localStats.updatedAt = Date.now();
-            const { error: pushStatsErr } = await this.client
-              .from("voc_stats")
-              .upsert({
-                user_id: this.user.id,
-                xp: localStats.xp || 0,
-                streak: localStats.streak || 0,
-                last_active_date: localStats.lastActiveDate,
-                total_correct: localStats.totalCorrect || 0,
-                total_attempts: localStats.totalAttempts || 0,
-                daily_xp_log: mergedDailyXp,
-                settings: localStats.settings || {},
-                updated_at: new Date(localStats.updatedAt).toISOString()
-              });
-            if (pushStatsErr) throw pushStatsErr;
-          } else {
-            // DB stats are newer or equal - pull down merged stats
-            localStats.xp = dbStats.xp;
-            localStats.streak = dbStats.streak;
-            localStats.last_active_date = dbStats.last_active_date;
-            localStats.total_correct = dbStats.total_correct;
-            localStats.total_attempts = dbStats.total_attempts;
-            localStats.settings = dbStats.settings || {};
-            localStats.updatedAt = dbTime;
-            
-            // Re-upsert immediately to sync the merged daily logs
-            const { error: pushStatsErr } = await this.client
-              .from("voc_stats")
-              .upsert({
-                user_id: this.user.id,
-                xp: localStats.xp,
-                streak: localStats.streak,
-                last_active_date: localStats.last_active_date,
-                total_correct: localStats.total_correct,
-                total_attempts: localStats.total_attempts,
-                daily_xp_log: mergedDailyXp,
-                settings: localStats.settings || {},
-                updated_at: new Date().toISOString()
-              });
-            if (pushStatsErr) throw pushStatsErr;
+        // Recalculate streaks from merged daily evidence. Taking the maximum current
+        // streak would let an old offline device resurrect a streak that was broken.
+        const streakGoal = window.SRS.getDailyStreakGoal ? window.SRS.getDailyStreakGoal() : 20;
+        const qualifyingDates = Object.keys(mergedDailyXp).filter(date => mergedDailyXp[date] >= streakGoal).sort();
+        const dayNumber = date => {
+          const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date || "");
+          return match ? Math.floor(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) / 86400000) : null;
+        };
+        let longestStreak = 0;
+        let runningStreak = 0;
+        let previousDay = null;
+        qualifyingDates.forEach(date => {
+          const day = dayNumber(date);
+          runningStreak = previousDay !== null && day === previousDay + 1 ? runningStreak + 1 : 1;
+          longestStreak = Math.max(longestStreak, runningStreak);
+          previousDay = day;
+        });
+        const now = new Date();
+        const today = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0");
+        const latestQualifyingDate = qualifyingDates.at(-1) || null;
+        let currentStreak = 0;
+        if (latestQualifyingDate && dayNumber(today) - dayNumber(latestQualifyingDate) <= 1) {
+          currentStreak = 1;
+          for (let i = qualifyingDates.length - 1; i > 0; i--) {
+            if (dayNumber(qualifyingDates[i]) - dayNumber(qualifyingDates[i - 1]) !== 1) break;
+            currentStreak++;
           }
         }
+        const legacyLastActive = [localStats.lastActiveDate, dbStats.last_active_date].filter(Boolean).sort().at(-1) || null;
+        localStats.lastActiveDate = latestQualifyingDate || legacyLastActive;
+        localStats.streak = qualifyingDates.length > 0 ? currentStreak : Math.max(localStats.streak || 0, dbStats.streak || 0);
+        localStats.settings.maxStreak = Math.max(localStats.settings.maxStreak || 0, remoteSettings.maxStreak || 0, longestStreak, localStats.streak || 0, dbStats.streak || 0);
+        localStats.updatedAt = Date.now();
+
+        const { error: pushStatsErr } = await this.client.from("voc_stats").upsert({
+          user_id: this.user.id,
+          xp: localStats.xp,
+          streak: localStats.streak,
+          last_active_date: localStats.lastActiveDate,
+          total_correct: localStats.totalCorrect,
+          total_attempts: localStats.totalAttempts,
+          daily_xp_log: localStats.dailyXpLog,
+          activity_log: localStats.activityLog,
+          settings: localStats.settings,
+          updated_at: new Date(localStats.updatedAt).toISOString()
+        });
+        if (pushStatsErr) throw pushStatsErr;
 
 
         // 4. WRITE BACK TO STORAGE AND REFRESH UI
@@ -705,6 +719,10 @@
 
     submitFeedback: async function (type, title, description) {
       if (!this.client) throw new Error("Database not connected.");
+      if (!this.user) throw new Error("Please sign in before submitting feedback.");
+      if (!["bug", "feature"].includes(type)) throw new Error("Invalid feedback type.");
+      if (typeof title !== "string" || !title.trim() || title.length > 200) throw new Error("Feedback title must contain 1-200 characters.");
+      if (typeof description !== "string" || !description.trim() || description.length > 5000) throw new Error("Feedback description must contain 1-5,000 characters.");
       
       const payload = {
         type: type,

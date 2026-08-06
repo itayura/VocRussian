@@ -13,7 +13,7 @@
       el.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%;">
           <button type="button" class="btn btn-secondary reveal-translation-btn" style="padding: 0.4rem 0.85rem; font-size: 0.85rem; border: 1px solid var(--border-glass); background: var(--bg-input); border-radius: var(--border-radius-sm); color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s;">👁️ Reveal Translation</button>
-          <span class="translation-text" style="display: none; font-size: 1.05rem;">${text}</span>
+          <span class="translation-text" style="display: none; font-size: 1.05rem;">${escapeHTML(text)}</span>
         </div>
       `;
       const btn = el.querySelector(".reveal-translation-btn");
@@ -26,6 +26,26 @@
         });
       }
     };
+  }
+
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+    })[character]);
+  }
+
+  function sanitizeRichHTML(value) {
+    const template = document.createElement("template");
+    template.innerHTML = String(value ?? "");
+    const allowedTags = new Set(["P", "BR", "UL", "OL", "LI", "STRONG", "B", "EM", "I", "CODE"]);
+    [...template.content.querySelectorAll("*")].forEach(element => {
+      if (!allowedTags.has(element.tagName)) {
+        element.replaceWith(document.createTextNode(element.textContent || ""));
+        return;
+      }
+      [...element.attributes].forEach(attribute => element.removeAttribute(attribute.name));
+    });
+    return template.innerHTML;
   }
 
   const STORAGE_KEYS = {
@@ -54,6 +74,8 @@
   let currentQuizQuestions = [];
   let currentQuizIndex = 0;
   let currentQuizCorrectCount = 0;
+  let currentQuizTopicIds = [];
+  let currentQuizResults = [];
   let activeTopic = "nominative_case";
   let activePresetName = null;
 
@@ -108,7 +130,13 @@
 
     loadFromStorage: function () {
       try {
-        grammarProgress = JSON.parse(localStorage.getItem(STORAGE_KEYS.GRAMMAR_PROGRESS)) || {};
+        const current = JSON.parse(localStorage.getItem(STORAGE_KEYS.GRAMMAR_PROGRESS)) || {};
+        const legacy = JSON.parse(localStorage.getItem("voc_grammar_progress")) || {};
+        grammarProgress = { ...legacy, ...current };
+        if (Object.keys(legacy).length > 0) {
+          localStorage.removeItem("voc_grammar_progress");
+          localStorage.setItem(STORAGE_KEYS.GRAMMAR_PROGRESS, JSON.stringify(grammarProgress));
+        }
       } catch (e) {
         console.error("Failed to load local grammar progress, initializing empty.", e);
         grammarProgress = {};
@@ -397,18 +425,35 @@
       this.saveToStorage();
     },
 
-    // Calculate Grammar level based on completions
-    getGrammarLevel: function () {
-      let totalLessons = 0;
-      let totalQuizzes = 0;
-      
-      Object.values(grammarProgress).forEach(p => {
-        totalLessons += p.lessonsCompleted || 0;
-        totalQuizzes += p.quizzesTaken || 0;
+    getTopicMastery: function (topicId, level = null) {
+      const baseProgress = grammarProgress[topicId] || {};
+      const lessonScore = (baseProgress.lessonsCompleted || 0) > 0 ? 20 : 0;
+      const levels = level ? [level] : ["A1", "A2", "B1", "B2", "C1", "C2"];
+      let bestQuizScore = 0;
+
+      levels.forEach(lvl => {
+        const progress = grammarProgress[`${topicId}_${lvl}`] || {};
+        const quizzesTaken = progress.quizzesTaken || 0;
+        if (quizzesTaken === 0) return;
+        const inferredQuestions = quizzesTaken * 5;
+        const totalQuestions = progress.totalQuestions || inferredQuestions;
+        const totalCorrect = Number.isFinite(progress.totalCorrect)
+          ? progress.totalCorrect
+          : Math.round(((progress.avgScore || 0) / 100) * totalQuestions);
+        const accuracy = totalQuestions > 0 ? totalCorrect / totalQuestions : 0;
+        const evidenceWeight = Math.min(totalQuestions / 10, 1);
+        bestQuizScore = Math.max(bestQuizScore, accuracy * 80 * evidenceWeight);
       });
 
-      const totalGrammarXP = (totalLessons * 15) + (totalQuizzes * 25);
-      return 1 + Math.floor(totalGrammarXP / 200);
+      return Math.max(0, Math.min(100, Math.round(lessonScore + bestQuizScore)));
+    },
+
+    // A bounded proficiency level derived from demonstrated topic mastery.
+    getGrammarLevel: function () {
+      const topicIds = Object.keys(TOPICS_MAP);
+      if (topicIds.length === 0) return 1;
+      const averageMastery = topicIds.reduce((sum, topicId) => sum + this.getTopicMastery(topicId), 0) / topicIds.length;
+      return Math.min(10, 1 + Math.floor(averageMastery / 10));
     },
 
     updateGrammarLevelUI: function () {
@@ -418,89 +463,89 @@
       }
     },
 
-    // Sync database table voc_grammar_progress with local state
+    // Merge immutable quiz-attempt events so concurrent devices cannot lose progress.
     syncWithCloud: async function () {
-      if (!window.SupabaseSync || window.SupabaseSync.connectionState !== "connected" || !window.SupabaseSync.user) {
-        return;
-      }
+      if (!window.SupabaseSync || window.SupabaseSync.connectionState !== "connected" || !window.SupabaseSync.user) return false;
 
       try {
         const client = window.SupabaseSync.client;
         const userId = window.SupabaseSync.user.id;
-
-        // 1. Fetch cloud records
-        const { data: dbProgress, error: fetchErr } = await client
-          .from("voc_grammar_progress")
-          .select("*");
+        const { data: dbProgress, error: fetchErr } = await client.from("voc_grammar_progress").select("*");
         if (fetchErr) throw fetchErr;
 
-        const dbProgMap = {};
-        dbProgress.forEach(p => { dbProgMap[p.topic_id] = p; });
-
-        const toPush = [];
-
-        // 2. Merge local progress with cloud progress
-        Object.keys(grammarProgress).forEach(topicId => {
-          const dbP = dbProgMap[topicId];
-          const localP = grammarProgress[topicId];
-
-          if (dbP) {
-            const dbTime = Date.parse(dbP.updated_at);
-            const localTime = localP.updatedAt || 0;
-
-            if (localTime > dbTime) {
-              toPush.push(localP);
-            } else if (dbTime > localTime) {
-              grammarProgress[topicId] = {
-                topicId: topicId,
-                lessonsCompleted: dbP.lessons_completed,
-                quizzesTaken: dbP.quizzes_taken,
-                avgScore: dbP.avg_score,
-                lastPracticed: Date.parse(dbP.last_practiced),
-                updatedAt: dbTime
-              };
-            }
-          } else {
-            toPush.push(localP);
-          }
+        const fromDb = row => ({
+          topicId: row.topic_id,
+          lessonsCompleted: row.lessons_completed || 0,
+          quizzesTaken: row.quizzes_taken || 0,
+          totalCorrect: row.total_questions > 0 ? (row.total_correct || 0) : undefined,
+          totalQuestions: row.total_questions > 0 ? row.total_questions : undefined,
+          avgScore: row.avg_score || 0,
+          attempts: Array.isArray(row.attempts) ? row.attempts : [],
+          lastPracticed: Date.parse(row.last_practiced) || 0,
+          updatedAt: Date.parse(row.updated_at) || 0
         });
 
-        // Add db records not in local cache
-        dbProgress.forEach(dbP => {
-          if (!grammarProgress[dbP.topic_id]) {
-            grammarProgress[dbP.topic_id] = {
-              topicId: dbP.topic_id,
-              lessonsCompleted: dbP.lessons_completed,
-              quizzesTaken: dbP.quizzes_taken,
-              avgScore: dbP.avg_score,
-              lastPracticed: Date.parse(dbP.last_practiced),
-              updatedAt: Date.parse(dbP.updated_at)
-            };
-          }
+        const normalizeAttempts = record => {
+          if (Array.isArray(record.attempts) && record.attempts.length > 0) return record.attempts;
+          const total = record.totalQuestions || ((record.quizzesTaken || 0) * 5);
+          if (total <= 0) return [];
+          const correct = Number.isFinite(record.totalCorrect)
+            ? record.totalCorrect
+            : Math.round(((record.avgScore || 0) / 100) * total);
+          return [{ id: `legacy_${record.topicId}_${record.updatedAt || record.lastPracticed || 0}`, correct, total, at: record.lastPracticed || 0, source: "legacy" }];
+        };
+
+        const mergeRecord = (local = {}, remote = {}) => {
+          const topicId = local.topicId || remote.topicId;
+          const attemptsById = new Map();
+          [...normalizeAttempts(local), ...normalizeAttempts(remote)].forEach(attempt => attemptsById.set(attempt.id, attempt));
+          const attempts = [...attemptsById.values()];
+          const totalCorrect = attempts.reduce((sum, attempt) => sum + (attempt.correct || 0), 0);
+          const totalQuestions = attempts.reduce((sum, attempt) => sum + (attempt.total || 0), 0);
+          const updatedAt = Math.max(local.updatedAt || 0, remote.updatedAt || 0) || Date.now();
+          return {
+            topicId,
+            lessonsCompleted: Math.max(local.lessonsCompleted || 0, remote.lessonsCompleted || 0),
+            quizzesTaken: attempts.length,
+            totalCorrect,
+            totalQuestions,
+            avgScore: totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0,
+            attempts,
+            lastPracticed: Math.max(local.lastPracticed || 0, remote.lastPracticed || 0),
+            updatedAt
+          };
+        };
+
+        const remoteMap = Object.fromEntries((dbProgress || []).map(row => [row.topic_id, fromDb(row)]));
+        const allTopicIds = new Set([...Object.keys(grammarProgress), ...Object.keys(remoteMap)]);
+        allTopicIds.forEach(topicId => {
+          grammarProgress[topicId] = mergeRecord(grammarProgress[topicId], remoteMap[topicId]);
         });
 
-        // 3. Push local changes
-        if (toPush.length > 0) {
-          const rowsToPush = toPush.map(p => ({
+        const rows = [...allTopicIds].map(topicId => {
+          const progress = grammarProgress[topicId];
+          return {
             user_id: userId,
-            topic_id: p.topicId,
-            lessons_completed: p.lessonsCompleted || 0,
-            quizzes_taken: p.quizzesTaken || 0,
-            avg_score: p.avgScore || 0,
-            last_practiced: new Date(p.lastPracticed || Date.now()).toISOString(),
-            updated_at: new Date(p.updatedAt || Date.now()).toISOString()
-          }));
-
-          const { error: pushErr } = await client
-            .from("voc_grammar_progress")
-            .upsert(rowsToPush);
+            topic_id: topicId,
+            lessons_completed: progress.lessonsCompleted || 0,
+            quizzes_taken: progress.quizzesTaken || 0,
+            total_correct: progress.totalCorrect || 0,
+            total_questions: progress.totalQuestions || 0,
+            avg_score: progress.avgScore || 0,
+            attempts: progress.attempts || [],
+            last_practiced: new Date(progress.lastPracticed || Date.now()).toISOString(),
+            updated_at: new Date(progress.updatedAt || Date.now()).toISOString()
+          };
+        });
+        if (rows.length > 0) {
+          const { error: pushErr } = await client.from("voc_grammar_progress").upsert(rows);
           if (pushErr) throw pushErr;
         }
-
         this.saveToStorage();
-        console.log("[GrammarManager] Sync complete.");
+        return true;
       } catch (err) {
         console.warn("[GrammarManager] Sync failed:", err);
+        return false;
       }
     },
 
@@ -516,7 +561,8 @@
           updatedAt: Date.now()
         };
       }
-      grammarProgress[topicId].lessonsCompleted++;
+      const wasCompleted = (grammarProgress[topicId].lessonsCompleted || 0) > 0;
+      grammarProgress[topicId].lessonsCompleted = 1;
       grammarProgress[topicId].lastPracticed = Date.now();
       grammarProgress[topicId].updatedAt = Date.now();
       
@@ -526,11 +572,12 @@
       if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
         this.syncWithCloud();
       }
+      return !wasCompleted;
     },
 
     // Record quiz completion
     recordQuizCompleted: function (topicId, level, correctCount, totalCount) {
-      const score = Math.round((correctCount / totalCount) * 100);
+      if (!TOPICS_MAP[topicId] || !Number.isFinite(correctCount) || !Number.isFinite(totalCount) || totalCount <= 0) return false;
       const key = `${topicId}_${level}`; // e.g. "nominative_case_A1"
       
       if (!grammarProgress[key]) {
@@ -538,6 +585,8 @@
           topicId: key,
           lessonsCompleted: 0,
           quizzesTaken: 0,
+          totalCorrect: 0,
+          totalQuestions: 0,
           avgScore: 0,
           lastPracticed: Date.now(),
           updatedAt: Date.now()
@@ -545,9 +594,25 @@
       }
 
       const p = grammarProgress[key];
-      // Compute moving average score
-      p.avgScore = Math.round(((p.avgScore * p.quizzesTaken) + score) / (p.quizzesTaken + 1));
-      p.quizzesTaken++;
+      if (!Number.isFinite(p.totalQuestions)) {
+        p.totalQuestions = (p.quizzesTaken || 0) * 5;
+        p.totalCorrect = Math.round(((p.avgScore || 0) / 100) * p.totalQuestions);
+      }
+      p.attempts = Array.isArray(p.attempts) ? p.attempts : [];
+      if (p.attempts.length === 0 && p.totalQuestions > 0) {
+        p.attempts.push({ id: `legacy_${key}_${p.lastPracticed || 0}`, correct: p.totalCorrect || 0, total: p.totalQuestions, at: p.lastPracticed || 0, source: "legacy" });
+      }
+      p.attempts.push({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        correct: correctCount,
+        total: totalCount,
+        at: Date.now(),
+        source: "quiz"
+      });
+      p.totalCorrect = p.attempts.reduce((sum, attempt) => sum + (attempt.correct || 0), 0);
+      p.totalQuestions = p.attempts.reduce((sum, attempt) => sum + (attempt.total || 0), 0);
+      p.quizzesTaken = p.attempts.length;
+      p.avgScore = Math.round((p.totalCorrect / p.totalQuestions) * 100);
       p.lastPracticed = Date.now();
       p.updatedAt = Date.now();
 
@@ -557,6 +622,7 @@
       if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
         this.syncWithCloud();
       }
+      return true;
     },
 
     debouncePrefetch: function () {
@@ -596,6 +662,7 @@
         return;
       }
       const topicParam = checkedNames.join(", ");
+      currentQuizTopicIds = [...checkedTopics];
 
       // Check if there is already a valid buffer matching these exact parameters
       try {
@@ -626,12 +693,12 @@
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
 
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
+          body: { action: "quiz", topic: topicParam, topicIds: checkedTopics, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
           headers: headers
         });
 
         if (error) throw new Error(error.message || error);
-        if (!data || !data.success || !data.data.questions) throw new Error("Invalid prefetch questions payload.");
+        if (!data?.success || !Array.isArray(data?.data?.questions)) throw new Error("Invalid prefetch questions payload.");
 
         let questions = data.data.questions;
 
@@ -705,16 +772,7 @@
 
       let totalMastery = 0;
       checkedTopics.forEach(t => {
-        const key = `${t}_${level}`;
-        const baseProgress = gProgressMap[t] || {};
-        const lessonCompleted = (baseProgress.lessonsCompleted || 0) > 0;
-
-        const lvlProgress = gProgressMap[key] || {};
-        const quizzesTaken = lvlProgress.quizzesTaken || 0;
-        const avgScore = lvlProgress.avgScore || 0;
-
-        const topicMastery = (lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0);
-        totalMastery += topicMastery;
+        totalMastery += this.getTopicMastery(t, level);
       });
 
       const masteryPct = Math.round(totalMastery / checkedTopics.length);
@@ -822,6 +880,12 @@
     },
 
     renderTutorExplanation: function (payload) {
+      payload = {
+        title: escapeHTML(payload?.title),
+        explanation: sanitizeRichHTML(payload?.explanation),
+        rules: Array.isArray(payload?.rules) ? payload.rules.map(rule => ({ ending: escapeHTML(rule.ending), rule: escapeHTML(rule.rule), example: escapeHTML(rule.example) })) : [],
+        examples: Array.isArray(payload?.examples) ? payload.examples.map(example => ({ ru: escapeHTML(example.ru), en: escapeHTML(example.en), explanation: escapeHTML(example.explanation) })) : []
+      };
       const contentEl = document.getElementById("tutor-explanation-content");
       const rulesCollapsed = localStorage.getItem("voc_tutor_rules_collapsed") === "true";
       const examplesCollapsed = localStorage.getItem("voc_tutor_examples_collapsed") === "true";
@@ -939,9 +1003,11 @@
       if (explanationsCache[topicId]) {
         try {
           this.renderTutorExplanation(explanationsCache[topicId]);
-          this.recordLessonCompleted(topicId);
-          window.SRS.scoreCard("dummy_xp_holder", true);
-          this.showXpToast("+15 XP (Grammar Study)");
+          const firstCompletion = this.recordLessonCompleted(topicId);
+          if (firstCompletion && window.SRS) {
+            window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
+            this.showXpToast("+15 XP (Grammar Study)");
+          }
           loader.style.display = "none";
           return;
         } catch (cacheErr) {
@@ -985,16 +1051,16 @@
         }
 
         // Save XP/Progress
-        this.recordLessonCompleted(topicId);
-        window.SRS.scoreCard("dummy_xp_holder", true); // Trigger local streak updates + XP gain alert
-        
-        // Render XP Gain Toast
-        this.showXpToast("+15 XP (Grammar Study)");
+        const firstCompletion = this.recordLessonCompleted(topicId);
+        if (firstCompletion && window.SRS) {
+          window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
+          this.showXpToast("+15 XP (Grammar Study)");
+        }
 
       } catch (err) {
         loader.style.display = "none";
         console.error("Failed to explain grammar concept:", err);
-        const errContent = `<div class="card" style="background:var(--bg-input); border:1px solid var(--border-glass); border-radius:var(--border-radius-md); padding:1.5rem; color:var(--color-error); width:100%;">Error loading lesson: ${getErrorMessage(err)}. Please try again later.</div>`;
+        const errContent = `<div class="card" style="background:var(--bg-input); border:1px solid var(--border-glass); border-radius:var(--border-radius-md); padding:1.5rem; color:var(--color-error); width:100%;">Error loading lesson: ${escapeHTML(getErrorMessage(err))}. Please try again later.</div>`;
         contentEl.innerHTML = errContent;
       }
     },
@@ -1046,6 +1112,7 @@
         return;
       }
       const topicParam = checkedNames.join(", ");
+      currentQuizTopicIds = [...checkedTopics];
 
       // Check Offline Mode
       const isOnline = navigator.onLine;
@@ -1064,6 +1131,7 @@
           currentQuizQuestions = shuffled.slice(0, count);
           currentQuizIndex = 0;
           currentQuizCorrectCount = 0;
+          currentQuizResults = [];
 
           setupScreen.style.display = "none";
           loadingScreen.style.display = "none";
@@ -1097,6 +1165,7 @@
               currentQuizQuestions = buffer.questions;
               currentQuizIndex = 0;
               currentQuizCorrectCount = 0;
+              currentQuizResults = [];
               
               localStorage.removeItem("voc_grammar_quiz_buffer");
               
@@ -1134,12 +1203,12 @@
         
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
         const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topicParam, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
+          body: { action: "quiz", topic: topicParam, topicIds: checkedTopics, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
           headers: headers
         });
 
         if (error) throw new Error(error.message || error);
-        if (!data || !data.success || !data.data.questions) throw new Error("Failed to receive valid questions payload.");
+        if (!data?.success || !Array.isArray(data?.data?.questions)) throw new Error("Failed to receive valid questions payload.");
 
         let questions = data.data.questions;
 
@@ -1163,6 +1232,7 @@
         currentQuizQuestions = questions;
         currentQuizIndex = 0;
         currentQuizCorrectCount = 0;
+        currentQuizResults = [];
 
         this.renderQuizQuestion();
 
@@ -1207,7 +1277,7 @@
       }
 
       // Replace [blank] with a styled dashed blank space
-      const sentenceHtml = q.sentencePattern.replace(/\[blank\]/gi, '<span class="quiz-blank-line"></span>');
+      const sentenceHtml = escapeHTML(q.sentencePattern).replace(/\[blank\]/gi, '<span class="quiz-blank-line"></span>');
       document.getElementById("quiz-sentence-prompt").innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(sentenceHtml) : sentenceHtml;
 
       // Bind TTS button
@@ -1262,6 +1332,9 @@
     handleQuizChoiceSelection: function (selectedBtn, choice) {
       const q = currentQuizQuestions[currentQuizIndex];
       const isCorrect = choice.trim().toLowerCase() === q.answer.trim().toLowerCase();
+      const fallbackTopic = currentQuizTopicIds.length === 1 ? currentQuizTopicIds[0] : null;
+      const topicId = TOPICS_MAP[q.topicId] ? q.topicId : fallbackTopic;
+      currentQuizResults.push({ topicId, isCorrect });
       
       // Disable further clicks on all choice buttons
       document.querySelectorAll("#quiz-choices-container .choice-btn").forEach(btn => {
@@ -1438,21 +1511,27 @@
         streakEl.innerText = `${stats.streak} days`;
       }
 
-      // Record in local cache
-      const checkedCbs = document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked");
-      let topicKey = "";
-      if (activePresetName) {
-        topicKey = `subset_${activePresetName}`;
-      } else if (checkedCbs.length === 1) {
-        topicKey = checkedCbs[0].value;
-      } else {
-        topicKey = "multiple_random";
-      }
+      // Attribute every question exactly once. Older cached questions may not have
+      // topicId, so distribute those across the selected topics instead of giving
+      // the full quiz score to every topic.
       const level = document.getElementById("practice-quiz-level").value;
-      this.recordQuizCompleted(topicKey, level, currentQuizCorrectCount, currentQuizQuestions.length);
+      const fallbackTopics = currentQuizTopicIds.filter(topicId => TOPICS_MAP[topicId]);
+      const resultsByTopic = new Map();
+      currentQuizResults.forEach((result, index) => {
+        const topicId = TOPICS_MAP[result.topicId]
+          ? result.topicId
+          : fallbackTopics[index % fallbackTopics.length];
+        if (!topicId) return;
+        if (!resultsByTopic.has(topicId)) resultsByTopic.set(topicId, []);
+        resultsByTopic.get(topicId).push(result);
+      });
+      resultsByTopic.forEach((topicResults, topicId) => {
+        this.recordQuizCompleted(topicId, level, topicResults.filter(result => result.isCorrect).length, topicResults.length);
+      });
 
-      // Award XP
-      window.SRS.scoreCard("dummy_xp_holder", true);
+      if (xpGained > 0 && window.SRS) {
+        window.SRS.addActivityXP(xpGained, "grammar_quiz", { level, topics: currentQuizTopicIds });
+      }
       this.showXpToast(`+${xpGained} XP (Quiz Completed)`);
     },
 
@@ -1470,6 +1549,8 @@
       currentQuizQuestions = [];
       currentQuizIndex = 0;
       currentQuizCorrectCount = 0;
+      currentQuizTopicIds = [];
+      currentQuizResults = [];
     },
 
     // --- SANDBOX ACTION ---
@@ -1533,13 +1614,13 @@
             const cardHtml = `
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span class="vocab-label-badge" style="font-size:0.75rem; text-transform:uppercase; padding:0.15rem 0.5rem; background:${badgeTypeBg}; color:${badgeTypeColor}; border-color:transparent;">
-                  ${corr.type}
+                  ${escapeHTML(corr.type)}
                 </span>
               </div>
               <div style="font-size:1.05rem; margin-top:0.25rem;">
-                <span class="correction-original">${corr.original}</span> &rarr; <span class="correction-fixed">${corr.fixed}</span>
+                <span class="correction-original">${escapeHTML(corr.original)}</span> &rarr; <span class="correction-fixed">${escapeHTML(corr.fixed)}</span>
               </div>
-              <div style="font-size:0.85rem; color:var(--color-text-muted); line-height:1.4;">${corr.reason}</div>
+              <div style="font-size:0.85rem; color:var(--color-text-muted); line-height:1.4;">${escapeHTML(corr.reason)}</div>
             `;
             card.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(cardHtml) : cardHtml;
             correctionsList.appendChild(card);
@@ -1557,11 +1638,11 @@
             
             const cardHtml = `
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${sug.ru}</strong>
-                <button type="button" class="audio-btn tutor-tts-btn" data-text="${sug.ru.replace(/[́]/g, '')}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
+                <strong style="font-size:1.1rem; color:var(--color-primary-hover);">${escapeHTML(sug.ru)}</strong>
+                <button type="button" class="audio-btn tutor-tts-btn" data-text="${escapeHTML(sug.ru.replace(/[́]/g, ''))}" style="width:28px; height:28px; font-size:0.85rem; border-color:transparent; background:var(--bg-input);">🔊</button>
               </div>
-              <div class="page-subtitle" style="font-size:0.85rem; margin:0.15rem 0; color:var(--color-text-main); font-weight:500;">"${sug.en}"</div>
-              <div style="font-size:0.8rem; color:var(--color-text-muted); line-height:1.4;">${sug.description}</div>
+              <div class="page-subtitle" style="font-size:0.85rem; margin:0.15rem 0; color:var(--color-text-main); font-weight:500;">"${escapeHTML(sug.en)}"</div>
+              <div style="font-size:0.8rem; color:var(--color-text-muted); line-height:1.4;">${escapeHTML(sug.description)}</div>
             `;
             card.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(cardHtml) : cardHtml;
             suggestionsList.appendChild(card);
@@ -1573,7 +1654,7 @@
         }
 
         // Award XP
-        window.SRS.scoreCard("dummy_xp_holder", true);
+        window.SRS.addActivityXP(10, "grammar_writing");
         this.showXpToast("+10 XP (AI Writing sandbox)");
 
 
@@ -1606,7 +1687,7 @@
       toast.style.alignItems = "center";
       toast.style.gap = "0.5rem";
       
-      toast.innerHTML = `🏆 <span>${message}</span>`;
+      toast.textContent = `XP: ${message}`;
       
       container.appendChild(toast);
       setTimeout(() => toast.remove(), 2500);

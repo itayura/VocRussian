@@ -527,13 +527,13 @@
   }
 
   function startTest() {
-    // Pick stratified random selection of 50 questions
-    const a1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "A1")).slice(0, 8);
-    const a2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "A2")).slice(0, 8);
-    const b1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "B1")).slice(0, 8);
-    const b2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "B2")).slice(0, 8);
-    const c1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "C1")).slice(0, 9);
-    const c2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "C2")).slice(0, 9);
+    // Five questions per CEFR band, with early exit after the first failed band.
+    const a1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "A1")).slice(0, 5);
+    const a2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "A2")).slice(0, 5);
+    const b1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "B1")).slice(0, 5);
+    const b2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "B2")).slice(0, 5);
+    const c1Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "C1")).slice(0, 5);
+    const c2Pool = shuffleArray(PLACEMENT_QUESTIONS.filter(q => q.level === "C2")).slice(0, 5);
 
     // Concatenate sequentially to display from easiest to hardest
     selectedQuestions = [...a1Pool, ...a2Pool, ...b1Pool, ...b2Pool, ...c1Pool, ...c2Pool];
@@ -560,11 +560,11 @@
     const currentQuestionStep = currentQuestionIndex + 1;
 
     // Update step and badge
-    document.getElementById("placement-question-step").innerText = `Question ${currentQuestionStep} of 50`;
+    document.getElementById("placement-question-step").innerText = `Question ${currentQuestionStep} of ${selectedQuestions.length}`;
     document.getElementById("placement-question-level").innerText = `Level ${currentQuestion.level}`;
     
-    // Progress bar (2% increments)
-    const pct = (currentQuestionStep / 50) * 100;
+    // Progress bar
+    const pct = (currentQuestionStep / selectedQuestions.length) * 100;
     document.getElementById("placement-progress-bar").style.width = `${pct}%`;
 
     // Question text
@@ -628,12 +628,14 @@
 
     setTimeout(() => {
       currentQuestionIndex++;
-      if (currentQuestionIndex < 50) {
-        loadQuestion();
-      } else {
+      const completedBand = currentQuestionIndex % 5 === 0;
+      const failedBand = completedBand && (correctByLevel[q.level] || 0) < 3;
+      if (failedBand || currentQuestionIndex >= selectedQuestions.length) {
         showResults();
+      } else {
+        loadQuestion();
       }
-    }, 1200);
+    }, animationsEnabled ? 350 : 50);
   }
 
   function showResults() {
@@ -643,46 +645,52 @@
     const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
     let finalLevelIndex = 0; // default is A1
     
-    // Determine the highest level index where they scored >= 60% accuracy
+    // CEFR levels are cumulative: a higher placement requires passing every lower band.
     for (let i = 0; i < levels.length; i++) {
       const lvl = levels[i];
       const lvlQuestions = selectedQuestions.filter(q => q.level === lvl);
       const lvlCorrect = correctByLevel[lvl] || 0;
-      const pct = (lvlCorrect / lvlQuestions.length) * 100;
-      if (pct >= 60) {
-        finalLevelIndex = i;
-      }
+      const pct = lvlQuestions.length > 0 ? (lvlCorrect / lvlQuestions.length) * 100 : 0;
+      if (pct < 60) break;
+      finalLevelIndex = i;
     }
 
     const level = levels[finalLevelIndex];
+    const answeredTotal = Math.min(currentQuestionIndex, selectedQuestions.length);
     let xp = 0;
     let desc = "";
     let avatar = "🐻";
 
     if (level === "A1") {
       xp = 50;
-      desc = `You placed at level A1 (Beginner) with a total score of ${correctAnswersCount}/50! We can seed your starting cards in Box 1 and award you a kickstart reward of +50 XP!`;
+      desc = `You placed at level A1 (Beginner) with a total score of ${correctAnswersCount}/${answeredTotal}! We can seed your starting cards in Box 1 and award you a kickstart reward of +50 XP!`;
       avatar = "🐻";
     } else if (level === "A2") {
       xp = 200;
-      desc = `You placed at level A2 (Elementary) with a total score of ${correctAnswersCount}/50! We can promote your A1 vocabulary words to Box 3, mark introductory grammar lessons completed, and award you +200 XP!`;
+      desc = `You placed at level A2 (Elementary) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote your A1 vocabulary words to Box 3, mark introductory grammar lessons completed, and award you +200 XP!`;
       avatar = "🦉";
     } else if (level === "B1") {
       xp = 500;
-      desc = `You placed at level B1 (Intermediate) with a total score of ${correctAnswersCount}/50! We can promote A1/A2 vocabulary words to Box 4, mark introductory/elementary grammar lessons completed, and award you +500 XP!`;
+      desc = `You placed at level B1 (Intermediate) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote A1/A2 vocabulary words to Box 4, mark introductory/elementary grammar lessons completed, and award you +500 XP!`;
       avatar = "🤖";
     } else if (level === "B2") {
       xp = 1000;
-      desc = `You placed at level B2 (Upper Intermediate) with a total score of ${correctAnswersCount}/50! We can promote all A1/A2/B1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1000 XP!`;
+      desc = `You placed at level B2 (Upper Intermediate) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1000 XP!`;
       avatar = "👑";
     } else if (level === "C1") {
       xp = 1500;
-      desc = `You placed at level C1 (Advanced) with a total score of ${correctAnswersCount}/50! We can promote all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1500 XP!`;
+      desc = `You placed at level C1 (Advanced) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1500 XP!`;
       avatar = "🦁";
     } else if (level === "C2") {
       xp = 2000;
-      desc = `You placed at level C2 (Proficient) with a total score of ${correctAnswersCount}/50! We can promote all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +2000 XP!`;
+      desc = `You placed at level C2 (Proficient) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +2000 XP!`;
       avatar = "🧙‍♂️";
+    }
+
+    const rewardAlreadyClaimed = localStorage.getItem("voc_placement_reward_claimed") === "true";
+    if (rewardAlreadyClaimed) {
+      xp = 0;
+      desc += " Your one-time placement XP reward has already been claimed; applying this result will only seed previously unstudied progress.";
     }
 
     document.getElementById("placement-result-avatar").innerText = avatar;
@@ -695,7 +703,7 @@
   async function handleApplyPlacement() {
     if (!pendingPlacement) return;
 
-    const approved = await window.confirmCustom("Are you sure you want to apply level seeding? This will update your vocabulary card boxes and grammar lesson progress. This action will overwrite your current progress, but we will back up your current progress first.");
+    const approved = await window.confirmCustom("Are you sure you want to apply level seeding? This will update your vocabulary card boxes and grammar lesson progress. This only promotes eligible unstudied progress, and we will back up your current progress first.");
     if (!approved) return;
 
     try {
@@ -703,7 +711,9 @@
       const backup = {
         progress: localStorage.getItem("voc_russian_progress") ? JSON.parse(localStorage.getItem("voc_russian_progress")) : null,
         stats: localStorage.getItem("voc_russian_stats") ? JSON.parse(localStorage.getItem("voc_russian_stats")) : null,
-        grammarProgress: localStorage.getItem("voc_grammar_progress") ? JSON.parse(localStorage.getItem("voc_grammar_progress")) : null
+        grammarProgress: localStorage.getItem("voc_russian_grammar_progress") ? JSON.parse(localStorage.getItem("voc_russian_grammar_progress")) : null,
+        placementRewardClaimed: localStorage.getItem("voc_placement_reward_claimed") === "true",
+        placementTestTaken: localStorage.getItem("voc_placement_test_taken") === "true"
       };
       localStorage.setItem("voc_progress_backup_before_placement", JSON.stringify(backup));
 
@@ -748,7 +758,10 @@
     try {
       // 1. Seed XP
       console.log("[PlacementTest] Seeding XP:", xp);
-      window.SRS.addXP(xp);
+      if (xp > 0 && localStorage.getItem("voc_placement_reward_claimed") !== "true") {
+        window.SRS.addActivityXP(xp, "placement_reward", { level });
+        localStorage.setItem("voc_placement_reward_claimed", "true");
+      }
       console.log("[PlacementTest] Seeded XP successfully. Current XP:", window.SRS.getGlobalStats().xp);
 
       // 2. Seed Vocabulary Cards Box Levels
@@ -759,47 +772,26 @@
         ...(window.SRS ? window.SRS.getCustomWordsList() : [])
       ];
       console.log("[PlacementTest] Total words found:", allWords.length);
+      const promotions = [];
       allWords.forEach(w => {
         const wLvl = window.SRS.getWordLevel(w);
-        const prog = window.SRS.getCardProgress(w.id);
-
         let targetBox = 1;
-        let reviewDays = 0;
 
-        if (level === "A2") {
-          if (wLvl === "A1") {
-            targetBox = 3;
-            reviewDays = 4;
-          }
-        } else if (level === "B1") {
-          if (wLvl === "A1" || wLvl === "A2") {
-            targetBox = 4;
-            reviewDays = 10;
-          }
-        } else if (level === "B2") {
-          if (wLvl === "A1" || wLvl === "A2" || wLvl === "B1") {
-            targetBox = 5;
-            reviewDays = 30;
-          }
-        } else if (level === "C1") {
-          if (wLvl === "A1" || wLvl === "A2" || wLvl === "B1" || wLvl === "B2") {
-            targetBox = 5;
-            reviewDays = 30;
-          }
-        } else if (level === "C2") {
-          if (wLvl === "A1" || wLvl === "A2" || wLvl === "B1" || wLvl === "B2" || wLvl === "C1") {
-            targetBox = 5;
-            reviewDays = 30;
-          }
+        if (level === "A2" && wLvl === "A1") {
+          targetBox = 3;
+        } else if (level === "B1" && (wLvl === "A1" || wLvl === "A2")) {
+          targetBox = 4;
+        } else if (level === "B2" && ["A1", "A2", "B1"].includes(wLvl)) {
+          targetBox = 5;
+        } else if (level === "C1" && ["A1", "A2", "B1", "B2"].includes(wLvl)) {
+          targetBox = 5;
+        } else if (level === "C2" && ["A1", "A2", "B1", "B2", "C1"].includes(wLvl)) {
+          targetBox = 5;
         }
 
-        if (targetBox > 1) {
-          prog.box = targetBox;
-          prog.nextReview = Date.now() + reviewDays * 24 * 3600 * 1000;
-          prog.updatedAt = Date.now();
-          window.SRS.saveToStorage(w.id, prog);
-        }
+        if (targetBox > 1) promotions.push({ id: w.id, targetBox });
       });
+      window.SRS.promoteCardsToBoxes(promotions);
       console.log("[PlacementTest] Seeded vocabulary successfully.");
     } catch (e) {
       console.error("[PlacementTest] Error seeding progress:", e);
@@ -838,25 +830,32 @@
         }
 
         if (shouldMarkLesson) {
+          const now = Date.now();
+          const base = gProgress[topic] || { topicId: topic, quizzesTaken: 0, avgScore: 0 };
           gProgress[topic] = {
-            topicId: topic,
-            lessonsCompleted: 1,
-            quizzesTaken: 1,
-            avgScore: 80,
-            lastPracticed: Date.now(),
-            updatedAt: Date.now()
+            ...base,
+            lessonsCompleted: Math.max(base.lessonsCompleted || 0, 1),
+            lastPracticed: Math.max(base.lastPracticed || 0, now),
+            updatedAt: now
           };
 
           completedLevels.forEach(lvl => {
             const key = `${topic}_${lvl}`;
-            gProgress[key] = {
-              topicId: key,
-              lessonsCompleted: 1,
-              quizzesTaken: 1,
-              avgScore: 90,
-              lastPracticed: Date.now(),
-              updatedAt: Date.now()
-            };
+            const existing = gProgress[key];
+            if (!existing || (existing.totalQuestions || 0) === 0) {
+              gProgress[key] = {
+                ...(existing || {}),
+                topicId: key,
+                lessonsCompleted: 0,
+                quizzesTaken: Math.max(existing?.quizzesTaken || 0, 1),
+                totalCorrect: Math.max(existing?.totalCorrect || 0, 9),
+                totalQuestions: Math.max(existing?.totalQuestions || 0, 10),
+                avgScore: Math.max(existing?.avgScore || 0, 90),
+                placementSeeded: true,
+                lastPracticed: now,
+                updatedAt: now
+              };
+            }
           });
         }
       });

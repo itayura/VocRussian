@@ -6,105 +6,31 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper to decode Base64URL string to Unicode text
-function decodeBase64UrlToText(str: string): string {
-  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) {
-    base64 += "=";
-  }
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
-
-// Decodes a JWT payload without cryptographically verifying the signature (useful for dev/fallback)
-function decodeJwtWithoutVerification(token: string): any {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid token format");
-  }
-  const payloadStr = parts[1];
-  const payloadJson = decodeBase64UrlToText(payloadStr);
-  const payload = JSON.parse(payloadJson);
-
-  // Check expiration
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    throw new Error("Token has expired");
-  }
-
-  return payload;
-}
-
-// Cryptographically verifies a Supabase HS256 JWT signature and claims
-async function verifySupabaseJwt(token: string, secret: string): Promise<any> {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid token format");
-  }
-
-  const [headerStr, payloadStr, signatureStr] = parts;
-
-  // 1. Verify HS256 signature using Web Crypto API
-  const keyData = new TextEncoder().encode(secret);
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["verify"]
-  );
-
-  const data = new TextEncoder().encode(`${headerStr}.${payloadStr}`);
-  
-  // Decode signature
-  const signatureBytes = Uint8Array.from(
-    atob(signatureStr.replace(/-/g, "+").replace(/_/g, "/").padEnd(signatureStr.length + (4 - (signatureStr.length % 4)) % 4, "=")),
-    c => c.charCodeAt(0)
-  );
-
-  const isValid = await crypto.subtle.verify(
-    "HMAC",
-    cryptoKey,
-    signatureBytes,
-    data
-  );
-
-  if (!isValid) {
-    throw new Error("Invalid JWT signature");
-  }
-
-  // 2. Decode and parse payload
-  const payloadJson = decodeBase64UrlToText(payloadStr);
-  const payload = JSON.parse(payloadJson);
-
-  // 3. Verify expiration
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    throw new Error("Token has expired");
-  }
-
-  return payload;
-}
-
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed." }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "Allow": "POST" },
+      status: 405
+    });
+  }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error("Missing Authorization header");
+      return new Response(JSON.stringify({ error: "Unauthorized: missing Authorization header." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401
+      });
     }
 
     const token = authHeader.replace(/^Bearer /, "");
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    if (!supabaseUrl || !supabaseAnonKey) throw new Error("Supabase authentication is not configured.");
 
     // Initialize Supabase Client for database rate limits (we don't use it for getUser authentication check anymore)
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -113,46 +39,14 @@ serve(async (req) => {
       },
     });
 
-    const isAnon = token === supabaseAnonKey;
-    let user = null;
-    let jwtVerificationError = null;
-
-    if (!isAnon) {
-      const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
-      try {
-        let payload;
-        if (jwtSecret) {
-          payload = await verifySupabaseJwt(token, jwtSecret);
-        } else {
-          payload = decodeJwtWithoutVerification(token);
-        }
-
-        if (payload && payload.role === "authenticated") {
-          user = {
-            id: payload.sub,
-            email: payload.email,
-          };
-        } else {
-          jwtVerificationError = "JWT role is not authenticated";
-        }
-      } catch (jwtErr) {
-        jwtVerificationError = jwtErr.message;
-      }
-    }
-
-    if (!user) {
-      let details = "No authenticated user session found.";
-      if (isAnon) {
-        details = "The request used the anonymous key. You must be logged in to invoke this function.";
-      } else if (jwtVerificationError) {
-        details = `Token verification failed: ${jwtVerificationError}`;
-      }
-      return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI Grammar features.",
-        details: details
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const user = userData?.user;
+    if (userError || !user) {
+      return new Response(JSON.stringify({
+        error: "Unauthorized: You must be signed in to use AI Grammar features."
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 401
       });
     }
 
@@ -167,8 +61,9 @@ serve(async (req) => {
     };
     const targetLang = langMap[nativeLanguage] || "English";
 
-    if (!action) {
-      throw new Error("Missing required field: action");
+    const allowedActions = new Set(["explain", "quiz", "analyze", "inflections"]);
+    if (typeof action !== "string" || !allowedActions.has(action)) {
+      throw new Error("Invalid or missing action.");
     }
 
     const clientIP = req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown";
@@ -215,9 +110,7 @@ serve(async (req) => {
         ip_address: clientIP
       });
     
-    if (logError) {
-      console.warn("Failed to write request log:", logError);
-    }
+    if (logError) throw logError;
 
     // Read the server-side Gemini API key
     const apiKey = Deno.env.get("GEMINI_API_KEY");
@@ -234,6 +127,7 @@ serve(async (req) => {
       if (!topic && !customQuestion) {
         throw new Error("Missing topic or customQuestion for explain action");
       }
+      if (String(topic || "").length > 200 || String(customQuestion || "").length > 1000) throw new Error("Explanation request is too long.");
 
       prompt = `You are a professional Russian language teacher. Explain the Russian grammar topic: "${topic || "User's custom question"}".
 ${customQuestion ? `The user has a specific question: "${customQuestion}"` : ""}
@@ -290,18 +184,25 @@ Do not include any markdown formatting, backticks, or explanation outside of the
       };
 
     } else if (action === "quiz") {
-      const { topic, cefr, count, vocab } = requestData;
-      const questionCount = count || 5;
-      const vocabList = Array.isArray(vocab) && vocab.length > 0 ? vocab.join(", ") : "";
+      const { topic, topicIds, cefr, count, vocab } = requestData;
+      const allowedTopicIds = Array.isArray(topicIds) ? topicIds.filter((id: unknown) => typeof id === "string").slice(0, 14) : [];
+      const questionCount = Math.max(3, Math.min(10, Math.round(Number(count) || 5)));
+      const allowedLevels = new Set(["A1", "A2", "B1", "B2", "C1", "C2"]);
+      const safeCefr = allowedLevels.has(cefr) ? cefr : "A1";
+      if (String(topic || "").length > 500) throw new Error("Quiz topic selection is too long.");
+      const safeVocab = Array.isArray(vocab) ? vocab.filter(item => typeof item === "string").slice(0, 15).map(item => item.slice(0, 80)) : [];
+      const vocabList = safeVocab.join(", ");
 
       prompt = `You are a professional Russian language teacher. Generate ${questionCount} Russian grammar fill-in-the-blank quiz questions.
 Target grammar topic: "${topic || "General Grammar"}"
-Target difficulty level: "${cefr || "A1"}" (CEFR level A1, A2, or B1).
+Allowed topic IDs: ${allowedTopicIds.join(", ") || "general"}. Assign each question the single best matching topicId from this list.
+Target difficulty level: "${safeCefr}" (CEFR level A1, A2, B1, B2, C1, or C2).
 ${vocabList ? `Try to base the fill-in-the-blank sentences or choices on these vocabulary words the user is currently studying: [${vocabList}]. Do not force it if it doesn't fit the grammar rules naturally, but use them whenever possible.` : ""}
 Provide the output strictly as a JSON object with the following schema:
 {
   "questions": [
     {
+      "topicId": "One exact topic ID from the allowed list",
       "sentencePattern": "The Russian sentence with the target word replaced by '[blank]', and the dictionary form in parentheses (e.g., 'Я хочу купить [blank] (книга).')",
       "answer": "The correct declined/conjugated Russian word (e.g. 'книгу')",
       "choices": ["Four choices in Russian Cyrillic including the correct answer", "choice2", "choice3", "choice4"],
@@ -321,6 +222,7 @@ Ensure all questions match the target topic and CEFR level. Do not include any m
             items: {
               type: "OBJECT",
               properties: {
+                topicId: { type: "STRING" },
                 sentencePattern: { type: "STRING" },
                 answer: { type: "STRING" },
                 choices: {
@@ -331,7 +233,7 @@ Ensure all questions match the target topic and CEFR level. Do not include any m
                 transliteration: { type: "STRING" },
                 explanation: { type: "STRING" },
               },
-              required: ["sentencePattern", "answer", "choices", "translation", "transliteration", "explanation"],
+              required: ["topicId", "sentencePattern", "answer", "choices", "translation", "transliteration", "explanation"],
             },
           },
         },
@@ -340,9 +242,10 @@ Ensure all questions match the target topic and CEFR level. Do not include any m
 
     } else if (action === "analyze") {
       const { sentence } = requestData;
-      if (!sentence) {
+      if (typeof sentence !== "string" || !sentence.trim()) {
         throw new Error("Missing sentence for analyze action");
       }
+      if (sentence.length > 2000) throw new Error("Sentence is too long (maximum 2,000 characters).");
 
       prompt = `You are a professional Russian language proofreader. Analyze the following Russian sentence written by a student:
 "${sentence}"
@@ -403,7 +306,7 @@ Do not include any markdown formatting, backticks, or explanation outside of the
 
     } else if (action === "inflections") {
       const { word: infWord, pos: infPos } = requestData;
-      if (!infWord) {
+      if (typeof infWord !== "string" || !infWord.trim() || infWord.length > 100 || String(infPos || "").length > 50) {
         throw new Error("Missing word for inflections action");
       }
 

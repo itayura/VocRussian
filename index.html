@@ -394,7 +394,7 @@
             <span style="font-size: 2.2rem;">🎓</span>
             <div>
               <strong style="color: var(--color-text-main); font-size: 1.05rem; display: block; margin-bottom: 0.15rem;">What level is my Russian now?</strong>
-              <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">Take our 50-question comprehensive Assessment Test to check your proficiency level! (Warning: It's pretty long).</span>
+              <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">Take our adaptive Assessment Test to check your proficiency level in 5-30 questions.</span>
             </div>
           </div>
           <button type="button" id="placement-banner-start-btn" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: bold; border-radius: var(--border-radius-md);">Take Assessment Test</button>
@@ -411,7 +411,7 @@
           </div>
           <div style="display: flex; gap: 0.5rem;">
             <button type="button" id="notification-banner-enable-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 32px; font-weight: bold;">Enable Reminders</button>
-            <button type="button" id="notification-banner-dismiss-btn" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 32px; background: transparent; border-color: transparent; color: var(--color-text-muted);" title="Dismiss">✕</button>
+            <button type="button" id="notification-banner-dismiss-btn" aria-label="Dismiss reminder prompt" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 32px; background: transparent; border-color: transparent; color: var(--color-text-muted);" title="Dismiss">✕</button>
           </div>
         </div>
 
@@ -734,7 +734,7 @@
               </button>
               <button class="btn srs-btn btn-success" id="srs-score-5">
                 <span>Easy</span>
-                <span>Box +1 <kbd>3</kbd></span>
+                <span>Box +2 <kbd>3</kbd></span>
               </button>
             </div>
           </div>
@@ -1555,7 +1555,7 @@
               <div>
                 <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Assessment Test</strong>
                 <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
-                  Retake the assessment test to check your proficiency level at any time. (Warning: It's pretty long).
+                  Retake the adaptive assessment test to check your proficiency level at any time.
                 </span>
               </div>
               <button type="button" id="settings-placement-test-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-radius: var(--border-radius-md);">
@@ -1803,11 +1803,11 @@
   </div>
 
   <!-- MODAL: ADD CUSTOM WORD -->
-  <div class="modal-overlay" id="modal-add-word">
+  <div class="modal-overlay" id="modal-add-word" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3 class="modal-title">Add Custom Russian Word</h3>
-        <button class="modal-close-btn" id="modal-add-close">×</button>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-add-close">×</button>
       </div>
       
       <form id="add-word-form" onsubmit="event.preventDefault();">
@@ -1910,11 +1910,11 @@
   </div>
 
   <!-- MODAL: EDIT WORD -->
-  <div class="modal-overlay" id="modal-edit-word">
+  <div class="modal-overlay" id="modal-edit-word" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h3 class="modal-title">Edit Vocabulary Word</h3>
-        <button class="modal-close-btn" id="modal-edit-close">×</button>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-edit-close">×</button>
       </div>
       
       <form id="edit-word-form" onsubmit="event.preventDefault();">
@@ -2022,11 +2022,11 @@
   </div>
 
   <!-- MODAL: MANAGE DECKS -->
-  <div class="modal-overlay" id="modal-manage-decks">
+  <div class="modal-overlay" id="modal-manage-decks" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 500px;">
       <div class="modal-header">
         <h3 class="modal-title">📂 Manage Custom Decks</h3>
-        <button class="modal-close-btn" id="modal-decks-close">×</button>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-decks-close">×</button>
       </div>
       
       <div style="display: flex; flex-direction: column; gap: 1.25rem; margin-top: 1rem;">
@@ -2068,13 +2068,13 @@
   </div>
 
   <!-- MODAL: WORD CLICK PREVIEW -->
-  <div class="modal-overlay" id="modal-click-word-preview">
+  <div class="modal-overlay" id="modal-click-word-preview" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 420px; padding: 1.5rem; text-align: left;">
       <div class="modal-header" style="margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
         <h3 class="modal-title" style="font-family: var(--font-heading); font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
           🔍 Quick Word Preview
         </h3>
-        <button class="modal-close-btn" id="modal-preview-close" style="background: transparent; border: none; font-size: 1.5rem; color: var(--color-text-muted); cursor: pointer;">×</button>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-preview-close" style="background: transparent; border: none; font-size: 1.5rem; color: var(--color-text-muted); cursor: pointer;">×</button>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 0.75rem;">
@@ -2082,7 +2082,7 @@
           <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-primary-hover); font-weight: bold; letter-spacing: 0.05em;">Russian Word</label>
           <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.15rem;">
             <span id="preview-word-ru" style="font-size: 1.8rem; font-weight: bold; color: var(--color-text-main);">Слово</span>
-            <button type="button" class="audio-btn" id="preview-word-tts-btn" style="width: 32px; height: 32px; font-size: 0.9rem; border: 1px solid var(--border-glass); background: var(--bg-input); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%;">🔊</button>
+            <button type="button" class="audio-btn" id="preview-word-tts-btn" aria-label="Play word pronunciation" style="width: 32px; height: 32px; font-size: 0.9rem; border: 1px solid var(--border-glass); background: var(--bg-input); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%;">🔊</button>
           </div>
         </div>
 
@@ -2112,7 +2112,7 @@
   </div>
 
   <!-- MODAL: NOTIFICATION PROMPT -->
-  <div class="modal-overlay" id="modal-notification-prompt">
+  <div class="modal-overlay" id="modal-notification-prompt" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2.25rem;">
       <div style="font-size: 3.5rem; margin-bottom: 1rem; animation: mascot-idle 3s ease-in-out infinite;">🔔</div>
       <h3 style="font-family: var(--font-heading); font-size: 1.6rem; margin-bottom: 0.75rem; color: var(--color-text-main);">Enable Daily Reminders?</h3>
@@ -2133,7 +2133,7 @@
   </div>
 
   <!-- MODAL: GRAMMAR GUEST CTA -->
-  <div class="modal-overlay" id="modal-grammar-cta">
+  <div class="modal-overlay" id="modal-grammar-cta" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2rem;">
       <div style="font-size: 3.5rem; margin-bottom: 1rem;">🔒</div>
       <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 0.75rem;">Account Sign-in Required</h3>
@@ -2146,11 +2146,11 @@
   </div>
 
   <!-- MODAL: WORD DETAILS (DECLENSIONS & CONJUGATIONS) -->
-  <div class="modal-overlay" id="modal-word-details">
+  <div class="modal-overlay" id="modal-word-details" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 600px; width: 90%; max-height: 85vh; display: flex; flex-direction: column;">
       <div class="modal-header">
         <h3 class="modal-title" id="details-modal-title">Word Inflections</h3>
-        <button class="modal-close-btn" id="modal-details-close">×</button>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-details-close">×</button>
       </div>
       <div id="details-modal-body" style="overflow-y: auto; flex: 1; padding: 1rem 0; display: flex; flex-direction: column; gap: 1rem;">
         <!-- Loading State -->
@@ -2165,7 +2165,7 @@
               <strong id="details-ru-word" style="font-size: 1.6rem; color: var(--color-primary-hover); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">дом</strong>
               <span id="details-pos-badge" class="vocab-label-badge" style="font-size: 0.75rem; text-transform: uppercase; margin-left: 0.5rem; vertical-align: middle;">Noun</span>
             </div>
-            <button type="button" id="details-tts-btn" class="audio-btn" style="width: 38px; height: 38px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card);">🔊</button>
+            <button type="button" id="details-tts-btn" aria-label="Play word pronunciation" class="audio-btn" style="width: 38px; height: 38px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg-card);">🔊</button>
           </div>
           <div class="page-subtitle" id="details-translation-text" style="font-size: 1.05rem; margin: 0; font-weight: 500; color: var(--color-text-main);">Translation: house</div>
           <div id="details-tables-container" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
@@ -2180,25 +2180,25 @@
   </div>
 
   <!-- MODAL: ASSESSMENT TEST -->
-  <div class="modal-overlay" id="modal-placement-test">
+  <div class="modal-overlay" id="modal-placement-test" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 500px; width: 92%; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
       <div class="modal-header" style="justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.75rem; margin-bottom: 0.25rem;">
         <h3 class="modal-title" style="font-family: var(--font-heading); font-size: 1.25rem;">Assessment Test</h3>
-        <button class="modal-close-btn" id="modal-placement-close" style="font-size: 1.5rem; background: transparent; border: none; color: var(--color-text-muted); cursor: pointer;">×</button>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-placement-close" style="font-size: 1.5rem; background: transparent; border: none; color: var(--color-text-muted); cursor: pointer;">×</button>
       </div>
 
       <div id="placement-intro-view" style="display: flex; flex-direction: column; gap: 1rem; text-align: center;">
         <div style="font-size: 3.5rem;">🎓</div>
         <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--color-text-main); margin: 0;">Russian Level Assessment</h4>
         <p style="font-family: var(--font-body); font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; margin: 0;">
-          Answer 50 comprehensive multiple-choice questions across all grammar cases, verbs of motion, tenses, and CEFR levels. <br><strong style="color: var(--color-warning);">Warning: This test is pretty long (50 questions), but provides a highly accurate evaluation of your Russian level!</strong>
+          Answer five questions per CEFR band. The test stops after the first band below the passing threshold, so it takes between 5 and 30 questions.
         </p>
         <button type="button" id="placement-start-test-btn" class="btn btn-primary" style="padding: 0.85rem; font-size: 1rem; width: 100%; font-weight: bold; margin-top: 0.5rem;">Start Assessment</button>
       </div>
 
       <div id="placement-question-view" style="display: none; flex-direction: column; gap: 1.25rem;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.8rem; font-weight: bold; color: var(--color-primary-hover);" id="placement-question-step">Question 1 of 50</span>
+          <span style="font-size: 0.8rem; font-weight: bold; color: var(--color-primary-hover);" id="placement-question-step">Question 1 of 30</span>
           <span class="vocab-label-badge" id="placement-question-level" style="font-size: 0.75rem;">Level A1</span>
         </div>
         

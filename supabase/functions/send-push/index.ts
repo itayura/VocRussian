@@ -13,23 +13,38 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed." }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "Allow": "POST" },
+      status: 405
+    });
+  }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error("Missing Authorization header");
+      return new Response(JSON.stringify({ error: "Unauthorized: missing Authorization header." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401
+      });
     }
 
     const token = authHeader.replace(/^Bearer /, "");
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const isServiceRole = token === serviceRoleKey;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    if (!serviceRoleKey || !supabaseUrl) throw new Error("Push service is not configured.");
+    const isServiceRole = token.length > 0 && token === serviceRoleKey;
+    if (!isServiceRole) {
+      return new Response(JSON.stringify({ error: "Forbidden: push delivery is an internal service." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 403
+      });
+    }
 
-    // Initialize Supabase Client.
-    // If it's a standard user token, we use the Anon Key and forward their token to enforce RLS.
-    // If it's the Service Role key, we use the Service Role key to bypass RLS.
+    // Internal service-role client used only by the database reminder scheduler.
     const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      isServiceRole ? serviceRoleKey : (Deno.env.get("SUPABASE_ANON_KEY") ?? ""),
+      supabaseUrl,
+      serviceRoleKey,
       {
         global: {
           headers: { Authorization: authHeader },
@@ -39,23 +54,18 @@ serve(async (req) => {
 
     const { userId, title, body } = await req.json();
 
-    if (!title || !body) {
+    if (typeof title !== "string" || typeof body !== "string" || !title.trim() || !body.trim()) {
       throw new Error("Missing required fields: title, body");
+    }
+    if (title.length > 120 || body.length > 500) throw new Error("Notification content is too long.");
+    if (userId !== "all" && (typeof userId !== "string" || !/^[0-9a-f-]{36}$/i.test(userId))) {
+      throw new Error("Invalid target user.");
     }
 
     let subscriptions = [];
 
     // Check if the request is a broadcast to all users
-    if (userId === "all" || !userId) {
-      if (!isServiceRole) {
-        return new Response(JSON.stringify({ 
-          error: "Unauthorized: Only administrators using the service_role key can broadcast notifications to everyone." 
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 403,
-        });
-      }
-
+    if (userId === "all") {
       // Admin broadcast: Fetch all subscriptions
       const { data, error } = await supabaseClient
         .from("user_push_subscriptions")
@@ -121,13 +131,13 @@ serve(async (req) => {
         );
         sentCount++;
       } catch (err) {
-        console.error(`Failed to send notification to endpoint ${sub.endpoint}:`, err);
+        console.error(`Failed to send notification for subscription ${sub.id}:`, err);
         failedCount++;
         
         // If the subscription is expired or inactive (410 Gone / 404 Not Found), delete it
         if (err.statusCode === 410 || err.statusCode === 404) {
           const adminClient = createClient(
-            Deno.env.get("SUPABASE_URL") ?? "",
+            supabaseUrl,
             serviceRoleKey
           );
           await adminClient

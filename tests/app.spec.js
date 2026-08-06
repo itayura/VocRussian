@@ -708,7 +708,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Assessment Test workflow seeds stats, XP, and updates levels correctly', async ({ page }) => {
-    test.setTimeout(300000); // 5 min: 2 loops × 50 questions × ~1.5s each = ~150s needed
+    test.setTimeout(180000); // Two adaptive runs of at most 30 questions each
     const qaMap = {
       // A1
       "Привет": "Hello (informal)",
@@ -817,7 +817,7 @@ test.describe('Privyetik E2E Test Suite', () => {
       if (currentStep < totalSteps) {
         // Wait for the DOM to actually show the next question number.
         // The app has a 1200ms setTimeout before advancing — poll until it changes.
-        const nextText = `Question ${currentStep + 1} of 50`;
+        const nextText = `Question ${currentStep + 1} of ${totalSteps}`;
         await page.waitForFunction(
           (expected) => document.getElementById('placement-question-step')?.textContent?.trim() === expected,
           nextText,
@@ -839,10 +839,10 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.locator('#placement-start-test-btn').click();
     await expect(page.locator('#placement-question-view')).toBeVisible();
 
-    // 4. Answer all 50 questions correctly to get C2 placement
-    for (let step = 1; step <= 50; step++) {
-      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`, { timeout: 12000 });
-      await answerAndWaitForNext(step, 50);
+    // 4. Answer all 30 questions correctly to get C2 placement
+    for (let step = 1; step <= 30; step++) {
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 30`, { timeout: 12000 });
+      await answerAndWaitForNext(step, 30);
     }
 
     // 5. Verify results screen shows C2 level and C2 avatar
@@ -865,10 +865,10 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#modal-placement-test')).toBeVisible();
     await page.locator('#placement-start-test-btn').click();
 
-    // Answer all 50 questions correctly again
-    for (let step = 1; step <= 50; step++) {
-      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 50`, { timeout: 12000 });
-      await answerAndWaitForNext(step, 50);
+    // Answer all 30 questions correctly again
+    for (let step = 1; step <= 30; step++) {
+      await expect(page.locator('#placement-question-step')).toHaveText(`Question ${step} of 30`, { timeout: 12000 });
+      await answerAndWaitForNext(step, 30);
     }
 
     // Click "Apply Seeding & Finish"

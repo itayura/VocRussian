@@ -1083,6 +1083,9 @@ kbd {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   animation: scaleUp var(--transition-normal) forwards;
   position: relative;
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
 }
 @media (max-width: 1024px), (pointer: coarse) {
   .modal-overlay {
@@ -2810,4 +2813,27 @@ body.onboarding-open {
   .onboarding-overlay.active,
   .onboarding-dialog,
   .onboarding-step.active { animation: none; }
+}
+
+
+/* Keyboard focus and coarse-pointer target sizing */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-primary-hover) !important;
+  outline-offset: 3px !important;
+}
+
+@media (pointer: coarse) {
+  button,
+  .btn,
+  .audio-btn,
+  .vocab-action-btn,
+  select,
+  input[type="checkbox"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .nav-item button {
+    min-height: 56px;
+  }
 }

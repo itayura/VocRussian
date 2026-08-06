@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - '.github/workflows/run-sql.yml'
+      - 'supabase/migrations/**'
 
 jobs:
   run-sql:
@@ -14,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install PostgreSQL Client
         run: |
@@ -25,12 +26,12 @@ jobs:
         env:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           python3 -c "
           import subprocess
           import os
           import re
-          import base64
 
           raw_project_id = os.environ['SUPABASE_PROJECT_ID']
           # Extract project reference (20-character alphanumeric)
@@ -38,7 +39,9 @@ jobs:
           project_id = match.group(0) if match else raw_project_id.strip('\r\n\t ')
 
           password = os.environ['SUPABASE_DB_PASSWORD'].strip('\r\n\t ')
-          service_role_key = base64.b64decode('c2Jfc2VjcmV0X1JYOWxGWW95M2JvaWI3QVhvY1ZkZ3dfUG42Tmp1OUs=').decode('utf-8')
+          service_role_key = os.environ['SUPABASE_SERVICE_ROLE_KEY'].strip('\r\n\t ').replace(chr(39), chr(39) * 2)
+          if not service_role_key:
+              raise RuntimeError('SUPABASE_SERVICE_ROLE_KEY is required')
 
           sql = f'''
           -- Create app config table
@@ -66,11 +69,15 @@ jobs:
           VALUES (\\'project_host\\', \\'{project_id}.supabase.co\\')
           ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
 
-          -- Insert service_role_key into vault if it does not exist
+          -- Create or rotate the Vault value supplied through GitHub Actions secrets.
           DO \$\$
+          DECLARE existing_id uuid;
           BEGIN
-              IF NOT EXISTS (SELECT 1 FROM vault.decrypted_secrets WHERE name = \\'service_role_key\\') THEN
-                  PERFORM vault.create_secret(\\'{service_role_key}\\', \\'service_role_key\\');
+              SELECT id INTO existing_id FROM vault.secrets WHERE name = \'service_role_key\' LIMIT 1;
+              IF existing_id IS NULL THEN
+                  PERFORM vault.create_secret(\'{service_role_key}\', \'service_role_key\');
+              ELSE
+                  PERFORM vault.update_secret(existing_id, \'{service_role_key}\', \'service_role_key\');
               END IF;
           END
           \$\$;
@@ -86,8 +93,8 @@ jobs:
               '-p', '6543',
               '-U', f'postgres.{project_id}',
               '-d', 'postgres',
-              '-c', sql
-          ], env=env, check=True)
+              '-v', 'ON_ERROR_STOP=1'
+          ], env=env, input=sql, text=True, check=True)
 
           print('Running migration files...')
           subprocess.run([
@@ -96,17 +103,44 @@ jobs:
               '-p', '6543',
               '-U', f'postgres.{project_id}',
               '-d', 'postgres',
-              '-f', 'supabase/migrations/20260622000000_scheduled_reminders.sql'
+              '-f', 'supabase/migrations/20260723000000_reminder_logs.sql'
           ], env=env, check=True)
-          
+
           subprocess.run([
               'psql',
               '-h', 'aws-1-ap-northeast-2.pooler.supabase.com',
               '-p', '6543',
               '-U', f'postgres.{project_id}',
               '-d', 'postgres',
-              '-f', 'supabase/migrations/20260723000000_reminder_logs.sql'
+              '-f', 'supabase/migrations/20260622000000_scheduled_reminders.sql'
           ], env=env, check=True)
-          
+
+          subprocess.run([
+              'psql',
+              '-h', 'aws-1-ap-northeast-2.pooler.supabase.com',
+              '-p', '6543',
+              '-U', f'postgres.{project_id}',
+              '-d', 'postgres',
+              '-f', 'supabase/migrations/20260805000000_grammar_attempt_evidence.sql'
+          ], env=env, check=True)
+
+          subprocess.run([
+              'psql',
+              '-h', 'aws-1-ap-northeast-2.pooler.supabase.com',
+              '-p', '6543',
+              '-U', f'postgres.{project_id}',
+              '-d', 'postgres',
+              '-f', 'supabase/migrations/20260805010000_security_and_schema_hardening.sql'
+          ], env=env, check=True)
+
+          subprocess.run([
+              'psql',
+              '-h', 'aws-1-ap-northeast-2.pooler.supabase.com',
+              '-p', '6543',
+              '-U', f'postgres.{project_id}',
+              '-d', 'postgres',
+              '-f', 'supabase/migrations/20260805020000_sync_event_logs.sql'
+          ], env=env, check=True)
+
           print('Database configuration completed successfully!')
           "

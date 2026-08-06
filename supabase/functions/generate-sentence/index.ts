@@ -1,154 +1,74 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Helper to decode Base64URL string to Unicode text
-function decodeBase64UrlToText(str: string): string {
-  let base64 = str.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) {
-    base64 += "=";
-  }
-  const binaryString = atob(base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-  return new TextDecoder().decode(bytes);
-}
-
-// Decodes a JWT payload without cryptographically verifying the signature (useful for dev/fallback)
-function decodeJwtWithoutVerification(token: string): any {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid token format");
-  }
-  const payloadStr = parts[1];
-  const payloadJson = decodeBase64UrlToText(payloadStr);
-  const payload = JSON.parse(payloadJson);
-
-  // Check expiration
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    throw new Error("Token has expired");
-  }
-
-  return payload;
-}
-
-// Cryptographically verifies a Supabase HS256 JWT signature and claims
-async function verifySupabaseJwt(token: string, secret: string): Promise<any> {
-  const parts = token.split(".");
-  if (parts.length !== 3) {
-    throw new Error("Invalid token format");
-  }
-
-  const [headerStr, payloadStr, signatureStr] = parts;
-
-  // 1. Verify HS256 signature using Web Crypto API
-  const keyData = new TextEncoder().encode(secret);
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    keyData,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["verify"]
-  );
-
-  const data = new TextEncoder().encode(`${headerStr}.${payloadStr}`);
-  
-  // Decode signature
-  const signatureBytes = Uint8Array.from(
-    atob(signatureStr.replace(/-/g, "+").replace(/_/g, "/").padEnd(signatureStr.length + (4 - (signatureStr.length % 4)) % 4, "=")),
-    c => c.charCodeAt(0)
-  );
-
-  const isValid = await crypto.subtle.verify(
-    "HMAC",
-    cryptoKey,
-    signatureBytes,
-    data
-  );
-
-  if (!isValid) {
-    throw new Error("Invalid JWT signature");
-  }
-
-  // 2. Decode and parse payload
-  const payloadJson = decodeBase64UrlToText(payloadStr);
-  const payload = JSON.parse(payloadJson);
-
-  // 3. Verify expiration
-  const now = Math.floor(Date.now() / 1000);
-  if (payload.exp && payload.exp < now) {
-    throw new Error("Token has expired");
-  }
-
-  return payload;
-}
-
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "POST") {
+    return new Response(JSON.stringify({ error: "Method not allowed." }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "Allow": "POST" },
+      status: 405
+    });
+  }
 
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      throw new Error("Missing Authorization header");
+      return new Response(JSON.stringify({ error: "Unauthorized: missing Authorization header." }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401
+      });
     }
 
     const token = authHeader.replace(/^Bearer /, "");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    if (!supabaseUrl || !supabaseAnonKey) throw new Error("Supabase authentication is not configured.");
 
-    const isAnon = token === supabaseAnonKey;
-    if (isAnon) {
-      return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
-        details: "The request used the anonymous key. You must be logged in to invoke this function."
-      }), {
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const user = userData?.user;
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized: a valid signed-in session is required." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 401
       });
     }
 
-    // Verify token locally without calling Supabase database/auth API
-    let payload;
-    const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
-    try {
-      if (jwtSecret) {
-        payload = await verifySupabaseJwt(token, jwtSecret);
-      } else {
-        payload = decodeJwtWithoutVerification(token);
-      }
-    } catch (jwtErr) {
-      return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
-        details: `Token verification failed: ${jwtErr.message}`
-      }), {
+    const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
+    const oneDayAgo = new Date(Date.now() - 86_400_000).toISOString();
+    const [{ count: minuteCount, error: minuteError }, { count: dayCount, error: dayError }] = await Promise.all([
+      supabaseClient.from("voc_ai_request_logs").select("*", { count: "exact", head: true }).eq("user_id", user.id).gt("created_at", oneMinuteAgo),
+      supabaseClient.from("voc_ai_request_logs").select("*", { count: "exact", head: true }).eq("user_id", user.id).gt("created_at", oneDayAgo)
+    ]);
+    if (minuteError || dayError) throw minuteError || dayError;
+    if ((minuteCount || 0) >= 20 || (dayCount || 0) >= 300) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please wait before trying again." }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
+        status: 429
       });
     }
-
-    // Verify it is an authenticated user role
-    if (payload.role !== "authenticated") {
-      return new Response(JSON.stringify({ 
-        error: "Unauthorized: You must be signed in to use AI sentence generation features.",
-        details: "JWT role is not authenticated."
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 401,
-      });
-    }
+    const clientIP = (req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for") || "unknown").split(",")[0].trim();
+    const { error: logError } = await supabaseClient.from("voc_ai_request_logs").insert({ user_id: user.id, action: "generate_sentence", ip_address: clientIP });
+    if (logError) throw logError;
 
     const { word, translation, partOfSpeech, nativeLanguage } = await req.json();
 
-    if (!word || !translation) {
+    if (typeof word !== "string" || typeof translation !== "string" || !word.trim() || !translation.trim()) {
       throw new Error("Missing required fields: word, translation");
+    }
+    if (word.length > 200 || translation.length > 300 || String(partOfSpeech || "").length > 50) {
+      throw new Error("Input is too long.");
     }
 
     const apiKey = Deno.env.get("GEMINI_API_KEY");

@@ -1,6 +1,13 @@
 // Privyetik Application Controller
 
 (function () {
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>'"]/g, character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+    })[character]);
+  }
+  window.escapeHTML = escapeHTML;
+
   // Override window.alert with a premium glassmorphic custom modal alert immediately
   const nativeAlert = window.alert;
   window.alert = function (message) {
@@ -13,6 +20,8 @@
       overlay = document.createElement("div");
       overlay.id = "custom-alert-modal";
       overlay.className = "modal-overlay";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
       overlay.style.zIndex = "10000"; // Sit on top of other modals
       
       overlay.innerHTML = `
@@ -63,6 +72,8 @@
         overlay = document.createElement("div");
         overlay.id = "custom-confirm-modal";
         overlay.className = "modal-overlay";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
         overlay.style.zIndex = "10000"; // Sit on top of other modals
         
         overlay.innerHTML = `
@@ -286,6 +297,8 @@
         overlay = document.createElement("div");
         overlay.id = "custom-appeal-modal";
         overlay.className = "modal-overlay";
+        overlay.setAttribute("role", "dialog");
+        overlay.setAttribute("aria-modal", "true");
         overlay.style.zIndex = "10000";
         
         overlay.innerHTML = `
@@ -315,7 +328,7 @@
         overlay.querySelector("#custom-appeal-reason").value = "";
       }
       
-      document.getElementById("custom-appeal-context").innerHTML = `<strong>Context:</strong> ${context}`;
+      document.getElementById("custom-appeal-context").innerHTML = "<strong>Context:</strong> " + escapeHTML(context);
       document.getElementById("custom-appeal-response").innerText = aiResponse;
       
       const submitBtn = overlay.querySelector("#custom-appeal-submit-btn");
@@ -682,7 +695,7 @@
     el.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; width: 100%;">
         <button type="button" class="btn btn-secondary reveal-translation-btn" style="padding: 0.4rem 0.85rem; font-size: 0.85rem; border: 1px solid var(--border-glass); background: var(--bg-input); border-radius: var(--border-radius-sm); color: var(--color-text-muted); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s;">👁️ Reveal Translation</button>
-        <span class="translation-text" style="display: none; font-size: 1.05rem;">${text}</span>
+        <span class="translation-text" style="display: none; font-size: 1.05rem;">${escapeHTML(text)}</span>
       </div>
     `;
     const btn = el.querySelector(".reveal-translation-btn");
@@ -1416,9 +1429,9 @@
     });
 
     // SRS Scores clicks
-    document.getElementById("srs-score-1").addEventListener("click", () => handleSrsScore(false));
-    document.getElementById("srs-score-3").addEventListener("click", () => handleSrsScore(true));
-    document.getElementById("srs-score-5").addEventListener("click", () => handleSrsScore(true));
+    document.getElementById("srs-score-1").addEventListener("click", () => handleSrsScore(false, "hard"));
+    document.getElementById("srs-score-3").addEventListener("click", () => handleSrsScore(true, "good"));
+    document.getElementById("srs-score-5").addEventListener("click", () => handleSrsScore(true, "easy"));
 
     // --- CHOICE MODE EVENTS ---
     document.getElementById("choice-next-btn").addEventListener("click", () => {
@@ -1617,7 +1630,7 @@
         // STANDARD MODE: Front shows Russian word, Back shows translation
         document.getElementById("fc-category-front").innerText = card.category;
         document.getElementById("fc-word-front").innerText = card.accented || card.word;
-        document.getElementById("fc-word-translit-front").innerText = `[${card.transliteration || ""}]`;
+        document.getElementById("fc-word-translit-front").innerText = `[${escapeHTML(card.transliteration || "")}]`;
 
         // Back card details
         document.getElementById("fc-category-back").innerText = card.category;
@@ -1699,12 +1712,12 @@
     }
   }
 
-  function handleSrsScore(isCorrect) {
+  function handleSrsScore(isCorrect, rating = "good") {
     if (!isCardFlipped) return;
     isCardFlipped = false; // Immediately disable further clicks during transition
 
     // Log progress
-    const result = SRS.scoreCard(currentCard.id, isCorrect);
+    const result = SRS.scoreCard(currentCard.id, isCorrect, rating);
     sessionXpGained += result.xpGained;
 
     // Track review history
@@ -1795,7 +1808,7 @@
         const btn = document.createElement("button");
         btn.className = "choice-btn";
         btn.dataset.wordId = opt.id;
-        btn.innerHTML = `<span>${opt.label}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
+        btn.innerHTML = `<span>${escapeHTML(opt.label)}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
         btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
         container.appendChild(btn);
       });
@@ -1836,7 +1849,7 @@
           );
         }
 
-        btn.innerHTML = `<span>${optionText}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
+        btn.innerHTML = `<span>${escapeHTML(optionText)}</span><kbd style="font-size:0.65em;">${idx + 1}</kbd>`;
         btn.addEventListener("click", () => handleChoiceSelect(btn, opt.id));
         container.appendChild(btn);
       });
@@ -1989,7 +2002,7 @@
       checkBtn.className = animationsEnabled ? "btn btn-success correct-glow" : "btn btn-success";
       
       diffContainer.style.display = "block";
-      diffContainer.innerHTML = `<span class="diff-char-correct" style="font-weight:700;">✓ Correct: ${currentCard.word}</span>`;
+      diffContainer.innerHTML = '<span class="diff-char-correct" style="font-weight:700;">\u2713 Correct: ' + escapeHTML(currentCard.word) + "</span>";
       
       AudioEngine.playSuccess();
       if (window.updateMascotState) window.updateMascotState("correct");
@@ -2005,7 +2018,7 @@
       // Compute visual character comparison
       const diffMarkup = computeTextDiff(userVal, currentCard.word);
       diffContainer.style.display = "block";
-      diffContainer.innerHTML = `<div>Expected: <strong>${currentCard.word}</strong></div>
+      diffContainer.innerHTML = `<div>Expected: <strong>${escapeHTML(currentCard.word)}</strong></div>
                                  <div style="font-size:0.9em; margin-top:0.35rem; opacity:0.85;">Diff: ${diffMarkup}</div>`;
       
       AudioEngine.playError();
@@ -2026,17 +2039,17 @@
       const cChar = cleanCorrect[i];
       
       if (uChar === cChar) {
-        html += `<span class="diff-char-correct">${correctVal[i] || cChar}</span>`;
+        html += `<span class="diff-char-correct">${escapeHTML(correctVal[i] || cChar)}</span>`;
       } else {
         if (cChar === undefined) {
           // Extra character
-          html += `<span class="diff-char-extra" style="color:var(--color-error); text-decoration:line-through;">${uChar}</span>`;
+          html += `<span class="diff-char-extra" style="color:var(--color-error); text-decoration:line-through;">${escapeHTML(uChar)}</span>`;
         } else if (uChar === undefined) {
           // Missing character
-          html += `<span class="diff-char-missing" style="color:var(--color-error); text-decoration:underline;">${correctVal[i] || cChar}</span>`;
+          html += `<span class="diff-char-missing" style="color:var(--color-error); text-decoration:underline;">${escapeHTML(correctVal[i] || cChar)}</span>`;
         } else {
           // Mistake replacement character
-          html += `<span class="diff-char-missing" style="color:var(--color-error); text-decoration:underline;">${correctVal[i] || cChar}</span><span class="diff-char-extra" style="font-size:0.8em; opacity:0.5; text-decoration:line-through; margin-left:1px;">${uChar}</span>`;
+          html += `<span class="diff-char-missing" style="color:var(--color-error); text-decoration:underline;">${escapeHTML(correctVal[i] || cChar)}</span><span class="diff-char-extra" style="font-size:0.8em; opacity:0.5; text-decoration:line-through; margin-left:1px;">${escapeHTML(uChar)}</span>`;
         }
       }
     }
@@ -2273,8 +2286,8 @@
       cardEl.innerHTML = `
         <div class="vocab-card-header">
           <div class="vocab-word-display">
-            <span style="cursor:pointer;" class="word-speak-icon" title="Listen Pronunciation">${card.accented || card.word}</span>
-            <span style="font-size:0.7em; color:var(--color-text-muted); font-weight:normal;">[${card.transliteration || ""}]</span>
+            <span style="cursor:pointer;" class="word-speak-icon" title="Listen Pronunciation">${escapeHTML(card.accented || card.word)}</span>
+            <span style="font-size:0.7em; color:var(--color-text-muted); font-weight:normal;">[${escapeHTML(card.transliteration || "")}]</span>
           </div>
           
           <div class="vocab-actions">
@@ -2286,9 +2299,9 @@
         </div>
 
         <div class="vocab-info-row">
-          <span class="vocab-label-badge" style="text-transform: capitalize;">${card.pos}</span>
-          <span class="vocab-label-badge" style="color: ${levelColor}; background-color: ${levelBg}; border-color: ${levelColor}; font-weight: bold;">${wordLevel}</span>
-          <span class="vocab-label-badge">${card.category}</span>
+          <span class="vocab-label-badge" style="text-transform: capitalize;">${escapeHTML(card.pos)}</span>
+          <span class="vocab-label-badge" style="color: ${levelColor}; background-color: ${levelBg}; border-color: ${levelColor}; font-weight: bold;">${escapeHTML(wordLevel)}</span>
+          <span class="vocab-label-badge">${escapeHTML(card.category)}</span>
           <select class="vocab-box-select" style="background-color: var(--color-primary-glow); color: var(--color-primary); border: 1px solid var(--border-glass); border-radius: 4px; font-size: 0.8rem; padding: 2px 4px; font-family: var(--font-body); cursor: pointer; outline: none; font-weight: bold; height: 24px;">
             <option value="1" ${prog.box === 1 ? 'selected' : ''}>Box 1</option>
             <option value="2" ${prog.box === 2 ? 'selected' : ''}>Box 2</option>
@@ -2298,12 +2311,12 @@
           </select>
         </div>
 
-        <div class="vocab-card-translation">${translationText}</div>
+        <div class="vocab-card-translation">${escapeHTML(translationText)}</div>
         
         ${card.exampleRu ? `
           <div class="vocab-card-example">
-            <div class="vocab-card-example-ru">${card.exampleRu}</div>
-            <div class="vocab-card-example-en" style="font-size:0.9em; opacity:0.8;">${exampleEnText}</div>
+            <div class="vocab-card-example-ru">${escapeHTML(card.exampleRu)}</div>
+            <div class="vocab-card-example-en" style="font-size:0.9em; opacity:0.8;">${escapeHTML(exampleEnText)}</div>
           </div>
         ` : ""}
       `;
@@ -2408,13 +2421,14 @@
             const { error: errProg } = await window.SupabaseSync.client.from("voc_progress").delete().match({ user_id: window.SupabaseSync.user.id });
             const { error: errWords } = await window.SupabaseSync.client.from("voc_words").delete().match({ user_id: window.SupabaseSync.user.id });
             const { error: errStats } = await window.SupabaseSync.client.from("voc_stats").delete().match({ user_id: window.SupabaseSync.user.id });
+            const { error: errGrammar } = await window.SupabaseSync.client.from("voc_grammar_progress").delete().match({ user_id: window.SupabaseSync.user.id });
             
-            if (errProg || errWords || errStats) {
-              console.warn("Some cloud records failed to delete, proceeding with local reset anyway.", { errProg, errWords, errStats });
-            }
+            const resetError = errProg || errWords || errStats || errGrammar;
+            if (resetError) throw resetError;
           }
           
           SRS.resetAllData();
+          if (window.GrammarManager) window.GrammarManager.loadFromStorage();
           localStorage.removeItem("voc_supabase_last_sync");
           
           if (window.SupabaseSync && typeof window.SupabaseSync.updateUI === "function") {
@@ -2427,6 +2441,7 @@
         } catch (e) {
           console.error("Cloud reset failed:", e);
           SRS.resetAllData();
+          if (window.GrammarManager) window.GrammarManager.loadFromStorage();
           localStorage.removeItem("voc_supabase_last_sync");
           
           if (window.SupabaseSync && typeof window.SupabaseSync.updateUI === "function") {
@@ -2674,25 +2689,25 @@
                   ${report.type === 'bug' ? '🐛 Bug' : '💡 Feature'}
                 </span>
                 <span class="vocab-label-badge" style="font-size: 0.8rem; background: ${badgeStatusBg}; color: ${badgeStatusColor}; border-color: transparent; text-transform: capitalize; padding: 0.15rem 0.5rem; border-radius: 4px;">
-                  ${report.status}
+                  ${escapeHTML(report.status)}
                 </span>
               </div>
               <span style="font-size: 0.8rem; color: var(--color-text-muted);">${new Date(report.created_at).toLocaleString()}</span>
             </div>
             
-            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; margin-top: 0; margin-bottom: 0.25rem; color: var(--color-text-main);">${report.title}</h4>
-            <p style="font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 0.75rem; color: var(--color-text-main); white-space: pre-wrap; line-height: 1.4;">${report.description}</p>
+            <h4 style="font-family: var(--font-heading); font-size: 1.05rem; margin-top: 0; margin-bottom: 0.25rem; color: var(--color-text-main);">${escapeHTML(report.title)}</h4>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem; margin-bottom: 0.75rem; color: var(--color-text-main); white-space: pre-wrap; line-height: 1.4;">${escapeHTML(report.description)}</p>
             
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 0.75rem; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
-              <span style="font-size: 0.8rem; color: var(--color-text-muted);">From: <strong>${report.user_email}</strong></span>
+              <span style="font-size: 0.8rem; color: var(--color-text-muted);">From: <strong>${escapeHTML(report.user_email)}</strong></span>
               
               <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <select class="admin-status-select" data-id="${report.id}" style="background: var(--bg-card); color: var(--color-text-main); border: 1px solid var(--border-glass); border-radius: 4px; font-size: 0.8rem; padding: 2px 6px; cursor: pointer; outline: none; font-family: var(--font-body);">
+                <select class="admin-status-select" data-id="${escapeHTML(report.id)}" style="background: var(--bg-card); color: var(--color-text-main); border: 1px solid var(--border-glass); border-radius: 4px; font-size: 0.8rem; padding: 2px 6px; cursor: pointer; outline: none; font-family: var(--font-body);">
                   <option value="open" ${report.status === 'open' ? 'selected' : ''}>Open</option>
                   <option value="in_progress" ${report.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
                   <option value="resolved" ${report.status === 'resolved' ? 'selected' : ''}>Resolved</option>
                 </select>
-                <button class="btn btn-danger admin-delete-feedback-btn" data-id="${report.id}" style="padding: 2px 8px; font-size: 0.8rem; background: #dc3545; border-color: #dc3545;">
+                <button class="btn btn-danger admin-delete-feedback-btn" data-id="${escapeHTML(report.id)}" style="padding: 2px 8px; font-size: 0.8rem; background: #dc3545; border-color: #dc3545;">
                   🗑️ Delete
                 </button>
               </div>
@@ -2729,7 +2744,7 @@
       } catch (err) {
         console.error("Admin fetch feedback failed:", err);
         loader.style.display = "none";
-        listContainer.innerHTML = `<div style="color: #dc3545; text-align: center; padding: 1rem;">Failed to load feedback: ${err.message}</div>`;
+        listContainer.innerHTML = `<div style="color: #dc3545; text-align: center; padding: 1rem;">Failed to load feedback: ${escapeHTML(err.message)}</div>`;
       }
     };
   }
@@ -2830,30 +2845,55 @@
               return;
             }
             const backup = JSON.parse(backupStr);
+            const restoredAt = Date.now();
             if (backup.progress) {
+              Object.values(backup.progress).forEach(progress => { progress.updatedAt = restoredAt; });
               localStorage.setItem("voc_russian_progress", JSON.stringify(backup.progress));
             } else {
               localStorage.removeItem("voc_russian_progress");
             }
             if (backup.stats) {
+              backup.stats.updatedAt = restoredAt;
               localStorage.setItem("voc_russian_stats", JSON.stringify(backup.stats));
             } else {
               localStorage.removeItem("voc_russian_stats");
             }
             if (backup.grammarProgress) {
-              localStorage.setItem("voc_grammar_progress", JSON.stringify(backup.grammarProgress));
+              Object.values(backup.grammarProgress).forEach(progress => { progress.updatedAt = restoredAt; });
+              localStorage.setItem("voc_russian_grammar_progress", JSON.stringify(backup.grammarProgress));
             } else {
-              localStorage.removeItem("voc_grammar_progress");
+              localStorage.removeItem("voc_russian_grammar_progress");
             }
-            localStorage.removeItem("voc_progress_backup_before_placement");
+            if (backup.placementRewardClaimed) localStorage.setItem("voc_placement_reward_claimed", "true");
+            else localStorage.removeItem("voc_placement_reward_claimed");
+            if (backup.placementTestTaken) localStorage.setItem("voc_placement_test_taken", "true");
+            else localStorage.removeItem("voc_placement_test_taken");
             
-            // Re-init SRS
             SRS.init();
+            if (window.GrammarManager) window.GrammarManager.loadFromStorage();
             
             // Refresh
             updateSettingsBackupUI();
             if (window.refreshAppUI) window.refreshAppUI();
             if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
+            if (window.SupabaseSync?.user) {
+              if (window.SupabaseSync.isSyncing) throw new Error("A cloud sync is already running. Please retry when it finishes.");
+              // A restore is intentionally authoritative. Clear learning rows first so
+              // append-only event merging cannot reintroduce the placement reward.
+              const userId = window.SupabaseSync.user.id;
+              const client = window.SupabaseSync.client;
+              const cloudDeletes = await Promise.all([
+                client.from("voc_progress").delete().match({ user_id: userId }),
+                client.from("voc_stats").delete().match({ user_id: userId }),
+                client.from("voc_grammar_progress").delete().match({ user_id: userId })
+              ]);
+              const cloudDeleteError = cloudDeletes.find(result => result.error)?.error;
+              if (cloudDeleteError) throw cloudDeleteError;
+              const synced = await window.SupabaseSync.syncBoth();
+              if (!synced) throw new Error("The restored progress could not be synchronized to the cloud.");
+            }
+            localStorage.removeItem("voc_progress_backup_before_placement");
+            updateSettingsBackupUI();
             
             alert("Progress backup successfully restored!");
           } catch (e) {
@@ -2874,18 +2914,21 @@
             const progressStr = localStorage.getItem("voc_russian_progress");
             if (progressStr) {
               const progress = JSON.parse(progressStr);
+              const resetAt = Date.now();
               Object.keys(progress).forEach(id => {
                 progress[id].box = 1;
-                progress[id].nextReview = Date.now();
-                progress[id].correctCount = 0;
-                progress[id].wrongCount = 0;
-                progress[id].updatedAt = Date.now();
+                progress[id].nextReview = resetAt;
+                progress[id].updatedAt = resetAt;
               });
               localStorage.setItem("voc_russian_progress", JSON.stringify(progress));
             }
             
-            // Re-init SRS
+            // Re-init SRS and synchronize the updated schedules. Accuracy history is preserved.
             SRS.init();
+            if (window.SupabaseSync?.user) {
+              const synced = await window.SupabaseSync.syncBoth();
+              if (!synced) throw new Error("The reset schedules could not be synchronized to the cloud.");
+            }
             
             if (window.refreshAppUI) window.refreshAppUI();
             if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
@@ -3646,22 +3689,28 @@
     });
   }
 
+  const modalPreviousFocus = new Map();
+
   function openModal(id) {
-    if (modals[id]) {
-      modals[id].classList.add("active");
-    } else {
-      const el = document.getElementById(id);
-      if (el) el.classList.add("active");
-    }
+    const modal = modals[id] || document.getElementById(id);
+    if (!modal) return;
+    modalPreviousFocus.set(id, document.activeElement);
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden", "false");
+    setTimeout(() => {
+      const focusTarget = modal.querySelector(".modal-close-btn, button, input, select, textarea, [tabindex]:not([tabindex='-1'])");
+      if (focusTarget) focusTarget.focus();
+    }, 0);
   }
 
   function closeModal(id) {
-    if (modals[id]) {
-      modals[id].classList.remove("active");
-    } else {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove("active");
-    }
+    const modal = modals[id] || document.getElementById(id);
+    if (!modal) return;
+    modal.classList.remove("active");
+    modal.setAttribute("aria-hidden", "true");
+    const previousFocus = modalPreviousFocus.get(id);
+    if (previousFocus && document.contains(previousFocus)) previousFocus.focus();
+    modalPreviousFocus.delete(id);
   }
 
   window.openModal = openModal;
@@ -3768,7 +3817,7 @@
     } catch (err) {
       loadingEl.style.display = "none";
       console.error("Failed to load inflections:", err);
-      tablesContainer.innerHTML = `<div style="color:var(--color-error); padding: 1.5rem 0; text-align: center;">Error loading inflections: ${err.message || err}</div>`;
+      tablesContainer.innerHTML = `<div style="color:var(--color-error); padding: 1.5rem 0; text-align: center;">Error loading inflections: ${escapeHTML(err.message || err)}</div>`;
       contentEl.style.display = "flex";
     }
 
@@ -3778,7 +3827,7 @@
       tablesContainer.innerHTML = "";
 
       if (data.type === "not_applicable") {
-        tablesContainer.innerHTML = `<div class="inflection-not-applicable">${data.message || "This word does not undergo declension or conjugation."}</div>`;
+        tablesContainer.innerHTML = `<div class="inflection-not-applicable">${escapeHTML(data.message || "This word does not undergo declension or conjugation.")}</div>`;
         return;
       }
 
@@ -3804,9 +3853,9 @@
               <tbody>
                 ${data.forms.presentFuture.map(f => `
                   <tr>
-                    <td><strong>${f.pronoun}</strong></td>
-                    <td class="clickable-ru-word-wrap">${f.form}</td>
-                    <td>${f.english}</td>
+                    <td><strong>${escapeHTML(f.pronoun)}</strong></td>
+                    <td class="clickable-ru-word-wrap">${escapeHTML(f.form)}</td>
+                    <td>${escapeHTML(f.english)}</td>
                   </tr>
                 `).join("")}
               </tbody>
@@ -3836,9 +3885,9 @@
               <tbody>
                 ${data.forms.past.map(f => `
                   <tr>
-                    <td><strong>${f.gender}</strong></td>
-                    <td class="clickable-ru-word-wrap">${f.form}</td>
-                    <td>${f.english}</td>
+                    <td><strong>${escapeHTML(f.gender)}</strong></td>
+                    <td class="clickable-ru-word-wrap">${escapeHTML(f.form)}</td>
+                    <td>${escapeHTML(f.english)}</td>
                   </tr>
                 `).join("")}
               </tbody>
@@ -3868,9 +3917,9 @@
               <tbody>
                 ${data.forms.imperative.map(f => `
                   <tr>
-                    <td><strong>${f.type}</strong></td>
-                    <td class="clickable-ru-word-wrap">${f.form}</td>
-                    <td>${f.english}</td>
+                    <td><strong>${escapeHTML(f.type)}</strong></td>
+                    <td class="clickable-ru-word-wrap">${escapeHTML(f.form)}</td>
+                    <td>${escapeHTML(f.english)}</td>
                   </tr>
                 `).join("")}
               </tbody>
@@ -3900,9 +3949,9 @@
             <tbody>
               ${data.forms.declensions.map(f => `
                 <tr>
-                  <td><strong>${f.case}</strong></td>
-                  <td class="clickable-ru-word-wrap">${f.singular}</td>
-                  <td class="clickable-ru-word-wrap">${f.plural}</td>
+                  <td><strong>${escapeHTML(f.case)}</strong></td>
+                  <td class="clickable-ru-word-wrap">${escapeHTML(f.singular)}</td>
+                  <td class="clickable-ru-word-wrap">${escapeHTML(f.plural)}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -3953,13 +4002,13 @@
         else if (isCardFlipped) {
           if (e.key === "1") {
             e.preventDefault();
-            handleSrsScore(false);
+            handleSrsScore(false, "hard");
           } else if (e.key === "2") {
             e.preventDefault();
-            handleSrsScore(true); // good review
+            handleSrsScore(true, "good"); // good review
           } else if (e.key === "3") {
             e.preventDefault();
-            handleSrsScore(true); // easy review
+            handleSrsScore(true, "easy"); // easy review
           }
         }
       }
@@ -4941,7 +4990,7 @@
     
     customDecks.forEach(deck => {
       const count = allCustomWords.filter(w => w.deckId === deck.id).length;
-      html += `<option value="${deck.id}">${deck.name} (${count} words)</option>`;
+      html += `<option value="${escapeHTML(deck.id)}">${escapeHTML(deck.name)} (${count} words)</option>`;
     });
     
     studyDbSelect.innerHTML = html;
@@ -5000,7 +5049,7 @@
       info.style.flexDirection = "column";
       info.style.gap = "0.15rem";
       info.innerHTML = `
-        <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-main);">${deck.name}</span>
+        <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-text-main);">${escapeHTML(deck.name)}</span>
         <span style="font-size: 0.75rem; color: var(--color-text-muted);">${deck.count} words</span>
       `;
       row.appendChild(info);
@@ -5441,11 +5490,6 @@
     
     const currentStreak = stats.streak || 0;
     const maxStreak = Math.max(currentStreak, stats.settings?.maxStreak || 0);
-    if (!stats.settings) stats.settings = {};
-    if (maxStreak > (stats.settings.maxStreak || 0)) {
-      stats.settings.maxStreak = maxStreak;
-      SRS.setSetting("maxStreak", maxStreak);
-    }
 
     const streakVal = document.getElementById("stats-streak-value");
     if (streakVal) streakVal.textContent = currentStreak;
@@ -5572,9 +5616,9 @@
       Object.entries(TOPICS_MAP).forEach(([id, name]) => {
         const progress = progressMap[id] || {};
         const lessonCompleted = (progress.lessonsCompleted || 0) > 0;
-        const quizzesTaken = progress.quizzesTaken || 0;
-        const avgScore = progress.avgScore || 0;
-        const topicMastery = Math.min(100, Math.round((lessonCompleted ? 40 : 0) + (quizzesTaken > 0 ? avgScore * 0.6 : 0)));
+        const levelRecords = Object.values(progressMap).filter(p => p.topicId && p.topicId.startsWith(`${id}_`) && (p.quizzesTaken || 0) > 0);
+        const quizzesTaken = levelRecords.reduce((sum, p) => sum + (p.quizzesTaken || 0), 0);
+        const topicMastery = window.GrammarManager ? window.GrammarManager.getTopicMastery(id) : 0;
 
         html += `
           <div class="card stat-card" style="padding: 1rem; border: 1px solid var(--border-glass); background: var(--bg-input); display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; border-radius: var(--border-radius-md);">

@@ -1,9 +1,10 @@
+import os
 import urllib.request
 import json
 import base64
 
 SUPABASE_URL = "https://bghuansvungabgsbxqjh.supabase.co"
-SERVICE_KEY = base64.b64decode('c2Jfc2VjcmV0X1JYOWxGWW95M2JvaWI3QVhvY1ZkZ3dfUG42Tmp1OUs=').decode('utf-8')
+SERVICE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
 headers = {
     "apikey": SERVICE_KEY,

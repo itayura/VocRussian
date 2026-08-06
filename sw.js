@@ -1,15 +1,21 @@
 // Privyetik Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v37";
+const CACHE_NAME = "voc-russian-cache-v38";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
   "./logo.jpeg",
-  "./css/styles.css",
+  "./privacy.html",
+  "./css/styles.css?v=36",
   "./js/app.js",
   "./js/audio.js",
   "./js/db.js",
-  "./js/db_expanded.js"
+  "./js/db_expanded.js",
+  "./js/srs.js",
+  "./js/supabase.js",
+  "./js/grammar.js",
+  "./js/alphabet.js",
+  "./js/placement.js"
 ];
 
 // Install Event
@@ -42,7 +48,21 @@ self.addEventListener("activate", (event) => {
 
 // Fetch Event (Network-First for code/styles to guarantee instant updates)
 self.addEventListener("fetch", (event) => {
-  if (!event.request.url.startsWith(self.location.origin)) {
+  const requestUrl = new URL(event.request.url);
+  const isSupabaseCdn = requestUrl.hostname === "cdn.jsdelivr.net" && requestUrl.pathname.includes("@supabase/supabase-js");
+  if (requestUrl.origin !== self.location.origin && !isSupabaseCdn) return;
+
+  if (isSupabaseCdn) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(async cache => {
+        const cached = await cache.match(event.request);
+        const network = fetch(event.request).then(response => {
+          if (response.ok || response.type === "opaque") cache.put(event.request, response.clone());
+          return response;
+        }).catch(() => null);
+        return cached || await network || new Response("Offline dependency unavailable", { status: 503 });
+      })
+    );
     return;
   }
 
@@ -74,7 +94,12 @@ self.addEventListener("fetch", (event) => {
           }
           return networkResponse;
         })
-        .catch(() => caches.match(event.request))
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          if (cached) return cached;
+          if (event.request.mode === "navigate") return caches.match("./index.html");
+          return new Response("Offline", { status: 503, statusText: "Offline" });
+        })
     );
     return;
   }
@@ -92,7 +117,7 @@ self.addEventListener("fetch", (event) => {
           // If network fetch fails (e.g. offline), just let it resolve silently since we might have cached response
         });
         
-        return cachedResponse || fetchPromise;
+        return cachedResponse || fetchPromise.then(response => response || new Response("Offline", { status: 503, statusText: "Offline" }));
       });
     })
   );

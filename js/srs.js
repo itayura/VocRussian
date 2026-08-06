@@ -10,6 +10,9 @@
     5: 14 * 24 * 60 * 60 * 1000,  // Box 5: 14 days
   };
 
+  const DAILY_STREAK_XP = 20;
+  const MAX_ACTIVITY_LOG_ENTRIES = 500;
+
   const STORAGE_KEYS = {
     PROGRESS: "voc_russian_progress", // card status: box, nextReview, stats
     CUSTOM_WORDS: "voc_russian_custom", // custom words added by user
@@ -51,6 +54,12 @@
       if (!globalStats.settings) {
         globalStats.settings = {};
       }
+      const legacyDummy = cardProgress.dummy_xp_holder;
+      if (legacyDummy) {
+        globalStats.totalCorrect = Math.max(0, (globalStats.totalCorrect || 0) - (legacyDummy.correctCount || 0));
+        globalStats.totalAttempts = Math.max(0, (globalStats.totalAttempts || 0) - (legacyDummy.correctCount || 0) - (legacyDummy.wrongCount || 0));
+        delete cardProgress.dummy_xp_holder;
+      }
     } catch (e) {
       console.error("Failed to load local storage state, initializing empty.", e);
       cardProgress = {};
@@ -76,6 +85,19 @@
     return `${y}-${m}-${d}`;
   }
 
+  function getCalendarDayNumber(dateString) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString || "");
+    if (!match) return null;
+    return Math.floor(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])) / 86400000);
+  }
+
+  function getCalendarDayDifference(fromDate, toDate) {
+    const fromDay = getCalendarDayNumber(fromDate);
+    const toDay = getCalendarDayNumber(toDate);
+    if (fromDay === null || toDay === null) return null;
+    return toDay - fromDay;
+  }
+
   function checkAndUpdateStreak() {
     const todayStr = getFormattedDate();
     if (!globalStats.lastActiveDate) {
@@ -83,55 +105,61 @@
       return;
     }
 
-    const lastDate = new Date(globalStats.lastActiveDate);
-    const todayDate = new Date(todayStr);
-    
-    // Reset time components for accurate date difference
-    lastDate.setHours(0,0,0,0);
-    todayDate.setHours(0,0,0,0);
+    const diffDays = getCalendarDayDifference(globalStats.lastActiveDate, todayStr);
 
-    const diffTime = todayDate - lastDate;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 1) {
+    if (diffDays !== null && diffDays > 1) {
       // Streak broken
       globalStats.streak = 0;
     }
   }
 
-  function addXP(amount) {
+  function addXP(amount, source = "general", metadata = {}) {
+    if (!Number.isFinite(amount) || amount <= 0) return 0;
     globalStats.xp = (globalStats.xp || 0) + amount;
     
     // Track daily XP log
     const todayStr = getFormattedDate();
     globalStats.dailyXpLog = globalStats.dailyXpLog || {};
-    globalStats.dailyXpLog[todayStr] = (globalStats.dailyXpLog[todayStr] || 0) + amount;
+    const previousDailyXp = globalStats.dailyXpLog[todayStr] || 0;
+    globalStats.dailyXpLog[todayStr] = previousDailyXp + amount;
 
-    // Update streak activity
+    globalStats.activityLog = Array.isArray(globalStats.activityLog) ? globalStats.activityLog : [];
+    globalStats.activityLog.push({
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      source,
+      xp: amount,
+      date: todayStr,
+      occurredAt: Date.now(),
+      ...metadata
+    });
+    if (globalStats.activityLog.length > MAX_ACTIVITY_LOG_ENTRIES) {
+      globalStats.activityLog = globalStats.activityLog.slice(-MAX_ACTIVITY_LOG_ENTRIES);
+    }
+
+    // A streak day is earned only once the documented daily XP goal is reached.
     const lastActive = globalStats.lastActiveDate;
     const today = getFormattedDate();
-    if (lastActive !== today) {
+    const crossedDailyGoal = previousDailyXp < DAILY_STREAK_XP && globalStats.dailyXpLog[todayStr] >= DAILY_STREAK_XP;
+    if (crossedDailyGoal && lastActive !== today) {
       if (lastActive) {
-        const lastDate = new Date(lastActive);
-        const todayDate = new Date(today);
-        lastDate.setHours(0,0,0,0);
-        todayDate.setHours(0,0,0,0);
-        const diffTime = todayDate - lastDate;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffDays = getCalendarDayDifference(lastActive, today);
 
         if (diffDays === 1) {
           globalStats.streak = (globalStats.streak || 0) + 1;
-        } else if (diffDays > 1) {
+        } else if (diffDays === null || diffDays > 1) {
           globalStats.streak = 1;
         }
       } else {
         globalStats.streak = 1;
       }
       globalStats.lastActiveDate = today;
+      globalStats.settings = globalStats.settings || {};
+      globalStats.settings.maxStreak = Math.max(globalStats.settings.maxStreak || 0, globalStats.streak || 0);
     }
     globalStats.updatedAt = Date.now();
     saveToStorage();
     triggerBgPush("stats", null, globalStats);
+    return amount;
   }
 
   // --- PUBLIC API ---
@@ -217,7 +245,7 @@
     },
 
     // Score a card based on active study outcome
-    scoreCard: function (id, isCorrect) {
+    scoreCard: function (id, isCorrect, rating = "good") {
       const prog = this.getCardProgress(id);
       
       prog.correctCount = prog.correctCount || 0;
@@ -234,26 +262,40 @@
         
         // Move up Leitner boxes and calculate next review timestamp only if card was due (or brand new)
         if (isDue) {
-          prog.box = Math.min((prog.box || 1) + 1, 5);
+          const boxIncrease = rating === "easy" ? 2 : 1;
+          prog.box = Math.min((prog.box || 1) + boxIncrease, 5);
           const interval = INTERVALS[prog.box];
           prog.nextReview = Date.now() + interval;
         }
-        xpGained = 15; // 15 XP for correct answer
+        xpGained = isDue ? 15 : 0; // Optional practice should not be an unlimited XP source.
       } else {
         prog.wrongCount++;
         // Reset to box 1 (strict Leitner) and schedule review for tomorrow
         prog.box = 1;
         const interval = INTERVALS[prog.box];
         prog.nextReview = Date.now() + interval;
-        xpGained = 5; // 5 XP for attempt/fail
+        xpGained = isDue ? 5 : 0; // Non-due practice does not award repeatable XP.
       }
 
       // Update progress memory
       prog.updatedAt = Date.now();
+      prog.reviewEvents = Array.isArray(prog.reviewEvents) ? prog.reviewEvents : [];
+      prog.reviewEvents.push({
+        id: `${prog.updatedAt}_${Math.random().toString(36).slice(2, 8)}`,
+        correct: !!isCorrect,
+        due: isDue,
+        rating,
+        at: prog.updatedAt,
+        box: prog.box,
+        nextReview: prog.nextReview
+      });
+      if (prog.reviewEvents.length > 100) prog.reviewEvents = prog.reviewEvents.slice(-100);
       cardProgress[id] = prog;
       
       // Save stats
-      addXP(xpGained);
+      if (xpGained > 0) {
+        addXP(xpGained, "vocab_review", { wordId: id, correct: isCorrect, due: isDue });
+      }
       saveToStorage();
       
       triggerBgPush("progress", id, prog);
@@ -386,14 +428,51 @@
     // Set Leitner Box manually
     setCardBox: function (id, newBox) {
       const prog = this.getCardProgress(id);
-      prog.box = newBox;
-      const interval = INTERVALS[newBox];
+      const normalizedBox = Math.max(1, Math.min(5, Math.round(Number(newBox) || 1)));
+      prog.box = normalizedBox;
+      const interval = INTERVALS[normalizedBox];
       prog.nextReview = Date.now() + interval;
       prog.updatedAt = Date.now();
       cardProgress[id] = prog;
       saveToStorage();
       triggerBgPush("progress", id, prog);
       return prog;
+    },
+
+    promoteCardToBox: function (id, targetBox) {
+      const prog = this.getCardProgress(id);
+      const normalizedTarget = Math.max(1, Math.min(5, Number(targetBox) || 1));
+      if ((prog.box || 1) >= normalizedTarget) return prog;
+      prog.box = normalizedTarget;
+      prog.nextReview = Date.now() + INTERVALS[normalizedTarget];
+      prog.updatedAt = Date.now();
+      cardProgress[id] = prog;
+      saveToStorage();
+      triggerBgPush("progress", id, prog);
+      return prog;
+    },
+
+    promoteCardsToBoxes: function (promotions) {
+      if (!Array.isArray(promotions) || promotions.length === 0) return 0;
+      const now = Date.now();
+      let changed = 0;
+      promotions.forEach(({ id, targetBox }) => {
+        if (!id) return;
+        const prog = this.getCardProgress(id);
+        const normalizedTarget = Math.max(1, Math.min(5, Number(targetBox) || 1));
+        if ((prog.box || 1) >= normalizedTarget) return;
+        prog.box = normalizedTarget;
+        prog.nextReview = now + INTERVALS[normalizedTarget];
+        prog.updatedAt = now;
+        cardProgress[id] = prog;
+        changed++;
+      });
+      if (changed > 0) {
+        saveToStorage();
+        // One merged sync covers the batch without thousands of localStorage writes.
+        triggerBgPush("stats", null, globalStats);
+      }
+      return changed;
     },
 
     // Get stats summary
@@ -451,6 +530,12 @@
       localStorage.removeItem(STORAGE_KEYS.GLOBAL_STATS);
       localStorage.removeItem("voc_russian_overrides");
       localStorage.removeItem("voc_russian_deleted_custom_ids");
+      localStorage.removeItem("voc_russian_grammar_progress");
+      localStorage.removeItem("voc_grammar_progress");
+      localStorage.removeItem("voc_placement_test_taken");
+      localStorage.removeItem("voc_placement_reward_claimed");
+      localStorage.removeItem("voc_progress_backup_before_placement");
+      localStorage.removeItem("voc_alphabet_game_completed");
       
       cardProgress = {};
       customWords = [];
@@ -466,27 +551,67 @@
         progress: cardProgress,
         customWords: customWords,
         stats: globalStats,
-        overrides: JSON.parse(localStorage.getItem("voc_russian_overrides")) || {}
+        overrides: JSON.parse(localStorage.getItem("voc_russian_overrides")) || {},
+        grammarProgress: window.GrammarManager ? window.GrammarManager.getGrammarProgressMap() : {},
+        placementTestTaken: localStorage.getItem("voc_placement_test_taken") === "true",
+        placementRewardClaimed: localStorage.getItem("voc_placement_reward_claimed") === "true",
+        alphabetCompleted: localStorage.getItem("voc_alphabet_game_completed") === "true"
       };
       return JSON.stringify(data, null, 2);
     },
 
-    // Import payload
+    // Import payload. Validate the entire backup before changing any live state.
     importJSON: function (jsonStr) {
       try {
-        const data = JSON.parse(jsonStr);
-        if (data.progress) cardProgress = data.progress;
-        if (data.customWords) customWords = data.customWords;
-        if (data.stats) globalStats = data.stats;
-        
-        if (data.overrides) {
-          localStorage.setItem("voc_russian_overrides", JSON.stringify(data.overrides));
+        if (typeof jsonStr !== "string" || jsonStr.length > 10 * 1024 * 1024) {
+          throw new Error("Backup is empty or too large.");
         }
-        
+        const data = JSON.parse(jsonStr);
+        const isRecord = value => value && typeof value === "object" && !Array.isArray(value);
+        if (!isRecord(data) || !isRecord(data.progress) || !Array.isArray(data.customWords) || !isRecord(data.stats)) {
+          throw new Error("Backup is missing required progress, word, or statistics data.");
+        }
+        Object.entries(data.progress).forEach(([id, progress]) => {
+          if (!id || !isRecord(progress)) throw new Error("Invalid card progress entry.");
+          const box = Number(progress.box || 1);
+          if (!Number.isInteger(box) || box < 1 || box > 5) throw new Error("Invalid Leitner box value.");
+          ["correctCount", "wrongCount"].forEach(key => {
+            if (progress[key] !== undefined && (!Number.isFinite(progress[key]) || progress[key] < 0)) throw new Error("Invalid review count.");
+          });
+          if (progress.reviewEvents !== undefined && !Array.isArray(progress.reviewEvents)) throw new Error("Invalid review history.");
+        });
+        data.customWords.forEach(word => {
+          if (!isRecord(word) || typeof word.id !== "string" || typeof word.word !== "string" || typeof word.translation !== "string") {
+            throw new Error("Invalid custom word entry.");
+          }
+        });
+        ["xp", "streak", "totalCorrect", "totalAttempts"].forEach(key => {
+          if (data.stats[key] !== undefined && (!Number.isFinite(data.stats[key]) || data.stats[key] < 0)) throw new Error("Invalid statistics value.");
+        });
+        if (data.stats.dailyXpLog !== undefined && !isRecord(data.stats.dailyXpLog)) throw new Error("Invalid daily XP history.");
+        if (data.stats.activityLog !== undefined && !Array.isArray(data.stats.activityLog)) throw new Error("Invalid activity history.");
+        if (data.overrides !== undefined && !isRecord(data.overrides)) throw new Error("Invalid word overrides.");
+        if (data.grammarProgress !== undefined && !isRecord(data.grammarProgress)) throw new Error("Invalid grammar progress.");
+
+        cardProgress = data.progress;
+        customWords = data.customWords;
+        globalStats = data.stats;
+        globalStats.settings = isRecord(globalStats.settings) ? globalStats.settings : {};
+        localStorage.setItem("voc_russian_overrides", JSON.stringify(data.overrides || {}));
+        localStorage.setItem("voc_russian_grammar_progress", JSON.stringify(data.grammarProgress || {}));
+        if (window.GrammarManager) window.GrammarManager.loadFromStorage();
+
+        if (data.placementTestTaken === true) localStorage.setItem("voc_placement_test_taken", "true");
+        else localStorage.removeItem("voc_placement_test_taken");
+        if (data.placementRewardClaimed === true) localStorage.setItem("voc_placement_reward_claimed", "true");
+        else localStorage.removeItem("voc_placement_reward_claimed");
+        if (data.alphabetCompleted === true) localStorage.setItem("voc_alphabet_game_completed", "true");
+        else localStorage.removeItem("voc_alphabet_game_completed");
+
         saveToStorage();
         return true;
       } catch (e) {
-        console.error("Invalid JSON format for import", e);
+        console.error("Invalid backup import", e);
         return false;
       }
     },
@@ -610,8 +735,14 @@
         triggerBgPush("progress", id, prog);
       }
     },
-    addXP: function(amount) {
-      addXP(amount);
+    addXP: function(amount, source = "general", metadata = {}) {
+      return addXP(amount, source, metadata);
+    },
+    addActivityXP: function(amount, source, metadata = {}) {
+      return addXP(amount, source, metadata);
+    },
+    getDailyStreakGoal: function() {
+      return DAILY_STREAK_XP;
     }
   };
 

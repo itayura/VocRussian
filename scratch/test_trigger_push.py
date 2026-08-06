@@ -1,10 +1,11 @@
+import os
 import urllib.request
 import json
 import base64
 
 SUPABASE_URL = "https://bghuansvungabgsbxqjh.supabase.co"
-SERVICE_KEY = base64.b64decode('c2Jfc2VjcmV0X1JYOWxGWW95M2JvaWI3QVhvY1ZkZ3dfUG42Tmp1OUs=').decode('utf-8')
-USER_ID = "5ddde313-a242-46b1-9345-e7277015b3ea"
+SERVICE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+USER_ID = os.environ["SUPABASE_TEST_USER_ID"]
 
 url = f"{SUPABASE_URL}/functions/v1/send-push"
 payload = json.dumps({
