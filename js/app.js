@@ -1432,15 +1432,21 @@
     }
 
     // TTS speaker buttons
-    document.getElementById("tts-normal-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (currentCard) AudioEngine.speak(currentCard.word, 1.0);
-    });
-    document.getElementById("tts-slow-btn").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (currentCard) AudioEngine.speak(currentCard.word, 0.55);
-    });
+    const normalTtsBtn = document.getElementById("tts-normal-btn");
+    const slowTtsBtn = document.getElementById("tts-slow-btn");
+    if (normalTtsBtn) {
+      normalTtsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (currentCard) AudioEngine.speak(currentCard.word, 1.0);
+      });
+    }
+    if (slowTtsBtn) {
+      slowTtsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (currentCard) AudioEngine.speak(currentCard.word, 0.55);
 
+      });
+    }
     // --- FLASHCARD EVENTS ---
     const flashcardClickArea = document.getElementById("flashcard-click-wrapper");
     flashcardClickArea.addEventListener("click", flipFlashcard);
@@ -1591,10 +1597,27 @@
     document.getElementById("study-sub-choice").style.display = mode === "choice" ? "block" : "none";
     document.getElementById("study-sub-writing").style.display = mode === "writing" ? "block" : "none";
     document.getElementById("study-sub-complete").style.display = "none";
+    placeStudyAudioControls(mode);
 
     loadCardInSession();
   }
 
+  function placeStudyAudioControls(mode) {
+    const controls = document.querySelector("#view-study-active .audio-controls");
+    const stage = document.getElementById(`study-sub-${mode}`);
+    if (!controls || !stage) return;
+    controls.classList.add("study-audio-controls");
+    const anchor = mode === "flashcard"
+      ? document.getElementById("fc-rating-panel")
+      : mode === "choice"
+        ? document.getElementById("choices-container")
+        : stage.querySelector(".writing-input-wrapper");
+    if (anchor && anchor.parentElement === stage) {
+      stage.insertBefore(controls, anchor);
+    } else {
+      stage.appendChild(controls);
+    }
+  }
   function loadCardInSession() {
     currentCard = sessionDeck[sessionIndex];
     isCardFlipped = false;

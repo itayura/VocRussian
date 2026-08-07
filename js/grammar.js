@@ -943,6 +943,16 @@
     setupEventListeners: function () {
       const self = this;
 
+      const quizAudioBtn = document.getElementById("quiz-tts-btn");
+      const quizTranslation = document.getElementById("quiz-translation-prompt");
+      if (quizAudioBtn && quizTranslation && !quizAudioBtn.closest(".practice-audio-controls")) {
+        const controls = document.createElement("div");
+        controls.className = "practice-audio-controls";
+        controls.setAttribute("aria-label", "Practice pronunciation controls");
+        quizTranslation.insertAdjacentElement("afterend", controls);
+        controls.appendChild(quizAudioBtn);
+      }
+
       // Subtab pills
       document.getElementById("grammar-tab-tutor").addEventListener("click", () => self.switchSubtab("tutor"));
       document.getElementById("grammar-tab-practice").addEventListener("click", () => self.switchSubtab("practice"));

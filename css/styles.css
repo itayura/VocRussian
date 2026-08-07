@@ -2917,3 +2917,28 @@ body.practice-focus #quiz-next-btn {
   padding: 0.8rem !important;
   box-shadow: var(--shadow-main);
 }
+
+/* Keep pronunciation actions attached to the active prompt, not the page header. */
+#view-study-active .page-header > .audio-controls {
+  margin-top: 0;
+}
+
+.study-audio-controls {
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.65rem auto;
+}
+
+.study-audio-controls .audio-btn {
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+}
+
+.practice-audio-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.35rem;
+}

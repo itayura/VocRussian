@@ -277,6 +277,8 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await flashcardSelect.click();
     await expect(page.locator('#view-study-active')).toHaveClass(/active/);
     await expect(page.locator('#study-sub-flashcard')).toBeVisible();
+    await expect(page.locator('#view-study-active .page-header .audio-controls')).toHaveCount(0);
+    await expect(page.locator('#study-sub-flashcard .study-audio-controls')).toBeVisible();
 
     const flashcardWrapper = page.locator('.flashcard-wrapper');
     if (isMobile) {
@@ -507,6 +509,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     // Start quiz
     await page.locator('#practice-start-btn').click();
     await expect(page.locator('#practice-active-screen')).toBeVisible();
+    await expect(page.locator('#practice-active-screen .practice-audio-controls')).toBeVisible();
 
     await expect(page.locator('body')).toHaveClass(/practice-focus/);
     await expect(page.locator('aside')).toHaveCSS('display', 'none');
