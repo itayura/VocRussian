@@ -268,6 +268,31 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#sidebar-xp-val')).toContainText('0');
   });
 
+  test('Back closes onboarding from the first page without completing it', async ({ page }) => {
+    await page.evaluate(() => {
+      sessionStorage.setItem('test_fresh_onboarding', 'true');
+      localStorage.removeItem('voc_onboarding_completed_v1');
+    });
+    await page.reload();
+    await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
+
+    const onboarding = page.locator('#onboarding-modal');
+    const backButton = page.locator('#onboarding-back-btn');
+    await expect(onboarding).toHaveClass(/active/);
+    await expect(backButton).toBeVisible();
+
+    await page.locator('#onboarding-next-btn').click();
+    await backButton.click();
+    await expect(onboarding).toHaveClass(/active/);
+    await expect(onboarding).toContainText('built only for Russian');
+
+    await backButton.click();
+    await expect(onboarding).not.toHaveClass(/active/);
+    await expect(onboarding).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('#view-landing')).toHaveClass(/active/);
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('voc_onboarding_completed_v1'))).toBeNull();
+  });
+
   test('New users create an account before completing their chosen learning path', async ({ page }) => {
     await page.evaluate(() => {
       sessionStorage.setItem('test_fresh_onboarding', 'true');

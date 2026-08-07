@@ -4101,6 +4101,8 @@
       if (onboardingStep > 0) {
         onboardingStep -= 1;
         renderOnboardingStep();
+      } else {
+        dismissOnboarding();
       }
     });
 
@@ -4153,10 +4155,12 @@
     document.addEventListener("keydown", event => {
       if (!modal.classList.contains("active")) return;
       if (event.key === "Escape" && onboardingReplayMode) {
-        completeOnboarding("dashboard");
+        dismissOnboarding();
       } else if (event.key === "Escape" && onboardingStep > 0) {
         onboardingStep -= 1;
         renderOnboardingStep();
+      } else if (event.key === "Escape") {
+        dismissOnboarding();
       } else if (event.key === "ArrowLeft" && onboardingStep > 0) {
         onboardingStep -= 1;
         renderOnboardingStep();
@@ -4209,7 +4213,6 @@
     const backBtn = document.getElementById("onboarding-back-btn");
     const nextBtn = document.getElementById("onboarding-next-btn");
     const skipBtn = document.getElementById("onboarding-skip-btn");
-    backBtn.hidden = onboardingStep === 0;
     nextBtn.textContent = onboardingStep === 0
       ? "Show me how it works"
       : onboardingStep === 1
@@ -4310,6 +4313,24 @@
     if (!pendingTarget) return;
     completeOnboarding(pendingTarget);
   };
+
+  function dismissOnboarding() {
+    const modal = document.getElementById("onboarding-modal");
+    if (modal) {
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("onboarding-open");
+
+    const returnView = onboardingReplayMode ? "settings" : "landing";
+    switchView(returnView);
+    setTimeout(() => {
+      const focusTarget = onboardingReplayMode
+        ? document.getElementById("settings-replay-onboarding-btn")
+        : document.getElementById("landing-cta-start");
+      focusTarget?.focus({ preventScroll: true });
+    }, 0);
+  }
 
   function completeOnboarding(targetViewId) {
     const modal = document.getElementById("onboarding-modal");
