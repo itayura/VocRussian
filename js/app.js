@@ -2607,7 +2607,7 @@
 
     // Supabase Sync Now
     document.getElementById("supabase-sync-now-btn").addEventListener("click", async () => {
-      await window.SupabaseSync.syncBoth();
+      await window.SupabaseSync.syncBoth({ manual: true });
     });
 
     // Supabase Auto-sync toggle
@@ -2939,7 +2939,7 @@
               ]);
               const cloudDeleteError = cloudDeletes.find(result => result.error)?.error;
               if (cloudDeleteError) throw cloudDeleteError;
-              const synced = await window.SupabaseSync.syncBoth();
+              const synced = await window.SupabaseSync.syncBoth({ manual: true });
               if (!synced) throw new Error("The restored progress could not be synchronized to the cloud.");
             }
             localStorage.removeItem("voc_progress_backup_before_placement");
@@ -2976,7 +2976,7 @@
             // Re-init SRS and synchronize the updated schedules. Accuracy history is preserved.
             SRS.init();
             if (window.SupabaseSync?.user) {
-              const synced = await window.SupabaseSync.syncBoth();
+              const synced = await window.SupabaseSync.syncBoth({ manual: true });
               if (!synced) throw new Error("The reset schedules could not be synchronized to the cloud.");
             }
             

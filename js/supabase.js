@@ -18,6 +18,9 @@
     authMode: "login", // 'login' | 'signup'
     isSyncing: false,
     pendingSyncTimeout: null,
+    autoSyncRetryTimeout: null,
+    autoSyncRetryCount: 0,
+    pendingAutoSync: false,
 
     init: async function () {
       console.log("[SupabaseSync] init() started using URL:", CONFIG.URL);
@@ -63,10 +66,15 @@
           }
         }, 5 * 60 * 1000);
 
-        // Setup visibility change auto-backup (when user switches or minimizes app)
+        // Android can suspend fetches as the app is backgrounded. Resume instead.
         document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden" && this.connectionState === "connected" && this.user) {
-            this.triggerAutoSync();
+          if (document.visibilityState === "visible" && this.connectionState === "connected" && this.user) {
+            this.triggerAutoSync({ delay: 1000 });
+          }
+        });
+        window.addEventListener("online", () => {
+          if (this.connectionState === "connected" && this.user) {
+            this.triggerAutoSync({ delay: 500 });
           }
         });
       } catch (e) {
@@ -188,7 +196,7 @@
           if (this.isSyncing) {
             this.handleLocalChange(type, id, data);
           } else {
-            this.syncBoth();
+            this.triggerAutoSync();
           }
         }, 1000);
         return;
@@ -267,9 +275,15 @@
     },
 
     // Bidirectional Sync algorithm
-    syncBoth: async function () {
+    syncBoth: async function (options = {}) {
+      const manual = options.manual === true;
       if (this.connectionState !== "connected" || !this.user) {
-        alert("Please sign in first to synchronize your progress.");
+        if (manual) alert("Please sign in first to synchronize your progress.");
+        return false;
+      }
+      if (!navigator.onLine) {
+        if (manual) alert("You appear to be offline. Your progress stays safely on this device and will sync when you reconnect.");
+        else this.scheduleAutoSyncRetry(new TypeError("Failed to fetch"));
         return false;
       }
 
@@ -586,14 +600,12 @@
           finalOverridesMap
         );
 
+        const grammarSynced = !window.GrammarManager || typeof window.GrammarManager.syncWithCloud !== "function" || await window.GrammarManager.syncWithCloud();
+        if (!grammarSynced) throw new Error("Grammar progress could not be synchronized.");
+
         const syncTime = new Date().toLocaleString();
         localStorage.setItem(STORAGE_KEYS.LAST_SYNC, syncTime);
         console.log("[SupabaseSync] Sync completed successfully at:", syncTime);
-
-        // Sync Grammar Progress
-        if (window.GrammarManager && typeof window.GrammarManager.syncWithCloud === "function") {
-          await window.GrammarManager.syncWithCloud();
-        }
 
         // Refresh UI
         if (window.refreshAppUI) {
@@ -601,12 +613,20 @@
         }
 
         this.isSyncing = false;
+        this.pendingAutoSync = false;
+        this.autoSyncRetryCount = 0;
         this.updateSyncButtonState(false);
         this.updateUI();
         return true;
       } catch (e) {
         console.error("Bidirectional Sync failed:", e);
-        alert("Synchronization failed: " + e.message);
+        if (manual) {
+          alert(this.getManualSyncErrorMessage(e));
+        } else if (this.isTransientNetworkError(e)) {
+          this.scheduleAutoSyncRetry(e);
+        } else {
+          console.warn("Automatic sync failed and will wait for the next scheduled attempt:", e);
+        }
         this.isSyncing = false;
         this.updateSyncButtonState(false);
         this.updateUI();
@@ -616,19 +636,15 @@
 
     onLoginSuccess: function () {
       console.log("Logged in user:", this.user.email);
-      // Run automatic pull/push sync in background on login
+      // Defer login sync until the app is visible and has a network connection.
       setTimeout(() => {
-        this.syncBoth().then((success) => {
-          if (success) {
-            console.log("Auto-sync on login complete.");
-            if (window.syncPushSubscriptionWithCloud) {
-              window.syncPushSubscriptionWithCloud();
-            }
-            if (window.GrammarManager && typeof window.GrammarManager.prefetchQuizToBuffer === "function") {
-              window.GrammarManager.prefetchQuizToBuffer();
-            }
-          }
-        });
+        this.triggerAutoSync({ delay: 500 });
+        if (window.syncPushSubscriptionWithCloud) {
+          window.syncPushSubscriptionWithCloud();
+        }
+        if (window.GrammarManager && typeof window.GrammarManager.prefetchQuizToBuffer === "function") {
+          window.GrammarManager.prefetchQuizToBuffer();
+        }
       }, 500);
     },
 
@@ -775,11 +791,49 @@
       return data;
     },
 
-    triggerAutoSync: function () {
+    isTransientNetworkError: function (error) {
+      const message = String(error && (error.message || error)).toLowerCase();
+      return error instanceof TypeError || /failed to fetch|network|load failed|timeout|timed out|connection/.test(message);
+    },
+    getManualSyncErrorMessage: function (error) {
+      if (this.isTransientNetworkError(error)) {
+        return "Couldn't reach the sync service. Check your connection and try again; your progress remains saved on this device.";
+      }
+      return "Synchronization failed: " + (error && error.message ? error.message : "Unknown error");
+    },
+    scheduleAutoSyncRetry: function (error) {
+      this.pendingAutoSync = true;
+      if (!navigator.onLine || document.visibilityState === "hidden") return;
+      clearTimeout(this.autoSyncRetryTimeout);
+      const delay = Math.min(30000, 1000 * (2 ** this.autoSyncRetryCount));
+      this.autoSyncRetryCount = Math.min(this.autoSyncRetryCount + 1, 5);
+      this.autoSyncRetryTimeout = setTimeout(() => {
+        this.autoSyncRetryTimeout = null;
+        if (navigator.onLine && document.visibilityState !== "hidden") this.triggerAutoSync();
+      }, delay);
+      console.warn(`[SupabaseSync] Retrying automatic sync in ${delay}ms:`, error);
+    },
+    triggerAutoSync: function (options = {}) {
       if (this.connectionState !== "connected" || !this.user || this.isSyncing) return;
       if (!this.isAutoSyncEnabled()) return;
+      this.pendingAutoSync = true;
+      const delay = Math.max(0, Number(options.delay) || 0);
+      if (delay > 0) {
+        clearTimeout(this.autoSyncRetryTimeout);
+        this.autoSyncRetryTimeout = setTimeout(() => {
+          this.autoSyncRetryTimeout = null;
+          this.triggerAutoSync();
+        }, delay);
+        return;
+      }
+      if (!navigator.onLine || document.visibilityState === "hidden") return;
       console.log("[SupabaseSync] Triggering auto background cloud backup...");
-      this.syncBoth();
+      this.syncBoth({ manual: false }).then((success) => {
+        if (success) {
+          this.pendingAutoSync = false;
+          this.autoSyncRetryCount = 0;
+        }
+      });
     }
   };
 
