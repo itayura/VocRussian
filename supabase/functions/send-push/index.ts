@@ -91,6 +91,19 @@ serve(async (req) => {
     let sentCount = 0;
     let failedCount = 0;
 
+    const logDelivery = async (subscription: { id: number; user_id: string }, status: "accepted" | "failed", statusCode: number | null, errorMessage: string | null) => {
+      const { error } = await supabaseClient.from("push_delivery_logs").insert({
+        user_id: subscription.user_id,
+        subscription_id: subscription.id,
+        status,
+        status_code: statusCode,
+        error_message: errorMessage,
+      });
+      if (error) {
+        console.error("Failed to record push delivery diagnostic:", error.message);
+      }
+    };
+
     for (const sub of subscriptions) {
       try {
         await webpush.sendNotification(
@@ -102,10 +115,12 @@ serve(async (req) => {
           { urgency: "high", TTL: 86400 },
         );
         sentCount++;
+        await logDelivery(sub, "accepted", null, null);
       } catch (error) {
         failedCount++;
         const statusCode = Number((error as { statusCode?: number })?.statusCode ?? 0);
         console.error(`Push delivery failed for subscription ${sub.id} with status ${statusCode || "unknown"}.`);
+        await logDelivery(sub, "failed", statusCode || null, error instanceof Error ? error.message.slice(0, 500) : "Unknown push service error");
 
         if (statusCode === 404 || statusCode === 410) {
           const { error: deleteError } = await supabaseClient

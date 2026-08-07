@@ -4591,6 +4591,11 @@
     const remindersToggle = document.getElementById("settings-reminders-enabled");
     const reminderTimeInput = document.getElementById("settings-reminder-time");
 
+    const notificationCheckBtn = document.getElementById("settings-notification-check-btn");
+    if (notificationCheckBtn) {
+      notificationCheckBtn.addEventListener("click", () => runNotificationDiagnostic());
+    }
+
     if (!remindersToggle || !reminderTimeInput) return;
 
     // Load saved settings
@@ -4794,7 +4799,7 @@
     await syncReminderStateToCache();
 
     // Try synchronizing push subscription if already enabled
-    await window.syncPushSubscriptionWithCloud();
+    runNotificationDiagnostic();
   }
 
   function updateReminderStatusText() {
@@ -4820,6 +4825,49 @@
     }
   }
 
+  async function runNotificationDiagnostic() {
+    const panel = document.getElementById("settings-notification-diagnostics");
+    const button = document.getElementById("settings-notification-check-btn");
+    if (!panel || !window.SupabaseSync) return;
+    if (button) button.disabled = true;
+    try {
+      const registration = await window.syncPushSubscriptionWithCloud();
+      if (!registration?.success) {
+        panel.textContent = `Not connected: ${registration?.error || "the phone could not create a push subscription."}`;
+        return;
+      }
+      const diagnostics = await window.SupabaseSync.getPushDiagnostics();
+      if (diagnostics.error) {
+        panel.textContent = `Could not verify cloud reminders: ${diagnostics.error}`;
+        return;
+      }
+      if (diagnostics.permission !== "granted") {
+        panel.textContent = "Notifications are not allowed for this app on this phone.";
+        return;
+      }
+      if (!diagnostics.remindersEnabled) {
+        panel.textContent = "Daily reminders are turned off.";
+        return;
+      }
+      if (!diagnostics.signedIn) {
+        panel.textContent = "Sign in to connect this phone to cloud reminders.";
+        return;
+      }
+      if (!diagnostics.cloudSubscription) {
+        panel.textContent = "This phone has no cloud push subscription. Try enabling reminders again.";
+        return;
+      }
+      let message = "This phone is connected to cloud reminders.";
+      if (diagnostics.lastDelivery && diagnostics.lastDelivery.status !== "accepted") {
+        message += ` Latest delivery failed: ${diagnostics.lastDelivery.error_message || "push service error"}.`;
+      }
+      panel.textContent = message;
+    } catch (error) {
+      panel.textContent = `Notification check failed: ${error?.message || "unknown error"}`;
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
   async function syncReminderStateToCache() {
     if (!('caches' in window)) return;
     try {
@@ -4979,15 +5027,15 @@
 
   // Globally expose push synchronization handler
   window.syncPushSubscriptionWithCloud = async function () {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return { success: false, error: "This browser does not support push notifications." };
     
     // Only register if notifications are granted and daily reminders are enabled
     const remindersEnabled = SRS.getSetting("dailyReminders", true);
-    if (Notification.permission !== "granted" || !remindersEnabled) return;
+    if (Notification.permission !== "granted" || !remindersEnabled) return { success: false, error: "Enable reminders and allow notifications first." };
 
     // Only register if user is logged into Supabase
     if (!window.SupabaseSync || window.SupabaseSync.connectionState !== "connected" || !window.SupabaseSync.user) {
-      return;
+      return { success: false, error: "Sign in before enabling cloud reminders." };
     }
 
     try {
@@ -5017,11 +5065,11 @@
         });
       }
       
-      if (subscription) {
-        await window.SupabaseSync.registerPushSubscription(subscription);
-      }
+      if (!subscription) return { success: false, error: "A notification subscription could not be created." };
+      return await window.SupabaseSync.registerPushSubscription(subscription);
     } catch (e) {
       console.warn("Failed to synchronize push subscription with cloud:", e);
+      return { success: false, error: e?.message || "The phone could not register for notifications." };
     }
   };
 

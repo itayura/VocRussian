@@ -127,7 +127,7 @@
     },
 
     registerPushSubscription: async function (subscription) {
-      if (!this.client || !this.user) return;
+      if (!this.client || !this.user) return { success: false, error: "Sign in before enabling cloud reminders." };
       try {
         const subJSON = subscription.toJSON();
         const endpoint = subJSON.endpoint;
@@ -144,9 +144,49 @@
         });
         if (error) throw error;
         console.log("Push subscription synchronized with cloud successfully.");
+        return { success: true };
       } catch (e) {
         console.error("Failed to register push subscription on cloud:", e);
+        return { success: false, error: e?.message || "The cloud subscription could not be saved." };
       }
+    },
+
+    getPushDiagnostics: async function () {
+      const diagnostics = {
+        permission: typeof Notification === "undefined" ? "unsupported" : Notification.permission,
+        remindersEnabled: window.SRS?.getSetting("dailyReminders", true) === true,
+        signedIn: Boolean(this.client && this.user),
+        cloudSubscription: false,
+        lastDelivery: null,
+        error: null
+      };
+
+      if (!diagnostics.signedIn) return diagnostics;
+
+      const { count, error } = await this.client
+        .from("user_push_subscriptions")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", this.user.id);
+
+      if (error) {
+        diagnostics.error = error.message || "Could not check the cloud subscription.";
+        return diagnostics;
+      }
+
+      diagnostics.cloudSubscription = (count || 0) > 0;
+
+      const { data: deliveries, error: deliveryError } = await this.client
+        .from("push_delivery_logs")
+        .select("status, attempted_at, status_code, error_message")
+        .eq("user_id", this.user.id)
+        .order("attempted_at", { ascending: false })
+        .limit(1);
+
+      if (!deliveryError && deliveries?.[0]) {
+        diagnostics.lastDelivery = deliveries[0];
+      }
+
+      return diagnostics;
     },
 
     unregisterPushSubscription: async function (endpoint) {
