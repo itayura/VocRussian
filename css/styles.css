@@ -2837,3 +2837,83 @@ body.onboarding-open {
     min-height: 56px;
   }
 }
+
+/* --- FOCUSED PRACTICE SESSIONS --- */
+body.practice-focus aside {
+  display: none !important;
+}
+
+body.practice-focus main {
+  width: 100%;
+  max-width: none;
+  min-height: 100dvh;
+  margin-left: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+body.practice-focus #view-study-active,
+body.practice-focus #practice-active-screen,
+body.practice-focus #practice-complete-screen {
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  gap: 0.8rem !important;
+}
+
+body.practice-focus #view-grammar > .page-header,
+body.practice-focus #view-grammar > .card:not(.grammar-subview-panel) {
+  display: none !important;
+}
+
+body.practice-focus #grammar-subview-practice {
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  padding: 0;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+body.practice-focus .study-viewport {
+  width: 100%;
+}
+
+body.practice-focus .choice-question-box,
+body.practice-focus #practice-active-screen .choice-question-box {
+  gap: 0.6rem;
+  padding: 1.15rem 1rem !important;
+  margin-top: 0 !important;
+}
+
+body.practice-focus #quiz-sentence-prompt {
+  font-size: clamp(1.45rem, 5vw, 2rem) !important;
+  line-height: 1.2 !important;
+}
+
+body.practice-focus .choices-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.65rem;
+}
+
+body.practice-focus .choice-btn {
+  min-height: 3.25rem;
+  padding: 0.7rem 0.8rem !important;
+  font-size: 1rem !important;
+  line-height: 1.2;
+}
+
+body.practice-focus #quiz-explanation-box {
+  gap: 0.35rem !important;
+  padding: 0.85rem !important;
+}
+
+body.practice-focus #quiz-rating-container {
+  display: none !important;
+}
+
+body.practice-focus #quiz-next-btn {
+  position: sticky;
+  bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  padding: 0.8rem !important;
+  box-shadow: var(--shadow-main);
+}

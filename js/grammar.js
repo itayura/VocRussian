@@ -69,6 +69,14 @@
     noun_plurals: "Noun Plurals"
   };
 
+  const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+  const CEFR_TOPIC_WEIGHTS = { A1: 0.35, A2: 0.5, B1: 0.65, B2: 0.78, C1: 0.9, C2: 1 };
+  const GRAMMAR_LEVEL_MIN_TOPICS = Math.ceil(Object.keys(TOPICS_MAP).length / 2);
+  const GRAMMAR_LEVEL_MIN_MASTERY = 70;
+  const GRAMMAR_EVIDENCE_WINDOW = 40;
+  const GRAMMAR_EVIDENCE_HALF_LIFE_DAYS = 180;
+  const PLACEMENT_PROGRESS_KEY = "__placement_assessment__";
+
   // State cache
   let grammarProgress = {}; // { topic_id: { lessonsCompleted, quizzesTaken, avgScore, lastPracticed, updatedAt } }
   let currentQuizQuestions = [];
@@ -425,41 +433,148 @@
       this.saveToStorage();
     },
 
-    getTopicMastery: function (topicId, level = null) {
-      const baseProgress = grammarProgress[topicId] || {};
-      const lessonScore = (baseProgress.lessonsCompleted || 0) > 0 ? 20 : 0;
-      const levels = level ? [level] : ["A1", "A2", "B1", "B2", "C1", "C2"];
-      let bestQuizScore = 0;
+    getTopicEvidence: function (topicId, level) {
+      const progress = grammarProgress[`${topicId}_${level}`] || {};
+      let attempts = Array.isArray(progress.attempts) ? progress.attempts : [];
 
-      levels.forEach(lvl => {
-        const progress = grammarProgress[`${topicId}_${lvl}`] || {};
-        const quizzesTaken = progress.quizzesTaken || 0;
-        if (quizzesTaken === 0) return;
-        const inferredQuestions = quizzesTaken * 5;
-        const totalQuestions = progress.totalQuestions || inferredQuestions;
-        const totalCorrect = Number.isFinite(progress.totalCorrect)
-          ? progress.totalCorrect
-          : Math.round(((progress.avgScore || 0) / 100) * totalQuestions);
-        const accuracy = totalQuestions > 0 ? totalCorrect / totalQuestions : 0;
-        const evidenceWeight = Math.min(totalQuestions / 10, 1);
-        bestQuizScore = Math.max(bestQuizScore, accuracy * 80 * evidenceWeight);
-      });
+      if (attempts.length === 0) {
+        const total = Number.isFinite(progress.totalQuestions)
+          ? progress.totalQuestions
+          : (progress.quizzesTaken || 0) * 5;
+        if (total > 0) {
+          const correct = Number.isFinite(progress.totalCorrect)
+            ? progress.totalCorrect
+            : ((progress.avgScore || 0) / 100) * total;
+          attempts = [{ correct, total, at: progress.lastPracticed || 0 }];
+        }
+      }
 
-      return Math.max(0, Math.min(100, Math.round(lessonScore + bestQuizScore)));
+      const now = Date.now();
+      let remainingQuestions = GRAMMAR_EVIDENCE_WINDOW;
+      let weightedCorrect = 0;
+      let weightedTotal = 0;
+      let rawQuestions = 0;
+      let lastPracticed = 0;
+
+      [...attempts]
+        .filter(attempt => Number.isFinite(attempt.total) && attempt.total > 0)
+        .sort((a, b) => (b.at || 0) - (a.at || 0))
+        .forEach(attempt => {
+          if (remainingQuestions <= 0) return;
+          const usableQuestions = Math.min(attempt.total, remainingQuestions);
+          const accuracy = Math.max(0, Math.min(1, (Number(attempt.correct) || 0) / attempt.total));
+          const ageDays = attempt.at > 0 ? Math.max(0, now - attempt.at) / 86400000 : 0;
+          const recencyWeight = Math.pow(0.5, ageDays / GRAMMAR_EVIDENCE_HALF_LIFE_DAYS);
+          weightedCorrect += accuracy * usableQuestions * recencyWeight;
+          weightedTotal += usableQuestions * recencyWeight;
+          rawQuestions += usableQuestions;
+          remainingQuestions -= usableQuestions;
+          lastPracticed = Math.max(lastPracticed, attempt.at || 0);
+        });
+
+      if (weightedTotal <= 0) {
+        return { mastery: 0, accuracy: 0, questions: 0, effectiveQuestions: 0, lastPracticed: 0 };
+      }
+
+      // An 80% Wilson lower bound prevents a tiny perfect quiz from looking like
+      // certain mastery while still allowing confidence to grow with practice.
+      const accuracy = weightedCorrect / weightedTotal;
+      const z = 1.2815515655446004;
+      const zSquared = z * z;
+      const denominator = 1 + zSquared / weightedTotal;
+      const centre = accuracy + zSquared / (2 * weightedTotal);
+      const margin = z * Math.sqrt((accuracy * (1 - accuracy) + zSquared / (4 * weightedTotal)) / weightedTotal);
+      const lowerBound = Math.max(0, (centre - margin) / denominator);
+
+      return {
+        mastery: Math.round(lowerBound * 100),
+        accuracy: Math.round(accuracy * 100),
+        questions: rawQuestions,
+        effectiveQuestions: weightedTotal,
+        lastPracticed
+      };
     },
 
-    // A bounded proficiency level derived from demonstrated topic mastery.
+    getTopicMastery: function (topicId, level = null) {
+      if (!TOPICS_MAP[topicId]) return 0;
+      if (level) return this.getTopicEvidence(topicId, level).mastery;
+
+      // Overall topic mastery represents progress through the full CEFR path,
+      // so an A1 result cannot be displayed as equivalent to a C2 result.
+      let bestMastery = 0;
+      CEFR_LEVELS.forEach(cefr => {
+        bestMastery = Math.max(bestMastery, this.getTopicEvidence(topicId, cefr).mastery * CEFR_TOPIC_WEIGHTS[cefr]);
+      });
+      return Math.round(bestMastery);
+    },
+
+    getLevelReadiness: function (level) {
+      const evidence = Object.keys(TOPICS_MAP)
+        .map(topicId => this.getTopicEvidence(topicId, level))
+        .filter(result => result.questions > 0);
+      const topicsPracticed = evidence.length;
+      const averageMastery = topicsPracticed > 0
+        ? evidence.reduce((sum, result) => sum + result.mastery, 0) / topicsPracticed
+        : 0;
+      const coverage = Math.min(1, topicsPracticed / GRAMMAR_LEVEL_MIN_TOPICS);
+      const quality = Math.min(1, averageMastery / GRAMMAR_LEVEL_MIN_MASTERY);
+
+      return {
+        level,
+        progress: Math.round(coverage * quality * 100),
+        topicsPracticed,
+        requiredTopics: GRAMMAR_LEVEL_MIN_TOPICS,
+        averageMastery: Math.round(averageMastery),
+        demonstrated: topicsPracticed >= GRAMMAR_LEVEL_MIN_TOPICS && averageMastery >= GRAMMAR_LEVEL_MIN_MASTERY
+      };
+    },
+
+    getPlacementEstimate: function () {
+      const attempts = grammarProgress[PLACEMENT_PROGRESS_KEY]?.attempts;
+      if (!Array.isArray(attempts)) return null;
+      const assessments = new Map();
+      attempts.filter(attempt => attempt.source === "placement" && (attempt.placedLevel === "Pre-A1" || CEFR_LEVELS.includes(attempt.placedLevel))).forEach(attempt => {
+        const id = attempt.assessmentId || attempt.id;
+        const existing = assessments.get(id);
+        if (!existing || (attempt.at || 0) > existing.at) {
+          assessments.set(id, { level: attempt.placedLevel, at: attempt.at || 0 });
+        }
+      });
+      return [...assessments.values()].sort((a, b) => b.at - a.at)[0] || null;
+    },
+
+    getGrammarProficiency: function () {
+      const readiness = Object.fromEntries(CEFR_LEVELS.map(level => [level, this.getLevelReadiness(level)]));
+      const demonstratedLevel = [...CEFR_LEVELS].reverse().find(level => readiness[level].demonstrated) || null;
+      const placement = this.getPlacementEstimate();
+      const demonstratedIndex = demonstratedLevel ? CEFR_LEVELS.indexOf(demonstratedLevel) : -1;
+      const placementIndex = placement ? CEFR_LEVELS.indexOf(placement.level) : -1;
+      const levelIndex = Math.max(demonstratedIndex, placementIndex);
+      const level = levelIndex >= 0 ? CEFR_LEVELS[levelIndex] : "Pre-A1";
+      const targetLevel = CEFR_LEVELS[levelIndex + 1] || null;
+
+      return {
+        level,
+        progress: targetLevel ? readiness[targetLevel].progress : 100,
+        targetLevel,
+        basis: demonstratedIndex >= placementIndex && demonstratedIndex >= 0 ? "demonstrated" : (placement ? "placement" : "none"),
+        readiness
+      };
+    },
+
     getGrammarLevel: function () {
-      const topicIds = Object.keys(TOPICS_MAP);
-      if (topicIds.length === 0) return 1;
-      const averageMastery = topicIds.reduce((sum, topicId) => sum + this.getTopicMastery(topicId), 0) / topicIds.length;
-      return Math.min(10, 1 + Math.floor(averageMastery / 10));
+      return this.getGrammarProficiency().level;
     },
 
     updateGrammarLevelUI: function () {
       const lvlVal = document.getElementById("grammar-level-val");
-      if (lvlVal) {
-        lvlVal.innerText = this.getGrammarLevel();
+      const progressVal = document.getElementById("grammar-progress-val");
+      const summary = this.getGrammarProficiency();
+      if (lvlVal) lvlVal.innerText = summary.level;
+      if (progressVal) {
+        progressVal.innerText = summary.targetLevel
+          ? `${summary.progress}% to ${summary.targetLevel}${summary.basis === "placement" ? " - placement estimate" : ""}`
+          : "Highest CEFR band demonstrated";
       }
     },
 
@@ -577,7 +692,7 @@
 
     // Record quiz completion
     recordQuizCompleted: function (topicId, level, correctCount, totalCount) {
-      if (!TOPICS_MAP[topicId] || !Number.isFinite(correctCount) || !Number.isFinite(totalCount) || totalCount <= 0) return false;
+      if (!TOPICS_MAP[topicId] || !CEFR_LEVELS.includes(level) || !Number.isFinite(correctCount) || !Number.isFinite(totalCount) || totalCount <= 0 || correctCount < 0 || correctCount > totalCount) return false;
       const key = `${topicId}_${level}`; // e.g. "nominative_case_A1"
       
       if (!grammarProgress[key]) {
@@ -619,6 +734,49 @@
       this.saveToStorage();
 
       // Auto sync background change
+      if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
+        this.syncWithCloud();
+      }
+      return true;
+    },
+
+    recordPlacementAssessment: function (placedLevel, bandResults) {
+      if ((placedLevel !== "Pre-A1" && !CEFR_LEVELS.includes(placedLevel)) || !Array.isArray(bandResults)) return false;
+      const validResults = bandResults.filter(result =>
+        CEFR_LEVELS.includes(result.level) && Number.isFinite(result.correct) && Number.isFinite(result.total) &&
+        result.total > 0 && result.correct >= 0 && result.correct <= result.total
+      );
+      if (validResults.length === 0) return false;
+
+      const now = Date.now();
+      const assessmentId = `placement_${now}_${Math.random().toString(36).slice(2, 8)}`;
+      const progress = grammarProgress[PLACEMENT_PROGRESS_KEY] || {
+        topicId: PLACEMENT_PROGRESS_KEY,
+        lessonsCompleted: 0,
+        attempts: []
+      };
+      progress.attempts = Array.isArray(progress.attempts) ? progress.attempts : [];
+      validResults.forEach(result => {
+        progress.attempts.push({
+          id: `${assessmentId}_${result.level}`,
+          assessmentId,
+          level: result.level,
+          placedLevel,
+          correct: result.correct,
+          total: result.total,
+          at: now,
+          source: "placement"
+        });
+      });
+      progress.totalCorrect = progress.attempts.reduce((sum, attempt) => sum + (Number(attempt.correct) || 0), 0);
+      progress.totalQuestions = progress.attempts.reduce((sum, attempt) => sum + (Number(attempt.total) || 0), 0);
+      progress.quizzesTaken = new Set(progress.attempts.map(attempt => attempt.assessmentId || attempt.id)).size;
+      progress.avgScore = progress.totalQuestions > 0 ? Math.round((progress.totalCorrect / progress.totalQuestions) * 100) : 0;
+      progress.lastPracticed = now;
+      progress.updatedAt = now;
+      grammarProgress[PLACEMENT_PROGRESS_KEY] = progress;
+      this.saveToStorage();
+
       if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
         this.syncWithCloud();
       }
@@ -1135,6 +1293,7 @@
 
           setupScreen.style.display = "none";
           loadingScreen.style.display = "none";
+          if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
           activeScreen.style.display = "flex";
           this.renderQuizQuestion();
           this.showXpToast("Started Quiz in Offline Mode 📶");
@@ -1146,6 +1305,7 @@
       }
 
       if (!this.ensureCloudConnected()) return;
+      if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
 
       // Check if we have matching buffered sentences for logged-in user
       const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
@@ -1244,6 +1404,7 @@
       } catch (err) {
         loadingScreen.style.display = "none";
         setupScreen.style.display = "flex";
+        if (window.setPracticeFocusMode) window.setPracticeFocusMode(false);
         console.error("AI Quiz generation failed:", err);
         alert(`Failed to start quiz: ${getErrorMessage(err)}. Please try again.`);
       }
@@ -1545,6 +1706,7 @@
       document.getElementById("practice-complete-screen").style.display = "none";
       document.getElementById("practice-active-screen").style.display = "none";
       document.getElementById("practice-setup-screen").style.display = "flex";
+      if (window.setPracticeFocusMode) window.setPracticeFocusMode(false);
       
       currentQuizQuestions = [];
       currentQuizIndex = 0;

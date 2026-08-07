@@ -734,6 +734,12 @@
   };
 
   const navItems = document.querySelectorAll(".nav-item");
+  let activeViewId = "dashboard";
+
+  function setPracticeFocusMode(enabled) {
+    document.body.classList.toggle("practice-focus", Boolean(enabled));
+  }
+  window.setPracticeFocusMode = setPracticeFocusMode;
 
   // --- INITIALIZATION ---
   document.addEventListener("DOMContentLoaded", () => {
@@ -838,12 +844,20 @@
     
     if (hasLocalProgress || localStorage.getItem(ONBOARDING_STORAGE_KEY) === "true") {
       onboardingRequired = false;
-      switchView("dashboard");
+      switchView("dashboard", { history: "replace" });
     } else {
       onboardingRequired = true;
-      switchView("landing");
+      switchView("landing", { history: "replace" });
     }
+
+    window.addEventListener("popstate", (event) => {
+      const target = event.state && event.state.privyetikView;
+      if (target && views[target]) {
+        switchView(target, { history: "none" });
+      }
+    });
   });
+
 
   // --- VIEW ROUTING ---
   function setupNavigation() {
@@ -868,7 +882,8 @@
     }
   };
 
-  function switchView(targetViewId) {
+  function switchView(targetViewId, options = {}) {
+    const historyMode = options.history || "push";
     // landing-mode toggling removed to keep sidebar persistent
 
     if (onboardingRequired && targetViewId !== "landing") {
@@ -877,6 +892,18 @@
         openOnboarding();
       }
       return;
+    }
+
+    if (!views[targetViewId]) return;
+
+    const hasChangedView = activeViewId !== targetViewId;
+    activeViewId = targetViewId;
+    setPracticeFocusMode(targetViewId === "study-active");
+
+    if (historyMode === "replace") {
+      window.history.replaceState({ privyetikView: targetViewId }, "", window.location.href);
+    } else if (historyMode === "push" && hasChangedView) {
+      window.history.pushState({ privyetikView: targetViewId }, "", window.location.href);
     }
 
 
@@ -5639,6 +5666,7 @@
         const lessonCompleted = (progress.lessonsCompleted || 0) > 0;
         const levelRecords = Object.values(progressMap).filter(p => p.topicId && p.topicId.startsWith(`${id}_`) && (p.quizzesTaken || 0) > 0);
         const quizzesTaken = levelRecords.reduce((sum, p) => sum + (p.quizzesTaken || 0), 0);
+        const questionsAnswered = levelRecords.reduce((sum, p) => sum + (p.totalQuestions || 0), 0);
         const topicMastery = window.GrammarManager ? window.GrammarManager.getTopicMastery(id) : 0;
 
         html += `
@@ -5653,7 +5681,7 @@
             </div>
             <div style="display: flex; gap: 0.5rem; justify-content: space-between; font-size: 0.75rem; color: var(--color-text-muted); margin-top: 0.25rem;">
               <span>📖 Lesson: ${lessonCompleted ? "✓" : "✗"}</span>
-              <span>📝 Quizzes: ${quizzesTaken}</span>
+              <span title="${quizzesTaken} completed quizzes">📝 Evidence: ${questionsAnswered} answers</span>
             </div>
           </div>
         `;

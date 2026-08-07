@@ -643,7 +643,7 @@
     document.getElementById("placement-result-view").style.display = "flex";
 
     const levels = ["A1", "A2", "B1", "B2", "C1", "C2"];
-    let finalLevelIndex = 0; // default is A1
+    let finalLevelIndex = -1; // failing the first band is honestly reported as Pre-A1
     
     // CEFR levels are cumulative: a higher placement requires passing every lower band.
     for (let i = 0; i < levels.length; i++) {
@@ -655,35 +655,38 @@
       finalLevelIndex = i;
     }
 
-    const level = levels[finalLevelIndex];
+    const level = finalLevelIndex >= 0 ? levels[finalLevelIndex] : "Pre-A1";
     const answeredTotal = Math.min(currentQuestionIndex, selectedQuestions.length);
     let xp = 0;
     let desc = "";
     let avatar = "🐻";
 
-    if (level === "A1") {
+    if (level === "Pre-A1") {
       xp = 50;
-      desc = `You placed at level A1 (Beginner) with a total score of ${correctAnswersCount}/${answeredTotal}! We can seed your starting cards in Box 1 and award you a kickstart reward of +50 XP!`;
+      desc = `Your current starting point is Pre-A1 with a total score of ${correctAnswersCount}/${answeredTotal}. We can save this honest baseline and award you a +50 XP welcome reward.`;
+    } else if (level === "A1") {
+      xp = 50;
+      desc = `You placed at level A1 (Beginner) with a total score of ${correctAnswersCount}/${answeredTotal}! We can save A1 as your estimated grammar starting point and award you a kickstart reward of +50 XP!`;
       avatar = "🐻";
     } else if (level === "A2") {
       xp = 200;
-      desc = `You placed at level A2 (Elementary) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote your A1 vocabulary words to Box 3, mark introductory grammar lessons completed, and award you +200 XP!`;
+      desc = `You placed at level A2 (Elementary) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote your A1 vocabulary words to Box 3, save A2 as your estimated grammar starting point, and award you +200 XP!`;
       avatar = "🦉";
     } else if (level === "B1") {
       xp = 500;
-      desc = `You placed at level B1 (Intermediate) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote A1/A2 vocabulary words to Box 4, mark introductory/elementary grammar lessons completed, and award you +500 XP!`;
+      desc = `You placed at level B1 (Intermediate) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote A1/A2 vocabulary words to Box 4, save B1 as your estimated grammar starting point, and award you +500 XP!`;
       avatar = "🤖";
     } else if (level === "B2") {
       xp = 1000;
-      desc = `You placed at level B2 (Upper Intermediate) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1000 XP!`;
+      desc = `You placed at level B2 (Upper Intermediate) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1 vocabulary words to Box 5 (Mastered), save ${level} as your estimated grammar starting point, and award you +1000 XP!`;
       avatar = "👑";
     } else if (level === "C1") {
       xp = 1500;
-      desc = `You placed at level C1 (Advanced) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +1500 XP!`;
+      desc = `You placed at level C1 (Advanced) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1/B2 vocabulary words to Box 5 (Mastered), save ${level} as your estimated grammar starting point, and award you +1500 XP!`;
       avatar = "🦁";
     } else if (level === "C2") {
       xp = 2000;
-      desc = `You placed at level C2 (Proficient) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), complete corresponding grammar concepts, and award you +2000 XP!`;
+      desc = `You placed at level C2 (Proficient) with a total score of ${correctAnswersCount}/${answeredTotal}! We can promote all A1/A2/B1/B2/C1 vocabulary words to Box 5 (Mastered), save ${level} as your estimated grammar starting point, and award you +2000 XP!`;
       avatar = "🧙‍♂️";
     }
 
@@ -697,13 +700,19 @@
     document.getElementById("placement-result-title").innerText = `Level Assessed: ${level}!`;
     document.getElementById("placement-result-text").innerText = desc;
 
-    pendingPlacement = { level, xp };
+    const answeredQuestions = selectedQuestions.slice(0, answeredTotal);
+    const bandResults = levels.map(band => ({
+      level: band,
+      correct: correctByLevel[band] || 0,
+      total: answeredQuestions.filter(question => question.level === band).length
+    })).filter(result => result.total > 0);
+    pendingPlacement = { level, xp, bandResults };
   }
 
   async function handleApplyPlacement() {
     if (!pendingPlacement) return;
 
-    const approved = await window.confirmCustom("Are you sure you want to apply level seeding? This will update your vocabulary card boxes and grammar lesson progress. This only promotes eligible unstudied progress, and we will back up your current progress first.");
+    const approved = await window.confirmCustom("Apply this placement result? This will promote eligible vocabulary cards and save an estimated grammar starting level without marking unstudied lessons as mastered. We will back up your current progress first.");
     if (!approved) return;
 
     try {
@@ -717,7 +726,7 @@
       };
       localStorage.setItem("voc_progress_backup_before_placement", JSON.stringify(backup));
 
-      seedProgress(pendingPlacement.level, pendingPlacement.xp);
+      seedProgress(pendingPlacement.level, pendingPlacement.xp, pendingPlacement.bandResults);
 
       localStorage.setItem("voc_placement_test_taken", "true");
       closePlacementTest();
@@ -748,7 +757,7 @@
     if (window.updateLevelAssessmentUI) window.updateLevelAssessmentUI();
   }
 
-  function seedProgress(level, xp) {
+  function seedProgress(level, xp, bandResults = []) {
     console.log("[PlacementTest] seedProgress started:", level, xp);
     if (!window.SRS) {
       console.error("[PlacementTest] window.SRS is not defined!");
@@ -797,70 +806,11 @@
       console.error("[PlacementTest] Error seeding progress:", e);
     }
 
-    // 3. Seed Grammar Concept Completions
+    // Placement is broad evidence, not proof that every individual grammar
+    // lesson or topic has been mastered. Keep it as a labelled estimate and let
+    // topic mastery come only from topic-specific quiz answers.
     if (window.GrammarManager) {
-      const gProgress = window.GrammarManager.getGrammarProgressMap() || {};
-      const topics = [
-        "nominative_case", "accusative_case", "genitive_case", "dative_case", 
-        "instrumental_case", "prepositional_case", "verb_aspects", "verbs_of_motion",
-        "verb_conjugations", "past_tense", "future_tense", "adjectives_declension",
-        "pronouns_declension", "noun_plurals"
-      ];
-
-      // Mark lessons completed
-      topics.forEach(topic => {
-        let shouldMarkLesson = false;
-        let completedLevels = [];
-
-        if (level === "A2") {
-          shouldMarkLesson = true;
-          completedLevels = ["A1"];
-        } else if (level === "B1") {
-          shouldMarkLesson = true;
-          completedLevels = ["A1", "A2"];
-        } else if (level === "B2") {
-          shouldMarkLesson = true;
-          completedLevels = ["A1", "A2", "B1"];
-        } else if (level === "C1") {
-          shouldMarkLesson = true;
-          completedLevels = ["A1", "A2", "B1", "B2"];
-        } else if (level === "C2") {
-          shouldMarkLesson = true;
-          completedLevels = ["A1", "A2", "B1", "B2", "C1"];
-        }
-
-        if (shouldMarkLesson) {
-          const now = Date.now();
-          const base = gProgress[topic] || { topicId: topic, quizzesTaken: 0, avgScore: 0 };
-          gProgress[topic] = {
-            ...base,
-            lessonsCompleted: Math.max(base.lessonsCompleted || 0, 1),
-            lastPracticed: Math.max(base.lastPracticed || 0, now),
-            updatedAt: now
-          };
-
-          completedLevels.forEach(lvl => {
-            const key = `${topic}_${lvl}`;
-            const existing = gProgress[key];
-            if (!existing || (existing.totalQuestions || 0) === 0) {
-              gProgress[key] = {
-                ...(existing || {}),
-                topicId: key,
-                lessonsCompleted: 0,
-                quizzesTaken: Math.max(existing?.quizzesTaken || 0, 1),
-                totalCorrect: Math.max(existing?.totalCorrect || 0, 9),
-                totalQuestions: Math.max(existing?.totalQuestions || 0, 10),
-                avgScore: Math.max(existing?.avgScore || 0, 90),
-                placementSeeded: true,
-                lastPracticed: now,
-                updatedAt: now
-              };
-            }
-          });
-        }
-      });
-
-      window.GrammarManager.setGrammarProgressMap(gProgress);
+      window.GrammarManager.recordPlacementAssessment(level, bandResults);
     }
 
     // Set test taken flag

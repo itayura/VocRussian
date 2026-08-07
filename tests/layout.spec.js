@@ -496,7 +496,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   });
 
   // 11. Practice Quiz Arena choice buttons display layout grid
-  test('Practice Arena active quiz layout uses correct grid displays', async ({ page }) => {
+  test('Practice Arena enters a compact focused session', async ({ page }) => {
     // Log in to unlock Practice Arena
     await mockLogin(page);
 
@@ -508,7 +508,8 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await page.locator('#practice-start-btn').click();
     await expect(page.locator('#practice-active-screen')).toBeVisible();
 
-    // Choices grid should be a vertical grid layout
+    await expect(page.locator('body')).toHaveClass(/practice-focus/);
+    await expect(page.locator('aside')).toHaveCSS('display', 'none');
     const choicesGrid = page.locator('#quiz-choices-container');
     await expect(choicesGrid).toHaveCSS('display', 'grid');
 
@@ -516,12 +517,12 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     const count = await choiceButtons.count();
     expect(count).toBeGreaterThan(0);
 
-    // Verify choice button widths stretch fully
+    // Compact answer buttons share the row to avoid unnecessary scrolling.
     const gridBox = await choicesGrid.boundingBox();
     const firstBtnBox = await choiceButtons.first().boundingBox();
     expect(gridBox).not.toBeNull();
     expect(firstBtnBox).not.toBeNull();
-    expect(Math.abs(firstBtnBox.width - gridBox.width)).toBeLessThan(15);
+    expect(Math.abs(firstBtnBox.width * 2 - gridBox.width)).toBeLessThan(30);
   });
 
   // 12. Theme switch modifies CSS custom variables
@@ -545,5 +546,16 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     expect(emeraldColor).toContain('150'); // Emerald: hsl(150, 80%, 48%)
   });
 
+
+  test('browser history returns to the previous app view', async ({ page }) => {
+    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await expect(page.locator('#view-dictionary')).toHaveClass(/active/);
+
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await expect(page.locator('#view-settings')).toHaveClass(/active/);
+
+    await page.goBack();
+    await expect(page.locator('#view-dictionary')).toHaveClass(/active/);
+  });
 });
 

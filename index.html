@@ -930,9 +930,12 @@
             <p class="page-subtitle">Learn rules, practice quizzes, and get grammar corrections powered by AI.</p>
           </div>
           <div style="display: flex; gap: 0.5rem; align-items: center;">
-            <div class="stats-badge-sidebar" style="margin-top: 0; background: var(--bg-card); border: 1px solid var(--border-glass);" title="Grammar Score/Progress">
+            <div class="stats-badge-sidebar" style="margin-top: 0; background: var(--bg-card); border: 1px solid var(--border-glass);" title="CEFR estimate based on recent quiz accuracy, evidence, and topic coverage">
               <span>⭐</span>
-              <div>Level: <span id="grammar-level-val">1</span></div>
+              <div>
+                <div>Grammar estimate: <span id="grammar-level-val">Pre-A1</span></div>
+                <div id="grammar-progress-val" style="font-size: 0.7rem; color: var(--color-text-muted); font-weight: 500; margin-top: 0.1rem;">0% to A1</div>
+              </div>
             </div>
           </div>
         </div>
@@ -1716,7 +1719,7 @@
         <!-- Subject/Category Mastery Section -->
         <div class="card">
           <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Russian Grammar Topic Mastery</h3>
-          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Your computed level of mastery for the core grammar modules.</p>
+          <p class="page-subtitle" style="margin-bottom: 1.5rem;">Confidence-weighted from recent quiz answers and CEFR difficulty. Opening a lesson counts as study, not mastery.</p>
           <div id="stats-grammar-mastery-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem;">
             <!-- Rendered by JS -->
           </div>
