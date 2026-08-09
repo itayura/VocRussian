@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0f19">
+  <title>Delete Your Privyetik Account</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at top, #123d46, #0b0f19 55%); color: #eef9f8; padding: 24px; }
+    main { width: min(680px, 100%); margin: 32px auto; background: rgba(18, 31, 42, 0.88); border: 1px solid rgba(59, 191, 178, 0.35); border-radius: 24px; padding: clamp(24px, 5vw, 44px); box-shadow: 0 24px 70px rgba(0,0,0,.35); }
+    h1, h2 { margin-top: 0; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); }
+    p, li { color: #bdd0d1; line-height: 1.65; }
+    .notice { border-left: 4px solid #3bbfb2; background: rgba(59,191,178,.1); padding: 14px 16px; border-radius: 8px; }
+    .danger { border-color: rgba(244, 82, 111, .5); background: rgba(244, 82, 111, .08); }
+    .panel { margin-top: 24px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; padding: 20px; }
+    label { display: block; margin: 14px 0 6px; font-weight: 700; }
+    input { width: 100%; border: 1px solid rgba(255,255,255,.2); border-radius: 10px; background: rgba(4,12,18,.65); color: white; padding: 12px 14px; font-size: 1rem; }
+    button, .button { display: inline-flex; justify-content: center; align-items: center; width: 100%; margin-top: 14px; border: 1px solid transparent; border-radius: 10px; padding: 12px 16px; font-weight: 800; font-size: 1rem; cursor: pointer; text-decoration: none; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .primary { background: #3bbfb2; color: #06211f; }
+    .secondary { background: transparent; color: #d9eceb; border-color: rgba(255,255,255,.2); }
+    .delete { background: #dc3545; color: white; }
+    .status { min-height: 24px; margin-top: 14px; font-weight: 700; }
+    .error { color: #ff8da0; }
+    .success { color: #76e5bb; }
+    a { color: #73ddd2; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <p><a href="./index.html">← Back to Privyetik</a></p>
+    <h1>Delete your account</h1>
+    <p class="notice">This page provides a self-service way to permanently delete your Privyetik account and associated data.</p>
+
+    <h2>What will be deleted</h2>
+    <ul>
+      <li>Your sign-in account and email address.</li>
+      <li>Vocabulary, study progress, XP, streaks, grammar activity, and backups stored in Supabase.</li>
+      <li>Feedback linked to your account, AI usage records, reminder history, and push subscriptions.</li>
+      <li>Privyetik data stored locally in this browser.</li>
+    </ul>
+    <p>Limited de-identified infrastructure and security logs may remain for a short operational retention period. This action cannot be undone.</p>
+
+    <section id="signin-panel" class="panel">
+      <h2>Sign in to continue</h2>
+      <p>Authentication prevents another person from deleting your account.</p>
+      <label for="email">Email address</label>
+      <input id="email" type="email" autocomplete="email">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="current-password">
+      <button id="signin-btn" class="primary" type="button">Sign in</button>
+      <button id="google-btn" class="secondary" type="button">Continue with Google</button>
+    </section>
+
+    <section id="delete-panel" class="panel danger" hidden>
+      <h2>Confirm permanent deletion</h2>
+      <p>Signed in as <strong id="signed-in-email"></strong>. Type that email below to enable deletion.</p>
+      <label for="confirm-email">Confirmation email</label>
+      <input id="confirm-email" type="email" autocomplete="off">
+      <button id="delete-btn" class="delete" type="button" disabled>Delete account permanently</button>
+      <button id="signout-btn" class="secondary" type="button">Sign out instead</button>
+    </section>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <p>If you cannot access your account, use the developer contact shown on Privyetik’s Google Play listing. Do not post passwords or sensitive personal data in public issues.</p>
+    <p><a href="privacy.html">Read the Privacy Policy</a></p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script>
+    (async function () {
+      const config = window.PRIVYETIK_CONFIG || {};
+      const client = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey);
+      const signinPanel = document.getElementById("signin-panel");
+      const deletePanel = document.getElementById("delete-panel");
+      const signedInEmail = document.getElementById("signed-in-email");
+      const confirmEmail = document.getElementById("confirm-email");
+      const deleteButton = document.getElementById("delete-btn");
+      const status = document.getElementById("status");
+      let currentUser = null;
+
+      function setStatus(message, type) {
+        status.textContent = message || "";
+        status.className = "status " + (type || "");
+      }
+
+      function renderUser(user) {
+        currentUser = user || null;
+        signinPanel.hidden = Boolean(currentUser);
+        deletePanel.hidden = !currentUser;
+        signedInEmail.textContent = currentUser?.email || "";
+        confirmEmail.value = "";
+        deleteButton.disabled = true;
+      }
+
+      const { data } = await client.auth.getSession();
+      renderUser(data?.session?.user);
+      client.auth.onAuthStateChange((_event, session) => renderUser(session?.user));
+
+      document.getElementById("signin-btn").addEventListener("click", async () => {
+        setStatus("Signing in…");
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const { error } = await client.auth.signInWithPassword({ email, password });
+        setStatus(error ? error.message : "Signed in. Confirm deletion below.", error ? "error" : "success");
+      });
+
+      document.getElementById("google-btn").addEventListener("click", async () => {
+        const redirectTo = new URL("delete-account.html", window.location.href).href;
+        const { error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+        if (error) setStatus(error.message, "error");
+      });
+
+      confirmEmail.addEventListener("input", () => {
+        deleteButton.disabled = !currentUser?.email || confirmEmail.value.trim().toLowerCase() !== currentUser.email.toLowerCase();
+      });
+
+      deleteButton.addEventListener("click", async () => {
+        deleteButton.disabled = true;
+        deleteButton.textContent = "Deleting account…";
+        setStatus("Deleting your account and associated data…");
+        const { data, error } = await client.functions.invoke("delete-account", {
+          body: { confirmationEmail: confirmEmail.value.trim().toLowerCase() }
+        });
+        if (error || !data?.success) {
+          setStatus(error?.message || data?.error || "Deletion failed. Please try again.", "error");
+          deleteButton.textContent = "Delete account permanently";
+          deleteButton.disabled = false;
+          return;
+        }
+
+        try { await client.auth.signOut({ scope: "local" }); } catch (_) {}
+        Object.keys(localStorage).filter(key => key.startsWith("voc_") || key.startsWith("sb-")).forEach(key => localStorage.removeItem(key));
+        sessionStorage.clear();
+        if ("caches" in window) {
+          const names = await caches.keys();
+          await Promise.all(names.map(name => caches.delete(name)));
+        }
+        renderUser(null);
+        setStatus("Your Privyetik account and associated data were permanently deleted.", "success");
+      });
+
+      document.getElementById("signout-btn").addEventListener("click", async () => {
+        await client.auth.signOut();
+        setStatus("Signed out. No data was deleted.", "success");
+      });
+    })().catch(error => {
+      const status = document.getElementById("status");
+      status.textContent = "The deletion service could not start: " + error.message;
+      status.className = "status error";
+    });
+  </script>
+</body>
+</html>

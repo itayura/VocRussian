@@ -268,6 +268,32 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#sidebar-xp-val')).toContainText('0');
   });
 
+  test('Account deletion requires the exact signed-in email', async ({ page }) => {
+    await mockLogin(page);
+    await expect(page.locator('#delete-account-row')).toBeVisible();
+    await page.locator('#delete-account-btn').click();
+
+    const modal = page.locator('#modal-delete-account');
+    const confirmation = page.locator('#delete-account-email-confirm');
+    const deleteForever = page.locator('#delete-account-confirm-btn');
+    await expect(modal).toHaveClass(/active/);
+    await expect(modal).toContainText('account-linked vocabulary');
+    await confirmation.fill('someone-else@example.com');
+    await expect(deleteForever).toBeDisabled();
+    await confirmation.fill('learner@example.com');
+    await expect(deleteForever).toBeEnabled();
+    await page.locator('#modal-delete-account-cancel').click();
+    await expect(modal).not.toHaveClass(/active/);
+  });
+
+  test('Public deletion resource is available outside the app', async ({ page }) => {
+    await page.goto('/delete-account.html');
+    await expect(page).toHaveTitle(/Delete Your Privyetik Account/);
+    await expect(page.locator('h1')).toHaveText('Delete your account');
+    await expect(page.locator('#signin-panel')).toBeVisible();
+    await expect(page.locator('body')).toContainText('What will be deleted');
+  });
+
   test('Back closes onboarding from the first page without completing it', async ({ page }) => {
     await page.evaluate(() => {
       sessionStorage.setItem('test_fresh_onboarding', 'true');

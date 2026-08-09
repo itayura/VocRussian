@@ -1,13 +1,15 @@
 {
   "name": "voc-russian",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Russian Vocabulary Learning App",
   "main": "js/app.js",
   "license": "MIT",
   "scripts": {
     "test": "npm run test:logic && playwright test",
     "test:ui": "playwright test --ui",
-    "test:logic": "node tests/logic.test.js"
+    "test:logic": "node tests/logic.test.js",
+    "test:preflight": "node scripts/release-preflight.js",
+    "build:info": "node scripts/write-build-info.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.1",

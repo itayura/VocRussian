@@ -1443,6 +1443,11 @@
             <button type="button" id="sync-reset-btn" class="btn btn-danger" style="width: 100%; font-size: 1rem; background: #dc3545; border-color: #dc3545;">
               🗑️ Reset All Local & Cloud Progress
             </button>
+            <div id="delete-account-row" style="display: none; border-top: 1px solid rgba(220, 53, 69, 0.2); padding-top: 1rem;">
+              <p class="page-subtitle" style="font-size: 0.9rem; margin: 0 0 0.75rem;">Permanently delete your sign-in account and all account-linked cloud data. This cannot be undone.</p>
+              <button type="button" id="delete-account-btn" class="btn btn-danger" style="width: 100%; background: #a61b29; border-color: #a61b29;">Delete My Account</button>
+              <a href="delete-account.html" target="_blank" rel="noopener noreferrer" style="display: block; margin-top: 0.75rem; text-align: center; color: var(--color-text-muted);">Open the web account-deletion page</a>
+            </div>
           </div>
         </div>
       </section>
@@ -1653,6 +1658,16 @@
             <button id="settings-replay-onboarding-btn" class="btn btn-primary" style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
               <span>Replay Getting Started</span>
             </button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">App Information</h2>
+          <p class="page-subtitle" style="margin-bottom: 1rem;">Use these details when reporting a beta issue.</p>
+          <div style="display: grid; gap: 0.5rem; font-size: 0.9rem; color: var(--color-text-muted);">
+            <div>Version: <strong id="settings-app-version" style="color: var(--color-text-main);">Loading…</strong></div>
+            <div id="settings-build-details">Build details unavailable.</div>
+            <div><a href="privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a> · <a href="delete-account.html" target="_blank" rel="noopener noreferrer">Account deletion</a></div>
           </div>
         </div>
       </section>
@@ -2121,6 +2136,26 @@
     </div>
   </div>
 
+  <!-- MODAL: DELETE ACCOUNT -->
+  <div class="modal-overlay" id="modal-delete-account" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="delete-account-title">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="delete-account-title" style="color: #dc3545;">Delete account permanently</h3>
+        <button type="button" class="modal-close-btn" aria-label="Close dialog" id="modal-delete-account-close">×</button>
+      </div>
+      <p class="page-subtitle">This deletes your login and account-linked vocabulary, progress, stats, grammar activity, feedback, AI request records, reminders, and push subscriptions.</p>
+      <div class="form-group">
+        <label for="delete-account-email-confirm">Type your signed-in email to confirm</label>
+        <input type="email" id="delete-account-email-confirm" class="filter-input" autocomplete="off" spellcheck="false">
+      </div>
+      <p id="delete-account-error" role="alert" style="min-height: 1.25rem; color: #dc3545; font-size: 0.9rem;"></p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-delete-account-cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="delete-account-confirm-btn" disabled style="background: #a61b29; border-color: #a61b29;">Delete forever</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: NOTIFICATION PROMPT -->
   <div class="modal-overlay" id="modal-notification-prompt" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-content" style="max-width: 450px; text-align: center; padding: 2.25rem;">
@@ -2354,6 +2389,8 @@
 
   <!-- BOOTSTRAP SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/build-info.js"></script>
   <script src="js/supabase.js"></script>
   <script src="js/db.js"></script>
   <script src="js/db_expanded.js"></script>
