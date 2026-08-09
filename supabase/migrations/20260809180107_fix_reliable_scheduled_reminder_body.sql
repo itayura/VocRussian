@@ -1,14 +1,6 @@
--- Make server-side reminders tolerant of missed cron minutes and preserve the
--- app's default of enabled reminders when the preference is not yet stored.
-UPDATE public.voc_stats
-SET settings = jsonb_set(
-    COALESCE(settings, '{}'::jsonb),
-    '{dailyReminders}',
-    'true'::jsonb,
-    true
-)
-WHERE COALESCE(settings->>'dailyReminders', '') = '';
-
+-- The preceding reliability migration may already be recorded in a deployed
+-- project. Replacing the function in a new migration ensures pg_net receives
+-- its supported jsonb body rather than a text cast on every environment.
 CREATE OR REPLACE FUNCTION public.check_and_send_reminders()
 RETURNS void
 LANGUAGE plpgsql
@@ -46,7 +38,6 @@ BEGIN
     FOR r IN
         SELECT s.user_id, s.last_active_date, COALESCE(s.settings, '{}'::jsonb) AS settings, s.streak
         FROM public.voc_stats s
-        -- Missing preference means enabled, matching the client default.
         WHERE COALESCE(s.settings->>'dailyReminders', 'true') = 'true'
     LOOP
         user_tz := COALESCE(NULLIF(r.settings->>'timezone', ''), 'UTC');
@@ -64,8 +55,6 @@ BEGIN
             today_in_tz := to_char(timezone('UTC', now()), 'YYYY-MM-DD');
         END;
 
-        -- Run any time after the configured minute, but only once per local day.
-        -- This prevents a delayed/missed cron tick from losing the reminder.
         IF current_time_in_tz >= reminder_time
            AND (r.last_active_date IS NULL OR r.last_active_date <> today_in_tz)
            AND NOT EXISTS (
@@ -101,11 +90,3 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.check_and_send_reminders() FROM PUBLIC, anon, authenticated;
-
-SELECT cron.unschedule('daily-reminders-cron')
-WHERE EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'daily-reminders-cron');
-SELECT cron.schedule(
-    'daily-reminders-cron',
-    '* * * * *',
-    $$ SELECT public.check_and_send_reminders(); $$
-);

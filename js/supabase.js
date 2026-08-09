@@ -2,8 +2,8 @@
 
 (function () {
   const CONFIG = {
-    URL: "https://bghuansvungabgsbxqjh.supabase.co",
-    KEY: "sb_publishable_KKO_dftWAuA0ndGfBnEldw_ulDWtjUb"
+    URL: window.PRIVYETIK_CONFIG.supabaseUrl,
+    KEY: window.PRIVYETIK_CONFIG.supabasePublishableKey
   };
 
   const STORAGE_KEYS = {
@@ -124,6 +124,44 @@
 
       const { error } = await this.client.auth.signOut();
       if (error) throw error;
+    },
+
+    deleteAccount: async function (confirmationEmail) {
+      if (!this.client || !this.user) throw new Error("Sign in before deleting your account.");
+      const expectedEmail = (this.user.email || "").trim().toLowerCase();
+      if ((confirmationEmail || "").trim().toLowerCase() !== expectedEmail) {
+        throw new Error("The confirmation email does not match the signed-in account.");
+      }
+
+      let subscription = null;
+      try {
+        if ("serviceWorker" in navigator) {
+          const registration = await navigator.serviceWorker.ready;
+          subscription = await registration.pushManager.getSubscription();
+        }
+      } catch (error) {
+        console.warn("Could not inspect the local push subscription before deletion:", error);
+      }
+
+      const { data, error } = await this.client.functions.invoke("delete-account", {
+        body: { confirmationEmail: expectedEmail }
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Account deletion could not be completed.");
+
+      try {
+        if (subscription) await subscription.unsubscribe();
+      } catch (error) {
+        console.warn("Account was deleted, but the local push subscription could not be removed:", error);
+      }
+
+      await this.client.auth.signOut({ scope: "local" }).catch(() => {});
+      clearInterval(this.autoSyncInterval);
+      clearTimeout(this.autoSyncRetryTimeout);
+      this.user = null;
+      this.pendingAutoSync = false;
+      this.updateUI();
+      return true;
     },
 
     registerPushSubscription: async function (subscription) {
@@ -702,6 +740,11 @@
       const syncPanel = document.getElementById("supabase-sync-panel");
       const userEmailSpan = document.getElementById("supabase-user-email");
       const lastSyncSpan = document.getElementById("supabase-last-sync");
+      const deleteAccountRow = document.getElementById("delete-account-row");
+
+      if (deleteAccountRow) {
+        deleteAccountRow.style.display = this.connectionState === "connected" && this.user ? "block" : "none";
+      }
 
       // Last sync timestamp
       if (lastSyncSpan) {

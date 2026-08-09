@@ -2508,7 +2508,62 @@
       }
     });
 
+    // Permanent account deletion requires an authenticated server-side operation
+    // plus an exact-email confirmation to reduce accidental deletion.
+    const deleteAccountButton = document.getElementById("delete-account-btn");
+    const deleteAccountInput = document.getElementById("delete-account-email-confirm");
+    const deleteAccountConfirm = document.getElementById("delete-account-confirm-btn");
+    const deleteAccountError = document.getElementById("delete-account-error");
 
+    const updateDeleteConfirmation = () => {
+      const signedInEmail = (window.SupabaseSync?.user?.email || "").trim().toLowerCase();
+      const enteredEmail = (deleteAccountInput?.value || "").trim().toLowerCase();
+      if (deleteAccountConfirm) deleteAccountConfirm.disabled = !signedInEmail || enteredEmail !== signedInEmail;
+      if (deleteAccountError) deleteAccountError.textContent = "";
+    };
+
+    if (deleteAccountButton) {
+      deleteAccountButton.addEventListener("click", () => {
+        if (!window.SupabaseSync?.user) {
+          alert("Sign in before deleting your account.");
+          return;
+        }
+        if (deleteAccountInput) {
+          deleteAccountInput.value = "";
+          deleteAccountInput.placeholder = window.SupabaseSync.user.email || "account@example.com";
+        }
+        updateDeleteConfirmation();
+        openModal("modal-delete-account");
+      });
+    }
+    if (deleteAccountInput) deleteAccountInput.addEventListener("input", updateDeleteConfirmation);
+    if (deleteAccountConfirm) {
+      deleteAccountConfirm.addEventListener("click", async () => {
+        deleteAccountConfirm.disabled = true;
+        const previousText = deleteAccountConfirm.textContent;
+        deleteAccountConfirm.textContent = "Deleting…";
+        try {
+          await window.SupabaseSync.deleteAccount(deleteAccountInput.value);
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i += 1) {
+            const key = localStorage.key(i);
+            if (key?.startsWith("voc_") || key?.startsWith("sb-")) keysToRemove.push(key);
+          }
+          keysToRemove.forEach((key) => localStorage.removeItem(key));
+          sessionStorage.clear();
+          if ("caches" in window) {
+            const cacheKeys = await caches.keys();
+            await Promise.all(cacheKeys.map((key) => caches.delete(key)));
+          }
+          alert("Your account and account-linked data were deleted.");
+          window.location.replace("./");
+        } catch (error) {
+          if (deleteAccountError) deleteAccountError.textContent = error?.message || "Account deletion failed. Please try again.";
+          deleteAccountConfirm.textContent = previousText;
+          updateDeleteConfirmation();
+        }
+      });
+    }
 
     // Supabase Auth Tab Switching
     const tabLogin = document.getElementById("auth-tab-login");
@@ -2810,6 +2865,16 @@
 
   // --- SETTINGS CONTROLLERS ---
   function setupSettings() {
+    const build = window.PRIVYETIK_BUILD || {};
+    const versionElement = document.getElementById("settings-app-version");
+    const buildDetailsElement = document.getElementById("settings-build-details");
+    if (versionElement) versionElement.textContent = build.version || "unknown";
+    if (buildDetailsElement) {
+      const commit = build.commit && build.commit !== "local" ? `commit ${build.commit}` : "local build";
+      const builtAt = build.builtAt ? ` · ${new Date(build.builtAt).toLocaleString()}` : "";
+      buildDetailsElement.textContent = `${commit}${builtAt}`;
+    }
+
     const showTranslitCheckbox = document.getElementById("settings-show-translit");
     if (showTranslitCheckbox) {
       showTranslitCheckbox.checked = SRS.getSetting("showTranslit", true);
@@ -3036,6 +3101,7 @@
     "modal-add-word": document.getElementById("modal-add-word"),
     "modal-edit-word": document.getElementById("modal-edit-word"),
     "modal-manage-decks": document.getElementById("modal-manage-decks"),
+    "modal-delete-account": document.getElementById("modal-delete-account"),
     "modal-grammar-cta": document.getElementById("modal-grammar-cta"),
     "modal-word-details": document.getElementById("modal-word-details")
   };
@@ -3050,6 +3116,9 @@
     
     document.getElementById("modal-decks-close").addEventListener("click", () => closeModal("modal-manage-decks"));
     document.getElementById("modal-decks-close-footer").addEventListener("click", () => closeModal("modal-manage-decks"));
+
+    document.getElementById("modal-delete-account-close").addEventListener("click", () => closeModal("modal-delete-account"));
+    document.getElementById("modal-delete-account-cancel").addEventListener("click", () => closeModal("modal-delete-account"));
 
     document.getElementById("modal-details-close").addEventListener("click", () => closeModal("modal-word-details"));
     document.getElementById("modal-details-close-btn").addEventListener("click", () => closeModal("modal-word-details"));

@@ -20,46 +20,50 @@ const SEED_SCRIPT = `
   (function() {
     const now = Date.now();
     const day = 86400000;
+    const progress = {};
 
-    // SRS progress: put several words in boxes 3-5
-    const srs = {};
     for (let i = 1; i <= 50; i++) {
       const box = (i % 5) + 1;
-      srs['v_' + i] = {
+      progress['v_' + i] = {
         box,
         nextReview: now - day * (i % 3),
         lastReview: now - day * (i % 5 + 1),
-        correct: box * 3,
-        incorrect: Math.max(0, box - 2),
-        starred: i % 7 === 0
+        correctCount: box * 3,
+        wrongCount: Math.max(0, box - 2),
+        starred: i % 7 === 0,
+        hidden: false,
+        reviewEvents: []
       };
     }
-    localStorage.setItem('voc_russian_srs', JSON.stringify(srs));
 
-    // XP & stats
-    localStorage.setItem('voc_russian_xp', '1240');
-    localStorage.setItem('voc_russian_streak', '7');
-    localStorage.setItem('voc_russian_streak_max', '12');
-    localStorage.setItem('voc_russian_level', 'B1');
-
-    // Theme
-    const settings = JSON.parse(localStorage.getItem('voc_russian_settings') || '{}');
-    settings.theme = 'privyetik';
-    settings.nativeLanguage = 'en';
-    localStorage.setItem('voc_russian_settings', JSON.stringify(settings));
-
-    // Weekly XP history
-    const hist = {};
+    const dailyXpLog = {};
     const today = new Date();
     for (let d = 6; d >= 0; d--) {
-      const dt = new Date(today); dt.setDate(dt.getDate() - d);
-      const key = dt.toISOString().split('T')[0];
-      hist[key] = 30 + Math.round(Math.random() * 120);
+      const date = new Date(today);
+      date.setDate(date.getDate() - d);
+      dailyXpLog[date.toISOString().split('T')[0]] = 30 + ((6 - d) * 15);
     }
-    localStorage.setItem('voc_russian_xp_history', JSON.stringify(hist));
+
+    localStorage.setItem('voc_russian_progress', JSON.stringify(progress));
+    localStorage.setItem('voc_russian_stats', JSON.stringify({
+      xp: 1240,
+      streak: 7,
+      lastActiveDate: today.toISOString().split('T')[0],
+      totalCorrect: 640,
+      totalAttempts: 720,
+      dailyXpLog,
+      settings: {
+        theme: 'privyetik',
+        nativeLanguage: 'en',
+        maxStreak: 12,
+        animationsEnabled: false
+      },
+      updatedAt: now
+    }));
+    localStorage.setItem('voc_russian_active_db', 'standard');
+    localStorage.setItem('voc_onboarding_completed_v1', 'true');
   })();
 `;
-
 // Force-apply theme-privyetik directly on <body> — bypasses app.js entirely
 const FORCE_THEME = () => {
   document.body.classList.remove(

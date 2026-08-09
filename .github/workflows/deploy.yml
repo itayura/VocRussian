@@ -85,7 +85,7 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           CLEAN_PROJECT_ID=$(python3 -c "import os, re; value = os.environ['SUPABASE_PROJECT_ID']; match = re.search(r'[a-zA-Z0-9]{20}', value); print(match.group(0) if match else value.strip())")
-          for FUNCTION_NAME in add-word ai-grammar generate-sentence; do
+          for FUNCTION_NAME in add-word ai-grammar generate-sentence delete-account; do
             supabase functions deploy "$FUNCTION_NAME" --no-verify-jwt --project-ref "$CLEAN_PROJECT_ID"
           done
 
@@ -103,7 +103,7 @@ jobs:
           project_value = os.environ['SUPABASE_PROJECT_ID']
           project_match = re.search(r'[a-zA-Z0-9]{20}', project_value)
           project_id = project_match.group(0) if project_match else project_value.strip()
-          client_source = open('js/supabase.js', encoding='utf-8').read()
+          client_source = open('js/config.js', encoding='utf-8').read()
           key_match = re.search(r'sb_publishable_[A-Za-z0-9_-]+', client_source)
           if not key_match:
               raise RuntimeError('Publishable key was not found in the client configuration')
@@ -127,4 +127,23 @@ jobs:
               if error.code != 401 or 'valid signed-in session is required' not in response:
                   raise RuntimeError(f'Publishable key authentication failed with HTTP {error.code}')
               print('Publishable key reached function-level user authentication successfully')
+
+          delete_request = urllib.request.Request(
+              f'https://{project_id}.supabase.co/functions/v1/delete-account',
+              data=json.dumps({'confirmationEmail': 'invalid@example.com'}).encode(),
+              headers={
+                  'Content-Type': 'application/json',
+                  'apikey': key_match.group(0),
+                  'Authorization': 'Bearer invalid-authentication-check'
+              },
+              method='POST'
+          )
+          try:
+              urllib.request.urlopen(delete_request, timeout=30)
+              raise RuntimeError('Account deletion authentication check unexpectedly succeeded')
+          except urllib.error.HTTPError as error:
+              response = error.read().decode()
+              if error.code != 401 or 'valid signed-in session is required' not in response:
+                  raise RuntimeError(f'Account deletion authentication failed with HTTP {error.code}')
+              print('Account deletion rejects an invalid bearer token successfully')
           "
