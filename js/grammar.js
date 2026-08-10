@@ -48,6 +48,41 @@
     return template.innerHTML;
   }
 
+  function normalizeQuizText(value) {
+    return String(value ?? "")
+      .normalize("NFC")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLocaleLowerCase("ru-RU");
+  }
+
+  function isValidQuizQuestion(question, allowedTopicIds = []) {
+    if (!question || typeof question !== "object") return false;
+    const requiredTextFields = ["sentencePattern", "answer", "translation", "transliteration", "explanation"];
+    if (requiredTextFields.some(field => typeof question[field] !== "string" || !question[field].trim())) return false;
+
+    const blankMatches = question.sentencePattern.match(/\[blank\]/gi) || [];
+    if (blankMatches.length !== 1 || !/\([^()[\]]+\)/u.test(question.sentencePattern)) return false;
+    if (!Array.isArray(question.choices) || question.choices.length !== 4) return false;
+
+    const normalizedChoices = question.choices.map(normalizeQuizText);
+    const normalizedAnswer = normalizeQuizText(question.answer);
+    if (normalizedChoices.some(choice => !choice) || new Set(normalizedChoices).size !== 4) return false;
+    if (!/[а-яё]/iu.test(normalizedAnswer)) return false;
+    if (normalizedChoices.filter(choice => choice === normalizedAnswer).length !== 1) return false;
+    if (allowedTopicIds.length > 0 && !allowedTopicIds.includes(question.topicId)) return false;
+
+    const normalizedPattern = normalizeQuizText(question.sentencePattern);
+    if (/тебя\s+зовут/u.test(normalizedPattern) && /\(\s*имя\s*\)/u.test(normalizedPattern)) return false;
+    return true;
+  }
+
+  function filterQuizQuestions(questions, allowedTopicIds = []) {
+    return Array.isArray(questions)
+      ? questions.filter(question => isValidQuizQuestion(question, allowedTopicIds))
+      : [];
+  }
+
   const STORAGE_KEYS = {
     GRAMMAR_PROGRESS: "voc_russian_grammar_progress",
   };
@@ -121,6 +156,8 @@
   };
 
   const GrammarManager = {
+    isValidQuizQuestion,
+    filterQuizQuestions,
     isPrefetching: false,
     debouncePrefetchTimeout: null,
 
@@ -829,8 +866,7 @@
             currentBuffer.cefr === cefr && 
             currentBuffer.topicParam === topicParam && 
             currentBuffer.count === count &&
-            Array.isArray(currentBuffer.questions) && 
-            currentBuffer.questions.length > 0) {
+            filterQuizQuestions(currentBuffer.questions, checkedTopics).length > 0) {
           console.log("[GrammarManager] Buffer already exists and matches parameters. Skipping prefetch.");
           return;
         }
@@ -858,7 +894,7 @@
         if (error) throw new Error(error.message || error);
         if (!data?.success || !Array.isArray(data?.data?.questions)) throw new Error("Invalid prefetch questions payload.");
 
-        let questions = data.data.questions;
+        let questions = filterQuizQuestions(data.data.questions, checkedTopics);
 
         // Apply blacklist filter
         let blacklist = [];
@@ -1290,7 +1326,7 @@
           cachedSentences = JSON.parse(localStorage.getItem("voc_highly_rated_sentences")) || [];
         } catch (e) {}
 
-        const matching = cachedSentences.filter(q => {
+        const matching = filterQuizQuestions(cachedSentences, checkedTopics).filter(q => {
           return q.cefr === cefr && checkedTopics.includes(q.topic);
         });
 
@@ -1328,11 +1364,10 @@
                 buffer.cefr === cefr && 
                 buffer.topicParam === topicParam && 
                 buffer.count === count &&
-                Array.isArray(buffer.questions) && 
-                buffer.questions.length > 0) {
+                filterQuizQuestions(buffer.questions, checkedTopics).length > 0) {
               
               console.log("[GrammarManager] Buffer hit! Starting quiz instantly with buffered questions.");
-              currentQuizQuestions = buffer.questions;
+              currentQuizQuestions = filterQuizQuestions(buffer.questions, checkedTopics).slice(0, count);
               currentQuizIndex = 0;
               currentQuizCorrectCount = 0;
               currentQuizResults = [];
@@ -1380,7 +1415,7 @@
         if (error) throw new Error(error.message || error);
         if (!data?.success || !Array.isArray(data?.data?.questions)) throw new Error("Failed to receive valid questions payload.");
 
-        let questions = data.data.questions;
+        let questions = filterQuizQuestions(data.data.questions, checkedTopics);
 
         // Blacklist filter
         let blacklist = [];
@@ -1393,7 +1428,7 @@
         }
 
         if (questions.length === 0) {
-          throw new Error("All generated questions were filtered out by your blacklist. Please try again.");
+          throw new Error("No generated questions passed the quality checks. Please try again.");
         }
 
         loadingScreen.style.display = "none";

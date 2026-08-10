@@ -181,3 +181,30 @@ test("expanded vocabulary does not contain indistinguishable duplicate cards", (
   const keys = context.window.expandedVocabulary.map(word => word.word.normalize("NFC").toLowerCase() + "|" + word.translation.toLowerCase());
   assert.equal(new Set(keys).size, keys.length);
 });
+
+test("AI quiz validation rejects malformed and ambiguous questions", () => {
+  const grammar = loadGrammar();
+  const validQuestion = {
+    topicId: "pronouns_declension",
+    sentencePattern: "Это [blank] (твой) имя?",
+    answer: "твоё",
+    choices: ["твоё", "твоя", "твои", "твоей"],
+    translation: "Is this your name?",
+    transliteration: "Eto tvoyo imya?",
+    explanation: "Имя is neuter, so твоё is required."
+  };
+  const malformedNameQuestion = {
+    ...validQuestion,
+    sentencePattern: "Как [blank] (имя) тебя зовут?",
+    translation: "What is your name?"
+  };
+  const duplicateChoices = {
+    ...validQuestion,
+    choices: ["твоё", "твоя", "твои", "твоё"]
+  };
+
+  assert.equal(grammar.isValidQuizQuestion(validQuestion, ["pronouns_declension"]), true);
+  assert.equal(grammar.isValidQuizQuestion(malformedNameQuestion, ["pronouns_declension"]), false);
+  assert.equal(grammar.isValidQuizQuestion(duplicateChoices, ["pronouns_declension"]), false);
+  assert.equal(grammar.filterQuizQuestions([validQuestion, malformedNameQuestion], ["pronouns_declension"]).length, 1);
+});

@@ -159,15 +159,21 @@ test.describe('Privyetik E2E Test Suite', () => {
             data: {
               questions: [
                 {
+                  topicId: body.topicIds?.[0] || 'nominative_case',
                   sentencePattern: 'Это новая [blank] (книга).',
                   answer: 'книга',
                   choices: ['книга', 'книги', 'книгу', 'книге'],
+                  translation: 'This is a new book.',
+                  transliteration: 'Eto novaya kniga.',
                   explanation: 'Nominative singular feminine noun.'
                 },
                 {
+                  topicId: body.topicIds?.[0] || 'prepositional_case',
                   sentencePattern: 'Мы живём в [blank] (город).',
                   answer: 'городе',
                   choices: ['город', 'города', 'городе', 'городу'],
+                  translation: 'We live in a city.',
+                  transliteration: 'My zhivyom v gorode.',
                   explanation: 'Prepositional case singular masculine noun.'
                 }
               ]

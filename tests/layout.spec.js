@@ -138,9 +138,12 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
             data: {
               questions: [
                 {
+                  topicId: body.topicIds?.[0] || 'nominative_case',
                   sentencePattern: 'Это новая [blank] (книга).',
                   answer: 'книга',
                   choices: ['книга', 'книги', 'книгу', 'книге'],
+                  translation: 'This is a new book.',
+                  transliteration: 'Eto novaya kniga.',
                   explanation: 'Nominative singular feminine noun.'
                 }
               ]

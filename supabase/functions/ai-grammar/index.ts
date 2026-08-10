@@ -6,6 +6,43 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function normalizeQuizText(value: unknown): string {
+  return String(value ?? "")
+    .normalize("NFC")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLocaleLowerCase("ru-RU");
+}
+
+function isValidQuizQuestion(question: any, allowedTopicIds: string[]): boolean {
+  if (!question || typeof question !== "object") return false;
+
+  const requiredTextFields = ["sentencePattern", "answer", "translation", "transliteration", "explanation"];
+  if (requiredTextFields.some(field => typeof question[field] !== "string" || !question[field].trim())) return false;
+  if (question.sentencePattern.length > 500 || question.explanation.length > 2000) return false;
+
+  const blankMatches = question.sentencePattern.match(/\[blank\]/gi) || [];
+  if (blankMatches.length !== 1 || !/\([^()[\]]+\)/u.test(question.sentencePattern)) return false;
+
+  if (!Array.isArray(question.choices) || question.choices.length !== 4) return false;
+  const normalizedChoices = question.choices.map(normalizeQuizText);
+  if (normalizedChoices.some(choice => !choice || choice.length > 100)) return false;
+  if (new Set(normalizedChoices).size !== normalizedChoices.length) return false;
+
+  const normalizedAnswer = normalizeQuizText(question.answer);
+  if (!/[а-яё]/iu.test(normalizedAnswer)) return false;
+  if (normalizedChoices.filter(choice => choice === normalizedAnswer).length !== 1) return false;
+
+  if (allowedTopicIds.length > 0 && !allowedTopicIds.includes(question.topicId)) return false;
+
+  // This common model failure creates "Как твоё имя тебя зовут?". The valid
+  // idiom is "Как тебя зовут?"; a possessive-name question needs a new frame.
+  const normalizedPattern = normalizeQuizText(question.sentencePattern);
+  if (/тебя\s+зовут/u.test(normalizedPattern) && /\(\s*имя\s*\)/u.test(normalizedPattern)) return false;
+
+  return true;
+}
+
 function getDefaultPublishableKey(): string {
   try {
     const keys = JSON.parse(Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") ?? "{}");
@@ -207,6 +244,12 @@ Target grammar topic: "${topic || "General Grammar"}"
 Allowed topic IDs: ${allowedTopicIds.join(", ") || "general"}. Assign each question the single best matching topicId from this list.
 Target difficulty level: "${safeCefr}" (CEFR level A1, A2, B1, B2, C1, or C2).
 ${vocabList ? `Try to base the fill-in-the-blank sentences or choices on these vocabulary words the user is currently studying: [${vocabList}]. Do not force it if it doesn't fit the grammar rules naturally, but use them whenever possible.` : ""}
+Before returning each question, silently perform this mandatory quality check:
+1. Replace [blank] with answer and remove the parenthetical dictionary-form hint. The result must be one complete, natural Russian sentence with the same meaning as translation.
+2. Exactly one of the four distinct choices must correctly complete that sentence.
+3. The parenthetical hint is metadata only; never write a sentence that needs the hint as an extra spoken word.
+4. Do not combine the idiom "Как тебя зовут?" with "имя" or a possessive. For a possessive exercise use a natural frame such as "Это [blank] (твой) имя?" with the grammatically correct answer.
+5. If a draft fails any check, replace it with a different question before returning the JSON.
 Provide the output strictly as a JSON object with the following schema:
 {
   "questions": [
@@ -478,6 +521,20 @@ Do not include any markdown formatting, backticks, or explanation outside of the
     }
 
     const result = JSON.parse(textResponse.trim());
+    if (action === "quiz") {
+      const requestedCount = Math.max(3, Math.min(10, Math.round(Number(requestData.count) || 5)));
+      const allowedTopicIds = Array.isArray(requestData.topicIds)
+        ? requestData.topicIds.filter((id: unknown) => typeof id === "string").slice(0, 14)
+        : [];
+      const generatedQuestions = Array.isArray(result?.questions) ? result.questions : [];
+      result.questions = generatedQuestions
+        .filter((question: any) => isValidQuizQuestion(question, allowedTopicIds))
+        .slice(0, requestedCount);
+
+      if (result.questions.length === 0) {
+        throw new Error("The generated quiz did not pass quality checks. Please try again.");
+      }
+    }
     return new Response(
       JSON.stringify({
         success: true,
