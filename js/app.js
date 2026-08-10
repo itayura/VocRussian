@@ -806,6 +806,10 @@
       if (views.dictionary.classList.contains("active")) {
         renderDictionary();
       }
+      if (window.GrammarManager) {
+        window.GrammarManager.updateGrammarLevelUI();
+        window.GrammarManager.updateGrammarPracticeMasteryUI();
+      }
       // Refresh settings checkbox dynamically on sync
       const showTranslitCheckbox = document.getElementById("settings-show-translit");
       if (showTranslitCheckbox) {
@@ -935,6 +939,7 @@
     } else if (targetViewId === "grammar") {
       if (window.GrammarManager) {
         window.GrammarManager.updateGrammarLevelUI();
+        window.GrammarManager.updateGrammarPracticeMasteryUI();
       }
     } else if (targetViewId === "study-select") {
       updateSelectedCategoryMasteryUI();

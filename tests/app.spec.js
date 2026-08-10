@@ -597,6 +597,31 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#practice-setup-screen')).toBeVisible();
   });
 
+  test('AI Grammar Practice Arena refreshes mastery when returning to the page', async ({ page }) => {
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await page.locator('#grammar-tab-practice').click();
+    await expect(page.locator('#practice-target-mastery-val')).toHaveText('0%');
+
+    await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
+    await page.evaluate(() => {
+      window.GrammarManager.setGrammarProgressMap({
+        nominative_case_A1: {
+          topicId: 'nominative_case_A1',
+          attempts: [{ id: 'return-refresh', correct: 40, total: 40, at: Date.now() }],
+          quizzesTaken: 1,
+          totalCorrect: 40,
+          totalQuestions: 40,
+          avgScore: 100,
+          lastPracticed: Date.now(),
+          updatedAt: Date.now()
+        }
+      });
+    });
+
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await expect(page.locator('#practice-target-mastery-val')).not.toHaveText('0%');
+  });
+
   // 9. AI Grammar Sandbox
   test('AI Grammar Sandbox writing correction analysis', async ({ page }) => {
     // Unlock grammar by logging in
