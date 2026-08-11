@@ -300,7 +300,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('body')).toContainText('What will be deleted');
   });
 
-  test('Back closes onboarding from the first page without completing it', async ({ page }) => {
+  test('Fresh users can use the app without completing onboarding', async ({ page }) => {
     await page.evaluate(() => {
       sessionStorage.setItem('test_fresh_onboarding', 'true');
       localStorage.removeItem('voc_onboarding_completed_v1');
@@ -308,31 +308,19 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.reload();
     await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
 
-    const onboarding = page.locator('#onboarding-modal');
-    const backButton = page.locator('#onboarding-back-btn');
-    await expect(onboarding).toHaveClass(/active/);
-    await expect(backButton).toBeVisible();
-
-    await page.locator('#onboarding-next-btn').click();
-    await backButton.click();
-    await expect(onboarding).toHaveClass(/active/);
-    await expect(onboarding).toContainText('built only for Russian');
-
-    await backButton.click();
-    await expect(onboarding).not.toHaveClass(/active/);
-    await expect(onboarding).toHaveAttribute('aria-hidden', 'true');
-    await expect(page.locator('#view-landing')).toHaveClass(/active/);
+    await expect(page.locator('#view-dashboard')).toHaveClass(/active/);
+    await expect(page.locator('#onboarding-modal')).not.toHaveClass(/active/);
     await expect.poll(() => page.evaluate(() => localStorage.getItem('voc_onboarding_completed_v1'))).toBeNull();
   });
 
-  test('New users create an account before completing their chosen learning path', async ({ page }) => {
+  test('New users can complete an onboarding path without an account', async ({ page }) => {
     await page.evaluate(() => {
       sessionStorage.setItem('test_fresh_onboarding', 'true');
       localStorage.removeItem('voc_onboarding_completed_v1');
     });
     await page.reload();
     await expect(page.locator('#view-landing')).toHaveClass(/active/);
-    await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
+    await page.locator('#landing-cta-start').click();
 
     const onboarding = page.locator('#onboarding-modal');
     await expect(onboarding).toHaveClass(/active/);
@@ -347,21 +335,6 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#onboarding-destination')).toContainText('vocabulary practice');
     await page.locator('#onboarding-next-btn').click();
 
-    await expect(onboarding).toContainText('Create your free account');
-    await page.locator('#onboarding-next-btn').click();
-    await expect(page.locator('#onboarding-auth-error')).toContainText('valid email address');
-    await expect(onboarding).toHaveClass(/active/);
-    await expect.poll(() => page.evaluate(() => localStorage.getItem('voc_onboarding_completed_v1'))).toBeNull();
-
-    await page.evaluate(() => {
-      window.SupabaseSync.signUp = async (email) => ({
-        user: { id: 'new-user', email },
-        session: { user: { id: 'new-user', email } }
-      });
-    });
-    await page.locator('#onboarding-email').fill('newlearner@example.com');
-    await page.locator('#onboarding-password').fill('securepassword123');
-    await page.locator('#onboarding-next-btn').click();
     await expect(onboarding).not.toHaveClass(/active/);
     await expect(page.locator('#view-study-select')).toHaveClass(/active/);
     await expect.poll(() => page.evaluate(() => localStorage.getItem('voc_onboarding_completed_v1'))).toBe('true');

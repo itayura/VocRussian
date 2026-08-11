@@ -847,10 +847,8 @@
     }
     
     if (hasLocalProgress || localStorage.getItem(ONBOARDING_STORAGE_KEY) === "true") {
-      onboardingRequired = false;
       switchView("dashboard", { history: "replace" });
     } else {
-      onboardingRequired = true;
       switchView("landing", { history: "replace" });
     }
 
@@ -889,14 +887,6 @@
   function switchView(targetViewId, options = {}) {
     const historyMode = options.history || "push";
     // landing-mode toggling removed to keep sidebar persistent
-
-    if (onboardingRequired && targetViewId !== "landing") {
-      const onboardingModal = document.getElementById("onboarding-modal");
-      if (onboardingModal && !onboardingModal.classList.contains("active")) {
-        openOnboarding();
-      }
-      return;
-    }
 
     if (!views[targetViewId]) return;
 
@@ -4195,7 +4185,6 @@
 
   let onboardingAuthMode = "signup";
   let onboardingReplayMode = false;
-  let onboardingRequired = false;
   function setupOnboarding() {
     const modal = document.getElementById("onboarding-modal");
     const nextBtn = document.getElementById("onboarding-next-btn");
@@ -4211,11 +4200,7 @@
         onboardingStep += 1;
         renderOnboardingStep();
       } else if (onboardingStep === 2) {
-        if (onboardingReplayMode || window.SupabaseSync?.user) {
-          completeOnboarding(onboardingStartTarget);
-        } else {
-          showOnboardingAuth("signup");
-        }
+        completeOnboarding(onboardingStartTarget);
       } else {
         await submitOnboardingAuth();
       }
@@ -4231,11 +4216,7 @@
     });
 
     skipBtn.addEventListener("click", () => {
-      if (onboardingReplayMode) {
-        completeOnboarding("dashboard");
-      } else {
-        showOnboardingAuth(onboardingStep === 3 && onboardingAuthMode === "login" ? "signup" : "login");
-      }
+      completeOnboarding("dashboard");
     });
 
     authForm.addEventListener("submit", async event => {
@@ -4342,11 +4323,9 @@
       : onboardingStep === 1
         ? "Build my learning path"
         : onboardingStep === 2
-          ? (onboardingReplayMode || window.SupabaseSync?.user ? "Start learning Russian" : "Save my learning path")
+          ? "Start learning Russian"
           : (onboardingAuthMode === "signup" ? "Create free account" : "Sign in and continue");
-    skipBtn.textContent = onboardingReplayMode
-      ? "Close tour"
-      : (onboardingStep === 3 && onboardingAuthMode === "login" ? "Create an account" : "Already have an account?");
+    skipBtn.textContent = onboardingReplayMode ? "Close tour" : "Skip for now";
     updateOnboardingDestination();
   }
 
@@ -4458,7 +4437,6 @@
 
   function completeOnboarding(targetViewId) {
     const modal = document.getElementById("onboarding-modal");
-    onboardingRequired = false;
     localStorage.setItem(ONBOARDING_STORAGE_KEY, "true");
     localStorage.removeItem(ONBOARDING_PENDING_TARGET_KEY);
     if (modal) {
