@@ -85,6 +85,13 @@ def patch_launcher_activity() -> None:
 
     method = """
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        recreate();
+    }
+
+    @Override
     protected Uri getLaunchingUrl() {
         Uri uri = super.getLaunchingUrl();
         Intent intent = getIntent();
@@ -102,7 +109,8 @@ def patch_launcher_activity() -> None:
     }
 """
     existing = re.compile(
-        r"\n\s*@Override\s+protected Uri getLaunchingUrl\(\)\s*\{.*?(?=\n\})",
+        r"\n\s*(?:@Override\s+protected void onNewIntent\(Intent intent\)\s*\{.*?\}\s*)?"
+        r"@Override\s+protected Uri getLaunchingUrl\(\)\s*\{.*?(?=\n\})",
         re.DOTALL,
     )
     if existing.search(text):

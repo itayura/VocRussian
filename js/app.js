@@ -430,6 +430,34 @@
     }
   };
 
+  function consumeSharedTextFromUrl() {
+    const url = new URL(window.location.href);
+    const sharedText = url.searchParams.get("add_word") ||
+      url.searchParams.get("text") ||
+      url.searchParams.get("share_text");
+    if (!sharedText || !window.openAddWordWithDefaults) return false;
+
+    url.searchParams.delete("add_word");
+    url.searchParams.delete("text");
+    url.searchParams.delete("share_text");
+    window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+
+    window.openAddWordWithDefaults(sharedText.trim());
+    return true;
+  }
+
+  function setupSharedTextHandling() {
+    // Cold launch from Web Share Target / Android intents.
+    setTimeout(consumeSharedTextFromUrl, 250);
+
+    // Warm TWA resumes and same-document navigations do not fire DOMContentLoaded.
+    window.addEventListener("pageshow", consumeSharedTextFromUrl);
+    window.addEventListener("popstate", consumeSharedTextFromUrl);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") consumeSharedTextFromUrl();
+    });
+  }
+
   window.wrapCyrillicWords = function (html) {
     if (!html) return "";
     const parser = new DOMParser();
@@ -782,16 +810,7 @@
     loadStudySessionSettings();
     setupScrollLoading();
 
-    // Check for shared word/text query parameter (from Android Web Share Target or PROCESS_TEXT intent)
-    const urlParams = new URLSearchParams(window.location.search);
-    const addWord = urlParams.get('add_word') || urlParams.get('text') || urlParams.get('share_text');
-    if (addWord && window.openAddWordWithDefaults) {
-      const cleanUrl = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, document.title, cleanUrl);
-      setTimeout(() => {
-        window.openAddWordWithDefaults(addWord);
-      }, 500);
-    }
+    setupSharedTextHandling();
 
     // Export functions to window so they can be called by placement.js
     window.renderDashboard = renderDashboard;
