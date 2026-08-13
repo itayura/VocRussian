@@ -36,9 +36,7 @@
         if (data && data.session) {
           this.user = data.session.user;
           console.log("[SupabaseSync] Retrieved initial session for user:", this.user.email);
-          if (window.syncPushSubscriptionWithCloud) {
-            window.syncPushSubscriptionWithCloud();
-          }
+          window.dispatchEvent(new CustomEvent("privyetik-auth-ready"));
         } else {
           console.log("[SupabaseSync] No initial session found.");
         }
@@ -48,6 +46,7 @@
           console.log("[SupabaseSync] Auth event triggered:", event, "Session user:", session ? session.user.email : "none");
           if (session) {
             this.user = session.user;
+            window.dispatchEvent(new CustomEvent("privyetik-auth-ready"));
             this.onLoginSuccess();
             if (typeof window.completePendingOnboardingSignup === "function") {
               window.completePendingOnboardingSignup();

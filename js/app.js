@@ -4850,8 +4850,20 @@
     // Cache current state for Service Worker use
     await syncReminderStateToCache();
 
-    // Try synchronizing push subscription if already enabled
+    // Synchronize now and whenever authentication/connectivity becomes ready.
+    // The settings diagnostic remains informational and is not required for setup.
     runNotificationDiagnostic();
+    window.addEventListener("privyetik-auth-ready", () => {
+      window.syncPushSubscriptionWithCloud();
+    });
+    window.addEventListener("online", () => {
+      window.syncPushSubscriptionWithCloud();
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        window.syncPushSubscriptionWithCloud();
+      }
+    });
   }
 
   function updateReminderStatusText() {

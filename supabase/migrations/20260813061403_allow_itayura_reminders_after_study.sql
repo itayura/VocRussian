@@ -21,7 +21,7 @@ DECLARE
         jsonb_build_object('title', 'Your Russian review is ready', 'body', 'Practice your due words and work toward today''s 20 XP goal.'),
         jsonb_build_object('title', 'Time for a quick lesson', 'body', 'A few focused minutes today will strengthen long-term recall.'),
         jsonb_build_object('title', 'Daily goal awaits', 'body', 'Open Privyetik and continue your Russian learning streak.'),
-        jsonb_build_object('title', 'Привет! Ready to practice?', 'body', 'Your vocabulary and grammar practice are waiting.')
+        jsonb_build_object('title', U&'\041F\0440\0438\0432\0435\0442! Ready to practice?', 'body', 'Your vocabulary and grammar practice are waiting.')
     ];
 BEGIN
     SELECT value INTO project_host FROM public.app_config WHERE key = 'project_host';
