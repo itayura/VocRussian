@@ -77,7 +77,7 @@ jobs:
         run: |
           CLEAN_PROJECT_ID=$(python3 -c "import os, re; value = os.environ['SUPABASE_PROJECT_ID']; match = re.search(r'[a-zA-Z0-9]{20}', value); print(match.group(0) if match else value.strip())")
           ENCODED_PASSWORD=$(python3 -c "import os, urllib.parse; print(urllib.parse.quote_plus(os.environ['SUPABASE_DB_PASSWORD'].strip()))")
-          supabase db push --yes --db-url "postgresql://postgres.${CLEAN_PROJECT_ID}:${ENCODED_PASSWORD}@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
+          supabase db push --yes --include-all --db-url "postgresql://postgres.${CLEAN_PROJECT_ID}:${ENCODED_PASSWORD}@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres"
 
       - name: Deploy User Edge Functions
         env:
