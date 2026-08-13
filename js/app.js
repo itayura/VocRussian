@@ -4445,6 +4445,11 @@
     }
     document.body.classList.remove("onboarding-open");
 
+    // Permission prompts must follow a user action. Show the app's explanation
+    // immediately after first-run onboarding, then let its Allow button open
+    // the browser/Android notification permission sheet.
+    showFirstRunNotificationPrompt();
+
     if (targetViewId === "assessment") {
       switchView("dashboard");
       setTimeout(() => {
@@ -4729,8 +4734,10 @@
       if ("Notification" in window && Notification.permission === "default" && !popupDismissed) {
         setTimeout(() => {
           const currentView = document.querySelector(".view-section.active")?.id;
-          if (currentView === "view-dashboard" || currentView === "view-landing") {
+          const onboardingOpen = document.getElementById("onboarding-modal")?.classList.contains("active");
+          if (!onboardingOpen && (currentView === "view-dashboard" || currentView === "view-landing")) {
             notificationPopup.classList.add("active");
+            notificationPopup.setAttribute("aria-hidden", "false");
           }
         }, 1500);
       }
@@ -4770,6 +4777,7 @@
           }
           
           notificationPopup.classList.remove("active");
+          notificationPopup.setAttribute("aria-hidden", "true");
           localStorage.setItem("voc_notification_popup_dismissed", "true");
         });
       }
@@ -4777,6 +4785,7 @@
       if (popupCloseBtn) {
         popupCloseBtn.addEventListener("click", () => {
           notificationPopup.classList.remove("active");
+          notificationPopup.setAttribute("aria-hidden", "true");
           localStorage.setItem("voc_notification_popup_dismissed", "true");
         });
       }
@@ -4864,6 +4873,20 @@
         window.syncPushSubscriptionWithCloud();
       }
     });
+  }
+
+  function showFirstRunNotificationPrompt() {
+    if (!("Notification" in window) || Notification.permission !== "default") return;
+    if (localStorage.getItem("voc_notification_popup_dismissed") === "true") return;
+
+    const notificationPopup = document.getElementById("modal-notification-prompt");
+    if (!notificationPopup) return;
+
+    setTimeout(() => {
+      notificationPopup.classList.add("active");
+      notificationPopup.setAttribute("aria-hidden", "false");
+      document.getElementById("notification-prompt-enable-btn")?.focus({ preventScroll: true });
+    }, 250);
   }
 
   function updateReminderStatusText() {

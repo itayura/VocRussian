@@ -88,6 +88,10 @@ serve(async (req) => {
 
     webpush.setVapidDetails("mailto:itayuralevich@gmail.com", publicKey, privateKey);
 
+    // Reuse one tag for every subscription targeted by this request, while
+    // ensuring a later reminder does not silently replace an earlier one.
+    const notificationTag = `remote-push-${Date.now()}`;
+
     let sentCount = 0;
     let failedCount = 0;
 
@@ -111,7 +115,7 @@ serve(async (req) => {
             endpoint: sub.endpoint,
             keys: { p256dh: sub.p256dh, auth: sub.auth },
           },
-          JSON.stringify({ title, body }),
+          JSON.stringify({ title, body, tag: notificationTag }),
           { urgency: "high", TTL: 86400 },
         );
         sentCount++;
