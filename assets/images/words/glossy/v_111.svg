@@ -1,22 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 480" width="100%" height="100%">
   <defs>
     <linearGradient id="glossyBg_v_111" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F0C20" />
-      <stop offset="100%" stop-color="#05030A" />
+      <stop offset="0%" stop-color="#120D24" />
+      <stop offset="60%" stop-color="#0A0617" />
+      <stop offset="100%" stop-color="#03010A" />
     </linearGradient>
     <linearGradient id="neonGlow_v_111" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#C084FC" />
-      <stop offset="50%" stop-color="#38BDF8" />
-      <stop offset="100%" stop-color="#818CF8" />
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#1D4ED8" />
+      <stop offset="100%" stop-color="#C084FC" />
     </linearGradient>
+    <filter id="glossGlow_v_111" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="40" result="blur" />
+    </filter>
   </defs>
-  <rect width="320" height="320" rx="36" fill="url(#glossyBg_v_111)" />
-  <circle cx="160" cy="135" r="90" fill="url(#neonGlow_v_111)" opacity="0.25" />
-  <rect x="75" y="55" width="170" height="160" rx="28" fill="rgba(255,255,255,0.06)" stroke="url(#neonGlow_v_111)" stroke-width="2" />
-  <line x1="80" y1="60" x2="240" y2="60" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round" />
-  <text x="160" y="148" font-size="68" text-anchor="middle" dominant-baseline="middle">🍀</text>
-  <g transform="translate(160, 260)">
-    <rect x="-90" y="-18" width="180" height="36" rx="18" fill="rgba(192, 132, 252, 0.12)" stroke="rgba(192, 132, 252, 0.3)" />
-    <text x="0" y="5" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#E879F9" text-anchor="middle">Машина</text>
-  </g>
+
+  <!-- Full Bleed Ultra Dark Background -->
+  <rect width="360" height="480" fill="url(#glossyBg_v_111)" />
+
+  <!-- Vivid Neon Glow Core -->
+  <circle cx="180" cy="235" r="120" fill="url(#neonGlow_v_111)" opacity="0.32" filter="url(#glossGlow_v_111)" />
+
+  <!-- Frosted Glass Card Container -->
+  <rect x="45" y="85" width="270" height="300" rx="36" fill="rgba(255,255,255,0.06)" stroke="url(#neonGlow_v_111)" stroke-width="2.5" />
+  
+  <!-- Glass Top Reflection Specular Highlight -->
+  <path d="M55,100 Q180,85 305,100 L305,140 Q180,120 55,140 Z" fill="rgba(255,255,255,0.12)" />
+
+  <!-- Frosted Inner Orb -->
+  <circle cx="180" cy="235" r="85" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" />
+  
+  <!-- Semantic Visual Icon -->
+  <text x="180" y="248" font-size="94" text-anchor="middle" dominant-baseline="middle" filter="drop-shadow(0 10px 24px rgba(0,0,0,0.6))">🚙</text>
+
+  <!-- Bottom Tech Accent -->
+  <rect x="150" y="420" width="60" height="4" rx="2" fill="url(#neonGlow_v_111)" opacity="0.7" />
+  <circle cx="135" cy="422" r="2" fill="#C084FC" opacity="0.6" />
+  <circle cx="225" cy="422" r="2" fill="#C084FC" opacity="0.6" />
 </svg>

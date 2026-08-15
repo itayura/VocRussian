@@ -1707,7 +1707,7 @@
     document.getElementById("study-progress-bar").style.width = progressPercent + "%";
 
     // Stop speaking and audio play
-    if (currentStudyMode !== "writing") {
+    if (currentStudyMode !== "writing" && currentStudyMode !== "visual") {
       // Auto-pronounce Russian word on load
       setTimeout(() => {
         AudioEngine.speak(currentCard.word);
