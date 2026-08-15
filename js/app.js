@@ -1371,6 +1371,25 @@
   // Export to window so it can be called from DOMContentLoaded
   window.loadStudySessionSettings = loadStudySessionSettings;
 
+  function isVisualFeatureEnabled() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("feature_visual") || urlParams.has("visual") || urlParams.has("dev")) {
+      localStorage.setItem("voc_feature_visual_mode", "true");
+      return true;
+    }
+    return localStorage.getItem("voc_feature_visual_mode") === "true";
+  }
+  window.isVisualFeatureEnabled = isVisualFeatureEnabled;
+
+  function getWordVisualArtUrl(wordId, themeOverride = null) {
+    const theme = themeOverride || localStorage.getItem("voc_visual_theme") || "clay";
+    if (wordId === "v_32") {
+      return `assets/images/words/${theme}/v_32.jpg`;
+    }
+    return `assets/images/words/${theme}/${wordId}.svg`;
+  }
+  window.getWordVisualArtUrl = getWordVisualArtUrl;
+
   function setupStudySelect() {
     // Save settings on change
     sessionSettingIds.forEach(id => {
@@ -1392,6 +1411,18 @@
     document.getElementById("mode-select-writing").addEventListener("click", () => {
       startStudySession("writing");
     });
+
+    const visualModeCard = document.getElementById("mode-select-visual");
+    if (visualModeCard) {
+      if (isVisualFeatureEnabled()) {
+        visualModeCard.style.display = "flex";
+      } else {
+        visualModeCard.style.display = "none";
+      }
+      visualModeCard.addEventListener("click", () => {
+        startStudySession("visual");
+      });
+    }
 
     // Database Deck Switcher
     document.getElementById("study-filter-db").addEventListener("change", (e) => {
@@ -1480,6 +1511,29 @@
     document.getElementById("srs-score-3").addEventListener("click", () => handleSrsScore(true, "good"));
     document.getElementById("srs-score-5").addEventListener("click", () => handleSrsScore(true, "easy"));
 
+    // --- VISUAL RECALL EVENTS ---
+    const visualClickArea = document.getElementById("visual-click-wrapper");
+    if (visualClickArea) visualClickArea.addEventListener("click", flipVisualCard);
+
+    const visualStarBtn = document.getElementById("visual-star-btn");
+    if (visualStarBtn) {
+      visualStarBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (currentCard) {
+          const starred = SRS.toggleStar(currentCard.id);
+          visualStarBtn.classList.toggle("starred", starred);
+          visualStarBtn.innerText = starred ? "★" : "☆";
+        }
+      });
+    }
+
+    const vScore1 = document.getElementById("visual-score-1");
+    const vScore3 = document.getElementById("visual-score-3");
+    const vScore5 = document.getElementById("visual-score-5");
+    if (vScore1) vScore1.addEventListener("click", () => handleSrsScore(false, "hard"));
+    if (vScore3) vScore3.addEventListener("click", () => handleSrsScore(true, "good"));
+    if (vScore5) vScore5.addEventListener("click", () => handleSrsScore(true, "easy"));
+
     // --- CHOICE MODE EVENTS ---
     document.getElementById("choice-next-btn").addEventListener("click", () => {
       showNextCard();
@@ -1515,6 +1569,11 @@
 
     // Filter cards
     let pool = SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden);
+
+    // If visual mode, restrict to standard words (which have complete visual assets)
+    if (mode === "visual") {
+      pool = pool.filter(w => w.id && w.id.startsWith("v_") && parseInt(w.id.replace("v_", ""), 10) <= 120);
+    }
 
     // Apply "Only Revised" filter (must have been reviewed at least once)
     if (onlyRevised) {
@@ -1610,6 +1669,8 @@
     document.getElementById("study-sub-flashcard").style.display = mode === "flashcard" ? "block" : "none";
     document.getElementById("study-sub-choice").style.display = mode === "choice" ? "block" : "none";
     document.getElementById("study-sub-writing").style.display = mode === "writing" ? "block" : "none";
+    const visualSub = document.getElementById("study-sub-visual");
+    if (visualSub) visualSub.style.display = mode === "visual" ? "block" : "none";
     document.getElementById("study-sub-complete").style.display = "none";
     placeStudyAudioControls(mode);
 
@@ -1623,9 +1684,11 @@
     controls.classList.add("study-audio-controls");
     const anchor = mode === "flashcard"
       ? document.getElementById("fc-rating-panel")
-      : mode === "choice"
-        ? document.getElementById("choices-container")
-        : stage.querySelector(".writing-input-wrapper");
+      : mode === "visual"
+        ? document.getElementById("visual-rating-panel")
+        : mode === "choice"
+          ? document.getElementById("choices-container")
+          : stage.querySelector(".writing-input-wrapper");
     if (anchor && anchor.parentElement === stage) {
       stage.insertBefore(controls, anchor);
     } else {
@@ -1658,6 +1721,8 @@
       setupChoiceLayout();
     } else if (currentStudyMode === "writing") {
       setupWritingLayout();
+    } else if (currentStudyMode === "visual") {
+      setupVisualLayout();
     }
   }
 
@@ -2129,6 +2194,114 @@
     }
   }
 
+  // Visual Recall Mode Setup
+  function setupVisualLayout() {
+    const wrapper = document.getElementById("visual-click-wrapper");
+    if (!wrapper) return;
+    const wasFlipped = wrapper.classList.contains("flipped");
+    wrapper.classList.remove("flipped");
+
+    const updateContent = (card) => {
+      const nativeLang = SRS.getSetting("nativeLanguage", "en");
+      const imgUrl = getWordVisualArtUrl(card.id);
+
+      // Front
+      const catFront = document.getElementById("visual-category-front");
+      if (catFront) catFront.innerText = card.category;
+      const frontImg = document.getElementById("visual-img-front");
+      if (frontImg) frontImg.src = imgUrl;
+
+      // Back
+      const catBack = document.getElementById("visual-category-back");
+      if (catBack) catBack.innerText = card.category;
+      const backImg = document.getElementById("visual-img-back");
+      if (backImg) backImg.src = imgUrl;
+
+      const wordBack = document.getElementById("visual-word-back");
+      if (wordBack) wordBack.innerText = card.accented || card.word;
+
+      const translitBack = document.getElementById("visual-translit-back");
+      if (translitBack) translitBack.innerText = `[${escapeHTML(card.transliteration || "")}]`;
+
+      const posBack = document.getElementById("visual-pos-back");
+      if (posBack) posBack.innerText = card.pos || "";
+
+      const exRuBack = document.getElementById("visual-example-ru-back");
+      if (exRuBack) exRuBack.innerText = card.exampleRu || "";
+
+      let translationText = card.translation;
+      if (nativeLang !== "en") {
+        translationText = window.getOrTriggerTranslation(
+          card.id, card.word, nativeLang,
+          (translatedVal) => {
+            const transEl = document.getElementById("visual-translation-back");
+            if (transEl) transEl.innerText = translatedVal;
+          },
+          "ru"
+        );
+      }
+      const transEl = document.getElementById("visual-translation-back");
+      if (transEl) transEl.innerText = translationText;
+
+      let exampleEnText = card.exampleEn || "";
+      if (card.exampleEn) {
+        exampleEnText = window.getOrTriggerTranslation(
+          card.id, card.exampleEn, nativeLang,
+          (translatedVal) => {
+            window.setRevealableText("visual-example-en-back", translatedVal);
+          }
+        );
+      }
+      window.setRevealableText("visual-example-en-back", exampleEnText);
+
+      // Star state
+      const prog = SRS.getCardProgress(card.id);
+      const starBtn = document.getElementById("visual-star-btn");
+      if (starBtn) {
+        starBtn.classList.toggle("starred", prog.starred);
+        starBtn.innerText = prog.starred ? "★" : "☆";
+      }
+    };
+
+    if (wasFlipped) {
+      setTimeout(() => {
+        if (currentCard) updateContent(currentCard);
+      }, 250);
+    } else {
+      updateContent(currentCard);
+    }
+
+    const ratingPanel = document.getElementById("visual-rating-panel");
+    if (ratingPanel) {
+      ratingPanel.style.opacity = "0.3";
+      ratingPanel.style.pointerEvents = "none";
+    }
+  }
+
+  function flipVisualCard() {
+    const wrapper = document.getElementById("visual-click-wrapper");
+    if (!wrapper) return;
+    wrapper.classList.toggle("flipped");
+    isCardFlipped = wrapper.classList.contains("flipped");
+    
+    AudioEngine.playFlip();
+
+    const ratingPanel = document.getElementById("visual-rating-panel");
+    if (isCardFlipped) {
+      if (ratingPanel) {
+        ratingPanel.style.opacity = "1";
+        ratingPanel.style.pointerEvents = "auto";
+      }
+      // Audio reinforcement on flip
+      if (currentCard) AudioEngine.speak(currentCard.word);
+    } else {
+      if (ratingPanel) {
+        ratingPanel.style.opacity = "0.3";
+        ratingPanel.style.pointerEvents = "none";
+      }
+    }
+  }
+
   function showSessionComplete() {
     // Fill full progress indicator
     document.getElementById("study-progress-bar").style.width = "100%";
@@ -2137,6 +2310,8 @@
     document.getElementById("study-sub-flashcard").style.display = "none";
     document.getElementById("study-sub-choice").style.display = "none";
     document.getElementById("study-sub-writing").style.display = "none";
+    const visualSub = document.getElementById("study-sub-visual");
+    if (visualSub) visualSub.style.display = "none";
     
     document.getElementById("study-sub-complete").style.display = "block";
     
@@ -2905,6 +3080,37 @@
         const theme = themeSelect.value;
         SRS.setSetting("theme", theme);
         applyTheme(theme);
+      });
+    }
+
+    // Visual Theme & Feature Flag Settings
+    const visualThemeRow = document.getElementById("settings-visual-theme-row");
+    const visualFeatureRow = document.getElementById("settings-visual-feature-row");
+    const visualThemeSelect = document.getElementById("settings-visual-theme");
+    const visualFeatureFlagCheckbox = document.getElementById("settings-visual-feature-flag");
+
+    if (isVisualFeatureEnabled()) {
+      if (visualThemeRow) visualThemeRow.style.display = "flex";
+      if (visualFeatureRow) visualFeatureRow.style.display = "flex";
+    }
+
+    if (visualThemeSelect) {
+      visualThemeSelect.value = localStorage.getItem("voc_visual_theme") || "clay";
+      visualThemeSelect.addEventListener("change", () => {
+        localStorage.setItem("voc_visual_theme", visualThemeSelect.value);
+        if (currentStudyMode === "visual" && currentCard) {
+          setupVisualLayout();
+        }
+      });
+    }
+
+    if (visualFeatureFlagCheckbox) {
+      visualFeatureFlagCheckbox.checked = isVisualFeatureEnabled();
+      visualFeatureFlagCheckbox.addEventListener("change", () => {
+        localStorage.setItem("voc_feature_visual_mode", visualFeatureFlagCheckbox.checked ? "true" : "false");
+        const visualCard = document.getElementById("mode-select-visual");
+        if (visualCard) visualCard.style.display = visualFeatureFlagCheckbox.checked ? "flex" : "none";
+        if (visualThemeRow) visualThemeRow.style.display = visualFeatureFlagCheckbox.checked ? "flex" : "none";
       });
     }
 
@@ -4126,11 +4332,12 @@
         return;
       }
 
-      // 1. FLASHCARD SHORTCUTS
-      if (currentStudyMode === "flashcard" && document.getElementById("study-sub-flashcard").style.display !== "none") {
+      // 1. FLASHCARD & VISUAL SHORTCUTS
+      if ((currentStudyMode === "flashcard" || currentStudyMode === "visual") && (document.getElementById("study-sub-flashcard").style.display !== "none" || (document.getElementById("study-sub-visual") && document.getElementById("study-sub-visual").style.display !== "none"))) {
         if (e.key === " " || e.key === "Spacebar") {
           e.preventDefault();
-          flipFlashcard();
+          if (currentStudyMode === "visual") flipVisualCard();
+          else flipFlashcard();
         }
         else if (isCardFlipped) {
           if (e.key === "1") {

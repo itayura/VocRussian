@@ -582,6 +582,11 @@
             <div class="mode-title">Writing Practice</div>
             <div class="mode-desc">Test spelling and memory recall. Type out the exact Russian word based on its English translation, transliteration, and example context.</div>
           </div>
+          <div class="card mode-card card-glowing" id="mode-select-visual" style="display: none;">
+            <div class="mode-icon">🎨</div>
+            <div class="mode-title">Visual Recall</div>
+            <div class="mode-desc">Reinforce memory with rich visual art and audio associations for vocabulary words.</div>
+          </div>
         </div>
         
         <!-- Filter Study Target -->
@@ -776,6 +781,58 @@
               <button id="writing-check-btn" class="btn btn-primary" style="width: 100%;">
                 Submit Answer
                 <kbd>Enter</kbd>
+              </button>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: VISUAL RECALL COMPONENT -->
+          <div id="study-sub-visual" class="study-stage-component" style="display: none;">
+            <div class="flashcard-wrapper" id="visual-click-wrapper">
+              <div class="flashcard-inner">
+                <!-- Front Side: Large Visual Art + Category Tag + Audio Prompt -->
+                <div class="card-face card-face-front" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; gap: 0.75rem;">
+                  <span class="card-category-tag" id="visual-category-front">Nouns</span>
+                  <button class="card-star-btn" id="visual-star-btn">★</button>
+                  <div id="visual-img-container-front" style="width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 2px solid var(--border-glass); background: var(--bg-card); transition: transform 0.3s ease;">
+                    <img id="visual-img-front" src="" alt="Visual Art" style="width: 100%; height: 100%; object-fit: cover;" />
+                  </div>
+                  <div style="font-size: 0.9rem; color: var(--color-text-muted); font-weight: 500;" id="visual-prompt-hint">Listen to the audio &amp; recall the word</div>
+                  <div class="flip-prompt" style="margin-top: 0.5rem;">
+                    <kbd>Space</kbd> or click to flip card
+                  </div>
+                </div>
+                <!-- Back Side: Full Details (Russian Word, Accents, Translit, Translation, Example) -->
+                <div class="card-face card-face-back" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; gap: 0.5rem;">
+                  <span class="card-category-tag" id="visual-category-back">Nouns</span>
+                  <div id="visual-img-container-back" style="width: 75px; height: 75px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border-glass); margin-bottom: 0.25rem;">
+                    <img id="visual-img-back" src="" alt="Visual Art" style="width: 100%; height: 100%; object-fit: cover;" />
+                  </div>
+                  <div class="card-word-title" id="visual-word-back" style="font-size: 1.8rem; margin: 0;">Дом</div>
+                  <div class="card-word-translit" id="visual-translit-back" style="font-size: 0.95rem; margin: 0;">[dom]</div>
+                  <div class="card-word-translation" id="visual-translation-back" style="font-size: 1.15rem; color: var(--color-primary-hover); font-weight: 600; margin-top: 0.25rem;">House / Home</div>
+                  <div class="card-word-pos" id="visual-pos-back" style="margin-bottom: 0.25rem;">Noun</div>
+                  <div class="card-word-example-ru" id="visual-example-ru-back" style="font-size: 0.95rem;">Я хочу пойти домой.</div>
+                  <div class="card-word-example-en" id="visual-example-en-back" style="font-size: 0.85rem; color: var(--color-text-muted);">I want to go home.</div>
+                  <div class="flip-prompt" style="margin-top: 0.5rem;">
+                    Click to flip back
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SRS Rating Controls (shown when card is flipped) -->
+            <div class="srs-buttons-panel" id="visual-rating-panel" style="margin-top: 1.5rem; opacity: 0.3; pointer-events: none;">
+              <button class="btn srs-btn btn-danger" id="visual-score-1">
+                <span>Hard / Forgot</span>
+                <span>Box 1 <kbd>1</kbd></span>
+              </button>
+              <button class="btn srs-btn btn-secondary" id="visual-score-3" style="border-color: var(--border-glass-hover);">
+                <span>Good</span>
+                <span>Box +1 <kbd>2</kbd></span>
+              </button>
+              <button class="btn srs-btn btn-success" id="visual-score-5">
+                <span>Easy</span>
+                <span>Box +2 <kbd>3</kbd></span>
               </button>
             </div>
           </div>
@@ -1495,6 +1552,36 @@
                 <option value="light">Light Glassmorphic</option>
                 <option value="privyetik" selected>Privyetik ✦ Teal</option>
               </select>
+            </div>
+
+            <!-- Visual Art Theme (Guarded by Feature Flag) -->
+            <div id="settings-visual-theme-row" style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Visual Art Theme</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Select the illustration style for Visual Recall vocabulary cards.
+                </span>
+              </div>
+              <select id="settings-visual-theme" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
+                <option value="clay" selected>🎨 3D Clay / Tactile</option>
+                <option value="vector">📐 Modern Flat Vector</option>
+                <option value="storybook">📖 Storybook Watercolor</option>
+                <option value="glossy">✨ Glossy Frosted 3D</option>
+              </select>
+            </div>
+
+            <!-- Visual Mode Feature Flag Toggle -->
+            <div id="settings-visual-feature-row" style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Visual Recall Mode (Beta)</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Enable experimental Visual Recall study mode with illustrated cards.
+                </span>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="settings-visual-feature-flag">
+                <span class="switch-slider"></span>
+              </label>
             </div>
 
             <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">

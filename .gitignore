@@ -38,3 +38,5 @@ screenshots/
 # Local scratch outputs/helpers
 scratch/*.png
 scratch/take_mobile_screenshot.js
+.codex-remote-attachments/
+

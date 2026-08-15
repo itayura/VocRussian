@@ -283,7 +283,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await expect(page.locator('#view-study-active .page-header .audio-controls')).toHaveCount(0);
     await expect(page.locator('#study-sub-flashcard .study-audio-controls')).toBeVisible();
 
-    const flashcardWrapper = page.locator('.flashcard-wrapper');
+    const flashcardWrapper = page.locator('#flashcard-click-wrapper');
     if (isMobile) {
       // Check mobile explicit flashcard height constraint
       await expect(flashcardWrapper).toHaveCSS('height', '340px');

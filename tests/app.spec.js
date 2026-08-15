@@ -989,4 +989,47 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.locator('#custom-alert-ok-btn').click();
   });
 
+  test('Visual Recall Mode: feature flag gating, multi-theme art, and study interaction', async ({ page }) => {
+    // 1. Without flag: Visual Mode is hidden from Study Selection
+    await page.goto('http://localhost:8080');
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await expect(page.locator('#mode-select-visual')).not.toBeVisible();
+
+    // 2. Enable flag via URL parameter
+    await page.goto('http://localhost:8080?feature_visual=1');
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await expect(page.locator('#mode-select-visual')).toBeVisible();
+
+    // 3. Go to Settings and verify Visual Theme selector is visible
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    const visualThemeRow = page.locator('#settings-visual-theme-row');
+    await expect(visualThemeRow).toBeVisible();
+    
+    const visualThemeSelect = page.locator('#settings-visual-theme');
+    await expect(visualThemeSelect).toBeVisible();
+    await visualThemeSelect.selectOption('vector');
+
+    // 4. Start Visual Recall session
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await page.locator('#mode-select-visual').click();
+    await expect(page.locator('#view-study-active')).toHaveClass(/active/);
+    await expect(page.locator('#study-sub-visual')).toBeVisible();
+
+    // Verify visual art image is loaded
+    const frontImg = page.locator('#visual-img-front');
+    await expect(frontImg).toBeVisible();
+    const imgSrc = await frontImg.getAttribute('src');
+    expect(imgSrc).toContain('assets/images/words/');
+
+    // 5. Flip visual card
+    await page.locator('#visual-click-wrapper').click();
+    await expect(page.locator('#visual-click-wrapper')).toHaveClass(/flipped/);
+    await expect(page.locator('#visual-word-back')).toBeVisible();
+    await expect(page.locator('#visual-translation-back')).toBeVisible();
+
+    // 6. Score card Good (Box +1)
+    await page.locator('#visual-score-3').click();
+    await page.waitForTimeout(300);
+  });
+
 });
