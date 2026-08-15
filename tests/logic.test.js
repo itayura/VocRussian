@@ -208,3 +208,35 @@ test("AI quiz validation rejects malformed and ambiguous questions", () => {
   assert.equal(grammar.isValidQuizQuestion(duplicateChoices, ["pronouns_declension"]), false);
   assert.equal(grammar.filterQuizQuestions([validQuestion, malformedNameQuestion], ["pronouns_declension"]).length, 1);
 });
+
+test("example vocabulary deck loads, contains unique cards, and integrates with SRS", () => {
+  const context = { window: {}, localStorage: {
+    data: {},
+    getItem: function(k) { return this.data[k] || null; },
+    setItem: function(k, v) { this.data[k] = String(v); },
+    removeItem: function(k) { delete this.data[k]; }
+  } };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync("js/db_example.js", "utf8"), context);
+  const words = context.window.exampleVocabulary;
+  assert.ok(Array.isArray(words));
+  assert.ok(words.length >= 500, `Expected at least 500 words, got ${words.length}`);
+  
+  const keys = words.map(w => w.word.normalize("NFC").toLowerCase());
+  assert.equal(new Set(keys).size, keys.length, "Example vocabulary contains duplicate Russian words");
+
+  words.forEach(w => {
+    assert.ok(w.id && w.id.startsWith("vx_"), `Word ${w.word} has invalid ID`);
+    assert.ok(w.word && w.word.length > 0, "Word is missing Russian text");
+    assert.ok(w.translation && w.translation.length > 0, `Word ${w.word} is missing translation`);
+    assert.ok(w.category && w.category.length > 0, `Word ${w.word} is missing category`);
+    assert.ok(w.level && ["A1", "A2", "B1", "B2", "C1", "C2"].includes(w.level), `Word ${w.word} has invalid level`);
+  });
+
+  // Test SRS integration with activeDb = "example"
+  vm.runInContext(fs.readFileSync("js/srs.js", "utf8"), context);
+  context.window.SRS.setActiveDb("example");
+  const srsWords = context.window.SRS.getAllWords();
+  assert.equal(srsWords.length, words.length);
+  assert.equal(context.window.SRS.getWord(words[0].id).word, words[0].word);
+});

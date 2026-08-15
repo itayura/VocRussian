@@ -1032,4 +1032,26 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.waitForTimeout(300);
   });
 
+  test('Example Deck: selection in dictionary and study views, cards rendering', async ({ page }) => {
+    await page.goto('http://localhost:8080');
+    // Navigate to dictionary
+    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    
+    // Check dict deck selector includes Example Deck
+    const dictDeckSelect = page.locator('#dict-filter-db');
+    await expect(dictDeckSelect).toBeVisible();
+    await dictDeckSelect.selectOption('example');
+    
+    // Verify cards are rendered from example deck (first page of 40 cards)
+    const wordCards = page.locator('.vocab-card');
+    await expect(wordCards.first()).toBeVisible();
+    const count = await wordCards.count();
+    expect(count).toBeGreaterThanOrEqual(40);
+
+    // Switch to Study selection
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    const studyDeckSelect = page.locator('#study-filter-db');
+    await expect(studyDeckSelect).toHaveValue('example');
+  });
+
 });

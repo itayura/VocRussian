@@ -1153,6 +1153,8 @@
     let allWords = [];
     if (activeDb === "expanded") {
       allWords = window.expandedVocabulary || [];
+    } else if (activeDb === "example") {
+      allWords = window.exampleVocabulary || [];
     } else if (activeDb === "standard") {
       allWords = window.defaultVocabulary || [];
     } else {
@@ -5411,12 +5413,14 @@
     const activeDb = SRS.getActiveDb();
     const allCustomWords = SRS.getCustomWordsList();
     const defaultCustomCount = allCustomWords.filter(w => (w.deckId || "custom") === "custom").length;
+    const exampleCount = (window.exampleVocabulary || []).length || 503;
     
     const customDecks = SRS.getCustomDecks();
     
     let html = `
       <option value="standard">Standard Deck (120 words)</option>
       <option value="expanded">Expanded Deck (3,376 words)</option>
+      <option value="example">Example Deck (${exampleCount} words)</option>
       <option value="custom">Personal Custom Deck (${defaultCustomCount} words)</option>
     `;
     
@@ -5445,14 +5449,16 @@
     if (!container) return;
     container.innerHTML = "";
 
+    const exampleCount = (window.exampleVocabulary || []).length || 503;
     const builtInDecks = [
       { id: "standard", name: "Standard Deck", isBuiltIn: true, count: 120 },
       { id: "expanded", name: "Expanded Deck", isBuiltIn: true, count: 3376 },
+      { id: "example", name: "Example Deck", isBuiltIn: true, count: exampleCount },
       { id: "custom", name: "Personal Custom Deck", isBuiltIn: true }
     ];
 
     const allCustomWords = SRS.getCustomWordsList();
-    builtInDecks[2].count = allCustomWords.filter(w => (w.deckId || "custom") === "custom").length;
+    builtInDecks[3].count = allCustomWords.filter(w => (w.deckId || "custom") === "custom").length;
 
     const customDecks = SRS.getCustomDecks();
 

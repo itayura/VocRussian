@@ -187,6 +187,8 @@
       const activeDb = this.getActiveDb();
       if (activeDb === "expanded") {
         return window.expandedVocabulary || [];
+      } else if (activeDb === "example") {
+        return window.exampleVocabulary || [];
       } else if (activeDb === "standard") {
         return window.defaultVocabulary || [];
       }
@@ -310,8 +312,8 @@
     // Add a custom word
     addCustomWord: function (wordData) {
       const activeDb = this.getActiveDb();
-      // If activeDb is standard or expanded, force target deck to be the default "custom" deck
-      const targetDeckId = (activeDb === "standard" || activeDb === "expanded") ? "custom" : activeDb;
+      const isBuiltIn = (activeDb === "standard" || activeDb === "expanded" || activeDb === "example");
+      const targetDeckId = isBuiltIn ? "custom" : activeDb;
 
       const id = "custom_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
       const newWord = {
@@ -331,8 +333,8 @@
 
       customWords.push(newWord);
 
-      // If activeDb was standard/expanded, switch active DB to targetDeckId
-      if (activeDb === "standard" || activeDb === "expanded") {
+      // If activeDb was built-in, switch active DB to targetDeckId
+      if (isBuiltIn) {
         this.setActiveDb(targetDeckId);
       }
 

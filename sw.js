@@ -14,6 +14,7 @@ const ASSETS_TO_CACHE = [
   "./js/audio.js",
   "./js/db.js",
   "./js/db_expanded.js",
+  "./js/db_example.js",
   "./js/srs.js",
   "./js/supabase.js",
   "./js/grammar.js",
