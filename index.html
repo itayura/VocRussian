@@ -985,7 +985,15 @@
             <h1 class="page-title">AI Grammar Workspace</h1>
             <p class="page-subtitle">Learn rules, practice quizzes, and get grammar corrections powered by AI.</p>
           </div>
-          <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <!-- Offline / AI Engine Selector (Guarded by Feature Flag) -->
+            <div id="grammar-engine-selector-container" style="display: none; align-items: center; gap: 0.5rem; background: var(--bg-card); border: 1px solid var(--border-glass); padding: 0.35rem 0.75rem; border-radius: var(--border-radius-md);">
+              <label for="grammar-engine-mode-select" style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; margin: 0;">Engine:</label>
+              <select id="grammar-engine-mode-select" class="filter-select" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; height: auto; margin: 0; background-color: var(--bg-input);">
+                <option value="offline" selected>⚡ Instant Offline (0ms)</option>
+                <option value="ai">🤖 Cloud AI Tutor</option>
+              </select>
+            </div>
             <div class="stats-badge-sidebar" style="margin-top: 0; background: var(--bg-card); border: 1px solid var(--border-glass);" title="CEFR estimate based on recent quiz accuracy, evidence, and topic coverage">
               <span>⭐</span>
               <div>
@@ -1077,6 +1085,16 @@
 
         <!-- SUBVIEW: PRACTICE ARENA -->
         <div id="grammar-subview-practice" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
+          <!-- Practice Mode Tabs (Guarded by Feature Flag) -->
+          <div id="practice-mode-selector-container" style="display: none; margin-bottom: 0.5rem;">
+            <div class="card" style="padding: 0.4rem 0.6rem; border-radius: var(--border-radius-md); display: flex; flex-wrap: wrap; gap: 0.5rem; border: 1px solid var(--border-glass); background: var(--bg-card); align-self: flex-start; max-width: 100%;">
+              <button type="button" id="practice-mode-tab-quiz" class="btn btn-secondary btn-pill practice-mode-tab active" data-mode="quiz" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">📝 Cloze Quiz</button>
+              <button type="button" id="practice-mode-tab-ending" class="btn btn-secondary btn-pill practice-mode-tab" data-mode="ending" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">🎯 Ending Picker</button>
+              <button type="button" id="practice-mode-tab-detective" class="btn btn-secondary btn-pill practice-mode-tab" data-mode="detective" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">🔍 Case Detective</button>
+              <button type="button" id="practice-mode-tab-aspect" class="btn btn-secondary btn-pill practice-mode-tab" data-mode="aspect" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">⚡ Aspect Matcher</button>
+            </div>
+          </div>
+
           <div id="practice-setup-screen" style="display: flex; flex-direction: column; gap: 1.5rem;">
             <div>
               <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Grammar Practice Arena</h2>
@@ -1244,6 +1262,87 @@
             <div style="display: flex; gap: 1rem; width: 100%;">
               <button type="button" id="quiz-complete-again-btn" class="btn btn-primary" style="flex: 1; padding: 1rem;">Practice Again</button>
               <button type="button" id="quiz-complete-finish-btn" class="btn btn-secondary" style="flex: 1; padding: 1rem;">Back to Setup</button>
+            </div>
+          </div>
+
+          <!-- MATRIX DRILL: ENDING PICKER SCREEN -->
+          <div id="practice-matrix-ending-screen" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 650px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Ending Picker • <span id="ending-drill-streak" style="color: orange; font-weight: bold;">🔥 0 Streak</span></span>
+              <button type="button" id="ending-drill-quit-btn" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Quit Drill</button>
+            </div>
+            
+            <div class="choice-question-box" style="padding: 2.5rem 1.5rem; margin-top: 0.5rem; text-align: center;">
+              <span class="card-category-tag" id="ending-drill-target-case">Dative Case</span>
+              <div class="card-word-title" id="ending-drill-word-prompt" style="font-size: 2.4rem; line-height: 1.3; margin: 0.5rem 0;">студент [ ___ ]</div>
+              <div class="card-word-example-en" id="ending-drill-hint" style="margin-top: 0.5rem; font-size: 1.05rem; color: var(--color-text-muted);">Masculine Dative singular (кому?)</div>
+            </div>
+
+            <div class="choices-grid" id="ending-drill-choices-container" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+              <!-- Ending choices e.g. -у, -а, -ом, -е -->
+            </div>
+
+            <div id="ending-drill-feedback-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.75rem; animation: fadeIn 0.3s forwards;">
+              <strong style="color: var(--color-text-main); font-size: 1.05rem;" id="ending-drill-feedback-title">✅ Correct! студент → студенту</strong>
+              <button type="button" id="ending-drill-next-btn" class="btn btn-primary" style="align-self: flex-end; padding: 0.6rem 1.2rem;">Next Word ➔</button>
+            </div>
+          </div>
+
+          <!-- MATRIX DRILL: CASE DETECTIVE SCREEN -->
+          <div id="practice-matrix-detective-screen" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 650px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Case Detective • <span id="detective-drill-streak" style="color: orange; font-weight: bold;">🔥 0 Streak</span></span>
+              <button type="button" id="detective-drill-quit-btn" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Quit Drill</button>
+            </div>
+            
+            <div class="choice-question-box" style="padding: 2.5rem 1.5rem; margin-top: 0.5rem; text-align: center;">
+              <span class="card-category-tag">Identify the Case of Highlighted Word</span>
+              <div class="card-word-title" id="detective-sentence-prompt" style="font-size: 1.8rem; line-height: 1.4; margin: 0.75rem 0;">Я купил подарок для своей любимой <strong style="color: var(--color-primary-hover); text-decoration: underline;">[мамы]</strong>.</div>
+            </div>
+
+            <div class="choices-grid" id="detective-choices-container" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+              <!-- 4 case choices -->
+            </div>
+
+            <div id="detective-feedback-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.75rem; animation: fadeIn 0.3s forwards;">
+              <strong style="color: var(--color-text-main); font-size: 1.05rem;" id="detective-feedback-title">✅ Correct!</strong>
+              <div id="detective-feedback-explanation" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.4;">After preposition «для», the noun is in the Genitive case.</div>
+              <button type="button" id="detective-next-btn" class="btn btn-primary" style="align-self: flex-end; padding: 0.6rem 1.2rem;">Next Mystery ➔</button>
+            </div>
+          </div>
+
+          <!-- MATRIX DRILL: ASPECT MATCHER SCREEN -->
+          <div id="practice-matrix-aspect-screen" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 700px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Aspect Matcher • Matches: <span id="aspect-matches-count" style="color: var(--color-primary-hover); font-weight: bold;">0 / 5</span></span>
+              <button type="button" id="aspect-quit-btn" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Quit Matcher</button>
+            </div>
+
+            <div class="info-banner" style="background: rgba(138, 43, 226, 0.15); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--color-text-main); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚡</span>
+              <span>Select an <strong>Imperfective (НСВ)</strong> verb on the left, then click its corresponding <strong>Perfective (СВ)</strong> pair on the right!</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <span style="font-weight: bold; font-size: 0.9rem; color: var(--color-text-muted); text-align: center;">Imperfective (НСВ)</span>
+                <div id="aspect-left-column" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <!-- Left verb tiles -->
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <span style="font-weight: bold; font-size: 0.9rem; color: var(--color-text-muted); text-align: center;">Perfective (СВ)</span>
+                <div id="aspect-right-column" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <!-- Right verb tiles -->
+                </div>
+              </div>
+            </div>
+
+            <div id="aspect-round-complete-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.5rem; flex-direction: column; align-items: center; gap: 1rem; text-align: center; animation: fadeIn 0.3s forwards;">
+              <div style="font-size: 2.5rem;">🎉</div>
+              <strong style="color: var(--color-text-main); font-size: 1.25rem;">All Aspect Pairs Matched!</strong>
+              <div style="font-size: 0.95rem; color: var(--color-text-muted);">+20 XP Awarded for Aspect Mastery.</div>
+              <button type="button" id="aspect-play-again-btn" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Play Next Round ➔</button>
             </div>
           </div>
         </div>
@@ -1579,6 +1678,20 @@
               </div>
               <label class="switch-container">
                 <input type="checkbox" id="settings-visual-feature-flag">
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <!-- Offline Grammar Feature Flag Toggle (Beta) -->
+            <div id="settings-offline-grammar-row" style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+              <div>
+                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Offline Grammar Engine & Drills (Beta)</strong>
+                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
+                  Instant 0ms offline lessons, 150+ curated quizzes, and interactive Matrix Drills (Ending Picker, Case Detective, Aspect Matcher).
+                </span>
+              </div>
+              <label class="switch-container">
+                <input type="checkbox" id="settings-offline-grammar-flag">
                 <span class="switch-slider"></span>
               </label>
             </div>
@@ -2483,6 +2596,7 @@
   <script src="js/db_example.js"></script>
   <script src="js/srs.js"></script>
   <script src="js/audio.js"></script>
+  <script src="js/grammar_offline.js"></script>
   <script src="js/grammar.js"></script>
   <script src="js/alphabet.js"></script>
   <script src="js/placement.js"></script>

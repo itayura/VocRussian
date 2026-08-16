@@ -951,6 +951,10 @@
         window.GrammarManager.updateGrammarPracticeMasteryUI();
       }
     } else if (targetViewId === "study-select") {
+      const visualModeCard = document.getElementById("mode-select-visual");
+      if (visualModeCard) {
+        visualModeCard.style.display = isVisualFeatureEnabled() ? "flex" : "none";
+      }
       updateSelectedCategoryMasteryUI();
     } else if (targetViewId === "stats") {
       renderStatisticsPage();
@@ -1379,9 +1383,31 @@
       localStorage.setItem("voc_feature_visual_mode", "true");
       return true;
     }
+    if (window.SupabaseSync && window.SupabaseSync.user) {
+      const email = (window.SupabaseSync.user.email || "").toLowerCase().trim();
+      if (email === "itayura@gmail.com" || email === "itayuralevich@gmail.com" || email.includes("itayura")) {
+        return true;
+      }
+    }
     return localStorage.getItem("voc_feature_visual_mode") === "true";
   }
   window.isVisualFeatureEnabled = isVisualFeatureEnabled;
+
+  function isOfflineGrammarFeatureEnabled() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("feature_offline_grammar") || urlParams.has("offline_grammar") || urlParams.has("grammar_offline") || urlParams.has("dev")) {
+      localStorage.setItem("voc_feature_offline_grammar", "true");
+      return true;
+    }
+    if (window.SupabaseSync && window.SupabaseSync.user) {
+      const email = (window.SupabaseSync.user.email || "").toLowerCase().trim();
+      if (email === "itayura@gmail.com" || email === "itayuralevich@gmail.com" || email.includes("itayura")) {
+        return true;
+      }
+    }
+    return localStorage.getItem("voc_feature_offline_grammar") === "true";
+  }
+  window.isOfflineGrammarFeatureEnabled = isOfflineGrammarFeatureEnabled;
 
   function getWordVisualArtUrl(wordId, themeOverride = null) {
     const theme = themeOverride || localStorage.getItem("voc_visual_theme") || "clay";
@@ -3113,6 +3139,23 @@
         const visualCard = document.getElementById("mode-select-visual");
         if (visualCard) visualCard.style.display = visualFeatureFlagCheckbox.checked ? "flex" : "none";
         if (visualThemeRow) visualThemeRow.style.display = visualFeatureFlagCheckbox.checked ? "flex" : "none";
+      });
+    }
+
+    // Offline Grammar Engine Feature Flag Settings
+    const offlineGrammarRow = document.getElementById("settings-offline-grammar-row");
+    const offlineGrammarCheckbox = document.getElementById("settings-offline-grammar-flag");
+    if (offlineGrammarRow && isOfflineGrammarFeatureEnabled()) {
+      offlineGrammarRow.style.display = "flex";
+    }
+    if (offlineGrammarCheckbox) {
+      offlineGrammarCheckbox.checked = isOfflineGrammarFeatureEnabled();
+      offlineGrammarCheckbox.addEventListener("change", () => {
+        localStorage.setItem("voc_feature_offline_grammar", offlineGrammarCheckbox.checked ? "true" : "false");
+        if (window.GrammarManager) {
+          window.GrammarManager.initEngineSelector();
+          window.GrammarManager.initPracticeModeSelector();
+        }
       });
     }
 

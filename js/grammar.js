@@ -104,6 +104,7 @@
     noun_plurals: "Noun Plurals"
   };
 
+
   const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
   const CEFR_TOPIC_WEIGHTS = { A1: 0.35, A2: 0.5, B1: 0.65, B2: 0.78, C1: 0.9, C2: 1 };
   const GRAMMAR_LEVEL_MIN_TOPICS = Math.ceil(Object.keys(TOPICS_MAP).length / 2);
@@ -121,6 +122,16 @@
   let currentQuizResults = [];
   let activeTopic = "nominative_case";
   let activePresetName = null;
+
+  // Matrix Drills State (Strategy C)
+  let endingDrillStreak = 0;
+  let currentEndingDrill = null;
+  let detectiveDrillStreak = 0;
+  let currentDetectiveDrill = null;
+  let aspectMatchedCount = 0;
+  let selectedAspectLeft = null;
+  let currentAspectRound = null;
+  let currentPracticeMode = "quiz"; // "quiz" | "ending" | "detective" | "aspect"
 
   // Parse server-side/Deno JSON error messages
   function getErrorMessage(error) {
@@ -166,11 +177,88 @@
       this.setupEventListeners();
       this.initCollapsibleSidebar();
       this.initCustomTopicsPanel();
+      this.initEngineSelector();
+      this.initPracticeModeSelector();
       this.updateGrammarLevelUI();
       // Trigger background prefetch on initialize if user is already logged in
       setTimeout(() => {
         this.prefetchQuizToBuffer();
       }, 1500);
+    },
+
+    initEngineSelector: function () {
+      const container = document.getElementById("grammar-engine-selector-container");
+      const select = document.getElementById("grammar-engine-mode-select");
+      if (!container || !select) return;
+
+      const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
+      if (isFeatureEnabled) {
+        container.style.display = "flex";
+        select.value = localStorage.getItem("voc_grammar_engine_mode") || "offline";
+        select.addEventListener("change", () => {
+          localStorage.setItem("voc_grammar_engine_mode", select.value);
+          this.showXpToast(select.value === "offline" ? "⚡ Switched to Instant Offline Engine" : "🤖 Switched to Cloud AI Engine");
+        });
+      } else {
+        container.style.display = "none";
+      }
+    },
+
+    initPracticeModeSelector: function () {
+      const container = document.getElementById("practice-mode-selector-container");
+      if (!container) return;
+
+      const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
+      if (!isFeatureEnabled) {
+        container.style.display = "none";
+        return;
+      }
+      container.style.display = "block";
+
+      const tabs = [
+        { id: "practice-mode-tab-quiz", mode: "quiz" },
+        { id: "practice-mode-tab-ending", mode: "ending" },
+        { id: "practice-mode-tab-detective", mode: "detective" },
+        { id: "practice-mode-tab-aspect", mode: "aspect" }
+      ];
+
+      tabs.forEach(tab => {
+        const btn = document.getElementById(tab.id);
+        if (btn) {
+          btn.addEventListener("click", () => {
+            tabs.forEach(t => {
+              const b = document.getElementById(t.id);
+              if (b) {
+                b.classList.remove("active");
+                b.style.background = "transparent";
+                b.style.borderColor = "transparent";
+                b.style.color = "var(--color-text-muted)";
+              }
+            });
+            btn.classList.add("active");
+            btn.style.background = "var(--bg-input)";
+            btn.style.borderColor = "var(--border-glass)";
+            btn.style.color = "var(--color-text-main)";
+            this.switchPracticeMode(tab.mode);
+          });
+        }
+      });
+
+      // Wire Matrix Drill buttons
+      const endingNextBtn = document.getElementById("ending-drill-next-btn");
+      if (endingNextBtn) endingNextBtn.addEventListener("click", () => this.nextEndingDrill());
+      const endingQuitBtn = document.getElementById("ending-drill-quit-btn");
+      if (endingQuitBtn) endingQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+
+      const detectiveNextBtn = document.getElementById("detective-next-btn");
+      if (detectiveNextBtn) detectiveNextBtn.addEventListener("click", () => this.nextDetectiveDrill());
+      const detectiveQuitBtn = document.getElementById("detective-drill-quit-btn");
+      if (detectiveQuitBtn) detectiveQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+
+      const aspectPlayAgainBtn = document.getElementById("aspect-play-again-btn");
+      if (aspectPlayAgainBtn) aspectPlayAgainBtn.addEventListener("click", () => this.startAspectMatcherDrill());
+      const aspectQuitBtn = document.getElementById("aspect-quit-btn");
+      if (aspectQuitBtn) aspectQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
     },
 
     loadFromStorage: function () {
@@ -1040,8 +1128,6 @@
         });
       }
 
-
-
       // Practice Arena Buttons
       document.getElementById("practice-start-btn").addEventListener("click", () => self.startPracticeQuiz());
       document.getElementById("quiz-quit-btn").addEventListener("click", () => self.quitPracticeQuiz());
@@ -1068,6 +1154,22 @@
         document.getElementById("sandbox-user-input").value = "";
         document.getElementById("sandbox-results-panel").style.display = "none";
       });
+
+      // Matrix Drills Buttons
+      const endingNextBtn = document.getElementById("ending-drill-next-btn");
+      if (endingNextBtn) endingNextBtn.addEventListener("click", () => self.nextEndingDrill());
+      const endingQuitBtn = document.getElementById("ending-drill-quit-btn");
+      if (endingQuitBtn) endingQuitBtn.addEventListener("click", () => self.switchPracticeMode("quiz"));
+
+      const detectiveNextBtn = document.getElementById("detective-drill-next-btn");
+      if (detectiveNextBtn) detectiveNextBtn.addEventListener("click", () => self.nextDetectiveDrill());
+      const detectiveQuitBtn = document.getElementById("detective-drill-quit-btn");
+      if (detectiveQuitBtn) detectiveQuitBtn.addEventListener("click", () => self.switchPracticeMode("quiz"));
+
+      const aspectNextBtn = document.getElementById("aspect-round-next-btn");
+      if (aspectNextBtn) aspectNextBtn.addEventListener("click", () => self.startAspectMatcherDrill());
+      const aspectQuitBtn = document.getElementById("aspect-drill-quit-btn");
+      if (aspectQuitBtn) aspectQuitBtn.addEventListener("click", () => self.switchPracticeMode("quiz"));
     },
 
     // Check Cloud Database Connected
@@ -1086,7 +1188,7 @@
     renderTutorExplanation: function (payload) {
       payload = {
         title: escapeHTML(payload?.title),
-        explanation: sanitizeRichHTML(payload?.explanation),
+        explanation: sanitizeRichHTML(payload?.explanation || payload?.description),
         rules: Array.isArray(payload?.rules) ? payload.rules.map(rule => ({ ending: escapeHTML(rule.ending), rule: escapeHTML(rule.rule), example: escapeHTML(rule.example) })) : [],
         examples: Array.isArray(payload?.examples) ? payload.examples.map(example => ({ ru: escapeHTML(example.ru), en: escapeHTML(example.en), explanation: escapeHTML(example.explanation) })) : []
       };
@@ -1167,22 +1269,53 @@
 
       // Bind TTS audio play buttons
       this.bindTutorTtsButtons();
-
     },
 
-    // --- AI TUTOR ACTION ---
+    bindTutorTtsButtons: function () {
+      document.querySelectorAll(".tutor-tts-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const text = btn.getAttribute("data-text");
+          if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
+            window.AudioEngine.speak(text);
+          } else if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ru-RU';
+            window.speechSynthesis.speak(utterance);
+          }
+        });
+      });
+    },
+
+    // --- AI / OFFLINE TUTOR ACTION ---
     loadTutorLesson: async function (topicId) {
+      const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
+      const engineMode = isFeatureEnabled ? (localStorage.getItem("voc_grammar_engine_mode") || "offline") : "ai";
       const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
       
       const loader = document.getElementById("tutor-loading");
       const contentEl = document.getElementById("tutor-explanation-content");
 
+      // Check Offline Engine
+      if (engineMode === "offline") {
+        if (window.GrammarOffline) {
+          if (loader) loader.style.display = "none";
+          const payload = window.GrammarOffline.getLesson(topicId);
+          this.renderTutorExplanation(payload);
+          const firstCompletion = this.recordLessonCompleted(topicId);
+          if (firstCompletion && window.SRS) {
+            window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
+            this.showXpToast("+15 XP (Grammar Study)");
+          }
+          return;
+        }
+      }
+
       if (!isLoggedIn) {
         if (topicId === "nominative_case") {
-          loader.style.display = "flex";
-          contentEl.innerHTML = "";
+          if (loader) loader.style.display = "flex";
+          if (contentEl) contentEl.innerHTML = "";
           setTimeout(() => {
-            loader.style.display = "none";
+            if (loader) loader.style.display = "none";
             this.renderTutorExplanation(PREVIEW_LESSON_NOMINATIVE);
           }, 300);
           return;
@@ -1192,8 +1325,8 @@
         }
       }
 
-      loader.style.display = "flex";
-      contentEl.innerHTML = "";
+      if (loader) loader.style.display = "flex";
+      if (contentEl) contentEl.innerHTML = "";
 
       // Check Cache
       const cacheKey = "voc_grammar_explanations_cache";
@@ -1212,7 +1345,7 @@
             window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
             this.showXpToast("+15 XP (Grammar Study)");
           }
-          loader.style.display = "none";
+          if (loader) loader.style.display = "none";
           return;
         } catch (cacheErr) {
           console.warn("Failed to render cached explanation for " + topicId + ", clearing cache and refetching:", cacheErr);
@@ -1239,7 +1372,7 @@
         if (error) throw new Error(error.message || error);
         if (!data || !data.success) throw new Error("Failed to receive explanation payload.");
 
-        loader.style.display = "none";
+        if (loader) loader.style.display = "none";
         
         const payload = data.data;
 
@@ -1262,26 +1395,11 @@
         }
 
       } catch (err) {
-        loader.style.display = "none";
+        if (loader) loader.style.display = "none";
         console.error("Failed to explain grammar concept:", err);
         const errContent = `<div class="card" style="background:var(--bg-input); border:1px solid var(--border-glass); border-radius:var(--border-radius-md); padding:1.5rem; color:var(--color-error); width:100%;">Error loading lesson: ${escapeHTML(getErrorMessage(err))}. Please try again later.</div>`;
-        contentEl.innerHTML = errContent;
+        if (contentEl) contentEl.innerHTML = errContent;
       }
-    },
-
-    bindTutorTtsButtons: function () {
-      document.querySelectorAll(".tutor-tts-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const text = btn.getAttribute("data-text");
-          if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
-            window.AudioEngine.speak(text);
-          } else if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ru-RU';
-            window.speechSynthesis.speak(utterance);
-          }
-        });
-      });
     },
 
     // --- PRACTICE ARENA ACTION ---
@@ -1318,35 +1436,28 @@
       const topicParam = checkedNames.join(", ");
       currentQuizTopicIds = [...checkedTopics];
 
-      // Check Offline Mode
-      const isOnline = navigator.onLine;
-      if (!isOnline) {
-        let cachedSentences = [];
-        try {
-          cachedSentences = JSON.parse(localStorage.getItem("voc_highly_rated_sentences")) || [];
-        } catch (e) {}
+      // Check Offline Engine
+      const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
+      const engineMode = isFeatureEnabled ? (localStorage.getItem("voc_grammar_engine_mode") || "offline") : "ai";
+      const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
 
-        const matching = filterQuizQuestions(cachedSentences, checkedTopics).filter(q => {
-          return q.cefr === cefr && checkedTopics.includes(q.topic);
-        });
+      if (engineMode === "offline") {
+        if (window.GrammarOffline) {
+          const questions = window.GrammarOffline.getQuestions(checkedTopics, count, cefr);
+          if (questions && questions.length > 0) {
+            currentQuizQuestions = questions;
+            currentQuizIndex = 0;
+            currentQuizCorrectCount = 0;
+            currentQuizResults = [];
 
-        if (matching.length >= count) {
-          const shuffled = [...matching].sort(() => 0.5 - Math.random());
-          currentQuizQuestions = shuffled.slice(0, count);
-          currentQuizIndex = 0;
-          currentQuizCorrectCount = 0;
-          currentQuizResults = [];
-
-          setupScreen.style.display = "none";
-          loadingScreen.style.display = "none";
-          if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
-          activeScreen.style.display = "flex";
-          this.renderQuizQuestion();
-          this.showXpToast("Started Quiz in Offline Mode 📶");
-          return;
-        } else {
-          alert(`Offline Mode: Not enough highly-rated cached sentences for selected topics (requires at least ${count}, you have ${matching.length} cached). Please connect online or rate sentences with 👍 during online study to cache them.`);
-          return;
+            if (setupScreen) setupScreen.style.display = "none";
+            if (loadingScreen) loadingScreen.style.display = "none";
+            if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
+            if (activeScreen) activeScreen.style.display = "flex";
+            this.renderQuizQuestion();
+            this.showXpToast("Started Instant Offline Quiz ⚡");
+            return;
+          }
         }
       }
 
@@ -1354,7 +1465,6 @@
       if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
 
       // Check if we have matching buffered sentences for logged-in user
-      const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
       if (isLoggedIn) {
         try {
           const bufferVal = localStorage.getItem("voc_grammar_quiz_buffer");
@@ -1381,7 +1491,6 @@
               this.renderQuizQuestion();
               this.showXpToast("Loaded quiz instantly from buffer! ⚡");
               
-              // Trigger prefetch for the NEXT quiz in the background
               setTimeout(() => {
                 this.prefetchQuizToBuffer();
               }, 1000);
@@ -1431,17 +1540,16 @@
           throw new Error("No generated questions passed the quality checks. Please try again.");
         }
 
-        loadingScreen.style.display = "none";
-        activeScreen.style.display = "flex";
-
-        currentQuizQuestions = questions;
+        currentQuizQuestions = questions.slice(0, count);
         currentQuizIndex = 0;
         currentQuizCorrectCount = 0;
         currentQuizResults = [];
 
+        loadingScreen.style.display = "none";
+        activeScreen.style.display = "flex";
+
         this.renderQuizQuestion();
 
-        // Trigger prefetch for the NEXT quiz in the background
         setTimeout(() => {
           this.prefetchQuizToBuffer();
         }, 1000);
@@ -1452,6 +1560,375 @@
         if (window.setPracticeFocusMode) window.setPracticeFocusMode(false);
         console.error("AI Quiz generation failed:", err);
         alert(`Failed to start quiz: ${getErrorMessage(err)}. Please try again.`);
+      }
+    },
+
+    // --- STRATEGY C: MATRIX DRILLS (ENDING PICKER, CASE DETECTIVE, ASPECT MATCHER) ---
+    switchPracticeMode: function (mode) {
+      currentPracticeMode = mode;
+      const setupScreen = document.getElementById("practice-setup-screen");
+      const activeQuizScreen = document.getElementById("practice-active-screen");
+      const completeQuizScreen = document.getElementById("practice-complete-screen");
+      const endingScreen = document.getElementById("practice-matrix-ending-screen");
+      const detectiveScreen = document.getElementById("practice-matrix-detective-screen");
+      const aspectScreen = document.getElementById("practice-matrix-aspect-screen");
+
+      // Hide all sub-screens
+      if (setupScreen) setupScreen.style.display = "none";
+      if (activeQuizScreen) activeQuizScreen.style.display = "none";
+      if (completeQuizScreen) completeQuizScreen.style.display = "none";
+      if (endingScreen) endingScreen.style.display = "none";
+      if (detectiveScreen) detectiveScreen.style.display = "none";
+      if (aspectScreen) aspectScreen.style.display = "none";
+
+      if (window.setPracticeFocusMode) window.setPracticeFocusMode(mode !== "quiz");
+
+      if (mode === "quiz") {
+        if (setupScreen) setupScreen.style.display = "flex";
+        if (window.setPracticeFocusMode) window.setPracticeFocusMode(false);
+      } else if (mode === "ending") {
+        this.startEndingPickerDrill();
+      } else if (mode === "detective") {
+        this.startCaseDetectiveDrill();
+      } else if (mode === "aspect") {
+        this.startAspectMatcherDrill();
+      }
+    },
+
+    // 1. Ending Picker Drill
+    startEndingPickerDrill: function () {
+      endingDrillStreak = 0;
+      const endingScreen = document.getElementById("practice-matrix-ending-screen");
+      if (endingScreen) endingScreen.style.display = "flex";
+      this.nextEndingDrill();
+    },
+
+    nextEndingDrill: function () {
+      if (!window.GrammarOffline) return;
+      currentEndingDrill = window.GrammarOffline.getEndingPickerDrill();
+      this.renderEndingPickerDrill();
+    },
+
+    renderEndingPickerDrill: function () {
+      const drill = currentEndingDrill;
+      if (!drill) return;
+
+      const streakEl = document.getElementById("ending-drill-streak");
+      const targetCaseEl = document.getElementById("ending-drill-target-case");
+      const wordPromptEl = document.getElementById("ending-drill-word-prompt");
+      const hintEl = document.getElementById("ending-drill-hint");
+      const choicesContainer = document.getElementById("ending-drill-choices-container");
+      const feedbackBox = document.getElementById("ending-drill-feedback-box");
+
+      if (streakEl) streakEl.innerText = `🔥 ${endingDrillStreak} Streak`;
+      if (targetCaseEl) targetCaseEl.innerText = drill.targetCase;
+      if (wordPromptEl) wordPromptEl.innerText = `${drill.stem}[ ___ ]`;
+      if (hintEl) hintEl.innerText = drill.hint;
+      if (feedbackBox) feedbackBox.style.display = "none";
+
+      if (!choicesContainer) return;
+      choicesContainer.innerHTML = "";
+
+      drill.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.innerText = choice;
+        btn.style.fontSize = "1.3rem";
+        btn.style.padding = "1rem";
+        btn.style.fontWeight = "bold";
+        btn.style.fontFamily = "var(--font-heading)";
+
+        btn.addEventListener("click", () => this.handleEndingChoice(choice, btn));
+        choicesContainer.appendChild(btn);
+      });
+    },
+
+    handleEndingChoice: function (choice, btnEl) {
+      const drill = currentEndingDrill;
+      if (!drill) return;
+
+      const choicesContainer = document.getElementById("ending-drill-choices-container");
+      const feedbackBox = document.getElementById("ending-drill-feedback-box");
+      const feedbackTitle = document.getElementById("ending-drill-feedback-title");
+
+      if (choicesContainer) {
+        choicesContainer.querySelectorAll(".choice-btn").forEach(b => b.disabled = true);
+      }
+
+      if (choice === drill.targetEnding) {
+        btnEl.classList.add("correct");
+        btnEl.style.background = "var(--color-primary)";
+        btnEl.style.borderColor = "var(--color-primary-hover)";
+        btnEl.style.color = "#fff";
+
+        endingDrillStreak++;
+        if (feedbackTitle) feedbackTitle.innerText = `✅ Correct! ${drill.stem} + ${drill.targetEnding} → ${drill.fullWord}`;
+        if (feedbackBox) {
+          feedbackBox.style.display = "flex";
+          feedbackBox.style.borderColor = "var(--color-primary)";
+        }
+        if (window.SRS) window.SRS.addActivityXP(5, "grammar_drill_ending");
+        this.showXpToast("+5 XP (Ending Master!)");
+      } else {
+        btnEl.classList.add("incorrect");
+        btnEl.style.background = "rgba(255, 59, 48, 0.2)";
+        btnEl.style.borderColor = "rgb(255, 59, 48)";
+
+        endingDrillStreak = 0;
+        if (feedbackTitle) feedbackTitle.innerText = `❌ Incorrect. The correct ending is ${drill.targetEnding} (${drill.fullWord})`;
+        if (feedbackBox) {
+          feedbackBox.style.display = "flex";
+          feedbackBox.style.borderColor = "rgb(255, 59, 48)";
+        }
+
+        if (choicesContainer) {
+          choicesContainer.querySelectorAll(".choice-btn").forEach(b => {
+            if (b.innerText === drill.targetEnding) {
+              b.style.borderColor = "var(--color-primary)";
+              b.style.color = "var(--color-primary-hover)";
+            }
+          });
+        }
+      }
+
+      const streakEl = document.getElementById("ending-drill-streak");
+      if (streakEl) streakEl.innerText = `🔥 ${endingDrillStreak} Streak`;
+    },
+
+    // 2. Case Detective Drill
+    startCaseDetectiveDrill: function () {
+      detectiveDrillStreak = 0;
+      const detectiveScreen = document.getElementById("practice-matrix-detective-screen");
+      if (detectiveScreen) detectiveScreen.style.display = "flex";
+      this.nextDetectiveDrill();
+    },
+
+    nextDetectiveDrill: function () {
+      if (!window.GrammarOffline) return;
+      currentDetectiveDrill = window.GrammarOffline.getCaseDetectiveDrill();
+      this.renderCaseDetectiveDrill();
+    },
+
+    renderCaseDetectiveDrill: function () {
+      const drill = currentDetectiveDrill;
+      if (!drill) return;
+
+      const streakEl = document.getElementById("detective-drill-streak");
+      const promptEl = document.getElementById("detective-sentence-prompt");
+      const choicesContainer = document.getElementById("detective-choices-container");
+      const feedbackBox = document.getElementById("detective-feedback-box");
+
+      if (streakEl) streakEl.innerText = `🔥 ${detectiveDrillStreak} Streak`;
+      if (feedbackBox) feedbackBox.style.display = "none";
+
+      if (promptEl) {
+        const highlightedSentence = drill.sentence.replace(
+          `[${drill.targetWord}]`,
+          `<strong style="color: var(--color-primary-hover); text-decoration: underline;">[${drill.targetWord}]</strong>`
+        );
+        promptEl.innerHTML = highlightedSentence;
+      }
+
+      if (!choicesContainer) return;
+      choicesContainer.innerHTML = "";
+
+      drill.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.innerText = choice;
+        btn.style.fontSize = "1.05rem";
+        btn.style.padding = "0.9rem";
+        btn.style.fontWeight = "bold";
+
+        btn.addEventListener("click", () => this.handleDetectiveChoice(choice, btn));
+        choicesContainer.appendChild(btn);
+      });
+    },
+
+    handleDetectiveChoice: function (choice, btnEl) {
+      const drill = currentDetectiveDrill;
+      if (!drill) return;
+
+      const choicesContainer = document.getElementById("detective-choices-container");
+      const feedbackBox = document.getElementById("detective-feedback-box");
+      const feedbackTitle = document.getElementById("detective-feedback-title");
+      const feedbackExplanation = document.getElementById("detective-feedback-explanation");
+
+      if (choicesContainer) {
+        choicesContainer.querySelectorAll(".choice-btn").forEach(b => b.disabled = true);
+      }
+
+      if (choice === drill.correctCase) {
+        btnEl.classList.add("correct");
+        btnEl.style.background = "var(--color-primary)";
+        btnEl.style.borderColor = "var(--color-primary-hover)";
+        btnEl.style.color = "#fff";
+
+        detectiveDrillStreak++;
+        if (feedbackTitle) feedbackTitle.innerText = `✅ Correct! «${drill.targetWord}» is in the ${drill.correctCase}.`;
+        if (feedbackExplanation) feedbackExplanation.innerText = drill.explanation;
+        if (feedbackBox) {
+          feedbackBox.style.display = "flex";
+          feedbackBox.style.borderColor = "var(--color-primary)";
+        }
+        if (window.SRS) window.SRS.addActivityXP(5, "grammar_drill_case");
+        this.showXpToast("+5 XP (Case Detective!)");
+      } else {
+        btnEl.classList.add("incorrect");
+        btnEl.style.background = "rgba(255, 59, 48, 0.2)";
+        btnEl.style.borderColor = "rgb(255, 59, 48)";
+
+        detectiveDrillStreak = 0;
+        if (feedbackTitle) feedbackTitle.innerText = `❌ Incorrect. Correct Case: ${drill.correctCase}`;
+        if (feedbackExplanation) feedbackExplanation.innerText = drill.explanation;
+        if (feedbackBox) {
+          feedbackBox.style.display = "flex";
+          feedbackBox.style.borderColor = "rgb(255, 59, 48)";
+        }
+
+        if (choicesContainer) {
+          choicesContainer.querySelectorAll(".choice-btn").forEach(b => {
+            if (b.innerText === drill.correctCase) {
+              b.style.borderColor = "var(--color-primary)";
+              b.style.color = "var(--color-primary-hover)";
+            }
+          });
+        }
+      }
+
+      const streakEl = document.getElementById("detective-drill-streak");
+      if (streakEl) streakEl.innerText = `🔥 ${detectiveDrillStreak} Streak`;
+    },
+
+    // 3. Aspect Matcher Drill
+    startAspectMatcherDrill: function () {
+      if (!window.GrammarOffline) return;
+      aspectMatchedCount = 0;
+      selectedAspectLeft = null;
+      currentAspectRound = window.GrammarOffline.getAspectMatchingRound(5);
+
+      const aspectScreen = document.getElementById("practice-matrix-aspect-screen");
+      if (aspectScreen) aspectScreen.style.display = "flex";
+      this.renderAspectMatcherDrill();
+    },
+
+    renderAspectMatcherDrill: function () {
+      const round = currentAspectRound;
+      if (!round) return;
+
+      const matchesCountEl = document.getElementById("aspect-matches-count");
+      const leftCol = document.getElementById("aspect-left-column");
+      const rightCol = document.getElementById("aspect-right-column");
+      const completeBox = document.getElementById("aspect-round-complete-box");
+
+      if (matchesCountEl) matchesCountEl.innerText = `${aspectMatchedCount} / ${round.pairs.length}`;
+      if (completeBox) completeBox.style.display = "none";
+
+      if (leftCol) {
+        leftCol.innerHTML = "";
+        round.left.forEach(item => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-secondary aspect-match-tile";
+          btn.id = `aspect_btn_${item.id}`;
+          btn.innerText = item.text;
+          btn.style.padding = "0.85rem 1rem";
+          btn.style.fontSize = "1.05rem";
+          btn.style.fontFamily = "var(--font-heading)";
+          btn.style.fontWeight = "bold";
+          btn.style.cursor = "pointer";
+          btn.style.transition = "all 0.2s";
+          btn.style.border = "1px solid var(--border-glass)";
+
+          btn.addEventListener("click", () => this.handleAspectLeftClick(item, btn));
+          leftCol.appendChild(btn);
+        });
+      }
+
+      if (rightCol) {
+        rightCol.innerHTML = "";
+        round.right.forEach(item => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-secondary aspect-match-tile";
+          btn.id = `aspect_btn_${item.id}`;
+          btn.innerText = item.text;
+          btn.style.padding = "0.85rem 1rem";
+          btn.style.fontSize = "1.05rem";
+          btn.style.fontFamily = "var(--font-heading)";
+          btn.style.fontWeight = "bold";
+          btn.style.cursor = "pointer";
+          btn.style.transition = "all 0.2s";
+          btn.style.border = "1px solid var(--border-glass)";
+
+          btn.addEventListener("click", () => this.handleAspectRightClick(item, btn));
+          rightCol.appendChild(btn);
+        });
+      }
+    },
+
+    handleAspectLeftClick: function (item, btnEl) {
+      if (btnEl.disabled) return;
+
+      document.querySelectorAll("#aspect-left-column .aspect-match-tile").forEach(b => {
+        if (!b.disabled) {
+          b.style.borderColor = "var(--border-glass)";
+          b.style.background = "var(--bg-input)";
+        }
+      });
+
+      selectedAspectLeft = { item, btnEl };
+      btnEl.style.borderColor = "var(--color-primary-hover)";
+      btnEl.style.background = "var(--color-primary-glow)";
+    },
+
+    handleAspectRightClick: function (item, btnEl) {
+      if (btnEl.disabled || !selectedAspectLeft) return;
+
+      const left = selectedAspectLeft;
+      if (left.item.pairId === item.pairId) {
+        left.btnEl.disabled = true;
+        btnEl.disabled = true;
+
+        left.btnEl.style.background = "rgba(46, 213, 115, 0.2)";
+        left.btnEl.style.borderColor = "#2ed573";
+        left.btnEl.style.color = "#2ed573";
+        left.btnEl.innerText = `✔ ${left.item.text}`;
+
+        btnEl.style.background = "rgba(46, 213, 115, 0.2)";
+        btnEl.style.borderColor = "#2ed573";
+        btnEl.style.color = "#2ed573";
+        btnEl.innerText = `✔ ${item.text}`;
+
+        selectedAspectLeft = null;
+        aspectMatchedCount++;
+
+        const matchesCountEl = document.getElementById("aspect-matches-count");
+        if (matchesCountEl) matchesCountEl.innerText = `${aspectMatchedCount} / 5`;
+
+        if (aspectMatchedCount === 5) {
+          const completeBox = document.getElementById("aspect-round-complete-box");
+          if (completeBox) completeBox.style.display = "flex";
+          if (window.SRS) window.SRS.addActivityXP(20, "grammar_drill_aspect");
+          this.showXpToast("🎉 +20 XP (Aspect Master!)");
+        }
+      } else {
+        btnEl.style.borderColor = "rgb(255, 59, 48)";
+        left.btnEl.style.borderColor = "rgb(255, 59, 48)";
+
+        setTimeout(() => {
+          if (!left.btnEl.disabled) {
+            left.btnEl.style.borderColor = "var(--border-glass)";
+            left.btnEl.style.background = "var(--bg-input)";
+          }
+          if (!btnEl.disabled) {
+            btnEl.style.borderColor = "var(--border-glass)";
+            btnEl.style.background = "var(--bg-input)";
+          }
+          selectedAspectLeft = null;
+        }, 500);
       }
     },
 

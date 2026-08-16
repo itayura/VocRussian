@@ -1030,6 +1030,20 @@ test.describe('Privyetik E2E Test Suite', () => {
     // 6. Score card Good (Box +1)
     await page.locator('#visual-score-3').click();
     await page.waitForTimeout(300);
+
+    // 7. Test user account gating for itayura@gmail.com
+    await page.goto('http://localhost:8080');
+    await page.evaluate(() => localStorage.removeItem('voc_feature_visual_mode'));
+    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+    await page.locator('#supabase-email').fill('itayura@gmail.com');
+    await page.locator('#supabase-password').fill('securepassword123');
+    await page.locator('#supabase-auth-submit-btn').click();
+    const okBtn = page.locator('#custom-alert-ok-btn');
+    await okBtn.waitFor({ state: 'visible' });
+    await okBtn.click();
+
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await expect(page.locator('#mode-select-visual')).toBeVisible();
   });
 
   test('Example Deck: selection in dictionary and study views, cards rendering', async ({ page }) => {
@@ -1054,4 +1068,69 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(studyDeckSelect).toHaveValue('example');
   });
 
+  test('Offline Grammar Engine: feature flag gating, instant lessons, and matrix drills (A, C, D)', async ({ page }) => {
+    // 1. Visit with feature flag
+    await page.goto('http://localhost:8080?feature_offline_grammar=1');
+
+    // 2. Navigate to Grammar Tab
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+
+    // Verify engine selector is visible in header
+    const engineSelector = page.locator('#grammar-engine-selector-container');
+    await expect(engineSelector).toBeVisible();
+
+    // 3. Strategy A: Instant Offline Lesson
+    await selectGrammarTopic(page, 'accusative_case');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('Accusative Case');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('direct object');
+
+    // 4. Switch to Practice tab
+    await page.locator('#grammar-tab-practice').click();
+
+    // Verify practice mode selector is visible
+    const modeSelector = page.locator('#practice-mode-selector-container');
+    await expect(modeSelector).toBeVisible();
+
+    // 5. Strategy C: Matrix Drill - Ending Picker
+    await page.locator('.practice-mode-tab[data-mode="ending"]').click();
+    const endingScreen = page.locator('#practice-matrix-ending-screen');
+    await expect(endingScreen).toBeVisible();
+    const endingChoices = endingScreen.locator('.choice-btn');
+    await expect(endingChoices.first()).toBeVisible();
+    await endingChoices.first().click();
+    await expect(page.locator('#ending-drill-feedback-box')).toBeVisible();
+
+    // 6. Strategy C: Matrix Drill - Case Detective
+    await page.locator('.practice-mode-tab[data-mode="detective"]').click();
+    const detectiveScreen = page.locator('#practice-matrix-detective-screen');
+    await expect(detectiveScreen).toBeVisible();
+    const detectiveChoices = detectiveScreen.locator('.choice-btn');
+    await expect(detectiveChoices.first()).toBeVisible();
+    await detectiveChoices.first().click();
+    await expect(page.locator('#detective-feedback-box')).toBeVisible();
+
+    // 7. Strategy C: Matrix Drill - Aspect Matcher
+    await page.locator('.practice-mode-tab[data-mode="aspect"]').click();
+    const aspectScreen = page.locator('#practice-matrix-aspect-screen');
+    await expect(aspectScreen).toBeVisible();
+    const leftTiles = page.locator('#aspect-left-column .aspect-match-tile');
+    const rightTiles = page.locator('#aspect-right-column .aspect-match-tile');
+    await expect(leftTiles.first()).toBeVisible();
+    await expect(rightTiles.first()).toBeVisible();
+    await leftTiles.first().click();
+    await rightTiles.first().click();
+
+    // 8. Strategy A: Instant Offline Cloze Quiz
+    await page.locator('.practice-mode-tab[data-mode="quiz"]').click();
+    await page.locator('#practice-start-btn').click();
+    const quizScreen = page.locator('#practice-active-screen');
+    await expect(quizScreen).toBeVisible();
+    await expect(page.locator('#quiz-sentence-prompt')).toBeVisible();
+    const quizChoices = page.locator('#quiz-choices-container .choice-btn');
+    await expect(quizChoices.first()).toBeVisible();
+    await quizChoices.first().click();
+    await expect(page.locator('#quiz-next-btn')).toBeVisible();
+  });
+
 });
+

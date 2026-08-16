@@ -2962,3 +2962,30 @@ body.practice-focus #quiz-next-btn {
   width: 100%;
   margin-top: 0.35rem;
 }
+
+/* --- Offline Grammar Engine & Matrix Drills Styles --- */
+.practice-mode-tab {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.practice-mode-tab:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.aspect-match-tile {
+  min-height: 3rem;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.aspect-match-tile:active {
+  transform: scale(0.98);
+}
+

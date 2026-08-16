@@ -244,3 +244,43 @@ test("example vocabulary deck loads, contains unique cards, and integrates with 
   assert.equal(srsWords.length, words.length);
   assert.equal(context.window.SRS.getWord(words[0].id).word, words[0].word);
 });
+
+test("offline grammar engine provides 14 structured lessons, validated question bank, and matrix drills", () => {
+  const grammar = loadGrammar();
+  const { GrammarOffline, QUESTIONS } = require("../js/grammar_offline.js");
+  
+  assert.ok(GrammarOffline, "GrammarOffline failed to load");
+
+  const topics = GrammarOffline.getAllTopics();
+  assert.equal(topics.length, 14, "Expected 14 offline grammar topics");
+
+  topics.forEach(topicId => {
+    const lesson = GrammarOffline.getLesson(topicId);
+    assert.ok(lesson, `Missing lesson for topic ${topicId}`);
+    assert.ok(lesson.title && lesson.title.length > 5, `Topic ${topicId} missing title`);
+    assert.ok(lesson.description && lesson.description.length > 20, `Topic ${topicId} missing description`);
+    assert.ok(Array.isArray(lesson.rules) && lesson.rules.length >= 2, `Topic ${topicId} missing rules`);
+    assert.ok(Array.isArray(lesson.examples) && lesson.examples.length >= 2, `Topic ${topicId} missing examples`);
+  });
+
+  // Verify all questions pass isValidQuizQuestion
+  assert.ok(Array.isArray(QUESTIONS) && QUESTIONS.length >= 140, "Expected at least 140 curated questions");
+  
+  QUESTIONS.forEach(q => {
+    assert.equal(grammar.isValidQuizQuestion(q, [q.topicId]), true, `Question ${q.id} failed validation: ${JSON.stringify(q)}`);
+  });
+
+  // Verify Matrix Drills
+  const endingDrill = GrammarOffline.getEndingPickerDrill();
+  assert.ok(endingDrill && endingDrill.stem && endingDrill.targetEnding && Array.isArray(endingDrill.choices));
+  assert.equal(endingDrill.choices.includes(endingDrill.targetEnding), true);
+
+  const detectiveDrill = GrammarOffline.getCaseDetectiveDrill();
+  assert.ok(detectiveDrill && detectiveDrill.sentence && detectiveDrill.correctCase && Array.isArray(detectiveDrill.choices));
+  assert.equal(detectiveDrill.choices.includes(detectiveDrill.correctCase), true);
+
+  const aspectRound = GrammarOffline.getAspectMatchingRound(5);
+  assert.equal(aspectRound.pairs.length, 5);
+  assert.equal(aspectRound.left.length, 5);
+  assert.equal(aspectRound.right.length, 5);
+});
