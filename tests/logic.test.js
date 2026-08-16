@@ -225,12 +225,16 @@ test("example vocabulary deck loads, contains unique cards, and integrates with 
   const keys = words.map(w => w.word.normalize("NFC").toLowerCase());
   assert.equal(new Set(keys).size, keys.length, "Example vocabulary contains duplicate Russian words");
 
-  words.forEach(w => {
+    words.forEach(w => {
     assert.ok(w.id && w.id.startsWith("vx_"), `Word ${w.word} has invalid ID`);
     assert.ok(w.word && w.word.length > 0, "Word is missing Russian text");
     assert.ok(w.translation && w.translation.length > 0, `Word ${w.word} is missing translation`);
     assert.ok(w.category && w.category.length > 0, `Word ${w.word} is missing category`);
     assert.ok(w.level && ["A1", "A2", "B1", "B2", "C1", "C2"].includes(w.level), `Word ${w.word} has invalid level`);
+    assert.ok(w.exampleRu && w.exampleRu.length > 15, `Word ${w.word} is missing valid Russian example sentence`);
+    assert.ok(w.exampleEn && w.exampleEn.length > 15, `Word ${w.word} is missing valid English example sentence`);
+    assert.ok(!w.exampleRu.startsWith("Пример:"), `Word ${w.word} still has placeholder example`);
+    assert.ok(!w.exampleEn.startsWith("Example:"), `Word ${w.word} still has placeholder English example`);
   });
 
   // Test SRS integration with activeDb = "example"

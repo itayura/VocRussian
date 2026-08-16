@@ -1,5 +1,5 @@
-// Example Russian Vocabulary Database (Preply Master Reference)
-// 503 words and phrases curated from Preply lessons.
+// Example Russian Vocabulary Database - 503 Curated Words & Phrases
+// Extracted from Preply Russian lesson vocabulary guide.
 
 const exampleVocabulary = [
   {
@@ -11,8 +11,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Батарейка садится.",
-    "exampleEn": "Example: battery discharge."
+    "exampleRu": "У меня садится батарейка на телефоне, нужно срочно поставить его на зарядку.",
+    "exampleEn": "My phone battery is running low, I urgently need to put it on charge."
   },
   {
     "id": "vx_2",
@@ -23,8 +23,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выражать.",
-    "exampleEn": "Example: to express."
+    "exampleRu": "Он свободно умеет выражать свои мысли на русском языке.",
+    "exampleEn": "He is able to freely express his thoughts in Russian."
   },
   {
     "id": "vx_3",
@@ -35,8 +35,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Греться.",
-    "exampleEn": "Example: to heat."
+    "exampleRu": "Кот очень любит греться на тёплом весеннем солнышке.",
+    "exampleEn": "The cat really likes to warm up in the warm spring sunshine."
   },
   {
     "id": "vx_4",
@@ -47,8 +47,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Емкость.",
-    "exampleEn": "Example: capacity."
+    "exampleRu": "Эта пластиковая ёмкость вмещает до пяти литров питьевой воды.",
+    "exampleEn": "This plastic container holds up to five liters of drinking water."
   },
   {
     "id": "vx_5",
@@ -59,8 +59,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Жаловаться.",
-    "exampleEn": "Example: to complain."
+    "exampleRu": "Он оптимист и никогда не жалуется на временные трудности.",
+    "exampleEn": "He is an optimist and never complains about temporary difficulties."
   },
   {
     "id": "vx_6",
@@ -71,8 +71,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Зависнуть.",
-    "exampleEn": "Example: to stuck; to freeze."
+    "exampleRu": "Мой рабочий компьютер неожиданно завис во время важной презентации.",
+    "exampleEn": "My work computer unexpectedly froze during an important presentation."
   },
   {
     "id": "vx_7",
@@ -83,8 +83,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Играть.",
-    "exampleEn": "Example: to play."
+    "exampleRu": "По вечерам дети любят играть в настольные игры всей семьёй.",
+    "exampleEn": "In the evenings, children love to play board games with the whole family."
   },
   {
     "id": "vx_8",
@@ -95,8 +95,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Идти в гости.",
-    "exampleEn": "Example: to go to someone's place."
+    "exampleRu": "В эту субботу мы с друзьями идём в гости к нашему коллеге.",
+    "exampleEn": "This Saturday my friends and I are going to visit our colleague."
   },
   {
     "id": "vx_9",
@@ -107,8 +107,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Искать.",
-    "exampleEn": "Example: to search; to look for."
+    "exampleRu": "Я уже двадцать минут безуспешно ищу свои ключи от квартиры.",
+    "exampleEn": "I have been searching for my apartment keys without success for twenty minutes."
   },
   {
     "id": "vx_10",
@@ -119,8 +119,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Меняться.",
-    "exampleEn": "Example: to change."
+    "exampleRu": "Погода в горах может кардинально меняться за считанные минуты.",
+    "exampleEn": "Weather in the mountains can change radically in a matter of minutes."
   },
   {
     "id": "vx_11",
@@ -131,8 +131,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Оперативная память.",
-    "exampleEn": "Example: RAM."
+    "exampleRu": "Для быстрой работы программы требуется 16 гигабайт оперативной памяти.",
+    "exampleEn": "For fast performance, the program requires 16 gigabytes of RAM."
   },
   {
     "id": "vx_12",
@@ -143,8 +143,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Пожалеть.",
-    "exampleEn": "Example: to regret."
+    "exampleRu": "Перейдите на сторону киоска и поверните направо за угол.",
+    "exampleEn": "Cross over to the side of the kiosk and turn right around the corner."
   },
   {
     "id": "vx_13",
@@ -155,8 +155,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Помнить (imperfective).",
-    "exampleEn": "Example: to remember."
+    "exampleRu": "Я до сих пор отлично помню нашу первую встречу в университете.",
+    "exampleEn": "I still remember our first meeting at the university very well."
   },
   {
     "id": "vx_14",
@@ -167,8 +167,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Помогать.",
-    "exampleEn": "Example: помочь - to help."
+    "exampleRu": "Верные друзья всегда бескорыстно помогают друг другу в беде.",
+    "exampleEn": "True friends always unselfishly help each other in trouble."
   },
   {
     "id": "vx_15",
@@ -179,8 +179,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Поправить.",
-    "exampleEn": "Example: adjust, correct."
+    "exampleRu": "Преподаватель помог студенту поправить ошибку в произношении.",
+    "exampleEn": "The teacher helped the student correct the mistake in pronunciation."
   },
   {
     "id": "vx_16",
@@ -191,8 +191,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Предлагать.",
-    "exampleEn": "Example: to suggest."
+    "exampleRu": "В ресторане русской кухни вам обязательно нужно попробовать борщ с пампушками.",
+    "exampleEn": "In the Russian restaurant you definitely must try borscht with garlic bread."
   },
   {
     "id": "vx_17",
@@ -203,8 +203,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Садиться.",
-    "exampleEn": "Example: to sit."
+    "exampleRu": "Он долго пытался решить эту сложную грамматическую задачу.",
+    "exampleEn": "He tried for a long time to solve this complex grammatical problem."
   },
   {
     "id": "vx_18",
@@ -215,8 +215,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Ставить.",
-    "exampleEn": "Example: to put; to set up."
+    "exampleRu": "Если усердно стараться, можно выучить любой иностранный язык.",
+    "exampleEn": "If you try hard, you can learn any foreign language."
   },
   {
     "id": "vx_19",
@@ -227,8 +227,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Уволить.",
-    "exampleEn": "Example: to fire."
+    "exampleRu": "Руководство компании решило уволить недобросовестного работника.",
+    "exampleEn": "The company management decided to fire the dishonest employee."
   },
   {
     "id": "vx_20",
@@ -239,8 +239,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Улыбаться.",
-    "exampleEn": "Example: to smile."
+    "exampleRu": "Она всегда тепло улыбается при встрече со старыми друзьями.",
+    "exampleEn": "She always smiles warmly when meeting old friends."
   },
   {
     "id": "vx_21",
@@ -251,8 +251,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Умереть.",
-    "exampleEn": "Example: to die."
+    "exampleRu": "Знаменитый учёный умер в возрасте девяноста пяти лет.",
+    "exampleEn": "The famous scientist died at the age of ninety-five."
   },
   {
     "id": "vx_22",
@@ -263,8 +263,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Благотворительность.",
-    "exampleEn": "Example: charity."
+    "exampleRu": "Многие крупные организации регулярно жертвуют средства на благотворительность.",
+    "exampleEn": "Many large organizations regularly donate funds to charity."
   },
   {
     "id": "vx_23",
@@ -275,8 +275,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Бороться.",
-    "exampleEn": "Example: to fight; to wrestle."
+    "exampleRu": "Пассажир боится летать на самолётах из-за сильной турбулентности.",
+    "exampleEn": "The passenger is afraid to fly on airplanes because of severe turbulence."
   },
   {
     "id": "vx_24",
@@ -287,8 +287,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Бояться.",
-    "exampleEn": "Example: to be afraid of."
+    "exampleRu": "Она боится темноты и всегда оставляет ночник включённым.",
+    "exampleEn": "She is afraid of the dark and always leaves the nightlight turned on."
   },
   {
     "id": "vx_25",
@@ -299,8 +299,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Брать.",
-    "exampleEn": "Example: взять - to take."
+    "exampleRu": "Можно я возьму этот словарь на пару дней для подготовки к тесту?",
+    "exampleEn": "May I take this dictionary for a couple of days to prepare for the test?"
   },
   {
     "id": "vx_26",
@@ -311,8 +311,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Брить.",
-    "exampleEn": "Example: to shave."
+    "exampleRu": "Каждое утро перед работой он привык аккуратно брить бороду.",
+    "exampleEn": "Every morning before work he is used to shaving his beard neatly."
   },
   {
     "id": "vx_27",
@@ -323,8 +323,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Верить.",
-    "exampleEn": "Example: to believe."
+    "exampleRu": "Чтобы войти в личный кабинет, необходимо ввести свой логин и пароль.",
+    "exampleEn": "To enter the personal account, you need to enter your username and password."
   },
   {
     "id": "vx_28",
@@ -335,8 +335,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Вернуться.",
-    "exampleEn": "Example: to return."
+    "exampleRu": "Вдруг среди ясного неба прогремел гром и начался сильный ливень.",
+    "exampleEn": "Suddenly thunder struck amidst a clear sky and heavy pouring rain started."
   },
   {
     "id": "vx_29",
@@ -347,8 +347,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Весить.",
-    "exampleEn": "Example: to weigh."
+    "exampleRu": "Пассажирский лайнер готов взлететь строго по расписанию в полдень.",
+    "exampleEn": "The passenger airliner is ready to take off strictly on schedule at noon."
   },
   {
     "id": "vx_30",
@@ -359,8 +359,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Висеть.",
-    "exampleEn": "Example: to hang."
+    "exampleRu": "Пожалуйста, включи настольную лампу, на улице уже темнеет.",
+    "exampleEn": "Please turn on the desk lamp, it is already getting dark outside."
   },
   {
     "id": "vx_31",
@@ -371,8 +371,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Включать.",
-    "exampleEn": "Example: [ Фключать ] - to turn on."
+    "exampleRu": "Нам нужно включить этот важный пункт в официальный договор.",
+    "exampleEn": "We need to include this important clause in the official contract."
   },
   {
     "id": "vx_32",
@@ -383,8 +383,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Влажность.",
-    "exampleEn": "Example: humidity."
+    "exampleRu": "В летние месяцы на побережье держится высокая влажность воздуха.",
+    "exampleEn": "In the summer months, high air humidity persists on the coast."
   },
   {
     "id": "vx_33",
@@ -395,8 +395,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Влиять.",
-    "exampleEn": "Example: to influence; tp impact."
+    "exampleRu": "Регулярный спорт положительно влияет на общее самочувствие человека.",
+    "exampleEn": "Regular sport positively influences a person's general well-being."
   },
   {
     "id": "vx_34",
@@ -407,8 +407,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Возвращаться.",
-    "exampleEn": "Example: to come back; to return."
+    "exampleRu": "Мой дедушка любит часами возиться со старым мотоциклом в гараже.",
+    "exampleEn": "My grandfather likes to tinker with an old motorcycle in the garage for hours."
   },
   {
     "id": "vx_35",
@@ -419,8 +419,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Возможность.",
-    "exampleEn": "Example: opportunity."
+    "exampleRu": "Результаты вступительных экзаменов сильно волнуют будущих студентов.",
+    "exampleEn": "The entrance exam results worry future students greatly."
   },
   {
     "id": "vx_36",
@@ -431,8 +431,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Воспитывать.",
-    "exampleEn": "Example: воспитать - to educate."
+    "exampleRu": "Честный человек считает недопустимым врать своим родным и коллегам.",
+    "exampleEn": "An honest person considers it unacceptable to lie to their relatives and colleagues."
   },
   {
     "id": "vx_37",
@@ -443,8 +443,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Восхищаться.",
-    "exampleEn": "Example: to admire."
+    "exampleRu": "Употребление фастфуда — это очень вредная для здоровья привычка.",
+    "exampleEn": "Consuming fast food is a habit very harmful to health."
   },
   {
     "id": "vx_38",
@@ -455,8 +455,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Вскакивать.",
-    "exampleEn": "Example: to jump up."
+    "exampleRu": "По утрам он привык мгновенно вскакивать с постели по звонку будильника.",
+    "exampleEn": "In the mornings he is used to jumping up instantly from bed at the alarm bell."
   },
   {
     "id": "vx_39",
@@ -467,8 +467,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Вспоминать.",
-    "exampleEn": "Example: вспомнить - to remember; to recall."
+    "exampleRu": "Мы с улыбкой вспоминаем наши весёлые школьные приключения.",
+    "exampleEn": "With a smile we recall our fun school adventures."
   },
   {
     "id": "vx_40",
@@ -479,8 +479,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Вспомнить.",
-    "exampleEn": "Example: to remember (perfective)."
+    "exampleRu": "Я поеду на центральный вокзал, чтобы лично встречать гостей из Москвы.",
+    "exampleEn": "I will go to the central station to meet guests from Moscow in person."
   },
   {
     "id": "vx_41",
@@ -491,8 +491,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выбирать.",
-    "exampleEn": "Example: выбрать - to choose."
+    "exampleRu": "Не спешите выбрасывать старые вещи, их можно отдать на переработку.",
+    "exampleEn": "Don't rush to throw away old things, they can be given for recycling."
   },
   {
     "id": "vx_42",
@@ -503,8 +503,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выиграть, победить.",
-    "exampleEn": "Example: to win."
+    "exampleRu": "Спортсмены усиленно тренируются, чтобы выиграть золотую медаль.",
+    "exampleEn": "Athletes train hard in order to win the gold medal."
   },
   {
     "id": "vx_43",
@@ -515,8 +515,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выключать.",
-    "exampleEn": "Example: to turn off."
+    "exampleRu": "Перед уходом из офиса не забывайте выключать свет и кондиционер.",
+    "exampleEn": "Before leaving the office, don't forget to turn off the lights and air conditioner."
   },
   {
     "id": "vx_44",
@@ -527,8 +527,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выполнять.",
-    "exampleEn": "Example: выполнить - to do; to execute."
+    "exampleRu": "Ребёнок аккуратно вырезал снежинку из белой бумаги ножницами.",
+    "exampleEn": "The child neatly cut out a snowflake from white paper with scissors."
   },
   {
     "id": "vx_45",
@@ -539,8 +539,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выращивать.",
-    "exampleEn": "Example: to frow smth."
+    "exampleRu": "Во время сильной грозы в посёлке могло вырубить всё электричество.",
+    "exampleEn": "During a heavy thunderstorm, all electricity in the settlement could be knocked out."
   },
   {
     "id": "vx_46",
@@ -551,8 +551,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Выступать.",
-    "exampleEn": "Example: to perform."
+    "exampleRu": "Весной садоводы будут высаживать молодые саженцы яблонь.",
+    "exampleEn": "In spring, gardeners will plant young apple saplings."
   },
   {
     "id": "vx_47",
@@ -563,8 +563,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Гадать.",
-    "exampleEn": "Example: to guess; fortunetell."
+    "exampleRu": "Цыганка предложила прохожему погадать на будущее по руке.",
+    "exampleEn": "The fortune-teller offered the passerby to fortunetell their future by the palm."
   },
   {
     "id": "vx_48",
@@ -575,8 +575,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Гордиться.",
-    "exampleEn": "Example: to be pround of."
+    "exampleRu": "Завтра известный профессор будет выступать с лекцией в актовом зале.",
+    "exampleEn": "Tomorrow the famous professor will deliver a lecture in the assembly hall."
   },
   {
     "id": "vx_49",
@@ -587,8 +587,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Грустить.",
-    "exampleEn": "Example: to be sad."
+    "exampleRu": "Фокусник начал вытаскивать длинную цветную ленту из кармана пиджака.",
+    "exampleEn": "The magician started pulling a long colored ribbon out of his jacket pocket."
   },
   {
     "id": "vx_50",
@@ -599,8 +599,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Дарить.",
-    "exampleEn": "Example: to gift."
+    "exampleRu": "Пожалуйста, помоги вытереть пыль со всех полок в гостиной.",
+    "exampleEn": "Please help wipe the dust off all shelves in the living room."
   },
   {
     "id": "vx_51",
@@ -611,8 +611,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Делиться.",
-    "exampleEn": "Example: to share."
+    "exampleRu": "Я поставил цель выучить пятьсот новых русских слов за этот семестр.",
+    "exampleEn": "I set a goal to learn five hundred new Russian words this semester."
   },
   {
     "id": "vx_52",
@@ -623,8 +623,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Добавить.",
-    "exampleEn": "Example: to add."
+    "exampleRu": "Следователи продолжают выяснять истинные причины аварии.",
+    "exampleEn": "Investigators continue to clarify the true causes of the accident."
   },
   {
     "id": "vx_53",
@@ -635,8 +635,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Догадаться.",
-    "exampleEn": "Example: to guess; еto figure out."
+    "exampleRu": "Она любит сидеть в кресле и ласково гладить пушистого кота.",
+    "exampleEn": "She likes to sit in the armchair and affectionately stroke the fluffy cat."
   },
   {
     "id": "vx_54",
@@ -647,8 +647,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Есть к чему стремиться.",
-    "exampleEn": "Example: there is a thing to pursuit."
+    "exampleRu": "Пассажир задумчиво глядел в окно на проплывающие пейзажи.",
+    "exampleEn": "The passenger thoughtfully looked out the window at the passing landscapes."
   },
   {
     "id": "vx_55",
@@ -659,8 +659,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Зависать.",
-    "exampleEn": "Example: зависнуть - to stuck; to freeze."
+    "exampleRu": "Водителю не следует так быстро гнать машину по обледенелой дороге.",
+    "exampleEn": "The driver should not drive the car so fast on the icy road."
   },
   {
     "id": "vx_56",
@@ -671,8 +671,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Заворачивать.",
-    "exampleEn": "Example: завернуть - to roll."
+    "exampleRu": "Студенты активно готовятся к сдаче итоговых государственных экзаменов.",
+    "exampleEn": "Students are actively preparing for taking final state exams."
   },
   {
     "id": "vx_57",
@@ -683,8 +683,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Задать вопрос.",
-    "exampleEn": "Example: to ask a question."
+    "exampleRu": "На юбилей принято дарить памятные и полезные подарки.",
+    "exampleEn": "On an anniversary it is customary to give memorable and useful gifts."
   },
   {
     "id": "vx_58",
@@ -695,8 +695,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Заказать.",
-    "exampleEn": "Example: to order."
+    "exampleRu": "Хорошие друзья всегда искренне делятся своими радостями и заботами.",
+    "exampleEn": "Good friends always sincerely share their joys and concerns."
   },
   {
     "id": "vx_59",
@@ -707,8 +707,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Заниматься.",
-    "exampleEn": "Example: to do; to study; to be occupied with smth;."
+    "exampleRu": "В горячий чай с лимоном можно добавить ложку цветочного мёда.",
+    "exampleEn": "You can add a spoonful of floral honey to hot tea with lemon."
   },
   {
     "id": "vx_60",
@@ -719,8 +719,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Запоминать.",
-    "exampleEn": "Example: запомнить - to remember."
+    "exampleRu": "Я быстро догадался, в чём заключалась разгадка этой хитрой загадки.",
+    "exampleEn": "I quickly guessed what the answer to this tricky riddle was."
   },
   {
     "id": "vx_61",
@@ -731,8 +731,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Запрещать.",
-    "exampleEn": "Example: запретить - to restrict."
+    "exampleRu": "Твой текущий уровень хорош, но нам ещё определённо есть к чему стремиться.",
+    "exampleEn": "Your current level is good, but we definitely still have something to strive for."
   },
   {
     "id": "vx_62",
@@ -743,8 +743,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Зарабатывать.",
-    "exampleEn": "Example: to earn."
+    "exampleRu": "Из-за перегрузки системы приложение начало периодически зависать.",
+    "exampleEn": "Due to system overload, the app began freezing periodically."
   },
   {
     "id": "vx_63",
@@ -755,8 +755,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Зарядить.",
-    "exampleEn": "Example: to charge."
+    "exampleRu": "Мне нужно срочно зарядить аккумулятор фотоаппарата перед фотосессией.",
+    "exampleEn": "I need to urgently charge the camera battery before the photoshoot."
   },
   {
     "id": "vx_64",
@@ -767,8 +767,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Застрять.",
-    "exampleEn": "Example: to get stuck."
+    "exampleRu": "Из-за сильной метели наш автомобиль мог застрять в глубоком сугробе.",
+    "exampleEn": "Because of the severe blizzard, our car could get stuck in a deep snowdrift."
   },
   {
     "id": "vx_65",
@@ -779,8 +779,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Засыпать.",
-    "exampleEn": "Example: заснуть - to fall asleep."
+    "exampleRu": "Подарочную коробку нужно аккуратно заворачивать в красивую бумагу.",
+    "exampleEn": "The gift box needs to be neatly wrapped in beautiful paper."
   },
   {
     "id": "vx_66",
@@ -791,8 +791,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Звать.",
-    "exampleEn": "Example: to call."
+    "exampleRu": "Студент поднял руку, чтобы задать уточняющий вопрос профессору.",
+    "exampleEn": "The student raised his hand to ask the professor a clarifying question."
   },
   {
     "id": "vx_67",
@@ -803,8 +803,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Звучать.",
-    "exampleEn": "Example: to sound."
+    "exampleRu": "Мы решили заказать горячую пиццу и суши с доставкой на дом.",
+    "exampleEn": "We decided to order hot pizza and sushi with home delivery."
   },
   {
     "id": "vx_68",
@@ -815,8 +815,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Значить.",
-    "exampleEn": "Example: to mean."
+    "exampleRu": "Пожалуйста, плотнее закрывай окно, на улице дует холодный ветер.",
+    "exampleEn": "Please close the window tighter, a cold wind is blowing outside."
   },
   {
     "id": "vx_69",
@@ -827,8 +827,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Иметь в виду.",
-    "exampleEn": "Example: to mean."
+    "exampleRu": "Что именно вы имеете в виду, когда говорите об этих сроках?",
+    "exampleEn": "What exactly do you mean when you speak about these deadlines?"
   },
   {
     "id": "vx_70",
@@ -839,8 +839,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Интересоваться.",
-    "exampleEn": "Example: заинтересовать - to be / get interested."
+    "exampleRu": "Интересный футбольный матч должен закончиться через десять минут.",
+    "exampleEn": "The interesting football match should end in ten minutes."
   },
   {
     "id": "vx_71",
@@ -851,8 +851,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Использовать.",
-    "exampleEn": "Example: to use."
+    "exampleRu": "Перед поездкой на дачу нужно залить полный бак бензина.",
+    "exampleEn": "Before the trip to the dacha you need to pour a full tank of gasoline."
   },
   {
     "id": "vx_72",
@@ -863,8 +863,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Испортить.",
-    "exampleEn": "Example: to spoil."
+    "exampleRu": "Автоматизированные станки постепенно заменяют тяжёлый ручной труд.",
+    "exampleEn": "Automated machines are gradually replacing heavy manual labor."
   },
   {
     "id": "vx_73",
@@ -875,8 +875,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Исчез.",
-    "exampleEn": "Example: to disappear."
+    "exampleRu": "Густой утренний туман быстро исчез под первыми лучами солнца.",
+    "exampleEn": "The thick morning fog quickly disappeared under the first rays of the sun."
   },
   {
     "id": "vx_74",
@@ -887,8 +887,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Кататься.",
-    "exampleEn": "Example: to ride."
+    "exampleRu": "Я ежедневно занимаюсь изучением русской грамматики и фонетики.",
+    "exampleEn": "I daily engage in the study of Russian grammar and phonetics."
   },
   {
     "id": "vx_75",
@@ -899,8 +899,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Кричать.",
-    "exampleEn": "Example: to scream."
+    "exampleRu": "С помощью карточек мне удаётся легко запоминать сложные слова.",
+    "exampleEn": "With the help of flashcards I manage to memorize difficult words easily."
   },
   {
     "id": "vx_76",
@@ -911,8 +911,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Ложиться.",
-    "exampleEn": "Example: to lie down."
+    "exampleRu": "Врач категорически запретил пациенту употреблять жирную пищу.",
+    "exampleEn": "The doctor strictly forbade the patient to consume fatty food."
   },
   {
     "id": "vx_77",
@@ -923,8 +923,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Менять.",
-    "exampleEn": "Example: поменять - to change."
+    "exampleRu": "Он упорно трудится, чтобы достойно зарабатывать на жизнь семье.",
+    "exampleEn": "He works hard to earn a decent living for his family."
   },
   {
     "id": "vx_78",
@@ -935,8 +935,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Мерить.",
-    "exampleEn": "Example: to measure."
+    "exampleRu": "Не забудь заряжать портативное зарядное устройство перед полётом.",
+    "exampleEn": "Don't forget to charge the portable charger before the flight."
   },
   {
     "id": "vx_79",
@@ -947,8 +947,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Мериться.",
-    "exampleEn": "Example: compete."
+    "exampleRu": "Братья постоянно любят мериться силой в дружеских поединках.",
+    "exampleEn": "The brothers constantly like to compete in strength in friendly bouts."
   },
   {
     "id": "vx_80",
@@ -959,8 +959,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Мешать.",
-    "exampleEn": "Example: to disturb (dative); to stir (accusative)."
+    "exampleRu": "Под размеренный шум дождя за окном очень приятно засыпать.",
+    "exampleEn": "Under the steady sound of rain outside the window it is very pleasant to fall asleep."
   },
   {
     "id": "vx_81",
@@ -971,8 +971,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Молчать.",
-    "exampleEn": "Example: to be silent."
+    "exampleRu": "Опытный адвокат готов защищать интересы своего доверителя в суде.",
+    "exampleEn": "An experienced attorney is ready to defend the interests of his client in court."
   },
   {
     "id": "vx_82",
@@ -983,8 +983,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Мыться.",
-    "exampleEn": "Example: to wash."
+    "exampleRu": "Скажите, пожалуйста, как вас зовут и откуда вы приехали?",
+    "exampleEn": "Please tell me what your name is and where you came from."
   },
   {
     "id": "vx_83",
@@ -995,8 +995,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Мышечная память.",
-    "exampleEn": "Example: muscle memory."
+    "exampleRu": "При игре на пианино мышечная память помогает пальцам находить нужные клавиши.",
+    "exampleEn": "When playing piano, muscle memory helps fingers find the right keys."
   },
   {
     "id": "vx_84",
@@ -1007,8 +1007,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Навредить.",
-    "exampleEn": "Example: to damage; to hurt."
+    "exampleRu": "Необдуманные действия могут серьёзно навредить репутации компании.",
+    "exampleEn": "Rash actions can seriously damage the company's reputation."
   },
   {
     "id": "vx_85",
@@ -1019,8 +1019,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Надеяться.",
-    "exampleEn": "Example: to hope."
+    "exampleRu": "Эта старинная русская мелодия звучит очень душевно и проникновенно.",
+    "exampleEn": "This old Russian tune sounds very soulful and touching."
   },
   {
     "id": "vx_86",
@@ -1031,8 +1031,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Наесться.",
-    "exampleEn": "Example: to eat until you're full."
+    "exampleRu": "Обед был настолько сытным, что я сумел наесться на весь оставшийся день.",
+    "exampleEn": "The lunch was so hearty that I managed to eat until full for the rest of the day."
   },
   {
     "id": "vx_87",
@@ -1043,8 +1043,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Называться.",
-    "exampleEn": "Example: to be called (for objects)."
+    "exampleRu": "Он с самого раннего детства глубоко интересуется мировой историей.",
+    "exampleEn": "Since early childhood he has been deeply interested in world history."
   },
   {
     "id": "vx_88",
@@ -1055,8 +1055,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Наизусть.",
-    "exampleEn": "Example: by heart."
+    "exampleRu": "В школе ученики должны были выучить стихотворение Пушкина наизусть.",
+    "exampleEn": "At school students had to learn Pushkin's poem by heart."
   },
   {
     "id": "vx_89",
@@ -1067,8 +1067,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Наказывать.",
-    "exampleEn": "Example: наказать - to punish."
+    "exampleRu": "Мне кажется, что к вечеру погода значительно улучшится.",
+    "exampleEn": "It seems to me that towards evening the weather will improve significantly."
   },
   {
     "id": "vx_90",
@@ -1079,8 +1079,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Напомнить.",
-    "exampleEn": "Example: to remind."
+    "exampleRu": "Пожалуйста, не забудь напомнить мне о завтрашней встрече в полдень.",
+    "exampleEn": "Please don't forget to remind me about tomorrow's meeting at noon."
   },
   {
     "id": "vx_91",
@@ -1091,8 +1091,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Направлять.",
-    "exampleEn": "Example: to direct."
+    "exampleRu": "Зимой в городском парке приятно кататься на беговых лыжах.",
+    "exampleEn": "In winter in the city park it is pleasant to cross-country ski."
   },
   {
     "id": "vx_92",
@@ -1103,8 +1103,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Настраивать.",
-    "exampleEn": "Example: to set smth up."
+    "exampleRu": "Специалист помог быстро настраивать новое программное обеспечение на ноутбуке.",
+    "exampleEn": "The specialist helped quickly set up the new software on the laptop."
   },
   {
     "id": "vx_93",
@@ -1115,8 +1115,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Начинать(ся).",
-    "exampleEn": "Example: начать(ся) - to begin; to start."
+    "exampleRu": "Мы начали копить сбережения на покупку новой просторной квартиры.",
+    "exampleEn": "We started saving up funds to purchase a new spacious apartment."
   },
   {
     "id": "vx_94",
@@ -1127,8 +1127,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Ненавидеть.",
-    "exampleEn": "Example: to hate."
+    "exampleRu": "Утром и вечером необходимо вовремя кормить домашних питомцев.",
+    "exampleEn": "In the morning and evening it is necessary to feed domestic pets on time."
   },
   {
     "id": "vx_95",
@@ -1139,8 +1139,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Нести.",
-    "exampleEn": "Example: принести - to carry."
+    "exampleRu": "Летом хозяева планируют заново красить деревянный забор на даче.",
+    "exampleEn": "In summer the owners plan to repaint the wooden fence at the dacha."
   },
   {
     "id": "vx_96",
@@ -1151,8 +1151,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Ночевать.",
-    "exampleEn": "Example: to overnight."
+    "exampleRu": "В тихом читальном зале библиотеки строго запрещено громко кричать.",
+    "exampleEn": "In the quiet reading room of the library it is strictly forbidden to shout loudly."
   },
   {
     "id": "vx_97",
@@ -1163,8 +1163,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Обеспечивать.",
-    "exampleEn": "Example: to provide smth to someone."
+    "exampleRu": "В медицинских и общественных учреждениях запрещено курить табак.",
+    "exampleEn": "In medical and public institutions smoking tobacco is prohibited."
   },
   {
     "id": "vx_98",
@@ -1175,8 +1175,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Обещать.",
-    "exampleEn": "Example: to promise."
+    "exampleRu": "Осторожно, эта сторожевая собака может укусить постороннего человека.",
+    "exampleEn": "Careful, this watchdog can bite an unfamiliar person."
   },
   {
     "id": "vx_99",
@@ -1187,8 +1187,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Обижать.",
-    "exampleEn": "Example: to offend."
+    "exampleRu": "Квалифицированный врач знает, как правильно лечить сезонную простуду.",
+    "exampleEn": "A qualified doctor knows how to correctly treat a seasonal cold."
   },
   {
     "id": "vx_100",
@@ -1199,8 +1199,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Область.",
-    "exampleEn": "Example: area; field."
+    "exampleRu": "Ранним утром рыбаки вышли на лодке ловить речную рыбу.",
+    "exampleEn": "Early in the morning fishermen went out on a boat to catch river fish."
   },
   {
     "id": "vx_101",
@@ -1211,8 +1211,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Облегчить.",
-    "exampleEn": "Example: to make easier."
+    "exampleRu": "Использование современных инструментов помогает заметно облегчить повседневный труд.",
+    "exampleEn": "Using modern tools helps noticeably ease daily labor."
   },
   {
     "id": "vx_102",
@@ -1223,8 +1223,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Обливать.",
-    "exampleEn": "Example: to pour."
+    "exampleRu": "В жаркий летний день приятно обливать руки и лицо прохладной водой.",
+    "exampleEn": "On a hot summer day it is pleasant to pour cool water over hands and face."
   },
   {
     "id": "vx_103",
@@ -1235,8 +1235,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Обниматься.",
-    "exampleEn": "Example: to hug."
+    "exampleRu": "При радостной встрече старые друзья начали крепко обниматься.",
+    "exampleEn": "Upon a joyful meeting, old friends began hugging each other warmly."
   },
   {
     "id": "vx_104",
@@ -1247,8 +1247,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Обойти.",
-    "exampleEn": "Example: to go around."
+    "exampleRu": "Нам пришлось обойти всё здание, чтобы найти центральный вход.",
+    "exampleEn": "We had to walk around the entire building to find the main entrance."
   },
   {
     "id": "vx_105",
@@ -1259,8 +1259,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Объяснять.",
-    "exampleEn": "Example: to explain."
+    "exampleRu": "Неаккуратный ребёнок может случайно сломать хрупкую игрушку.",
+    "exampleEn": "A careless child can accidentally break a fragile toy."
   },
   {
     "id": "vx_106",
@@ -1271,8 +1271,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Одеваться.",
-    "exampleEn": "Example: to get dressed."
+    "exampleRu": "Утром вкусно мазать домашнее варенье на свежий поджаренный тост.",
+    "exampleEn": "In the morning it's tasty to spread homemade jam on fresh toasted bread."
   },
   {
     "id": "vx_107",
@@ -1283,8 +1283,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Окончить школу.",
-    "exampleEn": "Example: to graduate from school."
+    "exampleRu": "После того как мой брат окончил школу с отличием, он поступил в университет.",
+    "exampleEn": "After my brother graduated from school with honors, he enrolled in university."
   },
   {
     "id": "vx_108",
@@ -1295,8 +1295,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Опекать.",
-    "exampleEn": "Example: to take care of."
+    "exampleRu": "Бабушка привыкла заботливо опекать всех своих любимых внуков.",
+    "exampleEn": "Grandma is used to caring attentively for all her beloved grandchildren."
   },
   {
     "id": "vx_109",
@@ -1307,8 +1307,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Освобождаться.",
-    "exampleEn": "Example: освободиться - to become free."
+    "exampleRu": "Каждый молодой человек имеет полное право мечтать о великих свершениях.",
+    "exampleEn": "Every young person has the full right to dream of great achievements."
   },
   {
     "id": "vx_110",
@@ -1319,8 +1319,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Оставаться.",
-    "exampleEn": "Example: to stay."
+    "exampleRu": "Громкая музыка за стеной мешает мне сконцентрироваться на чтении.",
+    "exampleEn": "Loud music behind the wall disturbs me from concentrating on reading."
   },
   {
     "id": "vx_111",
@@ -1331,8 +1331,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Оставить.",
-    "exampleEn": "Example: to leave smth."
+    "exampleRu": "Не забудьте оставить свои контактные данные для обратной связи.",
+    "exampleEn": "Don't forget to leave your contact details for feedback."
   },
   {
     "id": "vx_112",
@@ -1343,8 +1343,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Остаться.",
-    "exampleEn": "Example: to stay; to remain / to stay."
+    "exampleRu": "Во время важного доклада аудитория предпочитала внимательно молчать.",
+    "exampleEn": "During the important presentation, the audience preferred to keep silent attentively."
   },
   {
     "id": "vx_113",
@@ -1355,8 +1355,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Отвечать.",
-    "exampleEn": "Example: to answer; reply."
+    "exampleRu": "Перед каждым приёмом пищи обязательно нужно тщательно мыть руки с мылом.",
+    "exampleEn": "Before every meal it is mandatory to wash hands thoroughly with soap."
   },
   {
     "id": "vx_114",
@@ -1367,8 +1367,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Относиться.",
-    "exampleEn": "Example: to treat smth / someone."
+    "exampleRu": "Я набираю номер службы поддержки, чтобы уточнить статус доставки заказа.",
+    "exampleEn": "I am dialing the support service number to clarify the order delivery status."
   },
   {
     "id": "vx_115",
@@ -1379,8 +1379,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Оценивать.",
-    "exampleEn": "Example: to rate."
+    "exampleRu": "Перед подачей на стол суп необходимо слегка нагреть на плите.",
+    "exampleEn": "Before serving to the table, the soup needs to be slightly heated on the stove."
   },
   {
     "id": "vx_116",
@@ -1391,8 +1391,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Переводить.",
-    "exampleEn": "Example: перевести - to translate."
+    "exampleRu": "Мы искренне надеемся на плодотворное сотрудничество в новом проекте.",
+    "exampleEn": "We sincerely hope for fruitful cooperation in the new project."
   },
   {
     "id": "vx_117",
@@ -1403,8 +1403,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Переживать.",
-    "exampleEn": "Example: to worry."
+    "exampleRu": "Не стоит так сильно переживать из-за мелких повседневных неурядиц.",
+    "exampleEn": "You shouldn't worry so much over minor everyday troubles."
   },
   {
     "id": "vx_118",
@@ -1415,8 +1415,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Переиспользовать.",
-    "exampleEn": "Example: to reuse."
+    "exampleRu": "Разработчики стараются переиспользовать уже проверенные модули исходного кода.",
+    "exampleEn": "Developers try to reuse already tested source code modules."
   },
   {
     "id": "vx_119",
@@ -1427,8 +1427,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Перейдите на сторону киоска.",
-    "exampleEn": "Example: cross the road to the side of the kiosk."
+    "exampleRu": "Мудрые родители стараются не наказывать ребёнка за случайную оплошность.",
+    "exampleEn": "Wise parents try not to punish a child for an accidental mishap."
   },
   {
     "id": "vx_120",
@@ -1439,8 +1439,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Перестать.",
-    "exampleEn": "Example: to stop (doing smth)."
+    "exampleRu": "Врач порекомендовал пациенту перестать пить сладкие газированные напитки.",
+    "exampleEn": "The doctor recommended the patient to stop drinking sugary carbonated drinks."
   },
   {
     "id": "vx_121",
@@ -1451,8 +1451,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Периодически / время от времени.",
-    "exampleEn": "Example: from time to time."
+    "exampleRu": "Мы периодически созваниваемся с университетскими друзьями по видеосвязи.",
+    "exampleEn": "We call our university friends via video link from time to time."
   },
   {
     "id": "vx_122",
@@ -1463,8 +1463,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Подсказать.",
-    "exampleEn": "Example: to give a hint."
+    "exampleRu": "Учитель вежливо подсказал правильное направление мысли ученику.",
+    "exampleEn": "The teacher politely gave a hint on the right direction of thought to the student."
   },
   {
     "id": "vx_123",
@@ -1475,8 +1475,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Показать.",
-    "exampleEn": "Example: to show."
+    "exampleRu": "Официант подошёл к столику, чтобы налить свежего апельсинового сока.",
+    "exampleEn": "The waiter came up to the table to pour fresh orange juice."
   },
   {
     "id": "vx_124",
@@ -1487,8 +1487,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Показывать.",
-    "exampleEn": "Example: to show."
+    "exampleRu": "Собеседник тонко намекал на необходимость скорейшего завершения беседы.",
+    "exampleEn": "The conversation partner subtly hinted at the necessity of concluding the talk soon."
   },
   {
     "id": "vx_125",
@@ -1499,8 +1499,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Положить.",
-    "exampleEn": "Example: to put."
+    "exampleRu": "Пожалуйста, положи эти важные документы в верхний ящик письменного стола.",
+    "exampleEn": "Please put these important documents in the top drawer of the desk."
   },
   {
     "id": "vx_126",
@@ -1511,8 +1511,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Получить доступ.",
-    "exampleEn": "Example: to access."
+    "exampleRu": "Администратор помог мне быстро получить доступ к корпоративной сети.",
+    "exampleEn": "The administrator helped me quickly gain access to the corporate network."
   },
   {
     "id": "vx_127",
@@ -1523,8 +1523,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Поменять.",
-    "exampleEn": "Example: to change; to swap."
+    "exampleRu": "Художник начал аккуратно наносить тонкий слой грунта на холст.",
+    "exampleEn": "The artist began carefully applying a thin layer of primer to the canvas."
   },
   {
     "id": "vx_128",
@@ -1535,8 +1535,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Послать.",
-    "exampleEn": "Example: to send."
+    "exampleRu": "Я планирую послать поздравительную открытку родителям к празднику.",
+    "exampleEn": "I plan to send a greeting postcard to my parents for the holiday."
   },
   {
     "id": "vx_129",
@@ -1547,8 +1547,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Поститься.",
-    "exampleEn": "Example: to fast."
+    "exampleRu": "Верующие люди строго соблюдают обычай поститься перед Пасхой.",
+    "exampleEn": "Believers strictly observe the custom of fasting before Easter."
   },
   {
     "id": "vx_130",
@@ -1559,8 +1559,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Постричься.",
-    "exampleEn": "Example: to have a hair cut."
+    "exampleRu": "Перед важным торжественным событием мне нужно сходить постричься.",
+    "exampleEn": "Before an important celebratory event I need to go get a haircut."
   },
   {
     "id": "vx_131",
@@ -1571,8 +1571,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Потреблять.",
-    "exampleEn": "Example: to consume."
+    "exampleRu": "Современное общество старается потреблять меньше пластика и вредных упаковок.",
+    "exampleEn": "Modern society tries to consume less plastic and harmful packaging."
   },
   {
     "id": "vx_132",
@@ -1583,8 +1583,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Появляться.",
-    "exampleEn": "Example: to appear."
+    "exampleRu": "Этот старинный роман напоминает мне о событиях прошлых лет.",
+    "exampleEn": "This old novel reminds me of the events of past years."
   },
   {
     "id": "vx_133",
@@ -1595,8 +1595,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Превращаться.",
-    "exampleEn": "Example: to turn into smth."
+    "exampleRu": "Руководитель старается направлять инициативу сотрудников в нужное русло.",
+    "exampleEn": "The manager tries to direct the employees' initiative into the right channel."
   },
   {
     "id": "vx_134",
@@ -1607,8 +1607,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Преданность.",
-    "exampleEn": "Example: dedication."
+    "exampleRu": "Осенью в северных широтах очень быстро наступает вечерняя темнота.",
+    "exampleEn": "In autumn in northern latitudes evening darkness sets in very quickly."
   },
   {
     "id": "vx_135",
@@ -1619,8 +1619,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Привыкать.",
-    "exampleEn": "Example: привыкнуть - to get used to."
+    "exampleRu": "Для приготовления начинки нужно натереть твёрдый сыр на мелкой тёрке.",
+    "exampleEn": "To prepare the filling you need to grate hard cheese on a fine grater."
   },
   {
     "id": "vx_136",
@@ -1631,8 +1631,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Приглашать.",
-    "exampleEn": "Example: пригласить - to invite."
+    "exampleRu": "Увлекательная лекция по культуре должна начаться ровно в десять утра.",
+    "exampleEn": "The fascinating lecture on culture should begin at exactly ten in the morning."
   },
   {
     "id": "vx_137",
@@ -1643,8 +1643,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Причёсываться.",
-    "exampleEn": "Example: to comb hair."
+    "exampleRu": "Пунктуальный человек искренне ненавидит опаздывать на встречи.",
+    "exampleEn": "A punctual person genuinely hates being late for meetings."
   },
   {
     "id": "vx_138",
@@ -1655,8 +1655,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Пробовать.",
-    "exampleEn": "Example: попробовать - to try (smth new) / to try (smth new)."
+    "exampleRu": "Она подошла к клумбе, чтобы понюхать нежный аромат распустившихся роз.",
+    "exampleEn": "She approached the flowerbed to smell the delicate aroma of blooming roses."
   },
   {
     "id": "vx_139",
@@ -1667,8 +1667,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Проверять.",
-    "exampleEn": "Example: проверить - to check."
+    "exampleRu": "Если ты дал обещание, необходимо сделать всё возможное, чтобы сдержать слово.",
+    "exampleEn": "If you made a promise, it is necessary to do everything possible to keep your word."
   },
   {
     "id": "vx_140",
@@ -1679,8 +1679,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Проводить.",
-    "exampleEn": "Example: провести - to conduct."
+    "exampleRu": "Воспитанный человек никогда не станет преднамеренно обижать окружающих.",
+    "exampleEn": "A well-mannered person will never intentionally offend others."
   },
   {
     "id": "vx_141",
@@ -1691,8 +1691,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Продолжать.",
-    "exampleEn": "Example: продолжить - to continue."
+    "exampleRu": "Ни при каких обстоятельствах нельзя обманывать доверие близких людей.",
+    "exampleEn": "Under no circumstances should one deceive the trust of close people."
   },
   {
     "id": "vx_142",
@@ -1703,8 +1703,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Производительность.",
-    "exampleEn": "Example: performance."
+    "exampleRu": "На совещании мы будем детально обсуждать стратегию развития проекта.",
+    "exampleEn": "At the meeting we will discuss the project development strategy in detail."
   },
   {
     "id": "vx_143",
@@ -1715,8 +1715,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Происходить, случаться.",
-    "exampleEn": "Example: to happen."
+    "exampleRu": "Опытный преподаватель доходчиво объясняет самые трудные темы.",
+    "exampleEn": "An experienced teacher clearly explains the most difficult topics."
   },
   {
     "id": "vx_144",
@@ -1727,8 +1727,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Просыпаться.",
-    "exampleEn": "Example: проснуться - wake up."
+    "exampleRu": "Родители заботливо одевают малыша в тёплый зимний комбинезон.",
+    "exampleEn": "Parents caringly dress the toddler in a warm winter snowsuit."
   },
   {
     "id": "vx_145",
@@ -1739,8 +1739,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Прощать.",
-    "exampleEn": "Example: to forgive."
+    "exampleRu": "Экспертный совет решил единогласно одобрять предложенную научную инициативу.",
+    "exampleEn": "The expert council decided to unanimously approve the proposed scientific initiative."
   },
   {
     "id": "vx_146",
@@ -1751,8 +1751,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Прощаться.",
-    "exampleEn": "Example: to say goodbye."
+    "exampleRu": "Из-за загруженности дорог я очень боюсь опоздать на посадку в самолёт.",
+    "exampleEn": "Due to road congestion I am very afraid of being late for boarding the plane."
   },
   {
     "id": "vx_147",
@@ -1763,8 +1763,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Пусть.",
-    "exampleEn": "Example: let."
+    "exampleRu": "Никакие внешние обстоятельства не могут оправдать нечестный поступок.",
+    "exampleEn": "No external circumstances can justify a dishonest act."
   },
   {
     "id": "vx_148",
@@ -1775,8 +1775,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Пытаться.",
-    "exampleEn": "Example: to try (to make an attempt)."
+    "exampleRu": "При въезде на охраняемую парковку нужно опускать боковое стекло автомобиля.",
+    "exampleEn": "Upon entering the guarded parking lot, you need to lower the car's side window."
   },
   {
     "id": "vx_149",
@@ -1787,8 +1787,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Разговаривать уважительно.",
-    "exampleEn": "Example: to talk respectfully."
+    "exampleRu": "Яркие фонари на набережной красиво освещают гладь вечерней реки.",
+    "exampleEn": "Bright lamps on the embankment beautifully illuminate the surface of the evening river."
   },
   {
     "id": "vx_150",
@@ -1799,8 +1799,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Разделить.",
-    "exampleEn": "Example: divide."
+    "exampleRu": "В кафе принято оставлять небольшие чаевые за внимательное обслуживание.",
+    "exampleEn": "In a cafe it is customary to leave a small tip for attentive service."
   },
   {
     "id": "vx_151",
@@ -1811,8 +1811,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Разрешить.",
-    "exampleEn": "Example: to allow."
+    "exampleRu": "Дорожный знак требует останавливать транспортное средство перед переходом.",
+    "exampleEn": "The road sign requires stopping the vehicle in front of the crossing."
   },
   {
     "id": "vx_152",
@@ -1823,8 +1823,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Разрушить.",
-    "exampleEn": "Example: to ruin."
+    "exampleRu": "Из-за сильного дождя мы предпочли остаться в уютном номере отеля.",
+    "exampleEn": "Due to heavy rain we preferred to stay in the cozy hotel room."
   },
   {
     "id": "vx_153",
@@ -1835,8 +1835,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Разрядить.",
-    "exampleEn": "Example: to discharge."
+    "exampleRu": "Неразумно сразу отказываться от такой привлекательной карьерной возможности.",
+    "exampleEn": "It is unreasonable to immediately decline such an attractive career opportunity."
   },
   {
     "id": "vx_154",
@@ -1847,8 +1847,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Распределять.",
-    "exampleEn": "Example: to distribute."
+    "exampleRu": "Центральная городская библиотека начинает открывать читальные залы в девять утра.",
+    "exampleEn": "The central city library begins opening reading rooms at nine in the morning."
   },
   {
     "id": "vx_155",
@@ -1859,8 +1859,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Расти.",
-    "exampleEn": "Example: вырасти - to grow."
+    "exampleRu": "Администрации пришлось отменить запланированный концерт из-за шторма.",
+    "exampleEn": "The administration had to cancel the planned concert due to the storm."
   },
   {
     "id": "vx_156",
@@ -1871,8 +1871,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Растительность.",
-    "exampleEn": "Example: greenery."
+    "exampleRu": "Я регулярно отправляю деловые отчёты руководителю по электронной почте.",
+    "exampleEn": "I regularly send business reports to the manager via email."
   },
   {
     "id": "vx_157",
@@ -1883,8 +1883,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Решать.",
-    "exampleEn": "Example: to solve; to decide."
+    "exampleRu": "Очень важно научиться отпускать старые обиды и смотреть в будущее.",
+    "exampleEn": "It is very important to learn to let go of old grievances and look to the future."
   },
   {
     "id": "vx_158",
@@ -1895,8 +1895,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Сбежать.",
-    "exampleEn": "Example: to flee."
+    "exampleRu": "Каждый начинающий студент имеет право ошибаться в процессе учёбы.",
+    "exampleEn": "Every beginner student has the right to make mistakes in the learning process."
   },
   {
     "id": "vx_159",
@@ -1907,8 +1907,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Сбиться с пути.",
-    "exampleEn": "Example: to go astray."
+    "exampleRu": "С наступлением поздней осени с берёз начинают падать золотые листья.",
+    "exampleEn": "With the arrival of late autumn, golden leaves begin falling from birches."
   },
   {
     "id": "vx_160",
@@ -1919,8 +1919,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Свежесть.",
-    "exampleEn": "Example: freshness."
+    "exampleRu": "В кондитерской приятно пахнет ванилью, корицей и свежим шоколадом.",
+    "exampleEn": "In the pastry shop it smells pleasantly of vanilla, cinnamon, and fresh chocolate."
   },
   {
     "id": "vx_161",
@@ -1931,8 +1931,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Скучать.",
-    "exampleEn": "Example: to miss."
+    "exampleRu": "Во время серьёзной дискуссии невежливо перебивать выступающего оратора.",
+    "exampleEn": "During a serious discussion it is impolite to interrupt the speaking presenter."
   },
   {
     "id": "vx_162",
@@ -1943,8 +1943,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Смерть.",
-    "exampleEn": "Example: death."
+    "exampleRu": "Переводчик блестяще умеет переводить сложные тексты без потери смысла.",
+    "exampleEn": "The translator is brilliantly able to translate complex texts without loss of meaning."
   },
   {
     "id": "vx_163",
@@ -1955,8 +1955,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Советовать.",
-    "exampleEn": "Example: to advice."
+    "exampleRu": "Передайте, пожалуйста, кувшин с прохладной водой на тот конец стола.",
+    "exampleEn": "Please pass the pitcher of cool water to that end of the table."
   },
   {
     "id": "vx_164",
@@ -1967,8 +1967,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Создать.",
-    "exampleEn": "Example: to create."
+    "exampleRu": "Мы решили передвигать тяжёлый книжный шкаф в противоположный угол комнаты.",
+    "exampleEn": "We decided to move the heavy bookcase to the opposite corner of the room."
   },
   {
     "id": "vx_165",
@@ -1979,8 +1979,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Сравнивать.",
-    "exampleEn": "Example: to compare."
+    "exampleRu": "Если программа перестала отвечать, попробуйте перезагрузить устройство.",
+    "exampleEn": "If the program stopped responding, try restarting the device."
   },
   {
     "id": "vx_166",
@@ -1991,8 +1991,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Стабилизироваться.",
-    "exampleEn": "Example: to stabilize."
+    "exampleRu": "После долгой спортивной тренировки приятно переодеться в чистую сухую одежду.",
+    "exampleEn": "After a long sports workout it is pleasant to change into clean, dry clothing."
   },
   {
     "id": "vx_167",
@@ -2003,8 +2003,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Стараться.",
-    "exampleEn": "Example: to try (to make effort)."
+    "exampleRu": "Хормейстер учит детей красиво петь народные песни многоголосием.",
+    "exampleEn": "The choir master teaches children to sing folk songs beautifully in polyphony."
   },
   {
     "id": "vx_168",
@@ -2015,8 +2015,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Стремиться.",
-    "exampleEn": "Example: to pursuit."
+    "exampleRu": "По воскресеньям бабушка с любовью печёт традиционные русские пироги.",
+    "exampleEn": "On Sundays grandma lovingly bakes traditional Russian pies."
   },
   {
     "id": "vx_169",
@@ -2027,8 +2027,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Требовать.",
-    "exampleEn": "Example: to require."
+    "exampleRu": "Студент внимательно пишет конспект лекции по русской грамматике.",
+    "exampleEn": "The student attentively writes lecture notes on Russian grammar."
   },
   {
     "id": "vx_170",
@@ -2039,8 +2039,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Увлекаться.",
-    "exampleEn": "Example: to be into smth."
+    "exampleRu": "Диетологи советуют пить чистую минеральную воду в достаточном объёме.",
+    "exampleEn": "Nutritionists advise drinking clean mineral water in sufficient volume."
   },
   {
     "id": "vx_171",
@@ -2051,8 +2051,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Угадать.",
-    "exampleEn": "Example: to guess."
+    "exampleRu": "Маленький ребёнок от испуга громко заплакал и позвал маму.",
+    "exampleEn": "Out of fright the little child cried loudly and called for mom."
   },
   {
     "id": "vx_172",
@@ -2063,8 +2063,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Уделять внимание.",
-    "exampleEn": "Example: to devote time to someone."
+    "exampleRu": "Мы планируем провести двухнедельный отпуск на солнечном морском побережье.",
+    "exampleEn": "We plan to spend a two-week vacation on the sunny sea coast."
   },
   {
     "id": "vx_173",
@@ -2075,8 +2075,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Удивляться.",
-    "exampleEn": "Example: to get surprised."
+    "exampleRu": "В кассе супермаркета можно платить бесконтактной картой или наличными деньгами.",
+    "exampleEn": "At the supermarket checkout you can pay with a contactless card or cash."
   },
   {
     "id": "vx_174",
@@ -2087,8 +2087,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Узнавать.",
-    "exampleEn": "Example: to recognize; to learn smth new."
+    "exampleRu": "Белый парусник плавно плывёт по спокойной морской глади.",
+    "exampleEn": "A white sailboat smoothly floats along the calm sea surface."
   },
   {
     "id": "vx_175",
@@ -2099,8 +2099,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Улучшить.",
-    "exampleEn": "Example: to improve."
+    "exampleRu": "Только упорный ежедневный труд помогает побеждать в спортивных турнирах.",
+    "exampleEn": "Only persistent daily work helps win in sports tournaments."
   },
   {
     "id": "vx_176",
@@ -2111,8 +2111,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Умываться.",
-    "exampleEn": "Example: to wash face."
+    "exampleRu": "Чтобы закрепить новые слова, нужно систематически повторять их вслух.",
+    "exampleEn": "To reinforce new words, you need to systematically repeat them out loud."
   },
   {
     "id": "vx_177",
@@ -2123,8 +2123,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Учить.",
-    "exampleEn": "Example: выучить - to learn."
+    "exampleRu": "Без регулярного полива комнатные растения могут быстро погибнуть.",
+    "exampleEn": "Without regular watering, house plants can quickly perish."
   },
   {
     "id": "vx_178",
@@ -2135,8 +2135,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Хвастаться.",
-    "exampleEn": "Example: to brag."
+    "exampleRu": "Официант начал подавать фирменные горячие блюда гостям банкета.",
+    "exampleEn": "The waiter began serving specialty hot dishes to banquet guests."
   },
   {
     "id": "vx_179",
@@ -2147,8 +2147,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Целеустремленность.",
-    "exampleEn": "Example: determination."
+    "exampleRu": "Студент уверенно поднял руку, чтобы дать правильный ответ на вопрос.",
+    "exampleEn": "The student confidently raised his hand to give the correct answer to the question."
   },
   {
     "id": "vx_180",
@@ -2159,8 +2159,8 @@ const exampleVocabulary = [
     "pos": "verb",
     "category": "Verbs & Aspect Pairs",
     "level": "B1",
-    "exampleRu": "Пример: Чувствовать.",
-    "exampleEn": "Example: to feel."
+    "exampleRu": "Этот деловой стиль одежды идеально подходит для важных переговоров.",
+    "exampleEn": "This business clothing style suits important negotiations ideally."
   },
   {
     "id": "vx_181",
@@ -2171,8 +2171,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Бог.",
-    "exampleEn": "Example: God."
+    "exampleRu": "Слава Богу, все наши путешественники вернулись домой здоровыми и невредимыми.",
+    "exampleEn": "Thank God, all our travelers returned home safe and sound."
   },
   {
     "id": "vx_182",
@@ -2183,8 +2183,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Гриб.",
-    "exampleEn": "Example: mushroom."
+    "exampleRu": "В течение года наш языковой клуб значительно увеличил число участников.",
+    "exampleEn": "During the year our language club significantly increased the number of members."
   },
   {
     "id": "vx_183",
@@ -2195,8 +2195,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Закладка.",
-    "exampleEn": "Example: bookmark."
+    "exampleRu": "Я положил красивую закладку на ту страницу книги, где остановился читать.",
+    "exampleEn": "I placed a beautiful bookmark on that page of the book where I stopped reading."
   },
   {
     "id": "vx_184",
@@ -2207,8 +2207,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Закон.",
-    "exampleEn": "Example: law."
+    "exampleRu": "Соблюдение законов — фундаментальная обязанность каждого гражданина страны.",
+    "exampleEn": "Observance of laws is the fundamental duty of every citizen of the country."
   },
   {
     "id": "vx_185",
@@ -2219,8 +2219,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Кипр.",
-    "exampleEn": "Example: Cyprus."
+    "exampleRu": "Остров Кипр славится мягким средиземноморским климатом и древней историей.",
+    "exampleEn": "The island of Cyprus is famous for its mild Mediterranean climate and ancient history."
   },
   {
     "id": "vx_186",
@@ -2231,8 +2231,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Ластик.",
-    "exampleEn": "Example: pencil eraser."
+    "exampleRu": "Сотри лишние пометки на чертеже мягким ластиком.",
+    "exampleEn": "Erase unnecessary marks on the drawing with a soft eraser."
   },
   {
     "id": "vx_187",
@@ -2243,8 +2243,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Мне подходит эта машина.",
-    "exampleEn": "Example: This car works for me."
+    "exampleRu": "Мне вполне подходит эта машина по уровню комфорта и расходу бензина.",
+    "exampleEn": "This car suits me completely in comfort level and petrol consumption."
   },
   {
     "id": "vx_188",
@@ -2255,8 +2255,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Мысль.",
-    "exampleEn": "Example: a thought."
+    "exampleRu": "В голову пришла блестящая мысль о том, как усовершенствовать проект.",
+    "exampleEn": "A brilliant thought came to mind about how to improve the project."
   },
   {
     "id": "vx_189",
@@ -2267,8 +2267,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Незнакомец.",
-    "exampleEn": "Example: stranger."
+    "exampleRu": "Вежливый незнакомец подсказал нам дорогу к ближайшей станции метро.",
+    "exampleEn": "A polite stranger gave us directions to the nearest metro station."
   },
   {
     "id": "vx_190",
@@ -2279,8 +2279,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Отвертка.",
-    "exampleEn": "Example: screwdriver."
+    "exampleRu": "Мастер взял крестовую отвёртку, чтобы починить петлю на дверце шкафа.",
+    "exampleEn": "The craftsman took a Phillips screwdriver to fix the hinge on the cabinet door."
   },
   {
     "id": "vx_191",
@@ -2291,8 +2291,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Отвёртка.",
-    "exampleEn": "Example: screwdriver."
+    "exampleRu": "Для сборки мебели обязательно понадобится плоская отвёртка.",
+    "exampleEn": "For assembling furniture a flathead screwdriver will definitely be needed."
   },
   {
     "id": "vx_192",
@@ -2303,8 +2303,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Подросток.",
-    "exampleEn": "Example: teenager."
+    "exampleRu": "Перед уроком русского языка студенты повторяют домашнее задание.",
+    "exampleEn": "Before the Russian lesson, students review homework."
   },
   {
     "id": "vx_193",
@@ -2315,8 +2315,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Поздравляю.",
-    "exampleEn": "Example: congratulations."
+    "exampleRu": "Искренне поздравляю вас с блестящей защитой дипломной работы!",
+    "exampleEn": "I sincerely congratulate you on the brilliant defense of your thesis!"
   },
   {
     "id": "vx_194",
@@ -2327,8 +2327,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Поиск.",
-    "exampleEn": "Example: search (noun)."
+    "exampleRu": "Быстрый поиск информации в интернете помогает экономить рабочее время.",
+    "exampleEn": "Fast information search on the internet helps save working time."
   },
   {
     "id": "vx_195",
@@ -2339,8 +2339,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Рай.",
-    "exampleEn": "Example: heaven."
+    "exampleRu": "Этот тихий горный курорт — настоящий рай для любителей уединения.",
+    "exampleEn": "This quiet mountain resort is a true paradise for lovers of seclusion."
   },
   {
     "id": "vx_196",
@@ -2351,8 +2351,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Резервная копия.",
-    "exampleEn": "Example: backup."
+    "exampleRu": "Созданная вовремя резервная копия спасла базу данных от потери.",
+    "exampleEn": "The backup created in time saved the database from loss."
   },
   {
     "id": "vx_197",
@@ -2363,8 +2363,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Столица.",
-    "exampleEn": "Example: capital."
+    "exampleRu": "В течение всего лета мы жили на даче у живописного озера.",
+    "exampleEn": "Throughout the whole summer we lived at the dacha by the picturesque lake."
   },
   {
     "id": "vx_198",
@@ -2375,8 +2375,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Тайна.",
-    "exampleEn": "Example: mystery."
+    "exampleRu": "В течение одного часа мы завершим подготовку всех документов.",
+    "exampleEn": "Within one hour we will complete the preparation of all documents."
   },
   {
     "id": "vx_199",
@@ -2387,8 +2387,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: У меня заложен нос.",
-    "exampleEn": "Example: I have a runny nose."
+    "exampleRu": "Из-за сезонной аллергии у меня сильно заложен нос и слезятся глаза.",
+    "exampleEn": "Due to seasonal allergies, I have a badly stuffy nose and watery eyes."
   },
   {
     "id": "vx_200",
@@ -2399,8 +2399,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Чем.",
-    "exampleEn": "Example: than."
+    "exampleRu": "Лучше сделать правильный выбор сейчас, чем сожалеть об упущенном времени потом.",
+    "exampleEn": "It is better to make the right choice now than to regret lost time later."
   },
   {
     "id": "vx_201",
@@ -2411,8 +2411,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Я был у друга.",
-    "exampleEn": "Example: location."
+    "exampleRu": "Вчера вечером я был у друга, и мы долго обсуждали планы на отпуск.",
+    "exampleEn": "Yesterday evening I was at a friend's place, and we discussed vacation plans for a long time."
   },
   {
     "id": "vx_202",
@@ -2423,8 +2423,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Я говорю со студентом.",
-    "exampleEn": "Example: I'm having a conversation with my student."
+    "exampleRu": "Подождите пару минут, я говорю со студентом о результатах теста.",
+    "exampleEn": "Wait a couple of minutes, I am speaking with a student about the test results."
   },
   {
     "id": "vx_203",
@@ -2435,8 +2435,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Я не уверен.",
-    "exampleEn": "Example: I'm not sure."
+    "exampleRu": "Будь здоров! Одевайся теплее в холодную осеннюю погоду.",
+    "exampleEn": "Bless you! Dress warmer in cold autumn weather."
   },
   {
     "id": "vx_204",
@@ -2447,8 +2447,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Я поехал к другу.",
-    "exampleEn": "Example: movement."
+    "exampleRu": "Необходимо выделить достаточное время на домашнее задание по грамматике.",
+    "exampleEn": "It is necessary to set aside sufficient time for grammar homework."
   },
   {
     "id": "vx_205",
@@ -2459,8 +2459,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Аджика.",
-    "exampleEn": "Example: ajika."
+    "exampleRu": "Максимальная глубина этого горного каньона достигает трёхсот метров.",
+    "exampleEn": "The maximum depth of this mountain canyon reaches three hundred meters."
   },
   {
     "id": "vx_206",
@@ -2471,8 +2471,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Баран.",
-    "exampleEn": "Example: mutton."
+    "exampleRu": "Большая ширина проспекта позволила обустроить зелёную аллею.",
+    "exampleEn": "The large width of the avenue made it possible to arrange a green alley."
   },
   {
     "id": "vx_207",
@@ -2483,8 +2483,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Бассейн.",
-    "exampleEn": "Example: pool."
+    "exampleRu": "Каждый коренной житель города ценит его историческое наследие.",
+    "exampleEn": "Every native resident of the city values its historical heritage."
   },
   {
     "id": "vx_208",
@@ -2495,8 +2495,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Бриллиант.",
-    "exampleEn": "Example: diamond."
+    "exampleRu": "Огромный океанский корабль плавно подошёл к причалу морского порта.",
+    "exampleEn": "The huge ocean ship smoothly approached the berth of the seaport."
   },
   {
     "id": "vx_209",
@@ -2507,8 +2507,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Будь здоров.",
-    "exampleEn": "Example: bless you."
+    "exampleRu": "С террасы отеля открывался живописный панорамный пейзаж на горы.",
+    "exampleEn": "From the hotel terrace opened a picturesque panoramic landscape of the mountains."
   },
   {
     "id": "vx_210",
@@ -2519,8 +2519,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Будь здоров(а).",
-    "exampleEn": "Example: bless you."
+    "exampleRu": "Шеф-повар приготовил изысканное рыбное блюдо со свежими травами.",
+    "exampleEn": "The chef prepared an exquisite fish dish with fresh herbs."
   },
   {
     "id": "vx_211",
@@ -2531,8 +2531,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Бухгалтер.",
-    "exampleEn": "Example: accountant."
+    "exampleRu": "Мы обязательно посетим этот знаменитый художественный музей в субботу.",
+    "exampleEn": "We will definitely visit this famous art museum on Saturday."
   },
   {
     "id": "vx_212",
@@ -2543,8 +2543,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: В последнее время.",
-    "exampleEn": "Example: in recent time."
+    "exampleRu": "Индийский слон отличается высоким интеллектом и отличной памятью.",
+    "exampleEn": "The Indian elephant is distinguished by high intelligence and excellent memory."
   },
   {
     "id": "vx_213",
@@ -2555,8 +2555,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Войска.",
-    "exampleEn": "Example: troops."
+    "exampleRu": "Это гениальное техническое решение позволило сэкономить миллионы рублей.",
+    "exampleEn": "This ingenious technical solution allowed saving millions of rubles."
   },
   {
     "id": "vx_214",
@@ -2567,8 +2567,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Волна.",
-    "exampleEn": "Example: wave."
+    "exampleRu": "Лекция по русской литературе продолжалась полтора академических часа.",
+    "exampleEn": "The lecture on Russian literature lasted an hour and a half academic hours."
   },
   {
     "id": "vx_215",
@@ -2579,8 +2579,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Глубина.",
-    "exampleEn": "Example: depth."
+    "exampleRu": "До отправления экспресса осталось ровно полчаса, пора на посадку.",
+    "exampleEn": "Exactly half an hour remains before the express departs, time for boarding."
   },
   {
     "id": "vx_216",
@@ -2591,8 +2591,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Глюки.",
-    "exampleEn": "Example: hallucination."
+    "exampleRu": "Плотная мелованная бумага отлично подходит для печати цветных буклетов.",
+    "exampleEn": "Thick coated paper is excellent for printing color brochures."
   },
   {
     "id": "vx_217",
@@ -2603,8 +2603,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Говядина.",
-    "exampleEn": "Example: beef."
+    "exampleRu": "В центре сквера возвышается величественный памятник основателю города.",
+    "exampleEn": "In the center of the square rises a majestic monument to the city's founder."
   },
   {
     "id": "vx_218",
@@ -2615,8 +2615,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Гречка.",
-    "exampleEn": "Example: buckwheat."
+    "exampleRu": "У моего коллеги точно такой же удобный ноутбук, как у меня.",
+    "exampleEn": "My colleague has exactly the same convenient laptop as I do."
   },
   {
     "id": "vx_219",
@@ -2627,8 +2627,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Грузин.",
-    "exampleEn": "Example: Georgian man."
+    "exampleRu": "Близнецы были одеты в одинаковые тёплые куртки синего цвета.",
+    "exampleEn": "The twins were dressed in identical warm blue jackets."
   },
   {
     "id": "vx_220",
@@ -2639,8 +2639,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Губка.",
-    "exampleEn": "Example: sponge."
+    "exampleRu": "Дорогой гость всегда окружён заботой и вниманием в русском доме.",
+    "exampleEn": "A dear guest is always surrounded with care and attention in a Russian home."
   },
   {
     "id": "vx_221",
@@ -2651,8 +2651,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Должен.",
-    "exampleEn": "Example: have to; should; supposed to."
+    "exampleRu": "Поезд находился в безостановочном пути ровно одни сутки.",
+    "exampleEn": "The train was on a non-stop journey for exactly one full day."
   },
   {
     "id": "vx_222",
@@ -2663,8 +2663,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Житель (male).",
-    "exampleEn": "Example: a resident."
+    "exampleRu": "На рабочем месте инженера всегда царит строгий порядок.",
+    "exampleEn": "Strict order always prevails at the engineer's workplace."
   },
   {
     "id": "vx_223",
@@ -2675,8 +2675,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Загрузка.",
-    "exampleEn": "Example: loading."
+    "exampleRu": "После детской игры в комнате воцарился весёлый беспорядок.",
+    "exampleEn": "After the children's game, cheerful mess reigned in the room."
   },
   {
     "id": "vx_224",
@@ -2687,8 +2687,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Задача.",
-    "exampleEn": "Example: task."
+    "exampleRu": "Главная причина высоких оценок — это регулярная и усердная учёба.",
+    "exampleEn": "The main reason for high grades is regular and diligent studying."
   },
   {
     "id": "vx_225",
@@ -2699,8 +2699,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Закуска.",
-    "exampleEn": "Example: appetizer."
+    "exampleRu": "Успешная сдача экзамена — это закономерное следствие долгой подготовки.",
+    "exampleEn": "Passing the exam successfully is a natural consequence of long preparation."
   },
   {
     "id": "vx_226",
@@ -2711,8 +2711,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Изжога.",
-    "exampleEn": "Example: heartburn."
+    "exampleRu": "Богатый профессиональный опыт помогает врачу ставить точные диагнозы.",
+    "exampleEn": "Rich professional experience helps the doctor make accurate diagnoses."
   },
   {
     "id": "vx_227",
@@ -2723,8 +2723,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Индивидуальный урок.",
-    "exampleEn": "Example: a private lesson."
+    "exampleRu": "Это был уникальный и очень поучительный случай в юридической практике.",
+    "exampleEn": "It was a unique and very instructive case in legal practice."
   },
   {
     "id": "vx_228",
@@ -2735,8 +2735,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Инструмент.",
-    "exampleEn": "Example: tool."
+    "exampleRu": "Качественный инструмент помогает мастеру выполнять работу быстро и точно.",
+    "exampleEn": "A quality tool helps the craftsman perform work quickly and accurately."
   },
   {
     "id": "vx_229",
@@ -2747,8 +2747,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Как.",
-    "exampleEn": "Example: as; like."
+    "exampleRu": "Он говорит по-русски так же свободно, как на своём родном языке.",
+    "exampleEn": "He speaks Russian as fluently as in his native language."
   },
   {
     "id": "vx_230",
@@ -2759,8 +2759,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Карточки.",
-    "exampleEn": "Example: cards."
+    "exampleRu": "Флэш-карточки со словами очень эффективны для интервального повторения.",
+    "exampleEn": "Vocabulary flashcards are very effective for spaced repetition."
   },
   {
     "id": "vx_231",
@@ -2771,8 +2771,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Кастрюля.",
-    "exampleEn": "Example: pot."
+    "exampleRu": "На плите стоит большая кастрюля с ароматным овощным супом.",
+    "exampleEn": "On the stove stands a large pot with fragrant vegetable soup."
   },
   {
     "id": "vx_232",
@@ -2783,8 +2783,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Колода.",
-    "exampleEn": "Example: deck."
+    "exampleRu": "В этой колоде собраны самые важные фразы для повседневного общения.",
+    "exampleEn": "This deck contains the most important phrases for everyday communication."
   },
   {
     "id": "vx_233",
@@ -2795,8 +2795,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Корабль (male).",
-    "exampleEn": "Example: ship."
+    "exampleRu": "Большой грузовой корабль доставил контейнеры в торговый порт.",
+    "exampleEn": "A large cargo ship delivered containers to the commercial port."
   },
   {
     "id": "vx_234",
@@ -2807,8 +2807,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Кружка.",
-    "exampleEn": "Example: mug."
+    "exampleRu": "Утром мне нравится пить горячий кофе из большой керамической кружки.",
+    "exampleEn": "In the morning I like to drink hot coffee from a large ceramic mug."
   },
   {
     "id": "vx_235",
@@ -2819,8 +2819,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Крыша.",
-    "exampleEn": "Example: roof."
+    "exampleRu": "С крыши высокого здания открывается великолепный вид на весь город.",
+    "exampleEn": "From the roof of the high building opens a magnificent view of the whole city."
   },
   {
     "id": "vx_236",
@@ -2831,8 +2831,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Культура.",
-    "exampleEn": "Example: culture."
+    "exampleRu": "Русская классическая культура подарила миру великую литературу и музыку.",
+    "exampleEn": "Russian classical culture gave the world great literature and music."
   },
   {
     "id": "vx_237",
@@ -2843,8 +2843,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Лапша.",
-    "exampleEn": "Example: noodles."
+    "exampleRu": "На обед мы заказали горячую домашнюю лапшу с курицей и зеленью.",
+    "exampleEn": "For lunch we ordered hot homemade noodles with chicken and herbs."
   },
   {
     "id": "vx_238",
@@ -2855,8 +2855,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Места.",
-    "exampleEn": "Example: places."
+    "exampleRu": "В этом старинном городе есть много красивых и памятных мест.",
+    "exampleEn": "In this old town there are many beautiful and memorable places."
   },
   {
     "id": "vx_239",
@@ -2867,8 +2867,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Молочные продукты.",
-    "exampleEn": "Example: dairy products."
+    "exampleRu": "Свежие молочные продукты богаты полезным кальцием и витаминами.",
+    "exampleEn": "Fresh dairy products are rich in healthy calcium and vitamins."
   },
   {
     "id": "vx_240",
@@ -2879,8 +2879,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Молочные продукты (молочка).",
-    "exampleEn": "Example: dairy products."
+    "exampleRu": "На завтрак я часто покупаю свежую фермерскую молочку и творог.",
+    "exampleEn": "For breakfast I often buy fresh farm dairy and cottage cheese."
   },
   {
     "id": "vx_241",
@@ -2891,8 +2891,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Морепродукты.",
-    "exampleEn": "Example: seafood."
+    "exampleRu": "В средиземноморской кухне морепродукты занимают главное место на столе.",
+    "exampleEn": "In Mediterranean cuisine, seafood occupies the main place on the table."
   },
   {
     "id": "vx_242",
@@ -2903,8 +2903,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Мочь.",
-    "exampleEn": "Example: can."
+    "exampleRu": "Каждый студент может добиться отличных результатов при должном упорстве.",
+    "exampleEn": "Every student can achieve excellent results with proper perseverance."
   },
   {
     "id": "vx_243",
@@ -2915,8 +2915,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Над.",
-    "exampleEn": "Example: above; over."
+    "exampleRu": "Над тихой водной гладью озера кружились белые чайки.",
+    "exampleEn": "Above the quiet water surface of the lake circled white seagulls."
   },
   {
     "id": "vx_244",
@@ -2927,8 +2927,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Надежда.",
-    "exampleEn": "Example: hope (nouns)."
+    "exampleRu": "Искренняя надежда на лучшее придаёт человеку сил в трудную минуту.",
+    "exampleEn": "A sincere hope for the best gives a person strength in a difficult moment."
   },
   {
     "id": "vx_245",
@@ -2939,8 +2939,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Настройки.",
-    "exampleEn": "Example: settings."
+    "exampleRu": "В меню настроек приложения вы можете выбрать подходящую цветовую тему.",
+    "exampleEn": "In the app settings menu you can select a suitable color theme."
   },
   {
     "id": "vx_246",
@@ -2951,8 +2951,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Начальная школа.",
-    "exampleEn": "Example: elementary."
+    "exampleRu": "В начальной школе дети учатся читать, писать и логически мыслить.",
+    "exampleEn": "In elementary school, children learn to read, write, and think logically."
   },
   {
     "id": "vx_247",
@@ -2963,8 +2963,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: НевА.",
-    "exampleEn": "Example: Neva river."
+    "exampleRu": "Река Нева величественно протекает через самый центр Санкт-Петербурга.",
+    "exampleEn": "The Neva River flows majestically through the very center of Saint Petersburg."
   },
   {
     "id": "vx_248",
@@ -2975,8 +2975,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Оба.",
-    "exampleEn": "Example: both."
+    "exampleRu": "Оба брата успешно сдали вступительные экзамены в университет.",
+    "exampleEn": "Both brothers successfully passed the university entrance exams."
   },
   {
     "id": "vx_249",
@@ -2987,8 +2987,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Он должен.",
-    "exampleEn": "Example: must; have to; should."
+    "exampleRu": "Каждый водитель строго должен соблюдать установленные правила движения.",
+    "exampleEn": "Every driver must strictly follow the established traffic rules."
   },
   {
     "id": "vx_250",
@@ -2999,8 +2999,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Он мог.",
-    "exampleEn": "Example: could."
+    "exampleRu": "Он мог быстро найти решение в самой нестандартной ситуации.",
+    "exampleEn": "He could quickly find a solution in the most non-standard situation."
   },
   {
     "id": "vx_251",
@@ -3011,8 +3011,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Опция, вариант.",
-    "exampleEn": "Example: an option."
+    "exampleRu": "Это самый выгодный и безопасный вариант из всех предложенных.",
+    "exampleEn": "This is the most advantageous and safest option of all proposed."
   },
   {
     "id": "vx_252",
@@ -3023,8 +3023,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Оставшаяся неделя.",
-    "exampleEn": "Example: the rest of the week."
+    "exampleRu": "Оставшаяся неделя будет посвящена активной подготовке к презентации.",
+    "exampleEn": "The rest of the week will be dedicated to active preparation for the presentation."
   },
   {
     "id": "vx_253",
@@ -3035,8 +3035,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Очистка.",
-    "exampleEn": "Example: cleaning."
+    "exampleRu": "Регулярная очистка кэша помогает ускорить работу браузера.",
+    "exampleEn": "Regular clearing of the cache helps speed up browser operation."
   },
   {
     "id": "vx_254",
@@ -3047,8 +3047,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Певец.",
-    "exampleEn": "Example: male singer."
+    "exampleRu": "Талантливый оперный певец исполнил сложнейшую классическую арию.",
+    "exampleEn": "The talented opera singer performed a most intricate classical aria."
   },
   {
     "id": "vx_255",
@@ -3059,8 +3059,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Певица.",
-    "exampleEn": "Example: female singer."
+    "exampleRu": "Известная эстрадная певица собрала полный концертный зал зрителей.",
+    "exampleEn": "The famous pop singer gathered a full concert hall of spectators."
   },
   {
     "id": "vx_256",
@@ -3071,8 +3071,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Пейзаж.",
-    "exampleEn": "Example: landscape."
+    "exampleRu": "Живописный осенний пейзаж вдохновил художника на создание картины.",
+    "exampleEn": "The picturesque autumn landscape inspired the artist to create a painting."
   },
   {
     "id": "vx_257",
@@ -3083,8 +3083,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Перевод.",
-    "exampleEn": "Example: translation."
+    "exampleRu": "Точный перевод поэтического текста требует глубокого чувства языка.",
+    "exampleEn": "An accurate translation of poetic text requires a deep feel for language."
   },
   {
     "id": "vx_258",
@@ -3095,8 +3095,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Перезагрузка.",
-    "exampleEn": "Example: reboot."
+    "exampleRu": "После установки обновлений операционной системе требуется перезагрузка.",
+    "exampleEn": "After installing updates, the operating system requires a reboot."
   },
   {
     "id": "vx_259",
@@ -3107,8 +3107,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Перекрёсток.",
-    "exampleEn": "Example: intersection."
+    "exampleRu": "На оживлённом перекрёстке установлен современный светофор с таймером.",
+    "exampleEn": "At the busy intersection, a modern traffic light with a timer is installed."
   },
   {
     "id": "vx_260",
@@ -3119,8 +3119,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Пешеходный переход.",
-    "exampleEn": "Example: crosswalk."
+    "exampleRu": "Пешеходы должны переходить улицу строго по пешеходному переходу.",
+    "exampleEn": "Pedestrians must cross the street strictly at the crosswalk."
   },
   {
     "id": "vx_261",
@@ -3131,8 +3131,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: По-умному.",
-    "exampleEn": "Example: in a smart way."
+    "exampleRu": "Архитектор поступил по-умному, оптимизировав жилое пространство комнат.",
+    "exampleEn": "The architect acted in a smart way, optimizing the living space of rooms."
   },
   {
     "id": "vx_262",
@@ -3143,8 +3143,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Под.",
-    "exampleEn": "Example: under."
+    "exampleRu": "Котёнок спрятался под мягким диваном в гостиной.",
+    "exampleEn": "The kitten hid under the soft sofa in the living room."
   },
   {
     "id": "vx_263",
@@ -3155,8 +3155,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Полтора.",
-    "exampleEn": "Example: one and a half."
+    "exampleRu": "Мы провели в дороге полтора часа из-за небольшого ремонта трассы.",
+    "exampleEn": "We spent an hour and a half on the road due to minor highway repairs."
   },
   {
     "id": "vx_264",
@@ -3167,8 +3167,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Полчаса.",
-    "exampleEn": "Example: half an hour."
+    "exampleRu": "До прибытия поезда осталось всего полчаса, мы уже на перроне.",
+    "exampleEn": "Only half an hour remains before the train arrives, we are already on the platform."
   },
   {
     "id": "vx_265",
@@ -3179,8 +3179,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Помощник.",
-    "exampleEn": "Example: helper."
+    "exampleRu": "Цифровой помощник помогает быстро организовывать ежедневные задачи.",
+    "exampleEn": "The digital helper assists in quickly organizing daily tasks."
   },
   {
     "id": "vx_266",
@@ -3191,8 +3191,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Попугай.",
-    "exampleEn": "Example: a parrot."
+    "exampleRu": "Яркий зелёный попугай забавно повторял простые человеческие слова.",
+    "exampleEn": "The bright green parrot amusingly repeated simple human words."
   },
   {
     "id": "vx_267",
@@ -3203,8 +3203,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Прекращение огня.",
-    "exampleEn": "Example: cease fire."
+    "exampleRu": "Стороны конфликта объявили временное прекращение огня для переговоров.",
+    "exampleEn": "The parties to the conflict announced a temporary ceasefire for negotiations."
   },
   {
     "id": "vx_268",
@@ -3215,8 +3215,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Причина.",
-    "exampleEn": "Example: reason."
+    "exampleRu": "Главная причина нашего опоздания — непредвиденная задержка рейса.",
+    "exampleEn": "The main reason for our delay was an unforeseen flight delay."
   },
   {
     "id": "vx_269",
@@ -3227,8 +3227,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Прогулка.",
-    "exampleEn": "Example: walking."
+    "exampleRu": "Вечерняя неспешная прогулка на свежем воздухе улучшает ночной сон.",
+    "exampleEn": "An evening unhurried walk in the fresh air improves night sleep."
   },
   {
     "id": "vx_270",
@@ -3239,8 +3239,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Разработчик.",
-    "exampleEn": "Example: developer."
+    "exampleRu": "Опытный разработчик создал быстрое и надёжное веб-приложение.",
+    "exampleEn": "The experienced developer built a fast and reliable web application."
   },
   {
     "id": "vx_271",
@@ -3251,8 +3251,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Режиссёр.",
-    "exampleEn": "Example: movie, theater director."
+    "exampleRu": "Знаменитый режиссёр снял захватывающий исторический фильм.",
+    "exampleEn": "The famous director shot an exciting historical movie."
   },
   {
     "id": "vx_272",
@@ -3263,8 +3263,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Река.",
-    "exampleEn": "Example: river."
+    "exampleRu": "Широкая река Волга плавно несёт свои воды к Каспийскому морю.",
+    "exampleEn": "The wide Volga River smoothly carries its waters to the Caspian Sea."
   },
   {
     "id": "vx_273",
@@ -3275,8 +3275,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Самец.",
-    "exampleEn": "Example: male animal."
+    "exampleRu": "Самец павлина привлекает внимание своим роскошным разноцветным хвостом.",
+    "exampleEn": "The male peacock attracts attention with its luxurious multicolored tail."
   },
   {
     "id": "vx_274",
@@ -3287,8 +3287,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Самка.",
-    "exampleEn": "Example: female animal."
+    "exampleRu": "Самка медведя заботливо защищает своих маленьких медвежат от опасности.",
+    "exampleEn": "The female bear protectively defends her small cubs from danger."
   },
   {
     "id": "vx_275",
@@ -3299,8 +3299,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Свет.",
-    "exampleEn": "Example: light."
+    "exampleRu": "Утренний солнечный свет мягко проник сквозь тонкие шторы спальни.",
+    "exampleEn": "Morning sunlight gently penetrated through the thin bedroom curtains."
   },
   {
     "id": "vx_276",
@@ -3311,8 +3311,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Свинина.",
-    "exampleEn": "Example: pork."
+    "exampleRu": "В традиционных рецептах нежирная свинина тушится с овощами и чесноком.",
+    "exampleEn": "In traditional recipes, lean pork is braised with vegetables and garlic."
   },
   {
     "id": "vx_277",
@@ -3323,8 +3323,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Свобода.",
-    "exampleEn": "Example: freedom."
+    "exampleRu": "Свобода мысли и слова — основа гармоничного и развитого общества.",
+    "exampleEn": "Freedom of thought and speech is the foundation of a harmonious and developed society."
   },
   {
     "id": "vx_278",
@@ -3335,8 +3335,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Скрестим пальцы.",
-    "exampleEn": "Example: finger crossed."
+    "exampleRu": "Скрестим пальцы на удачу перед объявлением результатов конкурса!",
+    "exampleEn": "Let's cross our fingers for good luck before the contest results are announced!"
   },
   {
     "id": "vx_279",
@@ -3347,8 +3347,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Слишком.",
-    "exampleEn": "Example: too much."
+    "exampleRu": "Этот чай оказался слишком горячим, нужно дать ему немного остыть.",
+    "exampleEn": "This tea turned out too hot, we need to let it cool down a bit."
   },
   {
     "id": "vx_280",
@@ -3359,8 +3359,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Словарный запас.",
-    "exampleEn": "Example: vocabulary."
+    "exampleRu": "Ежедневное чтение книг значительно расширяет активный словарный запас.",
+    "exampleEn": "Daily reading of books significantly expands active vocabulary."
   },
   {
     "id": "vx_281",
@@ -3371,8 +3371,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Сторона.",
-    "exampleEn": "Example: side."
+    "exampleRu": "Перейдите на противоположную сторону улицы у светофора.",
+    "exampleEn": "Cross over to the opposite side of the street at the traffic light."
   },
   {
     "id": "vx_282",
@@ -3383,8 +3383,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Сутки.",
-    "exampleEn": "Example: whole day cycle."
+    "exampleRu": "Курьерская служба гарантирует доставку посылки в течение одних суток.",
+    "exampleEn": "The courier service guarantees parcel delivery within a single day."
   },
   {
     "id": "vx_283",
@@ -3395,8 +3395,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Тебе следует.",
-    "exampleEn": "Example: you should."
+    "exampleRu": "Тебе следует уделить больше внимания правильному русскому ударению.",
+    "exampleEn": "You should pay more attention to correct Russian word stress."
   },
   {
     "id": "vx_284",
@@ -3407,8 +3407,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Тебе это идёт.",
-    "exampleEn": "Example: it suits you."
+    "exampleRu": "Это элегантное пальто тебе очень идёт и подчёркивает стиль.",
+    "exampleEn": "This elegant coat suits you very well and emphasizes your style."
   },
   {
     "id": "vx_285",
@@ -3419,8 +3419,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Тебя.",
-    "exampleEn": "Example: accusative."
+    "exampleRu": "Я с нетерпением жду тебя завтра в кафе в пять часов вечера.",
+    "exampleEn": "I am eagerly waiting for you tomorrow at the cafe at five in the evening."
   },
   {
     "id": "vx_286",
@@ -3431,8 +3431,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Телятина.",
-    "exampleEn": "Example: lamb."
+    "exampleRu": "Нежная тушёная телятина с овощами подаётся на горячем блюде.",
+    "exampleEn": "Tender braised veal with vegetables is served on a hot dish."
   },
   {
     "id": "vx_287",
@@ -3443,8 +3443,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Торговый центр.",
-    "exampleEn": "Example: mall."
+    "exampleRu": "В выходные дни торговый центр заполнен покупателями и посетителями.",
+    "exampleEn": "On weekends, the shopping mall is filled with shoppers and visitors."
   },
   {
     "id": "vx_288",
@@ -3455,8 +3455,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Убежал.",
-    "exampleEn": "Example: run away."
+    "exampleRu": "Испуганный котёнок быстро убежал и спрятался за забором.",
+    "exampleEn": "The frightened kitten quickly ran away and hid behind the fence."
   },
   {
     "id": "vx_289",
@@ -3467,8 +3467,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Участок.",
-    "exampleEn": "Example: plot; a piece of land."
+    "exampleRu": "Семья приобрела уютный дачный участок рядом с сосновым лесом.",
+    "exampleEn": "The family bought a cozy country plot near a pine forest."
   },
   {
     "id": "vx_290",
@@ -3479,8 +3479,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Фишки.",
-    "exampleEn": "Example: pogs."
+    "exampleRu": "В детстве мы любили собирать и обменивать редкие игровые фишки.",
+    "exampleEn": "In childhood we loved collecting and trading rare game tokens."
   },
   {
     "id": "vx_291",
@@ -3491,8 +3491,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Фон.",
-    "exampleEn": "Example: background."
+    "exampleRu": "Светлый нейтральный фон карточки обеспечивает отличную читаемость текста.",
+    "exampleEn": "The light neutral background of the card provides excellent text readability."
   },
   {
     "id": "vx_292",
@@ -3503,8 +3503,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Хинкали.",
-    "exampleEn": "Example: georgian dumpling."
+    "exampleRu": "Сочные горячие хинкали с ароматным бульоном — гордость грузинской кухни.",
+    "exampleEn": "Juicy hot khinkali with flavorful broth are the pride of Georgian cuisine."
   },
   {
     "id": "vx_293",
@@ -3515,8 +3515,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Цвет.",
-    "exampleEn": "Example: color."
+    "exampleRu": "Изумрудный цвет морской воды завораживал всех отдыхающих на пляже.",
+    "exampleEn": "The emerald color of the sea water fascinated all vacationers on the beach."
   },
   {
     "id": "vx_294",
@@ -3527,8 +3527,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Цвета.",
-    "exampleEn": "Example: colors."
+    "exampleRu": "Осень раскрасила кроны деревьев в яркие золотые и багряные цвета.",
+    "exampleEn": "Autumn painted the tree canopies in bright golden and crimson colors."
   },
   {
     "id": "vx_295",
@@ -3539,8 +3539,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Цветок.",
-    "exampleEn": "Example: flower."
+    "exampleRu": "Нежный весенний цветок подснежника первым пробился сквозь снег.",
+    "exampleEn": "The delicate spring snowdrop flower was the first to break through the snow."
   },
   {
     "id": "vx_296",
@@ -3551,8 +3551,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Цветы.",
-    "exampleEn": "Example: flowers."
+    "exampleRu": "На день рождения имениннице подарили роскошный букет полевых цветов.",
+    "exampleEn": "On her birthday, the birthday girl was presented with a lavish bouquet of wildflowers."
   },
   {
     "id": "vx_297",
@@ -3563,8 +3563,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Ценник.",
-    "exampleEn": "Example: price tag."
+    "exampleRu": "Внимательно проверьте ценник на полке перед совершением покупки.",
+    "exampleEn": "Check the price tag on the shelf carefully before making a purchase."
   },
   {
     "id": "vx_298",
@@ -3575,8 +3575,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Часть (female).",
-    "exampleEn": "Example: part."
+    "exampleRu": "Грамматика составляет важнейшую часть любого языкового курса.",
+    "exampleEn": "Grammar forms the most important part of any language course."
   },
   {
     "id": "vx_299",
@@ -3587,8 +3587,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Чтобы.",
-    "exampleEn": "Example: in order to."
+    "exampleRu": "Мы встали пораньше, чтобы успеть на первый утренний поезд.",
+    "exampleEn": "We got up earlier in order to catch the first morning train."
   },
   {
     "id": "vx_300",
@@ -3599,8 +3599,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Чувствовать себя как дома.",
-    "exampleEn": "Example: feel at home."
+    "exampleRu": "Гостеприимные хозяева сказали гостям чувствовать себя как дома.",
+    "exampleEn": "The hospitable hosts told the guests to feel right at home."
   },
   {
     "id": "vx_301",
@@ -3611,8 +3611,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Ширина.",
-    "exampleEn": "Example: width."
+    "exampleRu": "Большая ширина моста позволяет организовать движение в четыре полосы.",
+    "exampleEn": "The large width of the bridge allows organizing traffic in four lanes."
   },
   {
     "id": "vx_302",
@@ -3623,8 +3623,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Idioms & Expressions",
     "level": "B2",
-    "exampleRu": "Пример: Это значит.",
-    "exampleEn": "Example: it means."
+    "exampleRu": "Это значит, что наша гипотеза полностью подтвердилась экспериментально.",
+    "exampleEn": "This means that our hypothesis was completely confirmed experimentally."
   },
   {
     "id": "vx_303",
@@ -3635,8 +3635,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Игровой ноутбук.",
-    "exampleEn": "Example: gaming laptop."
+    "exampleRu": "Мощный игровой ноутбук оснащён современной высокопроизводительной видеокартой.",
+    "exampleEn": "The powerful gaming laptop is equipped with a modern high-performance graphics card."
   },
   {
     "id": "vx_304",
@@ -3647,8 +3647,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Накладные наушники.",
-    "exampleEn": "Example: overhead headphones."
+    "exampleRu": "Беспроводные накладные наушники отлично глушат внешний гул в самолёте.",
+    "exampleEn": "Wireless overhead headphones excellently muffle external rumble in an airplane."
   },
   {
     "id": "vx_305",
@@ -3659,8 +3659,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Ноутбук.",
-    "exampleEn": "Example: laptop."
+    "exampleRu": "Я всегда беру ультратонкий ноутбук с собой в дальние командировки.",
+    "exampleEn": "I always take the ultra-thin laptop with me on long business trips."
   },
   {
     "id": "vx_306",
@@ -3671,8 +3671,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Ром.",
-    "exampleEn": "Example: rum."
+    "exampleRu": "Карибский выдержанный ром обладает насыщенным ароматом дубовой бочки.",
+    "exampleEn": "Caribbean aged rum has a rich aroma of an oak barrel."
   },
   {
     "id": "vx_307",
@@ -3683,8 +3683,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Атака.",
-    "exampleEn": "Example: an attack."
+    "exampleRu": "Футбольная команда провела стремительную контратаку на ворота соперника.",
+    "exampleEn": "The football team launched a swift counterattack on the opponent's goal."
   },
   {
     "id": "vx_308",
@@ -3695,8 +3695,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Блюдо.",
-    "exampleEn": "Example: a dish."
+    "exampleRu": "Традиционное русское блюдо пельмени подаётся со сметаной и зеленью.",
+    "exampleEn": "The traditional Russian dish pelmeni is served with sour cream and herbs."
   },
   {
     "id": "vx_309",
@@ -3707,8 +3707,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Бокал.",
-    "exampleEn": "Example: wine glass."
+    "exampleRu": "Официант налил ароматное красное вино в прозрачный стеклянный бокал.",
+    "exampleEn": "The waiter poured fragrant red wine into a transparent glass goblet."
   },
   {
     "id": "vx_310",
@@ -3719,8 +3719,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Бумага.",
-    "exampleEn": "Example: paper."
+    "exampleRu": "Для рисования акварелью требуется специальная плотная фактурная бумага.",
+    "exampleEn": "For watercolor painting, special heavy textured paper is required."
   },
   {
     "id": "vx_311",
@@ -3731,8 +3731,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Бумаги.",
-    "exampleEn": "Example: papers."
+    "exampleRu": "Юрист внимательно изучил все официальные бумаги перед подписанием сделки.",
+    "exampleEn": "The lawyer carefully studied all official papers before signing the deal."
   },
   {
     "id": "vx_312",
@@ -3743,8 +3743,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Вешалка.",
-    "exampleEn": "Example: hanger."
+    "exampleRu": "В гардеробе театра каждому посетителю выдаётся деревянная вешалка.",
+    "exampleEn": "In the theater cloakroom, each visitor is given a wooden hanger."
   },
   {
     "id": "vx_313",
@@ -3755,8 +3755,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Внутриканальные наушники.",
-    "exampleEn": "Example: in-ear headphones."
+    "exampleRu": "Миниатюрные внутриканальные наушники плотно сидят в ушах во время бега.",
+    "exampleEn": "Miniature in-ear headphones fit snugly in ears during running."
   },
   {
     "id": "vx_314",
@@ -3767,8 +3767,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Выживание.",
-    "exampleEn": "Example: survival."
+    "exampleRu": "Умение быстро разводить костёр критически важно для выживания в лесу.",
+    "exampleEn": "The ability to quickly build a campfire is critically important for survival in the woods."
   },
   {
     "id": "vx_315",
@@ -3779,8 +3779,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Выпечка.",
-    "exampleEn": "Example: bakery."
+    "exampleRu": "Свежая домашняя выпечка с корицей наполняет весь дом сладким уютом.",
+    "exampleEn": "Fresh homemade pastry with cinnamon fills the whole house with sweet comfort."
   },
   {
     "id": "vx_316",
@@ -3791,8 +3791,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Гость (male gen).",
-    "exampleEn": "Example: a guest."
+    "exampleRu": "Мы тепло встретили дорогого гостя у самого входа в дом.",
+    "exampleEn": "We warmly greeted the dear guest at the very entrance to the house."
   },
   {
     "id": "vx_317",
@@ -3803,8 +3803,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Дворец.",
-    "exampleEn": "Example: palace."
+    "exampleRu": "Величественный Зимний дворец в Петербурге восхищает миллионы туристов.",
+    "exampleEn": "The majestic Winter Palace in Petersburg delights millions of tourists."
   },
   {
     "id": "vx_318",
@@ -3815,8 +3815,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Декан.",
-    "exampleEn": "Example: dean."
+    "exampleRu": "Декан факультета торжественно вручил дипломы с отличием лучшим студентам.",
+    "exampleEn": "The dean of the faculty solemnly handed diplomas with honors to the best students."
   },
   {
     "id": "vx_319",
@@ -3827,8 +3827,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Зарплата.",
-    "exampleEn": "Example: salary."
+    "exampleRu": "Своевременная и достойная зарплата мотивирует сотрудников на высокие результаты.",
+    "exampleEn": "Timely and decent salary motivates employees towards high performance."
   },
   {
     "id": "vx_320",
@@ -3839,8 +3839,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Здоровье.",
-    "exampleEn": "Example: health."
+    "exampleRu": "Крепкое здоровье — самое главное богатство в жизни каждого человека.",
+    "exampleEn": "Robust health is the most important wealth in the life of every person."
   },
   {
     "id": "vx_321",
@@ -3851,8 +3851,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Зритель.",
-    "exampleEn": "Example: spectator."
+    "exampleRu": "Внимательный зритель в зале с восторгом аплодировал артистам балета.",
+    "exampleEn": "The attentive spectator in the hall applauded the ballet dancers with delight."
   },
   {
     "id": "vx_322",
@@ -3863,8 +3863,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Клубника.",
-    "exampleEn": "Example: stawberry."
+    "exampleRu": "Спелая сладкая клубника прямо с грядки особенно вкусна со сливками.",
+    "exampleEn": "Ripe sweet strawberry right from the garden bed is especially tasty with cream."
   },
   {
     "id": "vx_323",
@@ -3875,8 +3875,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Креветка.",
-    "exampleEn": "Example: a shrimp."
+    "exampleRu": "В морском ресторане нам подали королевские креветки на гриле с чесноком.",
+    "exampleEn": "In the seafood restaurant we were served grilled king prawns with garlic."
   },
   {
     "id": "vx_324",
@@ -3887,8 +3887,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Лицо.",
-    "exampleEn": "Example: face."
+    "exampleRu": "На открытом лице собеседника читались искренность и доброжелательность.",
+    "exampleEn": "On the open face of the speaker one could read sincerity and goodwill."
   },
   {
     "id": "vx_325",
@@ -3899,8 +3899,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Лосось.",
-    "exampleEn": "Example: salmon."
+    "exampleRu": "Запечённый на углях дикий лосось получился сочным и нежным.",
+    "exampleEn": "Wild salmon baked over charcoal turned out juicy and tender."
   },
   {
     "id": "vx_326",
@@ -3911,8 +3911,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Международный.",
-    "exampleEn": "Example: international."
+    "exampleRu": "В столице прошёл крупный международный симпозиум по искусственному интеллекту.",
+    "exampleEn": "In the capital, a major international symposium on artificial intelligence took place."
   },
   {
     "id": "vx_327",
@@ -3923,8 +3923,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Мидии.",
-    "exampleEn": "Example: muscles."
+    "exampleRu": "Черноморские свежие мидии в томатном соусе — великолепная горячая закуска.",
+    "exampleEn": "Fresh Black Sea mussels in tomato sauce are a splendid hot appetizer."
   },
   {
     "id": "vx_328",
@@ -3935,8 +3935,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Молодёжь.",
-    "exampleEn": "Example: the youth; young people."
+    "exampleRu": "Современная молодёжь активно интересуется изучением иностранных языков.",
+    "exampleEn": "Modern youth is actively interested in learning foreign languages."
   },
   {
     "id": "vx_329",
@@ -3947,8 +3947,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Мост.",
-    "exampleEn": "Example: bridge."
+    "exampleRu": "Знаменитый разводной мост через Неву открывается ровно в час ночи.",
+    "exampleEn": "The famous drawbridge across the Neva opens at exactly one o'clock at night."
   },
   {
     "id": "vx_330",
@@ -3959,8 +3959,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Нагрузка.",
-    "exampleEn": "Example: workload."
+    "exampleRu": "Разумная учебная нагрузка позволяет студентам избегать переутомления.",
+    "exampleEn": "A sensible study workload allows students to avoid overwork."
   },
   {
     "id": "vx_331",
@@ -3971,8 +3971,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Народ.",
-    "exampleEn": "Example: the people."
+    "exampleRu": "Гостеприимный русский народ бережно хранит вековые культурные традиции.",
+    "exampleEn": "The hospitable Russian people carefully preserve centuries-old cultural traditions."
   },
   {
     "id": "vx_332",
@@ -3983,8 +3983,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Настроение.",
-    "exampleEn": "Example: mood."
+    "exampleRu": "Хорошая солнечная погода моментально поднимает бодрое настроение.",
+    "exampleEn": "Good sunny weather instantly lifts cheerful mood."
   },
   {
     "id": "vx_333",
@@ -3995,8 +3995,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Новичок.",
-    "exampleEn": "Example: beginner."
+    "exampleRu": "Опытный наставник терпеливо помогает новичку освоиться в профессии.",
+    "exampleEn": "The experienced mentor patiently helps the beginner get comfortable in the profession."
   },
   {
     "id": "vx_334",
@@ -4007,8 +4007,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Общежитие (общага).",
-    "exampleEn": "Example: dorm."
+    "exampleRu": "Студенческое общежитие расположено всего в пяти минутах ходьбы от кампуса.",
+    "exampleEn": "The student dormitory is located just a five-minute walk from campus."
   },
   {
     "id": "vx_335",
@@ -4019,8 +4019,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Оперативная память (оперативка).",
-    "exampleEn": "Example: RAM."
+    "exampleRu": "Дополнительная планка оперативки помогла компьютеру быстрее рендерить видео.",
+    "exampleEn": "An extra stick of RAM helped the computer render video faster."
   },
   {
     "id": "vx_336",
@@ -4031,8 +4031,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Опыт.",
-    "exampleEn": "Example: experience."
+    "exampleRu": "Практический жизненный опыт учит находить верные решения в сложных вопросах.",
+    "exampleEn": "Practical life experience teaches finding the right solutions in complex matters."
   },
   {
     "id": "vx_337",
@@ -4043,8 +4043,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Официант.",
-    "exampleEn": "Example: waiter."
+    "exampleRu": "Вежливый официант быстро принёс гостям меню и порекомендовал фирменный десерт.",
+    "exampleEn": "The polite waiter quickly brought the menu to guests and recommended the signature dessert."
   },
   {
     "id": "vx_338",
@@ -4055,8 +4055,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Памятник.",
-    "exampleEn": "Example: memorial."
+    "exampleRu": "Исторический памятник архитектуры находится под строгой охраной государства.",
+    "exampleEn": "The historical architectural monument is under strict state protection."
   },
   {
     "id": "vx_339",
@@ -4067,8 +4067,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Перерыв.",
-    "exampleEn": "Example: break time."
+    "exampleRu": "Во время обеденного перерыва сотрудники выходят на короткую прогулку.",
+    "exampleEn": "During the lunch break, employees go out for a short walk."
   },
   {
     "id": "vx_340",
@@ -4079,8 +4079,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Пирог.",
-    "exampleEn": "Example: pie."
+    "exampleRu": "Домашний яблочный пирог с хрустящей корочкой подаётся с шариком мороженого.",
+    "exampleEn": "Homemade apple pie with a crispy crust is served with a scoop of ice cream."
   },
   {
     "id": "vx_341",
@@ -4091,8 +4091,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Полноразмерные наушники.",
-    "exampleEn": "Example: full size headphones."
+    "exampleRu": "Полноразмерные наушники обеспечивают максимальное погружение в музыку.",
+    "exampleEn": "Full-size headphones provide maximum immersion in music."
   },
   {
     "id": "vx_342",
@@ -4103,8 +4103,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Полёт.",
-    "exampleEn": "Example: a flight."
+    "exampleRu": "Прямой беспосадочный полёт через океан занял около девяти часов.",
+    "exampleEn": "The direct non-stop flight across the ocean took about nine hours."
   },
   {
     "id": "vx_343",
@@ -4115,8 +4115,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Приложение.",
-    "exampleEn": "Example: an app."
+    "exampleRu": "Это мобильное приложение помогает эффективно учить русский язык каждый день.",
+    "exampleEn": "This mobile app helps effectively learn the Russian language every day."
   },
   {
     "id": "vx_344",
@@ -4127,8 +4127,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Природа.",
-    "exampleEn": "Example: nature."
+    "exampleRu": "Первозданная северная природа поражает своей строгой и величавой красотой.",
+    "exampleEn": "Pristine northern nature amazes with its austere and majestic beauty."
   },
   {
     "id": "vx_345",
@@ -4139,8 +4139,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Провод.",
-    "exampleEn": "Example: wire."
+    "exampleRu": "Экранированный медный провод надёжно защищает сигнал от внешних помех.",
+    "exampleEn": "The shielded copper wire reliably protects the signal from external interference."
   },
   {
     "id": "vx_346",
@@ -4151,8 +4151,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Проводное подключение.",
-    "exampleEn": "Example: wired connection."
+    "exampleRu": "Стабильное проводное подключение к интернету обеспечивает минимальную задержку.",
+    "exampleEn": "A stable wired internet connection provides minimal latency."
   },
   {
     "id": "vx_347",
@@ -4163,8 +4163,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Рабочий день.",
-    "exampleEn": "Example: a working day."
+    "exampleRu": "После насыщенного рабочего дня приятно провести тихий вечер с семьёй.",
+    "exampleEn": "After a busy working day, it is pleasant to spend a quiet evening with family."
   },
   {
     "id": "vx_348",
@@ -4175,8 +4175,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Рюкзак.",
-    "exampleEn": "Example: backback."
+    "exampleRu": "Удобный туристический рюкзак вмещает всё необходимое для трёхдневного похода.",
+    "exampleEn": "A comfortable hiking backpack holds everything needed for a three-day hike."
   },
   {
     "id": "vx_349",
@@ -4187,8 +4187,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Самогон.",
-    "exampleEn": "Example: moonshine."
+    "exampleRu": "В старинных русских деревнях домашний самогон настаивали на кедровых орехах.",
+    "exampleEn": "In old Russian villages, homemade moonshine was infused with cedar pine nuts."
   },
   {
     "id": "vx_350",
@@ -4199,8 +4199,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Свадьба.",
-    "exampleEn": "Example: wedding."
+    "exampleRu": "Пышная традиционная свадьба собрала родственников и друзей со всей страны.",
+    "exampleEn": "The lavish traditional wedding brought together relatives and friends from all over the country."
   },
   {
     "id": "vx_351",
@@ -4211,8 +4211,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Сковородка.",
-    "exampleEn": "Example: pan."
+    "exampleRu": "Чугунная сковородка идеально держит тепло для равномерной прожарки блюд.",
+    "exampleEn": "A cast-iron frying pan holds heat ideally for even frying of dishes."
   },
   {
     "id": "vx_352",
@@ -4223,8 +4223,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Слон.",
-    "exampleEn": "Example: elephant."
+    "exampleRu": "Могучий слон неторопливо шёл по зелёной саванне к водопою.",
+    "exampleEn": "The mighty elephant unhurriedly walked across the green savanna towards the watering hole."
   },
   {
     "id": "vx_353",
@@ -4235,8 +4235,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Слоённое тесто.",
-    "exampleEn": "Example: puff dough."
+    "exampleRu": "Хрустящее слоёное тесто используется для выпечки знаменитого торта Наполеон.",
+    "exampleEn": "Crispy puff pastry is used for baking the famous Napoleon cake."
   },
   {
     "id": "vx_354",
@@ -4247,8 +4247,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Старик.",
-    "exampleEn": "Example: an old man."
+    "exampleRu": "Мудрый старик поделился с молодыми людьми своими жизненными наблюдениями.",
+    "exampleEn": "The wise old man shared his life observations with the young people."
   },
   {
     "id": "vx_355",
@@ -4259,8 +4259,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Страх.",
-    "exampleEn": "Example: fear."
+    "exampleRu": "Преодолевая внутренний страх, человек становится сильнее и увереннее в себе.",
+    "exampleEn": "Overcoming internal fear, a person becomes stronger and more confident."
   },
   {
     "id": "vx_356",
@@ -4271,8 +4271,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Тарелка.",
-    "exampleEn": "Example: plate."
+    "exampleRu": "На фарфоровую тарелку выложили свежие фрукты и ягоды.",
+    "exampleEn": "Fresh fruit and berries were arranged on a porcelain plate."
   },
   {
     "id": "vx_357",
@@ -4283,8 +4283,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Тесто.",
-    "exampleEn": "Example: dough."
+    "exampleRu": "Дрожжевое тесто для пирожков должно хорошо подняться в тёплом месте.",
+    "exampleEn": "Yeast dough for hand pies must rise well in a warm place."
   },
   {
     "id": "vx_358",
@@ -4295,8 +4295,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Требование.",
-    "exampleEn": "Example: requirement."
+    "exampleRu": "Главное требование к кандидату на должность — отличное знание языков.",
+    "exampleEn": "The main requirement for the job candidate is an excellent command of languages."
   },
   {
     "id": "vx_359",
@@ -4307,8 +4307,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Требования.",
-    "exampleEn": "Example: requirments."
+    "exampleRu": "Проект был выполнен строго в соответствии со всеми техническими требованиями.",
+    "exampleEn": "The project was executed strictly in accordance with all technical requirements."
   },
   {
     "id": "vx_360",
@@ -4319,8 +4319,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Улыбка.",
-    "exampleEn": "Example: a smile."
+    "exampleRu": "Искренняя тёплая улыбка помогает мгновенно расположить к себе собеседника.",
+    "exampleEn": "A sincere warm smile helps instantly win over your conversation partner."
   },
   {
     "id": "vx_361",
@@ -4331,8 +4331,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Учёный.",
-    "exampleEn": "Example: scientist."
+    "exampleRu": "Выдающийся учёный посвятил всю жизнь исследованию космоса.",
+    "exampleEn": "The outstanding scientist dedicated his whole life to space exploration."
   },
   {
     "id": "vx_362",
@@ -4343,8 +4343,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Цель.",
-    "exampleEn": "Example: goal; target."
+    "exampleRu": "Чётко поставленная цель помогает не сбиться с намеченного пути.",
+    "exampleEn": "A clearly set goal helps not to stray from the intended path."
   },
   {
     "id": "vx_363",
@@ -4355,8 +4355,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Чашка.",
-    "exampleEn": "Example: a cup."
+    "exampleRu": "Горячая чашка душистого чая с мятой согревает в холодный осенний день.",
+    "exampleEn": "A hot cup of fragrant mint tea warms on a cold autumn day."
   },
   {
     "id": "vx_364",
@@ -4367,8 +4367,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Шахматный турнир.",
-    "exampleEn": "Example: chess tournament."
+    "exampleRu": "Международный шахматный турнир собрал сильнейших гроссмейстеров мира.",
+    "exampleEn": "The international chess tournament brought together the world's strongest grandmasters."
   },
   {
     "id": "vx_365",
@@ -4379,8 +4379,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Шуба.",
-    "exampleEn": "Example: fur coat."
+    "exampleRu": "Тёплая натуральная шуба надёжно защищает от суровых сибирских морозов.",
+    "exampleEn": "A warm natural fur coat reliably protects against harsh Siberian frosts."
   },
   {
     "id": "vx_366",
@@ -4391,8 +4391,8 @@ const exampleVocabulary = [
     "pos": "noun",
     "category": "Nouns & Concepts",
     "level": "A2",
-    "exampleRu": "Пример: Шум.",
-    "exampleEn": "Example: noise."
+    "exampleRu": "Посторонний уличный шум за окном стих только глубокой ночью.",
+    "exampleEn": "Extraneous street noise outside the window quieted down only late at night."
   },
   {
     "id": "vx_367",
@@ -4403,8 +4403,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Верно.",
-    "exampleEn": "Example: true, correct."
+    "exampleRu": "Вы совершенно верно указали грамматический падеж существительного.",
+    "exampleEn": "You completely correctly indicated the grammatical case of the noun."
   },
   {
     "id": "vx_368",
@@ -4415,8 +4415,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Взрослый.",
-    "exampleEn": "Example: an adult / adult."
+    "exampleRu": "Взрослый человек самостоятельно принимает ответственные жизненные решения.",
+    "exampleEn": "An adult makes responsible life decisions independently."
   },
   {
     "id": "vx_369",
@@ -4427,8 +4427,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Выражение.",
-    "exampleEn": "Example: expression."
+    "exampleRu": "Это образное русское выражение имеет глубокий исторический подтекст.",
+    "exampleEn": "This figurative Russian expression has a deep historical subtext."
   },
   {
     "id": "vx_370",
@@ -4439,8 +4439,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Грубый.",
-    "exampleEn": "Example: rude."
+    "exampleRu": "Воспитанный человек никогда не позволит себе грубый тон в общении.",
+    "exampleEn": "A well-mannered person will never permit themselves a rude tone in communication."
   },
   {
     "id": "vx_371",
@@ -4451,8 +4451,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Исторический.",
-    "exampleEn": "Example: historical."
+    "exampleRu": "Центр Санкт-Петербурга — это грандиозный исторический ансамбль мирового значения.",
+    "exampleEn": "The center of Saint Petersburg is a grandiose historical ensemble of world significance."
   },
   {
     "id": "vx_372",
@@ -4463,8 +4463,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мне интересно.",
-    "exampleEn": "Example: I wonder."
+    "exampleRu": "Мне очень интересно узнать подробнее о традициях русской кухни.",
+    "exampleEn": "I am very interested to learn in more detail about the traditions of Russian cuisine."
   },
   {
     "id": "vx_373",
@@ -4475,8 +4475,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Некоторый.",
-    "exampleEn": "Example: some."
+    "exampleRu": "Некоторые редкие правила русского языка требуют особого внимания.",
+    "exampleEn": "Some rare rules of the Russian language require special attention."
   },
   {
     "id": "vx_374",
@@ -4487,8 +4487,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Обслуживание.",
-    "exampleEn": "Example: maintenance."
+    "exampleRu": "Регулярное техническое обслуживание продлевает срок службы автомобиля.",
+    "exampleEn": "Regular technical maintenance extends the service life of the car."
   },
   {
     "id": "vx_375",
@@ -4499,8 +4499,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Относительно.",
-    "exampleEn": "Example: relatively."
+    "exampleRu": "Новая методика преподавания оказалась относительно простой и эффективной.",
+    "exampleEn": "The new teaching methodology turned out relatively simple and effective."
   },
   {
     "id": "vx_376",
@@ -4511,8 +4511,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Пасмурный.",
-    "exampleEn": "Example: cloudy."
+    "exampleRu": "Сегодня пасмурный осенний день, всё небо затянуто сплошными облаками.",
+    "exampleEn": "Today is a cloudy autumn day, the whole sky is covered with solid clouds."
   },
   {
     "id": "vx_377",
@@ -4523,8 +4523,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Поведение.",
-    "exampleEn": "Example: behaviour."
+    "exampleRu": "Примерное поведение ученика на уроке заслужило искреннюю похвалу учителя.",
+    "exampleEn": "The exemplary behavior of the student in class earned the teacher's sincere praise."
   },
   {
     "id": "vx_378",
@@ -4535,8 +4535,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Постоянный.",
-    "exampleEn": "Example: constant; regular / constant."
+    "exampleRu": "Постоянная языковая практика — главный ключ к свободному общению.",
+    "exampleEn": "Constant language practice is the main key to fluent communication."
   },
   {
     "id": "vx_379",
@@ -4547,8 +4547,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Правило.",
-    "exampleEn": "Example: rule, regulation."
+    "exampleRu": "Основное грамматическое правило согласования падежей легко запомнить.",
+    "exampleEn": "The basic grammatical rule of case agreement is easy to remember."
   },
   {
     "id": "vx_380",
@@ -4559,8 +4559,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Правильно.",
-    "exampleEn": "Example: correct; right way."
+    "exampleRu": "Студент правильно расставил все ударения в сложных русских словах.",
+    "exampleEn": "The student correctly placed all stress marks in complex Russian words."
   },
   {
     "id": "vx_381",
@@ -4571,8 +4571,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Прикольный.",
-    "exampleEn": "Example: fun."
+    "exampleRu": "Этот прикольный обучающий мультфильм помогает детям учить алфавит.",
+    "exampleEn": "This fun educational cartoon helps children learn the alphabet."
   },
   {
     "id": "vx_382",
@@ -4583,8 +4583,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Противоречие.",
-    "exampleEn": "Example: Contradiction."
+    "exampleRu": "В логических выводах докладчика не было обнаружено ни единого противоречия.",
+    "exampleEn": "In the speaker's logical conclusions not a single contradiction was detected."
   },
   {
     "id": "vx_383",
@@ -4595,8 +4595,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Раньше.",
-    "exampleEn": "Example: before."
+    "exampleRu": "Раньше на этом тихом месте располагался старинный яблоневый сад.",
+    "exampleEn": "Earlier in this quiet place was located an old apple orchard."
   },
   {
     "id": "vx_384",
@@ -4607,8 +4607,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Распространенный.",
-    "exampleEn": "Example: common."
+    "exampleRu": "Это самое распространённое и часто употребляемое слово в разговорной речи.",
+    "exampleEn": "This is the most common and frequently used word in spoken speech."
   },
   {
     "id": "vx_385",
@@ -4619,8 +4619,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Смешной.",
-    "exampleEn": "Example: funny."
+    "exampleRu": "Актёр рассказал очень смешной и остроумный анекдот со сцены.",
+    "exampleEn": "The actor told a very funny and witty joke from the stage."
   },
   {
     "id": "vx_386",
@@ -4631,8 +4631,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Собеседование.",
-    "exampleEn": "Example: interview."
+    "exampleRu": "Успешное собеседование позволило соискателю получить желаемую работу.",
+    "exampleEn": "A successful interview allowed the applicant to get the desired job."
   },
   {
     "id": "vx_387",
@@ -4643,8 +4643,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Счастливый.",
-    "exampleEn": "Example: happy."
+    "exampleRu": "Счастливый выпускник с гордостью держал в руках диплом университета.",
+    "exampleEn": "The happy graduate proudly held the university diploma in his hands."
   },
   {
     "id": "vx_388",
@@ -4655,8 +4655,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Устройство.",
-    "exampleEn": "Example: device."
+    "exampleRu": "Компактное электронное устройство мгновенно переводит речь с голоса.",
+    "exampleEn": "The compact electronic device instantly translates speech from voice."
   },
   {
     "id": "vx_389",
@@ -4667,8 +4667,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Ученый.",
-    "exampleEn": "Example: scientist."
+    "exampleRu": "Талантливый учёный опубликовал революционную статью в научном журнале.",
+    "exampleEn": "The talented scientist published a revolutionary paper in a scientific journal."
   },
   {
     "id": "vx_390",
@@ -4679,8 +4679,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Аккуратный.",
-    "exampleEn": "Example: careful."
+    "exampleRu": "Аккуратный почерк ученика облегчает проверку письменных работ.",
+    "exampleEn": "The student's neat handwriting makes checking written work easier."
   },
   {
     "id": "vx_391",
@@ -4691,8 +4691,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Базовый.",
-    "exampleEn": "Example: basic."
+    "exampleRu": "Базовый курс русского языка включает изучение алфавита и основных фраз.",
+    "exampleEn": "The basic Russian language course includes learning the alphabet and fundamental phrases."
   },
   {
     "id": "vx_392",
@@ -4703,8 +4703,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Благополучие.",
-    "exampleEn": "Example: wealth; well-being."
+    "exampleRu": "Крепкая семья и мир в доме — основа человеческого благополучия.",
+    "exampleEn": "A strong family and peace in the home are the foundation of human well-being."
   },
   {
     "id": "vx_393",
@@ -4715,8 +4715,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Благоустройство.",
-    "exampleEn": "Example: improvement."
+    "exampleRu": "Благоустройство городского парка сделало его любимым местом отдыха жителей.",
+    "exampleEn": "The improvement of the city park made it a favorite recreation spot for residents."
   },
   {
     "id": "vx_394",
@@ -4727,8 +4727,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Будущее.",
-    "exampleEn": "Example: future."
+    "exampleRu": "Инвестиции в качественное образование открывают уверенное будущее.",
+    "exampleEn": "Investments in quality education open up a confident future."
   },
   {
     "id": "vx_395",
@@ -4739,8 +4739,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Ведро.",
-    "exampleEn": "Example: bucket."
+    "exampleRu": "В саду стояло полное ведро чистой ключевой воды.",
+    "exampleEn": "In the garden stood a full bucket of clean spring water."
   },
   {
     "id": "vx_396",
@@ -4751,8 +4751,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Веселый.",
-    "exampleEn": "Example: happy; joyful."
+    "exampleRu": "Весёлый детский смех разносился по всей игровой площадке.",
+    "exampleEn": "Cheerful children's laughter resounded across the whole playground."
   },
   {
     "id": "vx_397",
@@ -4763,8 +4763,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Водяной.",
-    "exampleEn": "Example: water (adjective)."
+    "exampleRu": "Подводный водяной поток плавно вращал лопасти старинной мельницы.",
+    "exampleEn": "The underwater water stream smoothly rotated the blades of the old mill."
   },
   {
     "id": "vx_398",
@@ -4775,8 +4775,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Возможно.",
-    "exampleEn": "Example: probably."
+    "exampleRu": "Возможно, завтра утром мы отправимся на экскурсию в Петергоф.",
+    "exampleEn": "Probably tomorrow morning we will go on an excursion to Peterhof."
   },
   {
     "id": "vx_399",
@@ -4787,8 +4787,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Время на домашнее задание.",
-    "exampleEn": "Example: time for homework."
+    "exampleRu": "Выделите спокойное время на домашнее задание по русскому языку.",
+    "exampleEn": "Set aside quiet time for your Russian language homework."
   },
   {
     "id": "vx_400",
@@ -4799,8 +4799,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Всё равно.",
-    "exampleEn": "Example: anyway; doesn't matter."
+    "exampleRu": "Мне всё равно, какая погода на улице, если рядом близкие друзья.",
+    "exampleEn": "It doesn't matter to me what the weather is outside if close friends are near."
   },
   {
     "id": "vx_401",
@@ -4811,8 +4811,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Выходной.",
-    "exampleEn": "Example: a day off."
+    "exampleRu": "Понедельник в нашем музее — традиционный официальный выходной день.",
+    "exampleEn": "Monday in our museum is the traditional official day off."
   },
   {
     "id": "vx_402",
@@ -4823,8 +4823,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Выходные.",
-    "exampleEn": "Example: a weekend."
+    "exampleRu": "В предстоящие праздничные выходные мы планируем съездить на дачу.",
+    "exampleEn": "On the upcoming holiday weekend we plan to go to the country house."
   },
   {
     "id": "vx_403",
@@ -4835,8 +4835,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Вяжущее.",
-    "exampleEn": "Example: astringent."
+    "exampleRu": "Спелая хурма обладает лёгким вяжущим, но очень приятным вкусом.",
+    "exampleEn": "Ripe persimmon has a mild astringent but very pleasant taste."
   },
   {
     "id": "vx_404",
@@ -4847,8 +4847,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Гениальный.",
-    "exampleEn": "Example: genius."
+    "exampleRu": "Композитор создал поистине гениальное музыкальное произведение.",
+    "exampleEn": "The composer created a truly ingenious musical work."
   },
   {
     "id": "vx_405",
@@ -4859,8 +4859,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Глубокий.",
-    "exampleEn": "Example: deep."
+    "exampleRu": "Озеро Байкал — самое глубокое и чистое пресноводное озеро на планете.",
+    "exampleEn": "Lake Baikal is the deepest and cleanest freshwater lake on the planet."
   },
   {
     "id": "vx_406",
@@ -4871,8 +4871,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Грустно.",
-    "exampleEn": "Example: sad."
+    "exampleRu": "Было немного грустно прощаться с новыми друзьями в конце каникул.",
+    "exampleEn": "It was a bit sad to say goodbye to new friends at the end of holidays."
   },
   {
     "id": "vx_407",
@@ -4883,8 +4883,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Грязный.",
-    "exampleEn": "Example: dirty."
+    "exampleRu": "После долгой прогулки по осеннему лесу обувь была грязной.",
+    "exampleEn": "After a long walk through the autumn forest, the shoes were dirty."
   },
   {
     "id": "vx_408",
@@ -4895,8 +4895,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Дешёвый.",
-    "exampleEn": "Example: cheap."
+    "exampleRu": "Мы забронировали комфортный и дешёвый номер в историческом центре.",
+    "exampleEn": "We booked a comfortable and cheap room in the historic center."
   },
   {
     "id": "vx_409",
@@ -4907,8 +4907,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Дополнение.",
-    "exampleEn": "Example: add-on."
+    "exampleRu": "Полезное браузерное дополнение автоматически блокирует навязчивую рекламу.",
+    "exampleEn": "A useful browser add-on automatically blocks intrusive ads."
   },
   {
     "id": "vx_410",
@@ -4919,8 +4919,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Дёшево.",
-    "exampleEn": "Example: cheap."
+    "exampleRu": "На местном рынке свежие сезонные овощи стоят совсем дёшево.",
+    "exampleEn": "At the local market, fresh seasonal vegetables cost very cheap."
   },
   {
     "id": "vx_411",
@@ -4931,8 +4931,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Еврейский.",
-    "exampleEn": "Example: jewish."
+    "exampleRu": "В старинном квартале бережно сохраняется еврейский культурный центр.",
+    "exampleEn": "In the old quarter, the Jewish cultural center is carefully preserved."
   },
   {
     "id": "vx_412",
@@ -4943,8 +4943,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Ежедневно.",
-    "exampleEn": "Example: daily."
+    "exampleRu": "Ежедневно уделяйте хотя бы пятнадцать минут повторению новых слов.",
+    "exampleEn": "Daily dedicate at least fifteen minutes to reviewing new words."
   },
   {
     "id": "vx_413",
@@ -4955,8 +4955,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Железо.",
-    "exampleEn": "Example: hardware (metal)."
+    "exampleRu": "Для сборки нового мощного компьютера мы подобрали качественное железо.",
+    "exampleEn": "For assembling a new powerful computer we selected quality hardware."
   },
   {
     "id": "vx_414",
@@ -4967,8 +4967,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Заранее.",
-    "exampleEn": "Example: beforehand."
+    "exampleRu": "Билеты на популярный спектакль лучше приобретать заранее в кассе.",
+    "exampleEn": "Tickets for the popular play are better bought beforehand at the box office."
   },
   {
     "id": "vx_415",
@@ -4979,8 +4979,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Звучит весело.",
-    "exampleEn": "Example: sounds fun."
+    "exampleRu": "Твоя идея поехать на пикник к озеру звучит очень весело!",
+    "exampleEn": "Your idea to go for a picnic by the lake sounds very fun!"
   },
   {
     "id": "vx_416",
@@ -4991,8 +4991,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Звучит хорошо.",
-    "exampleEn": "Example: sounds good."
+    "exampleRu": "Предложение встретиться за чашкой кофе в субботу звучит хорошо.",
+    "exampleEn": "The offer to meet over a cup of coffee on Saturday sounds good."
   },
   {
     "id": "vx_417",
@@ -5003,8 +5003,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Зеркало.",
-    "exampleEn": "Example: mirror."
+    "exampleRu": "В прихожей на стене висело большое старинное зеркало в резной раме.",
+    "exampleEn": "In the hallway on the wall hung a large antique mirror in a carved frame."
   },
   {
     "id": "vx_418",
@@ -5015,8 +5015,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Злой.",
-    "exampleEn": "Example: angry."
+    "exampleRu": "Не стоит отвечать агрессией на злой и несдержанный комментарий.",
+    "exampleEn": "You shouldn't respond with aggression to an angry and unrestrained comment."
   },
   {
     "id": "vx_419",
@@ -5027,8 +5027,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Знаменитый.",
-    "exampleEn": "Example: well-known."
+    "exampleRu": "Эрмитаж — всемирно знаменитый музей изобразительного искусства.",
+    "exampleEn": "The Hermitage is a world-famous museum of fine arts."
   },
   {
     "id": "vx_420",
@@ -5039,8 +5039,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Идеально.",
-    "exampleEn": "Example: ideal."
+    "exampleRu": "Эта чистая и светлая квартира идеально подходит для молодой семьи.",
+    "exampleEn": "This clean and bright apartment is ideally suitable for a young family."
   },
   {
     "id": "vx_421",
@@ -5051,8 +5051,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Известный.",
-    "exampleEn": "Example: famous; well-known."
+    "exampleRu": "Этот известный русский роман переведён на десятки мировых языков.",
+    "exampleEn": "This famous Russian novel has been translated into dozens of world languages."
   },
   {
     "id": "vx_422",
@@ -5063,8 +5063,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Изменение.",
-    "exampleEn": "Example: a change (noun)."
+    "exampleRu": "Положительное изменение в оценках ученика порадовало родителей.",
+    "exampleEn": "The positive change in the student's grades pleased the parents."
   },
   {
     "id": "vx_423",
@@ -5075,8 +5075,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Кислый.",
-    "exampleEn": "Example: sour."
+    "exampleRu": "Свежий лимонный сок придаёт соусу приятный кислый оттенок.",
+    "exampleEn": "Fresh lemon juice gives the sauce a pleasant sour note."
   },
   {
     "id": "vx_424",
@@ -5087,8 +5087,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Короткий.",
-    "exampleEn": "Example: short (for objects' length)."
+    "exampleRu": "Короткий пятнадцатиминутный отдых помогает быстро восстановить силы.",
+    "exampleEn": "A short fifteen-minute rest helps quickly restore energy."
   },
   {
     "id": "vx_425",
@@ -5099,8 +5099,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Коротко.",
-    "exampleEn": "Example: shortly."
+    "exampleRu": "Лектор коротко и ёмко изложил суть новой научной теории.",
+    "exampleEn": "The lecturer shortly and concisely stated the essence of the new scientific theory."
   },
   {
     "id": "vx_426",
@@ -5111,8 +5111,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Лекарство.",
-    "exampleEn": "Example: medicine."
+    "exampleRu": "Врач выписал эффективное лекарство для быстрого снятия жара.",
+    "exampleEn": "The doctor prescribed an effective medicine for fast fever relief."
   },
   {
     "id": "vx_427",
@@ -5123,8 +5123,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Логично.",
-    "exampleEn": "Example: logically."
+    "exampleRu": "Это решение выглядит вполне логично в текущих рыночных условиях.",
+    "exampleEn": "This decision looks completely logical in the current market conditions."
   },
   {
     "id": "vx_428",
@@ -5135,8 +5135,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Местный.",
-    "exampleEn": "Example: local."
+    "exampleRu": "Местный гид показал нам тайные живописные уголки старого города.",
+    "exampleEn": "The local guide showed us secret picturesque corners of the old town."
   },
   {
     "id": "vx_429",
@@ -5147,8 +5147,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Место.",
-    "exampleEn": "Example: a place."
+    "exampleRu": "Это уютное место на набережной стало любимым уголком для встреч.",
+    "exampleEn": "This cozy place on the embankment became a favorite spot for meetings."
   },
   {
     "id": "vx_430",
@@ -5159,8 +5159,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мимо.",
-    "exampleEn": "Example: past."
+    "exampleRu": "Быстрый поезд промчался мимо маленькой провинциальной станции.",
+    "exampleEn": "The fast train sped past the small provincial station."
   },
   {
     "id": "vx_431",
@@ -5171,8 +5171,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мне надо.",
-    "exampleEn": "Example: I have to."
+    "exampleRu": "Мне надо закончить этот перевод до наступления вечера.",
+    "exampleEn": "I have to finish this translation before evening comes."
   },
   {
     "id": "vx_432",
@@ -5183,8 +5183,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мне не нужно.",
-    "exampleEn": "Example: I don't need."
+    "exampleRu": "Мне не нужно напоминать об этом, я уже внёс встречу в свой календарь.",
+    "exampleEn": "I don't need to be reminded of this, I already entered the meeting in my calendar."
   },
   {
     "id": "vx_433",
@@ -5195,8 +5195,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мне нужно.",
-    "exampleEn": "Example: I need to."
+    "exampleRu": "Мне нужно срочно проконсультироваться с преподавателем по поводу темы эссе.",
+    "exampleEn": "I need to urgently consult with the teacher regarding the essay topic."
   },
   {
     "id": "vx_434",
@@ -5207,8 +5207,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мне повезло.",
-    "exampleEn": "Example: I got lucky."
+    "exampleRu": "Мне очень повезло успеть на последний вечерний рейс автобуса.",
+    "exampleEn": "I got very lucky to catch the last evening bus trip."
   },
   {
     "id": "vx_435",
@@ -5219,8 +5219,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Молодой.",
-    "exampleEn": "Example: young."
+    "exampleRu": "Молодой специалист полон свежих новаторских идей и энергии.",
+    "exampleEn": "The young specialist is full of fresh innovative ideas and energy."
   },
   {
     "id": "vx_436",
@@ -5231,8 +5231,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Мудрый.",
-    "exampleEn": "Example: wise."
+    "exampleRu": "Мудрый наставник всегда даст ценный совет в сложной жизненной ситуации.",
+    "exampleEn": "A wise mentor will always give valuable advice in a complex life situation."
   },
   {
     "id": "vx_437",
@@ -5243,8 +5243,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: НЕбо.",
-    "exampleEn": "Example: sky."
+    "exampleRu": "На чистом вечернем небе ярко зажглись первые звёзды.",
+    "exampleEn": "In the clear evening sky, the first stars lit up brightly."
   },
   {
     "id": "vx_438",
@@ -5255,8 +5255,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Наверное.",
-    "exampleEn": "Example: maybe; probably."
+    "exampleRu": "Наверное, к концу недели погода окончательно наладится.",
+    "exampleEn": "Probably towards the end of the week the weather will settle completely."
   },
   {
     "id": "vx_439",
@@ -5267,8 +5267,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Намного больше.",
-    "exampleEn": "Example: way more."
+    "exampleRu": "В новом издании словаря содержится намного больше полезных примеров.",
+    "exampleEn": "The new dictionary edition contains way more useful examples."
   },
   {
     "id": "vx_440",
@@ -5279,8 +5279,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Настоящий.",
-    "exampleEn": "Example: present; real; genuine."
+    "exampleRu": "Настоящий друг познаётся в беде и никогда не оставит в трудную минуту.",
+    "exampleEn": "A genuine friend is known in trouble and will never leave in a difficult moment."
   },
   {
     "id": "vx_441",
@@ -5291,8 +5291,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Начатый.",
-    "exampleEn": "Example: started smth."
+    "exampleRu": "Начатый ремонт квартиры планируется полностью завершить к осени.",
+    "exampleEn": "The initiated apartment renovation is planned to be fully finished by autumn."
   },
   {
     "id": "vx_442",
@@ -5303,8 +5303,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Не все.",
-    "exampleEn": "Example: not all people."
+    "exampleRu": "Не все студенты сразу понимают сложные грамматические конструкции.",
+    "exampleEn": "Not all students immediately understand complex grammatical structures."
   },
   {
     "id": "vx_443",
@@ -5315,8 +5315,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Не каждый.",
-    "exampleEn": "Example: not everyone."
+    "exampleRu": "Не каждый человек способен легко выступать перед огромной аудиторией.",
+    "exampleEn": "Not everyone is capable of speaking easily before a huge audience."
   },
   {
     "id": "vx_444",
@@ -5327,8 +5327,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Недавно.",
-    "exampleEn": "Example: recently."
+    "exampleRu": "Мы недавно вернулись из незабываемого путешествия по Карелии.",
+    "exampleEn": "We recently returned from an unforgettable journey through Karelia."
   },
   {
     "id": "vx_445",
@@ -5339,8 +5339,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Низкий.",
-    "exampleEn": "Example: low; short."
+    "exampleRu": "Вдоль набережной установлен низкий декоративный чугунный забор.",
+    "exampleEn": "Along the embankment, a low decorative cast-iron fence is installed."
   },
   {
     "id": "vx_446",
@@ -5351,8 +5351,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Ничего особенного.",
-    "exampleEn": "Example: nothing special."
+    "exampleRu": "Ничего особенного не произошло, это обычная рабочая ситуация.",
+    "exampleEn": "Nothing special happened, this is a routine work situation."
   },
   {
     "id": "vx_447",
@@ -5363,8 +5363,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Образование.",
-    "exampleEn": "Example: education."
+    "exampleRu": "Качественное высшее образование открывает широкие карьерные перспективы.",
+    "exampleEn": "Quality higher education opens broad career prospects."
   },
   {
     "id": "vx_448",
@@ -5375,8 +5375,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Общий.",
-    "exampleEn": "Example: common."
+    "exampleRu": "У нас есть общий интерес к изучению славянских языков и культур.",
+    "exampleEn": "We have a common interest in studying Slavic languages and cultures."
   },
   {
     "id": "vx_449",
@@ -5387,8 +5387,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Обязательно.",
-    "exampleEn": "Example: definitely; mandatory."
+    "exampleRu": "Я обязательно позвоню тебе сразу после окончания совещания.",
+    "exampleEn": "I will definitely call you right after the end of the meeting."
   },
   {
     "id": "vx_450",
@@ -5399,8 +5399,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Одинаковый.",
-    "exampleEn": "Example: the same."
+    "exampleRu": "У этих двух похожих слов одинаковый корень и близкое значение.",
+    "exampleEn": "These two similar words have the same root and close meaning."
   },
   {
     "id": "vx_451",
@@ -5411,8 +5411,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Одно и тоже.",
-    "exampleEn": "Example: the same thing."
+    "exampleRu": "Повторять одно и то же правило многократно помогает довести навык до автоматизма.",
+    "exampleEn": "Repeating the same rule repeatedly helps bring the skill to automatism."
   },
   {
     "id": "vx_452",
@@ -5423,8 +5423,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Определение.",
-    "exampleEn": "Example: definition."
+    "exampleRu": "Точное толковое определение термина приведено в начале главы учебника.",
+    "exampleEn": "The exact explanatory definition of the term is given at the beginning of the textbook chapter."
   },
   {
     "id": "vx_453",
@@ -5435,8 +5435,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Определенный, специфический.",
-    "exampleEn": "Example: specific."
+    "exampleRu": "Для этой узкой сферы требуется определённый технический словарный запас.",
+    "exampleEn": "For this narrow sphere, a specific technical vocabulary is required."
   },
   {
     "id": "vx_454",
@@ -5447,8 +5447,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Особенный.",
-    "exampleEn": "Example: special."
+    "exampleRu": "У этого блюда особенный, ни с чем не сравнимый нежный аромат.",
+    "exampleEn": "This dish has a special, incomparable delicate aroma."
   },
   {
     "id": "vx_455",
@@ -5459,8 +5459,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Осторожный.",
-    "exampleEn": "Example: careful."
+    "exampleRu": "Будьте особенно осторожны на мокрой и скользкой дороге.",
+    "exampleEn": "Be especially careful on the wet and slippery road."
   },
   {
     "id": "vx_456",
@@ -5471,8 +5471,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Острожный.",
-    "exampleEn": "Example: careful."
+    "exampleRu": "Осторожный водитель всегда заблаговременно снижает скорость перед поворотом.",
+    "exampleEn": "A careful driver always reduces speed in advance before a turn."
   },
   {
     "id": "vx_457",
@@ -5483,8 +5483,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Острый.",
-    "exampleEn": "Example: spicy; sharp."
+    "exampleRu": "Острый соус с красным перцем идеально дополняет мясные блюда.",
+    "exampleEn": "Spicy sauce with red chili pepper complements meat dishes ideally."
   },
   {
     "id": "vx_458",
@@ -5495,8 +5495,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Перемирие.",
-    "exampleEn": "Example: truce."
+    "exampleRu": "Дипломаты заключили долгожданное перемирие для мирных переговоров.",
+    "exampleEn": "Diplomats concluded a long-awaited truce for peace talks."
   },
   {
     "id": "vx_459",
@@ -5507,8 +5507,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Пирожное.",
-    "exampleEn": "Example: pastry;."
+    "exampleRu": "В кондитерской подают восхитительное миндальное пирожное с ягодами.",
+    "exampleEn": "In the pastry shop they serve delightful almond pastry with berries."
   },
   {
     "id": "vx_460",
@@ -5519,8 +5519,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Питание.",
-    "exampleEn": "Example: power."
+    "exampleRu": "Здоровое сбалансированное питание необходимо для поддержания тонуса организма.",
+    "exampleEn": "Healthy balanced nutrition is essential for maintaining body tone."
   },
   {
     "id": "vx_461",
@@ -5531,8 +5531,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Подробный.",
-    "exampleEn": "Example: detailed."
+    "exampleRu": "Гид составил подробный план нашей трёхдневной экскурсии по городу.",
+    "exampleEn": "The guide drew up a detailed plan of our three-day city excursion."
   },
   {
     "id": "vx_462",
@@ -5543,8 +5543,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Пожилой.",
-    "exampleEn": "Example: elderly."
+    "exampleRu": "Пожилой профессор читал лекцию с глубоким вдохновением и знанием дела.",
+    "exampleEn": "The elderly professor delivered the lecture with deep inspiration and expertise."
   },
   {
     "id": "vx_463",
@@ -5555,8 +5555,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Полезный.",
-    "exampleEn": "Example: useful; healthy."
+    "exampleRu": "Свежие фрукты и овощи чрезвычайно полезны для укрепления иммунитета.",
+    "exampleEn": "Fresh fruits and vegetables are extremely beneficial for boosting immunity."
   },
   {
     "id": "vx_464",
@@ -5567,8 +5567,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Посередине.",
-    "exampleEn": "Example: in the middle."
+    "exampleRu": "Большой круглый стол стоял прямо посередине просторной гостиной.",
+    "exampleEn": "A large round table stood right in the middle of the spacious living room."
   },
   {
     "id": "vx_465",
@@ -5579,8 +5579,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Прозрачный.",
-    "exampleEn": "Example: see-through."
+    "exampleRu": "Чистая прозрачная вода горного ручья была необычайно холодной.",
+    "exampleEn": "Clean transparent water of the mountain stream was remarkably cold."
   },
   {
     "id": "vx_466",
@@ -5591,8 +5591,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Простой.",
-    "exampleEn": "Example: idle."
+    "exampleRu": "Это самое простое и наглядное объяснение сложного правила.",
+    "exampleEn": "This is the simplest and clearest explanation of the complex rule."
   },
   {
     "id": "vx_467",
@@ -5603,8 +5603,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Прохладный.",
-    "exampleEn": "Example: chilly."
+    "exampleRu": "Вечером подул приятный прохладный ветерок с морского берега.",
+    "exampleEn": "In the evening, a pleasant cool breeze blew from the sea shore."
   },
   {
     "id": "vx_468",
@@ -5615,8 +5615,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Пусто.",
-    "exampleEn": "Example: empty."
+    "exampleRu": "Поздней ночью в читальном зале библиотеки было абсолютно пусто и тихо.",
+    "exampleEn": "Late at night in the library reading room it was completely empty and quiet."
   },
   {
     "id": "vx_469",
@@ -5627,8 +5627,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Равно.",
-    "exampleEn": "Example: equal."
+    "exampleRu": "Два плюс два всегда равно четырём в математической логике.",
+    "exampleEn": "Two plus two is always equal to four in mathematical logic."
   },
   {
     "id": "vx_470",
@@ -5639,8 +5639,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Распространённый.",
-    "exampleEn": "Example: common."
+    "exampleRu": "Это наиболее распространённый грамматический оборот в современной речи.",
+    "exampleEn": "This is the most common grammatical construction in modern speech."
   },
   {
     "id": "vx_471",
@@ -5651,8 +5651,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Русскоговорящий.",
-    "exampleEn": "Example: Russian-speaking."
+    "exampleRu": "В международном клубе есть много русскоговорящих студентов из разных стран.",
+    "exampleEn": "In the international club there are many Russian-speaking students from different countries."
   },
   {
     "id": "vx_472",
@@ -5663,8 +5663,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Свободный.",
-    "exampleEn": "Example: free."
+    "exampleRu": "В субботу у меня будет абсолютно свободный день для отдыха и чтения.",
+    "exampleEn": "On Saturday I will have an absolutely free day for rest and reading."
   },
   {
     "id": "vx_473",
@@ -5675,8 +5675,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Семейный.",
-    "exampleEn": "Example: family (adjective)."
+    "exampleRu": "Тёплый семейный ужин за большим столом сближает всех родных.",
+    "exampleEn": "A warm family dinner at a large table brings all relatives closer."
   },
   {
     "id": "vx_474",
@@ -5687,8 +5687,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Скучный.",
-    "exampleEn": "Example: boring."
+    "exampleRu": "Фильм оказался довольно скучным, и мы решили не досматривать его до конца.",
+    "exampleEn": "The movie turned out rather boring, and we decided not to watch it to the end."
   },
   {
     "id": "vx_475",
@@ -5699,8 +5699,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Сладкий.",
-    "exampleEn": "Example: sweet."
+    "exampleRu": "Спелый сочный арбуз был невероятно сладким и освежающим.",
+    "exampleEn": "The ripe juicy watermelon was incredibly sweet and refreshing."
   },
   {
     "id": "vx_476",
@@ -5711,8 +5711,8 @@ const exampleVocabulary = [
     "pos": "phrase",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Следуй за мной.",
-    "exampleEn": "Example: follow me."
+    "exampleRu": "Следуй за мной по этой лесной тропинке, я знаю самый короткий путь.",
+    "exampleEn": "Follow me along this forest path, I know the shortest way."
   },
   {
     "id": "vx_477",
@@ -5723,8 +5723,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Слепо.",
-    "exampleEn": "Example: blindly."
+    "exampleRu": "Не стоит слепо доверять непроверенной информации из случайных источников.",
+    "exampleEn": "You shouldn't blindly trust unverified information from random sources."
   },
   {
     "id": "vx_478",
@@ -5735,8 +5735,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Случайный.",
-    "exampleEn": "Example: accidental; random."
+    "exampleRu": "Случайный прохожий помог нам найти дорогу к историческому музею.",
+    "exampleEn": "A random passerby helped us find the way to the historical museum."
   },
   {
     "id": "vx_479",
@@ -5747,8 +5747,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Сочный.",
-    "exampleEn": "Example: juicy."
+    "exampleRu": "Сочный спелый апельсин отлично утоляет жажду в жаркий день.",
+    "exampleEn": "A juicy ripe orange quenches thirst excellently on a hot day."
   },
   {
     "id": "vx_480",
@@ -5759,8 +5759,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Средний.",
-    "exampleEn": "Example: middle."
+    "exampleRu": "Средний балл по результатам экзамена в группе оказался очень высоким.",
+    "exampleEn": "The average grade for the exam results in the group turned out very high."
   },
   {
     "id": "vx_481",
@@ -5771,8 +5771,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Так же.",
-    "exampleEn": "Example: the same."
+    "exampleRu": "Он говорит по-русски так же бегло и естественно, как носитель языка.",
+    "exampleEn": "He speaks Russian as fluently and naturally as a native speaker."
   },
   {
     "id": "vx_482",
@@ -5783,8 +5783,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Также.",
-    "exampleEn": "Example: also; as well."
+    "exampleRu": "Мы посетили Эрмитаж, а также побывали на экскурсии в Петергофе.",
+    "exampleEn": "We visited the Hermitage, and also went on an excursion to Peterhof."
   },
   {
     "id": "vx_483",
@@ -5795,8 +5795,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Такой же.",
-    "exampleEn": "Example: the same."
+    "exampleRu": "У моего друга точно такой же практичный рюкзак для ноутбука.",
+    "exampleEn": "My friend has exactly the same practical backpack for a laptop."
   },
   {
     "id": "vx_484",
@@ -5807,8 +5807,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Тебе.",
-    "exampleEn": "Example: dative."
+    "exampleRu": "Я хочу подарить тебе эту редкую иллюстрированную книгу на память.",
+    "exampleEn": "I want to gift you this rare illustrated book as a keepsake."
   },
   {
     "id": "vx_485",
@@ -5819,8 +5819,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Терпкий.",
-    "exampleEn": "Example: tart."
+    "exampleRu": "Натуральный гранатовый сок имеет приятный терпкий вкус.",
+    "exampleEn": "Natural pomegranate juice has a pleasant tart taste."
   },
   {
     "id": "vx_486",
@@ -5831,8 +5831,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Тесно.",
-    "exampleEn": "Example: tight space."
+    "exampleRu": "В вагоне метро в утренний час пик было довольно тесно.",
+    "exampleEn": "In the metro car during the morning rush hour it was quite crowded."
   },
   {
     "id": "vx_487",
@@ -5843,8 +5843,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Толстый.",
-    "exampleEn": "Example: thick; fat."
+    "exampleRu": "На книжной полке стоял толстый академический словарь русского языка.",
+    "exampleEn": "On the bookshelf stood a thick academic dictionary of the Russian language."
   },
   {
     "id": "vx_488",
@@ -5855,8 +5855,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Тонкий.",
-    "exampleEn": "Example: thin."
+    "exampleRu": "Тонкий слой первого снега покрыл пожелтевшую траву на поляне.",
+    "exampleEn": "A thin layer of first snow covered the yellowed grass in the clearing."
   },
   {
     "id": "vx_489",
@@ -5867,8 +5867,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Тот же / этот же.",
-    "exampleEn": "Example: the same."
+    "exampleRu": "Мы встретились в том же уютном кафе на углу проспекта.",
+    "exampleEn": "We met at that very same cozy cafe at the corner of the avenue."
   },
   {
     "id": "vx_490",
@@ -5879,8 +5879,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Тяжелый.",
-    "exampleEn": "Example: heavy."
+    "exampleRu": "Грузчик аккуратно поднял тяжёлый чемодан и поставил его в багажник.",
+    "exampleEn": "The loader carefully lifted the heavy suitcase and placed it in the trunk."
   },
   {
     "id": "vx_491",
@@ -5891,8 +5891,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Уверенный.",
-    "exampleEn": "Example: confident; sure / confident."
+    "exampleRu": "Уверенный ответ студента на экзамене произвёл отличное впечатление на комиссию.",
+    "exampleEn": "The student's confident answer at the exam made an excellent impression on the board."
   },
   {
     "id": "vx_492",
@@ -5903,8 +5903,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Увольнение.",
-    "exampleEn": "Example: firing."
+    "exampleRu": "Приказ об увольнении сотрудника по собственному желанию был подписан директором.",
+    "exampleEn": "The order on firing the employee of their own accord was signed by the director."
   },
   {
     "id": "vx_493",
@@ -5915,8 +5915,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Удивительный.",
-    "exampleEn": "Example: surprising."
+    "exampleRu": "Северное сияние — это поистине удивительное природное явление.",
+    "exampleEn": "The Northern Lights are a truly amazing natural phenomenon."
   },
   {
     "id": "vx_494",
@@ -5927,8 +5927,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Удобно.",
-    "exampleEn": "Example: comfortable; convenient."
+    "exampleRu": "В этом эргономичном кресле очень удобно работать за компьютером весь день.",
+    "exampleEn": "In this ergonomic chair it is very comfortable to work at the computer all day."
   },
   {
     "id": "vx_495",
@@ -5939,8 +5939,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Удобный.",
-    "exampleEn": "Example: comfortable; convenient."
+    "exampleRu": "Удобный пользовательский интерфейс программы понятен с первых минут.",
+    "exampleEn": "The convenient user interface of the program is understandable from the first minutes."
   },
   {
     "id": "vx_496",
@@ -5951,8 +5951,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Узкий.",
-    "exampleEn": "Example: narrow."
+    "exampleRu": "Старинные улочки старого города были настолько узкими, что там не ходили машины.",
+    "exampleEn": "The ancient streets of the old town were so narrow that cars didn't drive there."
   },
   {
     "id": "vx_497",
@@ -5963,8 +5963,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Успешный.",
-    "exampleEn": "Example: successfull."
+    "exampleRu": "Успешный стартап быстро привлёк внимание крупных международных инвесторов.",
+    "exampleEn": "The successful startup quickly attracted the attention of major international investors."
   },
   {
     "id": "vx_498",
@@ -5975,8 +5975,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Учебный.",
-    "exampleEn": "Example: educational."
+    "exampleRu": "Учебный план семестра включает лекции, семинары и практические задания.",
+    "exampleEn": "The semester curriculum includes lectures, seminars, and practical assignments."
   },
   {
     "id": "vx_499",
@@ -5987,8 +5987,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Фиксированный.",
-    "exampleEn": "Example: fixed."
+    "exampleRu": "Контракт предусматривает фиксированный размер ежемесячной оплаты труда.",
+    "exampleEn": "The contract provides for a fixed amount of monthly labor compensation."
   },
   {
     "id": "vx_500",
@@ -5999,8 +5999,8 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Хорошее качество.",
-    "exampleEn": "Example: good quality."
+    "exampleRu": "Это аудиотехника исключительно хорошего качества с чистым звучанием.",
+    "exampleEn": "This is audio equipment of exceptionally good quality with clean sound."
   },
   {
     "id": "vx_501",
@@ -6011,8 +6011,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Чистый.",
-    "exampleEn": "Example: clean; clear."
+    "exampleRu": "Горный воздух на вершине был поразительно чистым и свежим.",
+    "exampleEn": "Mountain air at the summit was remarkably clean and fresh."
   },
   {
     "id": "vx_502",
@@ -6023,8 +6023,8 @@ const exampleVocabulary = [
     "pos": "adjective",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Широкий.",
-    "exampleEn": "Example: wide."
+    "exampleRu": "Широкий центральный проспект ярко освещён вечерними огнями.",
+    "exampleEn": "The wide central avenue is brightly illuminated by evening lights."
   },
   {
     "id": "vx_503",
@@ -6035,16 +6035,14 @@ const exampleVocabulary = [
     "pos": "adverb",
     "category": "Adjectives & Adverbs",
     "level": "B1",
-    "exampleRu": "Пример: Эго.",
-    "exampleEn": "Example: ego."
+    "exampleRu": "Здоровое эго помогает человеку сохранять чувство собственного достоинства.",
+    "exampleEn": "A healthy ego helps a person maintain a sense of self-dignity."
   }
 ];
 
-// Expose to window for app usage
 if (typeof window !== "undefined") {
   window.exampleVocabulary = exampleVocabulary;
 }
-
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { exampleVocabulary };
 }
