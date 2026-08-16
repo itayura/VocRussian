@@ -2264,12 +2264,16 @@
           (translatedVal) => {
             const transEl = document.getElementById("visual-translation-back");
             if (transEl) transEl.innerText = translatedVal;
+            const transFrontEl = document.getElementById("visual-translation-front");
+            if (transFrontEl) transFrontEl.innerText = translatedVal;
           },
           "ru"
         );
       }
       const transEl = document.getElementById("visual-translation-back");
       if (transEl) transEl.innerText = translationText;
+      const transFrontEl = document.getElementById("visual-translation-front");
+      if (transFrontEl) transFrontEl.innerText = translationText;
 
       let exampleEnText = card.exampleEn || "";
       if (card.exampleEn) {

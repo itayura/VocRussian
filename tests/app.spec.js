@@ -1015,11 +1015,15 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#view-study-active')).toHaveClass(/active/);
     await expect(page.locator('#study-sub-visual')).toBeVisible();
 
-    // Verify visual art image is loaded
+    // Verify visual art image is loaded and translation is visible under the card
     const frontImg = page.locator('#visual-img-front');
     await expect(frontImg).toBeVisible();
     const imgSrc = await frontImg.getAttribute('src');
     expect(imgSrc).toContain('assets/images/words/');
+
+    const frontTranslation = page.locator('#visual-translation-front');
+    await expect(frontTranslation).toBeVisible();
+    await expect(frontTranslation).not.toBeEmpty();
 
     // 5. Flip visual card
     await page.locator('#visual-click-wrapper').click();
