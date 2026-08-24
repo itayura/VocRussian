@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const path = require("node:path");
 const vm = require("node:vm");
 
 function makeStorage(initial = {}) {
@@ -268,7 +269,20 @@ test("offline grammar engine provides 14 structured lessons, validated question 
   
   QUESTIONS.forEach(q => {
     assert.equal(grammar.isValidQuizQuestion(q, [q.topicId]), true, `Question ${q.id} failed validation: ${JSON.stringify(q)}`);
+    assert.equal(/[\u0400-\u04ff]/u.test(q.transliteration), false, `Question ${q.id} contains Cyrillic in its transliteration`);
   });
+
+  const a1Questions = GrammarOffline.getQuestions([], QUESTIONS.length, "A1");
+  assert.ok(a1Questions.length > 0, "Expected A1 offline questions");
+  assert.ok(a1Questions.every(q => q.cefr === "A1"), "A1 questions must carry A1 evidence");
+  assert.ok(a1Questions.every(q => /A1/.test(GrammarOffline.getLesson(q.topicId).level)), "A1 quiz included a topic outside the selected level");
+
+  const b1Questions = GrammarOffline.getQuestions(["instrumental_case"], 3, "B1");
+  assert.equal(b1Questions.length, 3);
+  assert.ok(b1Questions.every(q => q.topicId === "instrumental_case" && q.cefr === "B1"));
+  assert.deepEqual(GrammarOffline.getQuestions(["nominative_case"], 3, "B1"), []);
+  assert.deepEqual(GrammarOffline.getQuestions([], 3, "C2"), []);
+  assert.deepEqual(GrammarOffline.getQuestions(["not_a_topic"], 3, "A1"), []);
 
   // Verify Matrix Drills
   const endingDrill = GrammarOffline.getEndingPickerDrill();
@@ -283,4 +297,124 @@ test("offline grammar engine provides 14 structured lessons, validated question 
   assert.equal(aspectRound.pairs.length, 5);
   assert.equal(aspectRound.left.length, 5);
   assert.equal(aspectRound.right.length, 5);
+});
+
+test("offline grammar question bank has no learner-facing labels or duplicate prompts", () => {
+  const { GrammarOffline } = require("../js/grammar_offline.js");
+  const report = GrammarOffline.validateQuestionBank();
+  assert.equal(report.valid, true, JSON.stringify(report.errors));
+  assert.ok(report.total >= 154);
+  assert.ok(report.byLevel.A1 > 0);
+  assert.ok(report.byLevel.A2 > 0);
+  assert.ok(report.byLevel.B1 > 0);
+});
+
+test("grammar quiz feedback is choice-aware for correct and incorrect answers", () => {
+  const grammar = loadGrammar();
+  const question = {
+    answer: "книгу",
+    explanation: "The direct object takes the Accusative form here."
+  };
+  const correct = grammar.buildQuizFeedback(question, "кни́гу");
+  assert.equal(correct.isCorrect, true);
+  assert.match(correct.text, /fits this sentence/);
+  const incorrect = grammar.buildQuizFeedback(question, "книге");
+  assert.equal(incorrect.isCorrect, false);
+  assert.match(incorrect.text, /книгу/);
+  assert.match(incorrect.text, /книге/);
+});
+
+test("visual generation planner deduplicates expanded concepts and emits mobile-safe jobs", () => {
+  const {
+    BUILTIN_GENERATION,
+    TARGET,
+    loadDeck,
+    buildVisualPlan
+  } = require("../scripts/plan-visual-generation.js");
+
+  const words = loadDeck("expanded", path.resolve(__dirname, ".."));
+  const plan = buildVisualPlan(words, { deck: "expanded" });
+
+  assert.equal(plan.stats.words, 3376);
+  assert.ok(plan.stats.uniqueConcepts < plan.stats.words);
+  assert.ok(plan.stats.reusedMappings > 0);
+  assert.deepEqual(TARGET, { width: 768, height: 512, format: "webp", maxBytes: 100000 });
+  assert.deepEqual(BUILTIN_GENERATION, {
+    mode: "built-in-imagegen",
+    callsPerAsset: 1,
+    sourceFormat: "png"
+  });
+  assert.match(plan.jobs[0].prompt, /readable at 320 CSS pixels wide/);
+  assert.match(plan.jobs[0].prompt, /no text, letters, numbers/);
+  assert.equal(plan.jobs[0].generationMode, "built-in-imagegen");
+  assert.equal(plan.jobs[0].callsPerAsset, 1);
+  assert.equal(plan.jobs[0].priorityRank, 1);
+  assert.ok(plan.jobs.every((job, index) => index === 0 || plan.jobs[index - 1].priorityRank <= job.priorityRank));
+  assert.equal(Object.hasOwn(plan.jobs[0], "model"), false);
+  assert.match(plan.jobs[0].finalFile, /^expanded\/concepts\/concept-[a-f0-9]{16}\.webp$/);
+  assert.equal(Object.keys(plan.wordMap).length, 3376);
+});
+
+test("visual runtime manifest keeps only published files and serializes valid browser code", () => {
+  const {
+    collectCompletedAssets,
+    collectStandardAssets,
+    keepExistingAssets,
+    sortAssets,
+    serializeManifest
+  } = require("../scripts/write-visual-runtime-manifest.js");
+  const assetRoot = fs.mkdtempSync(path.join(process.cwd(), "scratch", "visual-manifest-test-"));
+
+  try {
+    fs.mkdirSync(path.join(assetRoot, "expanded", "concepts"), { recursive: true });
+    fs.writeFileSync(path.join(assetRoot, "v_2.webp"), "webp");
+    fs.writeFileSync(path.join(assetRoot, "expanded", "concepts", "concept-ready.webp"), "webp");
+
+    const retained = keepExistingAssets({ v_10: "missing.webp" }, assetRoot);
+    const standard = collectStandardAssets(assetRoot);
+    const completed = collectCompletedAssets({
+      assets: {
+        ve_1: { file: "expanded/concepts/concept-ready.webp" },
+        ve_2: { file: "expanded/concepts/concept-missing.webp" }
+      }
+    }, assetRoot);
+    const assets = sortAssets({ ...retained, ...standard, ...completed });
+    assert.deepEqual(assets, {
+      v_2: "v_2.webp",
+      ve_1: "expanded/concepts/concept-ready.webp"
+    });
+
+    const source = serializeManifest({
+      version: "test-v1",
+      basePath: "https://cdn.example.test/visuals",
+      target: { width: 768, height: 512, format: "webp", maxBytes: 100000 },
+      assets
+    });
+    const sandbox = { window: {} };
+    vm.runInNewContext(source, sandbox);
+    assert.equal(sandbox.window.visualAssetManifest.version, "test-v1");
+    assert.deepEqual(
+      { ...sandbox.window.visualAssetManifest.assets },
+      assets
+    );
+  } finally {
+    fs.rmSync(assetRoot, { recursive: true, force: true });
+  }
+});
+
+test("visual replanning removes stale generated batches without touching other files", () => {
+  const { clearGeneratedBatchFiles } = require("../scripts/plan-visual-generation.js");
+  const batchRoot = fs.mkdtempSync(path.join(process.cwd(), "scratch", "visual-batch-test-"));
+
+  try {
+    fs.writeFileSync(path.join(batchRoot, "batch-0001-of-0029.jsonl"), "stale");
+    fs.writeFileSync(path.join(batchRoot, "batch-0029-of-0029.jsonl"), "stale");
+    fs.writeFileSync(path.join(batchRoot, "generation-notes.json"), "keep");
+    assert.equal(clearGeneratedBatchFiles(batchRoot), 2);
+    assert.equal(fs.existsSync(path.join(batchRoot, "batch-0001-of-0029.jsonl")), false);
+    assert.equal(fs.existsSync(path.join(batchRoot, "batch-0029-of-0029.jsonl")), false);
+    assert.equal(fs.existsSync(path.join(batchRoot, "generation-notes.json")), true);
+  } finally {
+    fs.rmSync(batchRoot, { recursive: true, force: true });
+  }
 });

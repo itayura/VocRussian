@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Privyetik - Learn Russian</title>
   <meta name="description" content="A premium, local language learning app to master Russian grammar case system, alphabet, and vocabulary.">
-  <link rel="stylesheet" href="css/styles.css?v=39">
+  <link rel="stylesheet" href="css/styles.css?v=41">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b0f19">
   
@@ -197,7 +197,7 @@
                 <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                 <line x1="12" y1="17" x2="12.01" y2="17"></line>
               </svg>
-              <span>AI Grammar</span>
+              <span>Grammar</span>
             </button>
           </li>
           <li class="nav-item" data-target="sync">
@@ -790,44 +790,59 @@
           <div id="study-sub-visual" class="study-stage-component" style="display: none;">
             <div class="flashcard-wrapper" id="visual-click-wrapper">
               <div class="flashcard-inner">
-                <!-- Front Side: Full Bleed Visual Art (Picture Fills Whole Card, No Russian Word) -->
+                <!-- Front Side: mnemonic scene only. The answer stays hidden until reveal. -->
                 <div class="card-face card-face-front visual-card-front">
-                  <span class="card-category-tag" id="visual-category-front" style="position: absolute; top: 12px; left: 12px; z-index: 5; margin: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem;">Nouns</span>
-                  <button class="card-star-btn" id="visual-star-btn" style="position: absolute; top: 12px; right: 12px; z-index: 5; margin: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">★</button>
-                  <img id="visual-img-front" src="" alt="Visual Art" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit;" />
-                  <div class="flip-prompt" id="visual-flip-prompt" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 5; margin: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; color: #fff; white-space: nowrap; pointer-events: none; border: 1px solid rgba(255, 255, 255, 0.15);">
-                    <kbd style="background: rgba(255, 255, 255, 0.2); color: #fff; border-color: rgba(255, 255, 255, 0.3);">Space</kbd> or click to flip
+                  <span class="card-category-tag visual-glass-chip" id="visual-category-front">Nouns</span>
+                  <button class="card-star-btn visual-star-btn visual-glass-chip" id="visual-star-btn" aria-label="Star this word">★</button>
+                  <img id="visual-img-front" src="" alt="" aria-hidden="true" draggable="false" decoding="async" />
+                  <div id="visual-art-fallback-front" class="visual-art-fallback" hidden>
+                    <span class="visual-art-fallback-icon" aria-hidden="true">✦</span>
+                    <span>Picture unavailable</span>
+                  </div>
+                  <div class="visual-front-vignette" aria-hidden="true"></div>
+                  <div class="flip-prompt visual-flip-prompt" id="visual-flip-prompt">
+                    <strong>Reveal Russian</strong>
+                    <span><kbd>Space</kbd> or tap</span>
                   </div>
                 </div>
-                <!-- Back Side: Full Details (Russian Word, Accents, Translit, Translation, Example) -->
+                <!-- Back Side: answer hierarchy and a compact example panel. -->
                 <div class="card-face card-face-back visual-card-back">
-                  <span class="card-category-tag" id="visual-category-back">Nouns</span>
-                  <div id="visual-img-container-back" style="width: 60px; height: 60px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-glass); margin-bottom: 0.2rem; flex-shrink: 0;">
-                    <img id="visual-img-back" src="" alt="Visual Art" style="width: 100%; height: 100%; object-fit: cover;" />
+                  <div class="visual-back-header">
+                    <span class="card-category-tag" id="visual-category-back">Nouns</span>
+                    <span class="visual-answer-label">Answer</span>
                   </div>
-                  <div class="card-word-title" id="visual-word-back" style="font-size: 1.8rem; margin: 0;">Дом</div>
-                  <div class="card-word-translit" id="visual-translit-back" style="font-size: 0.95rem; margin: 0;">[dom]</div>
-                  <div class="card-word-translation" id="visual-translation-back" style="font-size: 1.15rem; color: var(--color-primary-hover); font-weight: 600; margin-top: 0.15rem;">House / Home</div>
-                  <div class="card-word-pos" id="visual-pos-back" style="margin-bottom: 0.15rem;">Noun</div>
-                  <div class="card-word-example-ru" id="visual-example-ru-back" style="font-size: 0.9rem;">Я хочу пойти домой.</div>
-                  <div class="card-word-example-en" id="visual-example-en-back" style="font-size: 0.8rem; color: var(--color-text-muted);">I want to go home.</div>
-                  <div class="flip-prompt" style="margin-top: 0.25rem;">
-                    Click to flip back
+                  <div class="visual-answer-row">
+                    <div id="visual-img-container-back" class="visual-back-thumb">
+                      <img id="visual-img-back" src="" alt="" aria-hidden="true" draggable="false" decoding="async" />
+                      <span id="visual-art-fallback-back" class="visual-back-thumb-fallback" hidden aria-hidden="true">✦</span>
+                    </div>
+                    <div class="visual-answer-copy">
+                      <div class="card-word-title" id="visual-word-back">Дом</div>
+                      <div class="card-word-translit" id="visual-translit-back">[dom]</div>
+                      <div class="card-word-translation" id="visual-translation-back">House / Home</div>
+                    </div>
+                  </div>
+                  <div class="card-word-pos" id="visual-pos-back">Noun</div>
+                  <div class="visual-example-panel">
+                    <div class="visual-example-label">In context</div>
+                    <div class="card-word-example-ru" id="visual-example-ru-back">Я хочу пойти домой.</div>
+                    <div class="card-word-example-en" id="visual-example-en-back">I want to go home.</div>
+                  </div>
+                  <div class="flip-prompt visual-back-flip-prompt">
+                    Tap the card to see the picture again
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Front Translation Under Card Prompt -->
-            <div id="visual-translation-under-card" class="visual-translation-under">
-              <div class="visual-translation-pill">
-                <span class="visual-translation-label">Meaning:</span>
-                <span id="visual-translation-front" class="visual-translation-value">House / Home</span>
-              </div>
+            <!-- Recall cue intentionally avoids revealing the translation. -->
+            <div id="visual-recall-cue" class="visual-recall-cue">
+              <span class="visual-recall-kicker">Picture → Russian</span>
+              <span class="visual-recall-instruction">Say the word aloud, then reveal it.</span>
             </div>
 
             <!-- SRS Rating Controls (shown when card is flipped) -->
-            <div class="srs-buttons-panel" id="visual-rating-panel" style="margin-top: 1rem; opacity: 0.3; pointer-events: none;">
+            <div class="srs-buttons-panel" id="visual-rating-panel" style="opacity: 0.3; pointer-events: none;">
               <button class="btn srs-btn btn-danger" id="visual-score-1">
                 <span>Hard / Forgot</span>
                 <span>Box 1 <kbd>1</kbd></span>
@@ -986,11 +1001,11 @@
         </div>
       </section>
 
-      <!-- VIEW: AI GRAMMAR -->
+      <!-- VIEW: GRAMMAR -->
       <section id="view-grammar" class="view-section">
         <div class="page-header">
           <div>
-            <h1 class="page-title">AI Grammar Workspace</h1>
+            <h1 class="page-title">Grammar Workspace</h1>
             <p class="page-subtitle">Learn rules, practice quizzes, and get grammar corrections powered by AI.</p>
           </div>
           <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
@@ -1669,7 +1684,8 @@
                 </span>
               </div>
               <select id="settings-visual-theme" class="filter-select" style="min-width: 160px; width: auto; margin: 0; background-color: var(--bg-input);">
-                <option value="clay" selected>🎨 3D Clay / Tactile</option>
+                <option value="memory" selected>🌌 Memory Scenes</option>
+                <option value="clay">🎨 3D Clay / Tactile</option>
                 <option value="vector">📐 Modern Flat Vector</option>
                 <option value="storybook">📖 Storybook Watercolor</option>
                 <option value="glossy">✨ Glossy Frosted 3D</option>
@@ -1686,20 +1702,6 @@
               </div>
               <label class="switch-container">
                 <input type="checkbox" id="settings-visual-feature-flag">
-                <span class="switch-slider"></span>
-              </label>
-            </div>
-
-            <!-- Offline Grammar Feature Flag Toggle (Beta) -->
-            <div id="settings-offline-grammar-row" style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-              <div>
-                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Offline Grammar Engine & Drills (Beta)</strong>
-                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
-                  Instant 0ms offline lessons, 150+ curated quizzes, and interactive Matrix Drills (Ending Picker, Case Detective, Aspect Matcher).
-                </span>
-              </div>
-              <label class="switch-container">
-                <input type="checkbox" id="settings-offline-grammar-flag">
                 <span class="switch-slider"></span>
               </label>
             </div>
@@ -2602,6 +2604,7 @@
   <script src="js/db.js"></script>
   <script src="js/db_expanded.js"></script>
   <script src="js/db_example.js"></script>
+  <script src="js/visual_assets.js"></script>
   <script src="js/srs.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/grammar_offline.js"></script>

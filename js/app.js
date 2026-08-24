@@ -647,7 +647,7 @@
       const selection = window.getSelection();
       const text = selection.toString().trim();
       
-      // Check if selection is within the AI Grammar workspace
+      // Check if selection is within the Grammar workspace
       const isWithinGrammar = selection.anchorNode && 
         (selection.anchorNode.parentElement.closest("#view-grammar") || false);
          
@@ -946,6 +946,7 @@
     } else if (targetViewId === "sync") {
       renderSyncData();
     } else if (targetViewId === "grammar") {
+      refreshOfflineGrammarFeatureAccess();
       if (window.GrammarManager) {
         window.GrammarManager.updateGrammarLevelUI();
         window.GrammarManager.updateGrammarPracticeMasteryUI();
@@ -963,6 +964,7 @@
         window.AlphabetManager.init();
       }
     } else if (targetViewId === "settings") {
+      refreshOfflineGrammarFeatureAccess();
       updateSettingsBackupUI();
     }
 
@@ -1377,15 +1379,24 @@
   // Export to window so it can be called from DOMContentLoaded
   window.loadStudySessionSettings = loadStudySessionSettings;
 
+  function hasAuthenticatedFeatureFlag(flagName) {
+    const user = window.SupabaseSync && window.SupabaseSync.user;
+    const flags = user && user.app_metadata && user.app_metadata.feature_flags;
+    if (Array.isArray(flags)) return flags.includes(flagName);
+    return Boolean(flags && typeof flags === "object" && flags[flagName] === true);
+  }
+  window.hasAuthenticatedFeatureFlag = hasAuthenticatedFeatureFlag;
+
   function isVisualFeatureEnabled() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has("feature_visual") || urlParams.has("visual") || urlParams.has("dev")) {
       localStorage.setItem("voc_feature_visual_mode", "true");
       return true;
     }
+    if (hasAuthenticatedFeatureFlag("visual_mode")) return true;
     if (window.SupabaseSync && window.SupabaseSync.user) {
       const email = (window.SupabaseSync.user.email || "").toLowerCase().trim();
-      if (email === "itayura@gmail.com" || email === "itayuralevich@gmail.com" || email.includes("itayura")) {
+      if (email === "itayura@gmail.com" || email === "itayuralevich@gmail.com") {
         return true;
       }
     }
@@ -1394,29 +1405,79 @@
   window.isVisualFeatureEnabled = isVisualFeatureEnabled;
 
   function isOfflineGrammarFeatureEnabled() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has("feature_offline_grammar") || urlParams.has("offline_grammar") || urlParams.has("grammar_offline") || urlParams.has("dev")) {
-      localStorage.setItem("voc_feature_offline_grammar", "true");
-      return true;
-    }
-    if (window.SupabaseSync && window.SupabaseSync.user) {
-      const email = (window.SupabaseSync.user.email || "").toLowerCase().trim();
-      if (email === "itayura@gmail.com" || email === "itayuralevich@gmail.com" || email.includes("itayura")) {
-        return true;
-      }
-    }
-    return localStorage.getItem("voc_feature_offline_grammar") === "true";
+    // Offline grammar is part of the standard Grammar workspace for every user.
+    return true;
   }
   window.isOfflineGrammarFeatureEnabled = isOfflineGrammarFeatureEnabled;
 
-  function getWordVisualArtUrl(wordId, themeOverride = null) {
-    const theme = themeOverride || localStorage.getItem("voc_visual_theme") || "clay";
-    if (wordId === "v_32") {
-      return `assets/images/words/${theme}/v_32.jpg`;
+  function refreshOfflineGrammarFeatureAccess() {
+    const enabled = isOfflineGrammarFeatureEnabled();
+    if (window.GrammarManager) {
+      window.GrammarManager.initEngineSelector();
+      window.GrammarManager.initPracticeModeSelector();
     }
-    return `assets/images/words/${theme}/${wordId}.svg`;
+  }
+  window.refreshOfflineGrammarFeatureAccess = refreshOfflineGrammarFeatureAccess;
+
+  const LEGACY_VISUAL_THEMES = new Set(["clay", "vector", "storybook", "glossy"]);
+
+  function isStandardVisualWord(wordId) {
+    const match = /^v_(\d+)$/.exec(String(wordId || ""));
+    return Boolean(match && Number(match[1]) >= 1 && Number(match[1]) <= 120);
+  }
+
+  function getGeneratedVisualArtUrl(wordId) {
+    const manifest = window.visualAssetManifest;
+    const filename = manifest && manifest.assets ? manifest.assets[wordId] : null;
+    if (!filename) return "";
+    return `${manifest.basePath}/${filename}`;
+  }
+
+  function hasGeneratedVisualArt(wordId) {
+    return Boolean(getGeneratedVisualArtUrl(wordId));
+  }
+  window.hasGeneratedVisualArt = hasGeneratedVisualArt;
+
+  function getWordVisualArtUrl(wordId, themeOverride = null) {
+    const theme = themeOverride || localStorage.getItem("voc_visual_theme") || "memory";
+    if (theme === "memory") {
+      const generatedUrl = getGeneratedVisualArtUrl(wordId);
+      if (generatedUrl) return generatedUrl;
+      return isStandardVisualWord(wordId) ? getWordVisualArtUrl(wordId, "storybook") : "";
+    }
+
+    if (!isStandardVisualWord(wordId)) return getGeneratedVisualArtUrl(wordId);
+    const safeTheme = LEGACY_VISUAL_THEMES.has(theme) ? theme : "storybook";
+    if (wordId === "v_32") {
+      return `assets/images/words/${safeTheme}/v_32.jpg`;
+    }
+    return `assets/images/words/${safeTheme}/${wordId}.svg`;
   }
   window.getWordVisualArtUrl = getWordVisualArtUrl;
+
+  function setVisualArtImage(img, unavailableEl, wordId) {
+    if (!img) return;
+
+    const imageUrl = getWordVisualArtUrl(wordId);
+    if (!imageUrl) {
+      img.removeAttribute("src");
+      img.hidden = true;
+      if (unavailableEl) unavailableEl.hidden = false;
+      return;
+    }
+
+    img.hidden = false;
+    if (unavailableEl) unavailableEl.hidden = true;
+    img.onload = () => {
+      img.hidden = false;
+      if (unavailableEl) unavailableEl.hidden = true;
+    };
+    img.onerror = () => {
+      img.hidden = true;
+      if (unavailableEl) unavailableEl.hidden = false;
+    };
+    img.src = imageUrl;
+  }
 
   function setupStudySelect() {
     // Save settings on change
@@ -1598,9 +1659,13 @@
     // Filter cards
     let pool = SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden);
 
-    // If visual mode, restrict to standard words (which have complete visual assets)
+    let visualCoverageCount = null;
+
+    // Visual mode supports the complete standard deck plus any expanded/example
+    // words present in the generated asset manifest.
     if (mode === "visual") {
-      pool = pool.filter(w => w.id && w.id.startsWith("v_") && parseInt(w.id.replace("v_", ""), 10) <= 120);
+      pool = pool.filter(w => isStandardVisualWord(w.id) || hasGeneratedVisualArt(w.id));
+      visualCoverageCount = pool.length;
     }
 
     // Apply "Only Revised" filter (must have been reviewed at least once)
@@ -1645,6 +1710,10 @@
 
     // Check if empty deck
     if (pool.length === 0) {
+      if (mode === "visual" && visualCoverageCount === 0) {
+        window.alert("Visual Recall does not have generated scenes for this deck yet. Choose the Standard Deck, or generate and publish this deck's visual manifest first.");
+        return;
+      }
       if (deckTarget === "due") {
         const renew = await window.confirmCustom("You have no due cards to review today! Would you like to renew all card schedules (make them due for review right now) so you can study them anyway?");
         if (renew) {
@@ -1678,6 +1747,14 @@
     // Shuffle and slice (unless we pre-ordered for CEFR priority)
     if (!(deckTarget === "all" && levelFilter !== "all")) {
       pool.sort(() => Math.random() - 0.5);
+
+      // Put the richer generated scenes first in Memory Scenes sessions. The
+      // stable sort keeps each group shuffled, while the complete storybook
+      // set still guarantees visual coverage for every standard word.
+      const visualTheme = localStorage.getItem("voc_visual_theme") || "memory";
+      if (mode === "visual" && visualTheme === "memory") {
+        pool.sort((a, b) => Number(hasGeneratedVisualArt(b.id)) - Number(hasGeneratedVisualArt(a.id)));
+      }
     }
     sessionDeck = pool.slice(0, maxDeckSize);
     sessionIndex = 0;
@@ -2227,23 +2304,23 @@
     const wrapper = document.getElementById("visual-click-wrapper");
     if (!wrapper) return;
     const wasFlipped = wrapper.classList.contains("flipped");
+    if (wasFlipped) wrapper.classList.add("visual-resetting");
     wrapper.classList.remove("flipped");
+    isCardFlipped = false;
 
     const updateContent = (card) => {
       const nativeLang = SRS.getSetting("nativeLanguage", "en");
-      const imgUrl = getWordVisualArtUrl(card.id);
-
       // Front
       const catFront = document.getElementById("visual-category-front");
       if (catFront) catFront.innerText = card.category;
       const frontImg = document.getElementById("visual-img-front");
-      if (frontImg) frontImg.src = imgUrl;
+      setVisualArtImage(frontImg, document.getElementById("visual-art-fallback-front"), card.id);
 
       // Back
       const catBack = document.getElementById("visual-category-back");
       if (catBack) catBack.innerText = card.category;
       const backImg = document.getElementById("visual-img-back");
-      if (backImg) backImg.src = imgUrl;
+      setVisualArtImage(backImg, document.getElementById("visual-art-fallback-back"), card.id);
 
       const wordBack = document.getElementById("visual-word-back");
       if (wordBack) wordBack.innerText = card.accented || card.word;
@@ -2264,16 +2341,12 @@
           (translatedVal) => {
             const transEl = document.getElementById("visual-translation-back");
             if (transEl) transEl.innerText = translatedVal;
-            const transFrontEl = document.getElementById("visual-translation-front");
-            if (transFrontEl) transFrontEl.innerText = translatedVal;
           },
           "ru"
         );
       }
       const transEl = document.getElementById("visual-translation-back");
       if (transEl) transEl.innerText = translationText;
-      const transFrontEl = document.getElementById("visual-translation-front");
-      if (transFrontEl) transFrontEl.innerText = translationText;
 
       let exampleEnText = card.exampleEn || "";
       if (card.exampleEn) {
@@ -2295,12 +2368,9 @@
       }
     };
 
+    updateContent(currentCard);
     if (wasFlipped) {
-      setTimeout(() => {
-        if (currentCard) updateContent(currentCard);
-      }, 250);
-    } else {
-      updateContent(currentCard);
+      requestAnimationFrame(() => wrapper.classList.remove("visual-resetting"));
     }
 
     const ratingPanel = document.getElementById("visual-rating-panel");
@@ -3127,7 +3197,7 @@
     }
 
     if (visualThemeSelect) {
-      visualThemeSelect.value = localStorage.getItem("voc_visual_theme") || "clay";
+      visualThemeSelect.value = localStorage.getItem("voc_visual_theme") || "memory";
       visualThemeSelect.addEventListener("change", () => {
         localStorage.setItem("voc_visual_theme", visualThemeSelect.value);
         if (currentStudyMode === "visual" && currentCard) {
@@ -3146,23 +3216,7 @@
       });
     }
 
-    // Offline Grammar Engine Feature Flag Settings
-    const offlineGrammarRow = document.getElementById("settings-offline-grammar-row");
-    const offlineGrammarCheckbox = document.getElementById("settings-offline-grammar-flag");
-    if (offlineGrammarRow && isOfflineGrammarFeatureEnabled()) {
-      offlineGrammarRow.style.display = "flex";
-    }
-    if (offlineGrammarCheckbox) {
-      offlineGrammarCheckbox.checked = isOfflineGrammarFeatureEnabled();
-      offlineGrammarCheckbox.addEventListener("change", () => {
-        localStorage.setItem("voc_feature_offline_grammar", offlineGrammarCheckbox.checked ? "true" : "false");
-        if (window.GrammarManager) {
-          window.GrammarManager.initEngineSelector();
-          window.GrammarManager.initPracticeModeSelector();
-        }
-      });
-    }
-
+    refreshOfflineGrammarFeatureAccess();
     const nativeLangSelect = document.getElementById("settings-native-lang");
     if (nativeLangSelect) {
       nativeLangSelect.value = SRS.getSetting("nativeLanguage", "en");

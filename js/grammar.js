@@ -1,4 +1,4 @@
-// Privyetik AI Grammar Learning Manager
+// Privyetik Grammar Learning Manager
 
 (function () {
   // Fallback for setRevealableText helper (useful if app.js is served cached)
@@ -81,6 +81,23 @@
     return Array.isArray(questions)
       ? questions.filter(question => isValidQuizQuestion(question, allowedTopicIds))
       : [];
+  }
+
+  function buildQuizFeedback(question, selectedChoice) {
+    const selected = String(selectedChoice || "").trim();
+    const answer = String(question?.answer || "").trim();
+    const explanation = String(question?.explanation || "").trim();
+    const isCorrect = normalizeQuizText(selected) === normalizeQuizText(answer);
+    if (isCorrect) {
+      return {
+        isCorrect: true,
+        text: `You chose “${selected}”, and it fits this sentence. ${explanation}`
+      };
+    }
+    return {
+      isCorrect: false,
+      text: `You chose “${selected}”. The correct answer is “${answer}”. ${explanation} In this sentence, “${selected}” does not fit the required grammatical form or meaning.`
+    };
   }
 
   const STORAGE_KEYS = {
@@ -169,6 +186,7 @@
   const GrammarManager = {
     isValidQuizQuestion,
     filterQuizQuestions,
+    buildQuizFeedback,
     isPrefetching: false,
     debouncePrefetchTimeout: null,
 
@@ -195,10 +213,13 @@
       if (isFeatureEnabled) {
         container.style.display = "flex";
         select.value = localStorage.getItem("voc_grammar_engine_mode") || "offline";
-        select.addEventListener("change", () => {
-          localStorage.setItem("voc_grammar_engine_mode", select.value);
-          this.showXpToast(select.value === "offline" ? "⚡ Switched to Instant Offline Engine" : "🤖 Switched to Cloud AI Engine");
-        });
+        if (select.dataset.grammarEngineBound !== "true") {
+          select.dataset.grammarEngineBound = "true";
+          select.addEventListener("change", () => {
+            localStorage.setItem("voc_grammar_engine_mode", select.value);
+            this.showXpToast(select.value === "offline" ? "⚡ Switched to Instant Offline Engine" : "🤖 Switched to Cloud AI Engine");
+          });
+        }
       } else {
         container.style.display = "none";
       }
@@ -211,6 +232,7 @@
       const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
       if (!isFeatureEnabled) {
         container.style.display = "none";
+        if (currentPracticeMode !== "quiz") this.switchPracticeMode("quiz");
         return;
       }
       container.style.display = "block";
@@ -224,7 +246,8 @@
 
       tabs.forEach(tab => {
         const btn = document.getElementById(tab.id);
-        if (btn) {
+        if (btn && btn.dataset.grammarPracticeModeBound !== "true") {
+          btn.dataset.grammarPracticeModeBound = "true";
           btn.addEventListener("click", () => {
             tabs.forEach(t => {
               const b = document.getElementById(t.id);
@@ -246,19 +269,37 @@
 
       // Wire Matrix Drill buttons
       const endingNextBtn = document.getElementById("ending-drill-next-btn");
-      if (endingNextBtn) endingNextBtn.addEventListener("click", () => this.nextEndingDrill());
+      if (endingNextBtn && endingNextBtn.dataset.grammarDrillBound !== "true") {
+        endingNextBtn.dataset.grammarDrillBound = "true";
+        endingNextBtn.addEventListener("click", () => this.nextEndingDrill());
+      }
       const endingQuitBtn = document.getElementById("ending-drill-quit-btn");
-      if (endingQuitBtn) endingQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+      if (endingQuitBtn && endingQuitBtn.dataset.grammarDrillBound !== "true") {
+        endingQuitBtn.dataset.grammarDrillBound = "true";
+        endingQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+      }
 
       const detectiveNextBtn = document.getElementById("detective-next-btn");
-      if (detectiveNextBtn) detectiveNextBtn.addEventListener("click", () => this.nextDetectiveDrill());
+      if (detectiveNextBtn && detectiveNextBtn.dataset.grammarDrillBound !== "true") {
+        detectiveNextBtn.dataset.grammarDrillBound = "true";
+        detectiveNextBtn.addEventListener("click", () => this.nextDetectiveDrill());
+      }
       const detectiveQuitBtn = document.getElementById("detective-drill-quit-btn");
-      if (detectiveQuitBtn) detectiveQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+      if (detectiveQuitBtn && detectiveQuitBtn.dataset.grammarDrillBound !== "true") {
+        detectiveQuitBtn.dataset.grammarDrillBound = "true";
+        detectiveQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+      }
 
       const aspectPlayAgainBtn = document.getElementById("aspect-play-again-btn");
-      if (aspectPlayAgainBtn) aspectPlayAgainBtn.addEventListener("click", () => this.startAspectMatcherDrill());
+      if (aspectPlayAgainBtn && aspectPlayAgainBtn.dataset.grammarDrillBound !== "true") {
+        aspectPlayAgainBtn.dataset.grammarDrillBound = "true";
+        aspectPlayAgainBtn.addEventListener("click", () => this.startAspectMatcherDrill());
+      }
       const aspectQuitBtn = document.getElementById("aspect-quit-btn");
-      if (aspectQuitBtn) aspectQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+      if (aspectQuitBtn && aspectQuitBtn.dataset.grammarDrillBound !== "true") {
+        aspectQuitBtn.dataset.grammarDrillBound = "true";
+        aspectQuitBtn.addEventListener("click", () => this.switchPracticeMode("quiz"));
+      }
     },
 
     loadFromStorage: function () {
@@ -1155,21 +1196,6 @@
         document.getElementById("sandbox-results-panel").style.display = "none";
       });
 
-      // Matrix Drills Buttons
-      const endingNextBtn = document.getElementById("ending-drill-next-btn");
-      if (endingNextBtn) endingNextBtn.addEventListener("click", () => self.nextEndingDrill());
-      const endingQuitBtn = document.getElementById("ending-drill-quit-btn");
-      if (endingQuitBtn) endingQuitBtn.addEventListener("click", () => self.switchPracticeMode("quiz"));
-
-      const detectiveNextBtn = document.getElementById("detective-drill-next-btn");
-      if (detectiveNextBtn) detectiveNextBtn.addEventListener("click", () => self.nextDetectiveDrill());
-      const detectiveQuitBtn = document.getElementById("detective-drill-quit-btn");
-      if (detectiveQuitBtn) detectiveQuitBtn.addEventListener("click", () => self.switchPracticeMode("quiz"));
-
-      const aspectNextBtn = document.getElementById("aspect-round-next-btn");
-      if (aspectNextBtn) aspectNextBtn.addEventListener("click", () => self.startAspectMatcherDrill());
-      const aspectQuitBtn = document.getElementById("aspect-drill-quit-btn");
-      if (aspectQuitBtn) aspectQuitBtn.addEventListener("click", () => self.switchPracticeMode("quiz"));
     },
 
     // Check Cloud Database Connected
@@ -1178,7 +1204,7 @@
         if (window.openModal) {
           window.openModal("modal-grammar-cta");
         } else {
-          alert("Account Sign-in Required: AI Grammar features require a signed-in account. Please sign in or create an account under the 'Account' tab first.");
+          alert("Account Sign-in Required: Cloud grammar features require a signed-in account. Please sign in or create an account under the 'Account' tab first.");
         }
         return false;
       }
@@ -1297,17 +1323,20 @@
 
       // Check Offline Engine
       if (engineMode === "offline") {
-        if (window.GrammarOffline) {
+        if (!window.GrammarOffline) {
           if (loader) loader.style.display = "none";
-          const payload = window.GrammarOffline.getLesson(topicId);
-          this.renderTutorExplanation(payload);
-          const firstCompletion = this.recordLessonCompleted(topicId);
-          if (firstCompletion && window.SRS) {
-            window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
-            this.showXpToast("+15 XP (Grammar Study)");
-          }
+          if (contentEl) contentEl.innerHTML = '<div class="card" style="background:var(--bg-input); border:1px solid var(--border-glass); border-radius:var(--border-radius-md); padding:1.5rem; color:var(--color-error); width:100%;">Offline grammar data is unavailable. Reconnect once so the app can cache it, then try again.</div>';
           return;
         }
+        if (loader) loader.style.display = "none";
+        const payload = window.GrammarOffline.getLesson(topicId);
+        this.renderTutorExplanation(payload);
+        const firstCompletion = this.recordLessonCompleted(topicId);
+        if (firstCompletion && window.SRS) {
+          window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
+          this.showXpToast("+15 XP (Grammar Study)");
+        }
+        return;
       }
 
       if (!isLoggedIn) {
@@ -1442,23 +1471,28 @@
       const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
 
       if (engineMode === "offline") {
-        if (window.GrammarOffline) {
-          const questions = window.GrammarOffline.getQuestions(checkedTopics, count, cefr);
-          if (questions && questions.length > 0) {
-            currentQuizQuestions = questions;
-            currentQuizIndex = 0;
-            currentQuizCorrectCount = 0;
-            currentQuizResults = [];
-
-            if (setupScreen) setupScreen.style.display = "none";
-            if (loadingScreen) loadingScreen.style.display = "none";
-            if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
-            if (activeScreen) activeScreen.style.display = "flex";
-            this.renderQuizQuestion();
-            this.showXpToast("Started Instant Offline Quiz ⚡");
-            return;
-          }
+        if (!window.GrammarOffline) {
+          alert("Offline grammar data is unavailable. Reconnect once so the app can cache it, then try again.");
+          return;
         }
+        const questions = window.GrammarOffline.getQuestions(checkedTopics, count, cefr);
+        if (!questions || questions.length === 0) {
+          alert(`No curated offline questions are available for the selected ${cefr} topics. Choose a supported level/topic combination or switch to the Cloud AI engine.`);
+          return;
+        }
+        currentQuizQuestions = questions;
+        currentQuizTopicIds = [...new Set(questions.map(question => question.topicId).filter(topicId => TOPICS_MAP[topicId]))];
+        currentQuizIndex = 0;
+        currentQuizCorrectCount = 0;
+        currentQuizResults = [];
+
+        if (setupScreen) setupScreen.style.display = "none";
+        if (loadingScreen) loadingScreen.style.display = "none";
+        if (window.setPracticeFocusMode) window.setPracticeFocusMode(true);
+        if (activeScreen) activeScreen.style.display = "flex";
+        this.renderQuizQuestion();
+        this.showXpToast("Started Instant Offline Quiz ⚡");
+        return;
       }
 
       if (!this.ensureCloudConnected()) return;
@@ -2066,8 +2100,10 @@
         explBox.style.background = "var(--color-error-glow)";
       }
 
-      // Populate description and show box
-      explText.innerText = q.explanation;
+      // Give choice-aware feedback. The question bank explanation remains the
+      // authoritative grammar explanation, while the surrounding message
+      // tells the learner what their specific choice meant.
+      explText.innerText = this.buildQuizFeedback(q, choice).text;
       explBox.style.display = "flex";
 
       // Bind play full sentence button

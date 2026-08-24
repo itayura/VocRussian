@@ -48,7 +48,12 @@ test.describe('Privyetik E2E Test Suite', () => {
             user: {
               id: 'mock-user-id',
               email: body.email || 'test@example.com',
-              app_metadata: { provider: 'email' },
+              app_metadata: {
+                provider: 'email',
+                ...(body.email === 'flagged@example.com' ? {
+                  feature_flags: { visual_mode: true, offline_grammar: true }
+                } : {})
+              },
               user_metadata: {},
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
@@ -989,7 +994,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.locator('#custom-alert-ok-btn').click();
   });
 
-  test('Visual Recall Mode: feature flag gating, multi-theme art, and study interaction', async ({ page }) => {
+  test('Visual Recall Mode: feature flag gating, mnemonic art, and recall-first interaction', async ({ page }) => {
     // 1. Without flag: Visual Mode is hidden from Study Selection
     await page.goto('http://localhost:8080');
     await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
@@ -1007,7 +1012,22 @@ test.describe('Privyetik E2E Test Suite', () => {
     
     const visualThemeSelect = page.locator('#settings-visual-theme');
     await expect(visualThemeSelect).toBeVisible();
+    await expect(visualThemeSelect).toHaveValue('memory');
+
+    // Generated scenes are used when available; the complete storybook set is
+    // the intentional fallback for words that do not have a generated scene yet.
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('v_28')))
+      .toContain('assets/images/words/memory/v_28.webp');
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('v_29')))
+      .toContain('assets/images/words/memory/v_29.webp');
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('v_102')))
+      .toContain('assets/images/words/storybook/v_102.svg');
+
+    // Existing themes remain selectable.
     await visualThemeSelect.selectOption('vector');
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('v_28')))
+      .toContain('assets/images/words/vector/v_28.svg');
+    await visualThemeSelect.selectOption('memory');
 
     // 4. Start Visual Recall session
     await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
@@ -1015,27 +1035,62 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#view-study-active')).toHaveClass(/active/);
     await expect(page.locator('#study-sub-visual')).toBeVisible();
 
-    // Verify visual art image is loaded and translation is visible under the card
+    // The picture must load, while the English answer stays hidden before reveal.
     const frontImg = page.locator('#visual-img-front');
     await expect(frontImg).toBeVisible();
     const imgSrc = await frontImg.getAttribute('src');
-    expect(imgSrc).toContain('assets/images/words/');
+    expect(imgSrc).toContain('assets/images/words/memory/');
+    await expect.poll(() => frontImg.evaluate(img => img.naturalWidth)).toBe(768);
+    await expect.poll(() => frontImg.evaluate(img => img.naturalHeight)).toBe(512);
 
-    const frontTranslation = page.locator('#visual-translation-front');
-    await expect(frontTranslation).toBeVisible();
-    await expect(frontTranslation).not.toBeEmpty();
+    await expect(page.locator('#visual-translation-front')).toHaveCount(0);
+    await expect(page.locator('#visual-recall-cue')).toContainText('Picture → Russian');
+    await expect(page.locator('#study-sub-visual').getByText('Meaning:', { exact: true })).toHaveCount(0);
+
+    const cardBox = await page.locator('#visual-click-wrapper').boundingBox();
+    expect(cardBox).not.toBeNull();
+    expect(cardBox.height).toBeGreaterThanOrEqual(260);
+    if (page.viewportSize().width <= 600) {
+      expect(cardBox.height).toBeLessThanOrEqual(300);
+    }
 
     // 5. Flip visual card
     await page.locator('#visual-click-wrapper').click();
     await expect(page.locator('#visual-click-wrapper')).toHaveClass(/flipped/);
     await expect(page.locator('#visual-word-back')).toBeVisible();
     await expect(page.locator('#visual-translation-back')).toBeVisible();
+    await expect(page.locator('#visual-rating-panel')).toHaveCSS('pointer-events', 'auto');
+    await page.waitForTimeout(700);
+
+    // Both 3D faces must occupy the same box. Without an explicit inset the
+    // answer face can render one full card-height below the picture.
+    const frontFaceBox = await page.locator('.visual-card-front').boundingBox();
+    const backFaceBox = await page.locator('.visual-card-back').boundingBox();
+    expect(frontFaceBox).not.toBeNull();
+    expect(backFaceBox).not.toBeNull();
+    expect(Math.abs(frontFaceBox.x - backFaceBox.x)).toBeLessThanOrEqual(1);
+    expect(Math.abs(frontFaceBox.y - backFaceBox.y)).toBeLessThanOrEqual(1);
 
     // 6. Score card Good (Box +1)
     await page.locator('#visual-score-3').click();
-    await page.waitForTimeout(300);
+    await expect(page.locator('#study-index-val')).toHaveText('2');
+    await expect(page.locator('#visual-click-wrapper')).not.toHaveClass(/flipped/);
+    await expect(page.locator('#visual-rating-panel')).toHaveCSS('pointer-events', 'none');
+    await expect(frontImg).toBeVisible();
 
-    // 7. Test user account gating for itayura@gmail.com
+    // 7. Expanded visual sessions stay unavailable until generated assets are
+    // published, instead of opening a card with a broken image URL.
+    await page.locator('#study-quit-btn').click();
+    await expect(page.locator('#custom-confirm-modal')).toHaveClass(/active/);
+    await page.locator('#custom-confirm-ok-btn').click();
+    await page.locator('#study-filter-db').selectOption('expanded');
+    await page.locator('#mode-select-visual').click();
+    await expect(page.locator('#custom-alert-modal')).toHaveClass(/active/);
+    await expect(page.locator('#custom-alert-message')).toContainText('does not have generated scenes');
+    await page.locator('#custom-alert-ok-btn').click();
+    await expect(page.locator('#view-study-select')).toHaveClass(/active/);
+
+    // 8. Test user account gating for itayura@gmail.com
     await page.goto('http://localhost:8080');
     await page.evaluate(() => localStorage.removeItem('voc_feature_visual_mode'));
     await page.locator('.nav-item[data-target="sync"]').click({ force: true });
@@ -1096,6 +1151,25 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(modeSelector).toBeVisible();
 
     // 5. Strategy C: Matrix Drill - Ending Picker
+    await page.evaluate(() => {
+      window.__endingDrillCalls = 0;
+      window.GrammarOffline.getEndingPickerDrill = () => {
+        window.__endingDrillCalls += 1;
+        return {
+          stem: 'студент',
+          word: 'студент',
+          gender: 'masc',
+          targetCase: 'Dative Case',
+          targetEnding: '-у',
+          fullWord: 'студенту',
+          choices: ['-у', '-а', '-ом', '-е'],
+          hint: 'Masculine Dative singular (кому?)'
+        };
+      };
+      // Settings changes may reinitialize these controls; handlers must stay idempotent.
+      window.GrammarManager.initPracticeModeSelector();
+      window.GrammarManager.initPracticeModeSelector();
+    });
     await page.locator('.practice-mode-tab[data-mode="ending"]').click();
     const endingScreen = page.locator('#practice-matrix-ending-screen');
     await expect(endingScreen).toBeVisible();
@@ -1103,6 +1177,8 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(endingChoices.first()).toBeVisible();
     await endingChoices.first().click();
     await expect(page.locator('#ending-drill-feedback-box')).toBeVisible();
+    await page.locator('#ending-drill-next-btn').click();
+    expect(await page.evaluate(() => window.__endingDrillCalls)).toBe(2);
 
     // 6. Strategy C: Matrix Drill - Case Detective
     await page.locator('.practice-mode-tab[data-mode="detective"]').click();
@@ -1126,6 +1202,14 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // 8. Strategy A: Instant Offline Cloze Quiz
     await page.locator('.practice-mode-tab[data-mode="quiz"]').click();
+    await page.locator('#practice-quiz-level').selectOption('C2');
+    await page.locator('#practice-start-btn').click();
+    await expect(page.locator('#custom-alert-modal')).toHaveClass(/active/);
+    await expect(page.locator('#custom-alert-message')).toContainText('No curated offline questions');
+    await expect(page.locator('#practice-setup-screen')).toBeVisible();
+    await page.locator('#custom-alert-ok-btn').click();
+
+    await page.locator('#practice-quiz-level').selectOption('A1');
     await page.locator('#practice-start-btn').click();
     const quizScreen = page.locator('#practice-active-screen');
     await expect(quizScreen).toBeVisible();
@@ -1134,6 +1218,54 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(quizChoices.first()).toBeVisible();
     await quizChoices.first().click();
     await expect(page.locator('#quiz-next-btn')).toBeVisible();
+  });
+
+  test('Offline Grammar Engine is available without a feature flag', async ({ page }) => {
+    await page.evaluate(() => {
+      localStorage.removeItem('voc_feature_offline_grammar');
+      localStorage.removeItem('voc_grammar_engine_mode');
+    });
+    await page.reload();
+
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await expect(page.locator('#grammar-engine-selector-container')).toBeVisible();
+
+    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+    await page.locator('#supabase-email').fill('itayura@gmail.com');
+    await page.locator('#supabase-password').fill('securepassword123');
+    await page.locator('#supabase-auth-submit-btn').click();
+    await page.locator('#custom-alert-ok-btn').click();
+
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await expect(page.locator('#grammar-engine-selector-container')).toBeVisible();
+    await expect(page.locator('#grammar-engine-mode-select')).toHaveValue('offline');
+
+    await selectGrammarTopic(page, 'accusative_case');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('Accusative Case');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('direct object');
+
+    await page.locator('#grammar-tab-practice').click();
+    await expect(page.locator('#practice-mode-selector-container')).toBeVisible();
+  });
+
+  test('account metadata enables Visual Recall and Offline Grammar without an email allowlist', async ({ page }) => {
+    await page.goto('http://localhost:8080');
+    await page.evaluate(() => {
+      localStorage.removeItem('voc_feature_visual_mode');
+      localStorage.removeItem('voc_feature_offline_grammar');
+    });
+
+    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+    await page.locator('#supabase-email').fill('flagged@example.com');
+    await page.locator('#supabase-password').fill('securepassword123');
+    await page.locator('#supabase-auth-submit-btn').click();
+    await page.locator('#custom-alert-ok-btn').click();
+
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await expect(page.locator('#mode-select-visual')).toBeVisible();
+
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await expect(page.locator('#grammar-engine-selector-container')).toBeVisible();
   });
 
 });

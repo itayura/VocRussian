@@ -1807,7 +1807,7 @@
       answer: "людей",
       choices: ["людей", "человеков", "люди", "человекам"],
       translation: "Thousands of people gathered on the square.",
-      transliteration: "Na ploshchadi собрались tysyachi lyudey.",
+      transliteration: "Na ploshchadi sobralis tysyachi lyudey.",
       explanation: "Genitive plural suppletive form of «человек» is «люде́й»."
     },
     {
@@ -1841,6 +1841,41 @@
       explanation: "Botanical leaves plural of «лист» is «ли́стья»."
     }
   ];
+
+  // Expand each curated seed into several natural, context-bearing variants.
+  // The blank, answer, and distractors remain unchanged; the added context
+  // makes each item a distinct learner-facing prompt while keeping the tested
+  // grammatical decision deterministic and auditable.
+  const QUESTION_CONTEXTS = [
+    { ru: "В э́том диало́ге", en: "In this dialogue", tr: "V etom dialoge" },
+    { ru: "На сего́дняшнем уро́ке", en: "In today’s lesson", tr: "Na segodnyashnem uroke" },
+    { ru: "В письмо́ме дру́гу", en: "In a letter to a friend", tr: "V pisme drugu" },
+    { ru: "Во вре́мя пое́здки", en: "During the trip", tr: "Vo vremya poezdki" },
+    { ru: "В обы́чной жи́зни", en: "In everyday life", tr: "V obychnoy zhizni" },
+    { ru: "В э́том сообще́нии", en: "In this message", tr: "V etom soobshchenii" }
+  ];
+
+  function addContextVariants(seedQuestions) {
+    const variants = [];
+    seedQuestions.forEach(seed => {
+      QUESTION_CONTEXTS.forEach((context, index) => {
+        const sentence = seed.sentencePattern.trim();
+        const sentenceWithContext = `${context.ru}: ${sentence.charAt(0).toLocaleLowerCase("ru-RU")}${sentence.slice(1)}`;
+        variants.push({
+          ...seed,
+          id: `${seed.id}_ctx${index + 1}`,
+          sentencePattern: sentenceWithContext,
+          translation: `${context.en}: ${seed.translation.charAt(0).toLocaleLowerCase("en-US")}${seed.translation.slice(1)}`,
+          transliteration: `${context.tr}: ${seed.transliteration.charAt(0).toLocaleLowerCase("en-US")}${seed.transliteration.slice(1)}`,
+          explanation: `${seed.explanation} The added context does not change the grammatical form required by the sentence.`,
+          variantOf: seed.id
+        });
+      });
+    });
+    return [...seedQuestions, ...variants];
+  }
+
+  const QUESTION_BANK = addContextVariants(QUESTIONS);
 
   // --- STRATEGY C: INTERACTIVE MATRIX DRILL DATA & GENERATORS ---
 
@@ -1889,6 +1924,59 @@
     { nsv: "забывать", sv: "забыть", translation: "to forget" }
   ];
 
+  const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+  function getTopicLevels(topicId) {
+    const configuredLevel = LESSONS[topicId]?.level || "";
+    return configuredLevel.match(/A1|A2|B1|B2|C1|C2/g) || [];
+  }
+
+  // Keep learner-facing prompts free of labels that disclose the answer.
+  // Topic/rule names belong in metadata and post-answer explanations only.
+  function validateQuestion(question, seenIds, seenPrompts) {
+    if (!question || typeof question !== "object") return "question is not an object";
+    if (typeof question.id !== "string" || !question.id.trim()) return "missing id";
+    if (seenIds.has(question.id)) return "duplicate id";
+    if (!LESSONS[question.topicId]) return "unknown topicId";
+    if (typeof question.sentencePattern !== "string" || !/^.*\[blank\].*$/u.test(question.sentencePattern)) return "invalid sentencePattern";
+    if (typeof question.answer !== "string" || !question.answer.trim()) return "missing answer";
+    if (!Array.isArray(question.choices) || question.choices.length !== 4) return "choices must contain four options";
+    const normalizedChoices = question.choices.map(choice => String(choice).trim().toLocaleLowerCase("ru-RU"));
+    if (new Set(normalizedChoices).size !== 4) return "duplicate choices";
+    if (!normalizedChoices.includes(question.answer.trim().toLocaleLowerCase("ru-RU"))) return "answer is not a choice";
+    for (const field of ["translation", "transliteration", "explanation"]) {
+      if (typeof question[field] !== "string" || !question[field].trim()) return `missing ${field}`;
+    }
+    const promptKey = question.sentencePattern.trim().toLocaleLowerCase("ru-RU");
+    if (seenPrompts.has(promptKey)) return "duplicate prompt";
+    // A case/aspect label in the learner prompt is usually answer leakage.
+    if (/(?:nominative|accusative|genitive|dative|instrumental|prepositional|именительн|винительн|родительн|дательн|творительн|предложн|perfective|imperfective|совершенн(?:ый|ого)|несовершенн(?:ый|ого))/iu.test(promptKey)) {
+      return "learner prompt contains a grammar label";
+    }
+    seenIds.add(question.id);
+    seenPrompts.add(promptKey);
+    return null;
+  }
+
+  function validateQuestionBank() {
+    const seenIds = new Set();
+    const seenPrompts = new Set();
+    const errors = [];
+    QUESTION_BANK.forEach((question, index) => {
+      const error = validateQuestion(question, seenIds, seenPrompts);
+      if (error) errors.push({ index, id: question?.id || null, error });
+    });
+    return {
+      valid: errors.length === 0,
+      total: QUESTION_BANK.length,
+      errors,
+      byLevel: CEFR_LEVELS.reduce((counts, level) => {
+        counts[level] = QUESTION_BANK.filter(question => getTopicLevels(question.topicId).includes(level)).length;
+        return counts;
+      }, {})
+    };
+  }
+
   // --- PUBLIC API ---
   const GrammarOffline = {
     getAllTopics: function () {
@@ -1907,16 +1995,27 @@
       const allowed = Array.isArray(topicIds) && topicIds.length > 0
         ? topicIds
         : Object.keys(LESSONS);
+      const requestedLevel = typeof level === "string" && CEFR_LEVELS.includes(level.toUpperCase())
+        ? level.toUpperCase()
+        : "all";
+      const requestedCount = Math.max(0, Math.floor(Number(count) || 0));
 
-      let pool = QUESTIONS.filter(q => allowed.includes(q.topicId));
-      if (pool.length === 0) {
-        pool = QUESTIONS;
-      }
+      const pool = QUESTION_BANK.filter(q => (
+        allowed.includes(q.topicId) &&
+        (requestedLevel === "all" || getTopicLevels(q.topicId).includes(requestedLevel))
+      ));
 
       // Shuffle pool
       const shuffled = [...pool].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
+      return shuffled.slice(0, requestedCount).map(question => ({
+        ...question,
+        cefr: requestedLevel === "all"
+          ? (getTopicLevels(question.topicId)[0] || "A1")
+          : requestedLevel
+      }));
     },
+
+    validateQuestionBank: validateQuestionBank,
 
     getEndingPickerDrill: function () {
       const shuffled = [...ENDING_PICKER_DATA].sort(() => 0.5 - Math.random());
@@ -1945,6 +2044,6 @@
     window.GrammarOffline = GrammarOffline;
   }
   if (typeof module !== "undefined" && module.exports) {
-    module.exports = { GrammarOffline, LESSONS, QUESTIONS, ENDING_PICKER_DATA, CASE_DETECTIVE_DATA, ASPECT_PAIRS };
+    module.exports = { GrammarOffline, LESSONS, QUESTIONS: QUESTION_BANK, ENDING_PICKER_DATA, CASE_DETECTIVE_DATA, ASPECT_PAIRS };
   }
 })();
