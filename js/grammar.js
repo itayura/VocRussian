@@ -118,13 +118,23 @@
     future_tense: "Future Tense",
     adjectives_declension: "Adjectives Declension",
     pronouns_declension: "Pronouns Declension",
-    noun_plurals: "Noun Plurals"
+    noun_plurals: "Noun Plurals",
+    numerals_agreement: "Numerals & Agreement",
+    prefixed_motion_verbs: "Prefixed Motion Verbs",
+    imperatives: "Imperatives & Commands",
+    reflexive_verbs: "Reflexive Verbs (-ся/-сь)",
+    subjunctive_conditional: "Subjunctive & Conditional",
+    impersonal_sentences: "Impersonal Sentences",
+    comparatives_superlatives: "Comparatives & Superlatives",
+    time_expressions: "Time & Expressions",
+    relative_clauses_conjunctions: "Relative Clauses & Conjunctions",
+    participles_gerunds: "Participles & Gerunds"
   };
 
 
   const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
   const CEFR_TOPIC_WEIGHTS = { A1: 0.35, A2: 0.5, B1: 0.65, B2: 0.78, C1: 0.9, C2: 1 };
-  const GRAMMAR_LEVEL_MIN_TOPICS = Math.ceil(Object.keys(TOPICS_MAP).length / 2);
+  const GRAMMAR_LEVEL_MIN_TOPICS = 7;
   const GRAMMAR_LEVEL_MIN_MASTERY = 70;
   const GRAMMAR_EVIDENCE_WINDOW = 40;
   const GRAMMAR_EVIDENCE_HALF_LIFE_DAYS = 180;

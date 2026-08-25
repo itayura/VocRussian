@@ -268,6 +268,196 @@
         { ru: "Мои́ лу́чшие друзья́ живу́т за грани́цей.", en: "My best friends live abroad.", explanation: "Irregular plural «друзья́» from «друг»." },
         { ru: "Ма́ленькие де́ти игра́ют на площа́дке.", en: "Small children are playing on the playground.", explanation: "Suppletive plural «де́ти» from «ребёнок»." }
       ]
+    },
+
+    "numerals_agreement": {
+      id: "numerals_agreement",
+      title: "Numerals & Case Agreement (Числительные: 1, 2-4, 5+)",
+      level: "A2–B1",
+      questionPrompt: "один стол, два стола, пять столов",
+      description: "Russian numbers govern the case and number of following nouns. 1 takes Nominative singular; 2, 3, 4 take Genitive singular; 5 through 20 and round tens take Genitive plural. Compound numerals follow the final word.",
+      rules: [
+        { ending: "1 (оди́н / одна́ / одно́)", rule: "Nominative Singular", example: "оди́н рубль, одна́ мину́та, одно́ окно́" },
+        { ending: "2, 3, 4 (два/две, три, четы́ре)", rule: "Genitive Singular", example: "два рубля́, три кни́ги, четы́ре часа́" },
+        { ending: "5–20, 30, 50... (пять, де́сять...)", rule: "Genitive Plural", example: "пять рубле́й, де́сять мину́т, два́дцать лет" },
+        { ending: "Собира́тельные (дво́е, тро́е)", rule: "Used with animate males & pluralia tantum", example: "дво́е друзе́й, тро́е дете́й, дво́е часо́в" }
+      ],
+      examples: [
+        { ru: "В на́шей гру́ппе у́чатся два́дцать три студе́нта.", en: "There are twenty-three students studying in our group.", explanation: "Compound number ending in 3 governs Genitive singular «студента»." },
+        { ru: "Биле́т в теа́тр сто́ит пятьсо́т рубле́й.", en: "The theater ticket costs five hundred rubles.", explanation: "Round hundred governs Genitive plural «рублей»." },
+        { ru: "Мы жда́ли авто́бус ро́вно две мину́ты.", en: "We waited for the bus for exactly two minutes.", explanation: "Feminine numeral «две» takes Genitive singular «минуты»." }
+      ]
+    },
+
+    "prefixed_motion_verbs": {
+      id: "prefixed_motion_verbs",
+      title: "Prefixed Verbs of Motion (Приставочные глаголы движения)",
+      level: "A2–B1",
+      questionPrompt: "войти, выйти, приехать, уехать, перейти",
+      description: "Adding directional prefixes to verbs of motion alters their spatial meaning and aspect. Prefixes usually pair with specific prepositions (при- + к/в, вы- + из, у- + из/с, пере- + через).",
+      rules: [
+        { ending: "в- / во- (Into / Enter)", rule: "Motion into an interior space (pairs with в + Acc)", example: "войти́ в ко́мнату, въе́хать в го́род" },
+        { ending: "вы- (Out / Exit)", rule: "Motion out of an interior space (pairs with из + Gen)", example: "вы́йти из до́ма, вы́ехать со стоя́нки" },
+        { ending: "при- (Arrive) / у- (Depart)", rule: "Arrival at destination vs. leaving departure point", example: "прийти́ на рабо́ту, уе́хать из страны́" },
+        { ending: "пере- (Cross) / под- (Approach)", rule: "Crossing an obstacle (через) / approaching near (к + Dat)", example: "перейти́ у́лицу, подойти́ к окну́" }
+      ],
+      examples: [
+        { ru: "По́езд прибыва́ет на гла́вный вокза́л то́чно по расписа́нию.", en: "The train arrives at the main station exactly on schedule.", explanation: "Prefix при- denotes arrival." },
+        { ru: "Осторо́жно переходи́те доро́гу по пешехо́дному перехо́ду.", en: "Carefully cross the road at the pedestrian crosswalk.", explanation: "Prefix пере- denotes crossing from one side to another." },
+        { ru: "Профе́ссор вы́шел из аудито́рии по́сле ле́кции.", en: "The professor exited the auditorium after the lecture.", explanation: "Prefix вы- paired with preposition «из»." }
+      ]
+    },
+
+    "imperatives": {
+      id: "imperatives",
+      title: "Imperatives & Commands (Повелительное наклонение)",
+      level: "A1–A2",
+      questionPrompt: "Читай! Читайте! Скажи! Скажите!",
+      description: "Imperatives express direct orders, invitations, requests, and warnings. Endings depend on the present/future stem vowel/consonant (-й/-йте, -и/-ите, -ь/-ьте). Positive commands often use Perfective for specific actions, while prohibitions (Не + verb) almost always use Imperfective.",
+      rules: [
+        { ending: "-й / -йте", rule: "Stem ends in a vowel", example: "чита́й / чита́йте, де́лай / де́лайте" },
+        { ending: "-и / -ите", rule: "Stem ends in consonant with stress on ending (or 2+ consonants)", example: "говори́ / говори́те, пиши́ / пиши́те, посмотри́ / посмотри́те" },
+        { ending: "-ь / -ьте", rule: "Stem ends in single consonant with stem-stress", example: "бу́дь / бу́дьте, вста́нь / вста́ньте, гото́вь / гото́вьте" },
+        { ending: "Не + НСВ (Prohibition)", rule: "Negative commands / prohibitions use Imperfective", example: "Не открыва́й окно́! Не забыва́йте па́спорт!" }
+      ],
+      examples: [
+        { ru: "Пожа́луйста, переда́йте соль и спе́ции.", en: "Please pass the salt and spices.", explanation: "Polite formal request with «-те»." },
+        { ru: "Никогда́ не опа́здывай на у́тренние уро́ки.", en: "Never be late for morning classes.", explanation: "Prohibition with «не» requires Imperfective «опаздывай»." },
+        { ru: "Посмотри́ на э́то краси́вое зда́ние.", en: "Look at this beautiful building.", explanation: "Specific single action command in Perfective." }
+      ]
+    },
+
+    "reflexive_verbs": {
+      id: "reflexive_verbs",
+      title: "Reflexive Verbs: -ся / -сь (Возвратные глаголы)",
+      level: "A2–B1",
+      questionPrompt: "учиться, одеваться, встречаться, радоваться",
+      description: "Reflexive verbs end in the particle -ся (after consonants) or -сь (after vowels). They express actions done to oneself, reciprocal actions between multiple people, emotional states, or passive processes.",
+      rules: [
+        { ending: "-ся (After consonants)", rule: "Suffix -ся attaches to consonant verb endings", example: "учи́ться, он у́чится, мы у́чимся, они́ у́чатся" },
+        { ending: "-сь (After vowels)", rule: "Suffix -сь attaches to vowel verb endings", example: "я учу́сь, вы у́читесь, она́ учи́лась" },
+        { ending: "Взаи́мные (Reciprocal)", rule: "Mutual action between two or more subjects", example: "встреча́ться (meet each other), целова́ться, обнима́ться" },
+        { ending: "Состоя́ния и эмо́ции", rule: "Involuntary internal feelings & states", example: "ра́доваться (rejoice), боя́ться (fear), смея́ться (laugh)" }
+      ],
+      examples: [
+        { ru: "Мы ча́сто встреча́емся с колле́гами по́сле рабо́ты.", en: "We often meet with colleagues after work.", explanation: "Reciprocal reflexive verb «встречаемся»." },
+        { ru: "Ка́ждое у́тро ребёнок сам одева́ется в шко́лу.", en: "Every morning the child dresses himself for school.", explanation: "True reflexive action on oneself." },
+        { ru: "Магази́н закрыва́ется ро́вно в де́вять ве́чера.", en: "The store closes at exactly nine in the evening.", explanation: "Middle/passive voice with inanimate subject." }
+      ]
+    },
+
+    "subjunctive_conditional": {
+      id: "subjunctive_conditional",
+      title: "Conditional & Subjunctive Mood (Сослагательное наклонение: бы / чтобы)",
+      level: "A2–B1",
+      questionPrompt: "Если бы я знал..., Я хочу, чтобы ты...",
+      description: "The subjunctive expresses hypothetical situations, counterfactual conditions, polite requests, and desires with different subjects using particle «бы» alongside past tense verbs.",
+      rules: [
+        { ending: "Е́сли бы + Past, ... Past + бы", rule: "Unreal / Counterfactual conditional sentences", example: "Е́сли бы у меня́ бы́ло вре́мя, я бы помо́г тебе́." },
+        { ending: "что́бы + Past tense", rule: "Desire / Request when subjects of clauses differ", example: "Я хочу́, что́бы ты прочита́л э́ту статью́." },
+        { ending: "что́бы + Infinitive", rule: "Purpose clause when both actions share the same subject", example: "Я пришёл, что́бы учи́ться." },
+        { ending: "Я хоте́л бы / Я бы предпоче́л", rule: "Polite wishes and softened requests", example: "Я бы хоте́л ча́шку ча́я." }
+      ],
+      examples: [
+        { ru: "Е́сли бы пого́да была́ хоро́шей, мы бы пошли́ в парк.", en: "If the weather were good, we would go to the park.", explanation: "Hypothetical condition with «если бы + past»." },
+        { ru: "Учи́тель хо́чет, что́бы все ученики́ сдали тест.", en: "The teacher wants all students to pass the test.", explanation: "Clause with «чтобы» and past tense «сдали» for distinct subjects." },
+        { ru: "Мы вы́ехали пора́ньше, что́бы не опозда́ть на по́езд.", en: "We departed earlier in order not to be late for the train.", explanation: "Purpose clause with same subject + infinitive." }
+      ]
+    },
+
+    "impersonal_sentences": {
+      id: "impersonal_sentences",
+      title: "Impersonal & Dative State Expressions (Безличные предложения)",
+      level: "A2–B1",
+      questionPrompt: "Мне холодно, можно, нельзя, нужно, нет времени",
+      description: "Impersonal sentences describe physical sensations, psychological states, necessity, possibility, and weather without a Nominative grammatical subject. The experiencer stands in the Dative case.",
+      rules: [
+        { ending: "Да́тельный + катего́рия состоя́ния", rule: "Experiencer in Dative with state adverbs", example: "Мне хо́лодно. Сестре́ ску́чно. Нам ве́село." },
+        { ending: "ну́жно / на́до / прихо́дится + Инф.", rule: "Necessity and obligation", example: "Студе́нту ну́жно сдать экза́мен." },
+        { ending: "мо́жно / нельзя́ + Инфинитив", rule: "Permission vs. prohibition / impossibility", example: "Здесь мо́жно курить? Тут нельзя́ шуме́ть." },
+        { ending: "нет / не́ было / не бу́дет + Gen.", rule: "Existential absence in present, past, and future", example: "У нас нет вре́мени. Не́ было со́лнца." }
+      ],
+      examples: [
+        { ru: "Сего́дня на у́лице о́чень хо́лодно и ве́трено.", en: "Today it is very cold and windy outside.", explanation: "Impersonal meteorological state." },
+        { ru: "Моему́ бра́ту прихо́дится мно́го рабо́тать.", en: "My brother has to work a lot.", explanation: "External necessity with Dative experiencer «моему брату»." },
+        { ru: "В э́том музе́е нельзя́ фотографи́ровать со вспы́шкой.", en: "In this museum one is not allowed to photograph with a flash.", explanation: "Strict prohibition with «нельзя»." }
+      ]
+    },
+
+    "comparatives_superlatives": {
+      id: "comparatives_superlatives",
+      title: "Comparatives & Superlatives (Степени сравнения)",
+      level: "A2–B1",
+      questionPrompt: "быстрее, дороже, лучше, самый большой",
+      description: "Comparatives compare two entities (faster, cheaper, better) using synthetic suffixes (-ее / mutations) or analytic words (более). Superlatives denote the highest degree using «самый» + adjective or prefix/suffix «наи- / -ейший».",
+      rules: [
+        { ending: "-ее / -ей (Simple Comparative)", rule: "Standard synthetic comparative for most adjectives", example: "бы́стрый → быстрее, краси́вый → краси́вее" },
+        { ending: "Чередова́ния согла́сных", rule: "Consonant mutations (г/д/з → ж, к/т → ч, х → ш)", example: "дорого́й → доро́же, молодо́й → моло́же, ти́хий → ти́ше" },
+        { ending: "Иррегуля́рные фо́рмы", rule: "Suppletive roots in high frequency words", example: "хоро́ший → лу́чше, плохо́й → ху́же, большо́й → бо́льше" },
+        { ending: "са́мый + Прилага́тельное (Superlative)", rule: "Standard superlative agreeing with noun", example: "са́мый высо́кий дом, са́мая интере́сная кни́га" }
+      ],
+      examples: [
+        { ru: "Этот но́вый компью́тер рабо́тает на́много быстрее ста́рого.", en: "This new computer runs much faster than the old one.", explanation: "Comparative adverb «быстрее»." },
+        { ru: "Самолёт доро́же по́езда, но значи́тельно комфо́ртнее.", en: "The airplane is more expensive than the train, but significantly more comfortable.", explanation: "Comparative with consonant mutation «дороже» and Genitive comparison." },
+        { ru: "Байка́л — са́мое глубо́кое о́зеро в ми́ре.", en: "Baikal is the deepest lake in the world.", explanation: "Superlative «самое глубокое» matching neuter «озеро»." }
+      ]
+    },
+
+    "time_expressions": {
+      id: "time_expressions",
+      title: "Time & Frequency Expressions (Выражение времени)",
+      level: "A1–B1",
+      questionPrompt: "через 5 минут, 2 года назад, за 2 часа, на неделю",
+      description: "Expressing time spans, deadlines, schedules, and duration requires specific prepositions and cases: «через» (in X time), «назад» (ago), «за + Acc» (time taken to achieve result), «на + Acc» (intended duration of stay/result).",
+      rules: [
+        { ending: "че́рез + Accusative (In X time)", rule: "Future point in time relative to now", example: "че́рез пять мину́т, че́рез два дня" },
+        { ending: "наза́д (Ago)", rule: "Past time span relative to now", example: "три го́да наза́д, неде́лю наза́д" },
+        { ending: "за + Accusative (Time to complete)", rule: "Duration required to finish a completed action", example: "прочита́л кни́гу за два часа́" },
+        { ending: "на + Accusative (Intended duration)", rule: "Planned duration of result / stay", example: "пое́хал в о́тпуск на ме́сяц" }
+      ],
+      examples: [
+        { ru: "Наш самолёт вылета́ет че́рез со́рок мину́т.", en: "Our flight takes off in forty minutes.", explanation: "Preposition «через» + Accusative." },
+        { ru: "Мы перее́хали в э́тот го́род пять лет наза́д.", en: "We moved to this city five years ago.", explanation: "Time duration with postposition «назад»." },
+        { ru: "Студе́нт написа́л всю курсову́ю рабо́ту за одну́ ночь.", en: "The student wrote the entire term paper in one night.", explanation: "Completed result within time span using «за + Acc»." }
+      ]
+    },
+
+    "relative_clauses_conjunctions": {
+      id: "relative_clauses_conjunctions",
+      title: "Relative Clauses & Conjunctions (Который, И, А, Но, Потому что, Поэтому)",
+      level: "A2–B2",
+      questionPrompt: "который, которая, которое; потому что vs. поэтому",
+      description: "Subordinate relative clauses use the pronoun «который», agreeing with its antecedent in gender/number and with its clause in case. Coordinating conjunctions distinguish between additive 'и', contrastive 'а', and adversative 'но'. Subordinating conjunctions connect cause (потому что) and consequence (поэтому).",
+      rules: [
+        { ending: "кото́рый / кото́рая / кото́рое / кото́рые", rule: "Gender/Number from head noun, Case from role in subclause", example: "челове́к, кото́рого я зна́ю; дом, в кото́ром я живу́" },
+        { ending: "И vs. А vs. НО", rule: "И (and/addition), А (and/whereas contrast), НО (but/opposition)", example: "Я чита́ю, а брат пи́шет. Я уста́л, но дово́лен." },
+        { ending: "потому́ что (Cause)", rule: "Introduces reason/cause", example: "Я оста́лся до́ма, потому́ что заболе́л." },
+        { ending: "поэ́тому (Consequence)", rule: "Introduces result/consequence", example: "Я заболе́л, поэ́тому оста́лся до́ма." }
+      ],
+      examples: [
+        { ru: "Это та са́мая кни́га, о кото́рой мы вчера́ говори́ли.", en: "This is the very book about which we were talking yesterday.", explanation: "Pronoun «которой» in Prepositional feminine singular." },
+        { ru: "У́тром шёл си́льный дождь, поэ́тому экску́рсию отмени́ли.", en: "In the morning it rained heavily, so the excursion was canceled.", explanation: "Consequence connector «поэтому»." },
+        { ru: "Я люблю́ зелёный чай, а моя́ сестра́ предпочита́ет ко́фе.", en: "I like green tea, whereas my sister prefers coffee.", explanation: "Contrastive conjunction «а»." }
+      ]
+    },
+
+    "participles_gerunds": {
+      id: "participles_gerunds",
+      title: "Participles & Verbal Adverbs / Gerunds (Причастия и деепричастия)",
+      level: "B1–B2",
+      questionPrompt: "читающий, прочитанный; читая, прочитав",
+      description: "Participles combine verb and adjective features, declining like adjectives to modify nouns. Verbal adverbs (gerunds) combine verb and adverb features to denote secondary parallel actions, never declining.",
+      rules: [
+        { ending: "-ущ-/-ющ-, -ащ-/-ящ- (Active Present)", rule: "One who is currently doing the action", example: "чита́ющий студе́нт, говоря́щий челове́к" },
+        { ending: "-вш-, -ш- (Active Past)", rule: "One who previously performed the action", example: "прочита́вший кни́гу, прише́дший гость" },
+        { ending: "-нн-, -т- (Passive Past)", rule: "Object that underwent completed action", example: "напи́санное письмо́, откры́тая дверь" },
+        { ending: "-я / -а (Imperfective Gerund) & -в (Perfective)", rule: "Secondary simultaneous vs. completed action", example: "чита́я кни́гу (while reading), прочита́в кни́гу (having read)" }
+      ],
+      examples: [
+        { ru: "Студе́нты, изуча́ющие ру́сский язы́к, посети́ли музе́й.", en: "The students studying the Russian language visited the museum.", explanation: "Present active participle «изучающие» modifying plural «студенты»." },
+        { ru: "Письмо́, напи́санное изве́стным поэ́том, храня́т в архи́ве.", en: "The letter written by the famous poet is kept in the archive.", explanation: "Past passive participle «написанное» modifying neuter «письмо»." },
+        { ru: "Зако́нчив рабо́ту, он вы́ключил компью́тер и пошёл домо́й.", en: "Having finished work, he turned off the computer and went home.", explanation: "Perfective verbal adverb (gerund) «закончив»." }
+      ]
     }
   };
 
@@ -1839,6 +2029,1126 @@
       translation: "First green leaves appeared on the tree.",
       transliteration: "Na dereve poyavilis pervye zelyonye listya.",
       explanation: "Botanical leaves plural of «лист» is «ли́стья»."
+    },
+
+    // 15. NUMERALS & AGREEMENT (11 Questions)
+    {
+      id: "q_num_1",
+      topicId: "numerals_agreement",
+      sentencePattern: "В па́рке расту́т два краси́вых [blank] (дерево).",
+      answer: "дерева",
+      choices: ["дерева", "деревьев", "дерево", "деревом"],
+      translation: "In the park two beautiful trees are growing.",
+      transliteration: "V parke rastut dva krasivykh dereva.",
+      explanation: "After numeral 2 neuter noun takes the Genitive singular: «дерева»."
+    },
+    {
+      id: "q_num_2",
+      topicId: "numerals_agreement",
+      sentencePattern: "Мы жда́ли по́езд ро́вно пять [blank] (минута).",
+      answer: "минут",
+      choices: ["минут", "минуты", "минутах", "минуту"],
+      translation: "We waited for the train for exactly five minutes.",
+      transliteration: "My zhdali poezd rovno pyat minut.",
+      explanation: "Numerals from 5 upwards govern the Genitive plural: «минут»."
+    },
+    {
+      id: "q_num_3",
+      topicId: "numerals_agreement",
+      sentencePattern: "В аудито́рии сиде́ли два́дцать один [blank] (студент).",
+      answer: "студент",
+      choices: ["студент", "студента", "студентов", "студенты"],
+      translation: "Twenty-one students were sitting in the classroom.",
+      transliteration: "V auditorii sideli dvadtsat odin student.",
+      explanation: "Compound numbers ending in 1 take the Nominative singular: «студент»."
+    },
+    {
+      id: "q_num_4",
+      topicId: "numerals_agreement",
+      sentencePattern: "На столе́ лежа́т три но́вые [blank] (книга).",
+      answer: "книги",
+      choices: ["книги", "книг", "книгу", "книгами"],
+      translation: "Three new books are lying on the table.",
+      transliteration: "Na stole lezhat tri novye knigi.",
+      explanation: "Numeral 3 with a feminine noun requires the Genitive singular: «книги»."
+    },
+    {
+      id: "q_num_5",
+      topicId: "numerals_agreement",
+      sentencePattern: "В на́шем но́вом до́ме де́сять [blank] (этаж).",
+      answer: "этажей",
+      choices: ["этажей", "этажа", "этажи", "этажами"],
+      translation: "In our new building there are ten floors.",
+      transliteration: "V nashem novom dome desyat etazhey.",
+      explanation: "Numeral 10 governs the Genitive plural: «этажей»."
+    },
+    {
+      id: "q_num_6",
+      topicId: "numerals_agreement",
+      sentencePattern: "У моего́ дру́га подраста́ют дво́е [blank] (сын).",
+      answer: "сыновей",
+      choices: ["сыновей", "сыновья", "сына", "сыновьям"],
+      translation: "My friend has two sons growing up.",
+      transliteration: "U moego druga podrastayut dvoe synovey.",
+      explanation: "Collective numeral «двое» takes the Genitive plural: «сыновей»."
+    },
+    {
+      id: "q_num_7",
+      topicId: "numerals_agreement",
+      sentencePattern: "Биле́т на самолёт сто́ит четы́ре [blank] (тысяча) рублей.",
+      answer: "тысячи",
+      choices: ["тысячи", "тысяч", "тысяча", "тысячами"],
+      translation: "The plane ticket costs four thousand rubles.",
+      transliteration: "Bilet na samolyot stoit chetyre tysyachi rubley.",
+      explanation: "Numeral 4 requires the Genitive singular: «тысячи»."
+    },
+    {
+      id: "q_num_8",
+      topicId: "numerals_agreement",
+      sentencePattern: "В музе́е мы провели́ ро́вно два [blank] (час).",
+      answer: "часа",
+      choices: ["часа", "часов", "час", "часах"],
+      translation: "In the museum we spent exactly two hours.",
+      transliteration: "V muzee my proveli rovno dva chasa.",
+      explanation: "Numeral 2 requires the Genitive singular: «часа»."
+    },
+    {
+      id: "q_num_9",
+      topicId: "numerals_agreement",
+      sentencePattern: "В ко́мнате бы́ло шестна́дцать [blank] (человек).",
+      answer: "человек",
+      choices: ["человек", "человека", "людей", "люди"],
+      translation: "There were sixteen people in the room.",
+      transliteration: "V komnate bylo shestnadtsat chelovek.",
+      explanation: "With numerals 5+, «человек» is the counting plural form: «шестнадцать человек»."
+    },
+    {
+      id: "q_num_10",
+      topicId: "numerals_agreement",
+      sentencePattern: "Мы купи́ли три́дцать две [blank] (тетрадь).",
+      answer: "тетради",
+      choices: ["тетради", "тетрадей", "тетрадь", "тетрадями"],
+      translation: "We bought thirty-two notebooks.",
+      transliteration: "My kupili tridtsat dve tetradi.",
+      explanation: "Compound number ending in 2 takes the Genitive singular: «тетради»."
+    },
+    {
+      id: "q_num_11",
+      topicId: "numerals_agreement",
+      sentencePattern: "До нача́ла спекта́кля оста́лось со́рок [blank] (секунда).",
+      answer: "секунд",
+      choices: ["секунд", "секунды", "секунда", "секундам"],
+      translation: "Forty seconds remained until the start of the performance.",
+      transliteration: "Do nachala spektaklya ostalos sorok sekund.",
+      explanation: "Numeral 40 takes the Genitive plural: «секунд»."
+    },
+
+    // 16. PREFIXED VERBS OF MOTION (11 Questions)
+    {
+      id: "q_pmv_1",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Студе́нт осторо́жно [blank] (войти) в аудито́рию.",
+      answer: "вошёл",
+      choices: ["вошёл", "вышел", "дошёл", "перешёл"],
+      translation: "The student carefully entered the classroom.",
+      transliteration: "Student ostorozhno voshyol v auditoriyu.",
+      explanation: "Entering an interior room with preposition «в» requires prefix во-: «вошёл»."
+    },
+    {
+      id: "q_pmv_2",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "По́езд то́чно по расписа́нию [blank] (приехать) на вокза́л.",
+      answer: "приехал",
+      choices: ["приехал", "уехал", "отъехал", "съехал"],
+      translation: "The train arrived at the station right on schedule.",
+      transliteration: "Poezd tochno po raspisaniyu priekhal na vokzal.",
+      explanation: "Arrival at destination uses prefix при-: «приехал»."
+    },
+    {
+      id: "q_pmv_3",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "У́тром па́па ра́но [blank] (уйти) из до́ма на рабо́ту.",
+      answer: "ушёл",
+      choices: ["ушёл", "вошёл", "зашёл", "подошёл"],
+      translation: "In the morning dad left home early for work.",
+      transliteration: "Utrom papa rano ushyol iz doma na rabotu.",
+      explanation: "Departure from a place with «из» takes prefix у-: «ушёл»."
+    },
+    {
+      id: "q_pmv_4",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Пешехо́ды бы́стро [blank] (перейти) у́лицу по зе́бре.",
+      answer: "перешли",
+      choices: ["перешли", "вошли", "подошли", "отошли"],
+      translation: "Pedestrians quickly crossed the street at the crosswalk.",
+      transliteration: "Peshehody bystro pereshli ulitsu po zebre.",
+      explanation: "Crossing from one side to the other uses prefix пере-: «перешли»."
+    },
+    {
+      id: "q_pmv_5",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Маши́на аккура́тно [blank] (выехать) из гаража́ на у́лицу.",
+      answer: "выехала",
+      choices: ["выехала", "въехала", "доехала", "заехала"],
+      translation: "The car carefully drove out of the garage into the street.",
+      transliteration: "Mashina akkuratno vyekhala iz garazha na ulitsu.",
+      explanation: "Exit from inside with «из» requires prefix вы-: «выехала»."
+    },
+    {
+      id: "q_pmv_6",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Ма́льчик сме́ло [blank] (подойти) к незнако́мой соба́ке.",
+      answer: "подошёл",
+      choices: ["подошёл", "отошёл", "перешёл", "вошёл"],
+      translation: "The boy boldly approached the unfamiliar dog.",
+      transliteration: "Malchik smelo podoshyol k neznakomoy sobake.",
+      explanation: "Approaching near (paired with preposition «к») uses prefix под-: «подошёл»."
+    },
+    {
+      id: "q_pmv_7",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Тури́сты наконе́ц [blank] (дойти) до верху́шки горы́.",
+      answer: "дошли",
+      choices: ["дошли", "ушли", "вышли", "отошли"],
+      translation: "The tourists finally reached the mountain summit.",
+      transliteration: "Turisty nakonets doshli do verkhushki gory.",
+      explanation: "Reaching a final destination boundary (with «до») uses prefix до-: «дошли»."
+    },
+    {
+      id: "q_pmv_8",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "По доро́ге домо́й я [blank] (зайти) в апте́ку за лека́рством.",
+      answer: "зашёл",
+      choices: ["зашёл", "вышел", "перешёл", "отошёл"],
+      translation: "On the way home I dropped by the pharmacy for medicine.",
+      transliteration: "Po doroge domoy ya zashyol v apteku za lekarstvom.",
+      explanation: "A short incidental stop on the way uses prefix за-: «зашёл»."
+    },
+    {
+      id: "q_pmv_9",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "По́езд ме́дленно [blank] (отойти) от перро́на.",
+      answer: "отошёл",
+      choices: ["отошёл", "подошёл", "вошёл", "перешёл"],
+      translation: "The train slowly moved away from the platform.",
+      transliteration: "Poezd medlenno otoshyol ot perrona.",
+      explanation: "Moving away (paired with preposition «от») uses prefix от-: «отошёл»."
+    },
+    {
+      id: "q_pmv_10",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Самолёт бла́гополу́чно [blank] (долететь) до столи́цы.",
+      answer: "долетел",
+      choices: ["долетел", "улетел", "вылетел", "перелетел"],
+      translation: "The plane safely flew all the way to the capital.",
+      transliteration: "Samolyot blagopoluchno doletel do stolitsy.",
+      explanation: "Reaching destination by air with «до» uses prefix до-: «долетел»."
+    },
+    {
+      id: "q_pmv_11",
+      topicId: "prefixed_motion_verbs",
+      sentencePattern: "Спортсме́н пе́рвым [blank] (добежать) до фи́нишной ли́нии.",
+      answer: "добежал",
+      choices: ["добежал", "убежал", "выбежал", "перебежал"],
+      translation: "The athlete was the first to run to the finish line.",
+      transliteration: "Sportsmen pervym dobezhal do finishnoy linii.",
+      explanation: "Reaching finish line by running uses prefix до-: «добежал»."
+    },
+
+    // 17. IMPERATIVES (11 Questions)
+    {
+      id: "q_imp_1",
+      topicId: "imperatives",
+      sentencePattern: "Пожа́луйста, [blank] (открыть) окно́, здесь о́чень ду́шно.",
+      answer: "откройте",
+      choices: ["откройте", "открываете", "открыл", "открыли"],
+      translation: "Please open the window, it is very stuffy in here.",
+      transliteration: "Pozhaluysta, otkroyte okno, zdes ochen dushno.",
+      explanation: "Polite formal request in imperative ending in -те: «откройте»."
+    },
+    {
+      id: "q_imp_2",
+      topicId: "imperatives",
+      sentencePattern: "Никогда́ не [blank] (опаздывать) на ва́жные встре́чи.",
+      answer: "опаздывай",
+      choices: ["опаздывай", "опоздай", "опаздывал", "опоздал"],
+      translation: "Never be late for important meetings.",
+      transliteration: "Nikogda ne opazdyvay na vazhnye vstrechi.",
+      explanation: "Prohibitions with «не» require the Imperfective imperative: «не опаздывай»."
+    },
+    {
+      id: "q_imp_3",
+      topicId: "imperatives",
+      sentencePattern: "Друг, [blank] (рассказать) мне всю пра́вду о слу́чившемся.",
+      answer: "расскажи",
+      choices: ["расскажи", "рассказывай", "рассказал", "расскажешь"],
+      translation: "Friend, tell me the whole truth about what happened.",
+      transliteration: "Drug, rasskazhi mne vsyu pravdu o sluchivshemsya.",
+      explanation: "Informal single action imperative ending in -и: «расскажи»."
+    },
+    {
+      id: "q_imp_4",
+      topicId: "imperatives",
+      sentencePattern: "Де́ти, [blank] (слушать) учи́теля внима́тельно!",
+      answer: "слушайте",
+      choices: ["слушайте", "слушай", "слушали", "послушали"],
+      translation: "Children, listen to the teacher attentively!",
+      transliteration: "Deti, slushayte uchitelya vnimatelno!",
+      explanation: "Plural imperative for vowel-stem verb: «слушайте»."
+    },
+    {
+      id: "q_imp_5",
+      topicId: "imperatives",
+      sentencePattern: "Не [blank] (забывать) брать с собо́й зо́нтик в дождли́вый день.",
+      answer: "забывай",
+      choices: ["забывай", "забудь", "забывал", "забудешь"],
+      translation: "Don't forget to take an umbrella on a rainy day.",
+      transliteration: "Ne zabyvay brat s soboy zontik v dozhdlivyy den.",
+      explanation: "General reminder prohibition takes Imperfective imperative: «не забывай»."
+    },
+    {
+      id: "q_imp_6",
+      topicId: "imperatives",
+      sentencePattern: "Пожа́луйста, [blank] (повторить) свой вопро́с ещё раз.",
+      answer: "повторите",
+      choices: ["повторите", "повторяете", "повторили", "повторишь"],
+      translation: "Please repeat your question one more time.",
+      transliteration: "Pozhaluysta, povtorite svoy vopros eshchyo raz.",
+      explanation: "Polite formal imperative ending in -ите: «повторите»."
+    },
+    {
+      id: "q_imp_7",
+      topicId: "imperatives",
+      sentencePattern: "Бу́дь добр, [blank] (помочь) мне с э́тим тяжёлым чемода́ном.",
+      answer: "помоги",
+      choices: ["помоги", "помогай", "помог", "поможешь"],
+      translation: "Be kind, help me with this heavy suitcase.",
+      transliteration: "Bud dobr, pomogi mne s etim tyazhyolym chemodanom.",
+      explanation: "Informal request in single action: «помоги»."
+    },
+    {
+      id: "q_imp_8",
+      topicId: "imperatives",
+      sentencePattern: "Смотри́, не [blank] (упасть) на ско́льзком льду!",
+      answer: "упади",
+      choices: ["упади", "падай", "упал", "упадёшь"],
+      translation: "Watch out that you don't fall on the slippery ice!",
+      transliteration: "Smotri, ne upadi na skolzkom ldu!",
+      explanation: "Warning against accidental result («смотри не...») takes Perfective: «упади»."
+    },
+    {
+      id: "q_imp_9",
+      topicId: "imperatives",
+      sentencePattern: "Скоре́е [blank] (встать), по́езд отправля́ется че́рез де́сять мину́т!",
+      answer: "вставай",
+      choices: ["вставай", "встань", "встал", "встаёшь"],
+      translation: "Get up quickly, the train departs in ten minutes!",
+      transliteration: "Skoree vstavay, poezd otpravlyaetsya cherez desyat minut!",
+      explanation: "Urgent dynamic call to action uses imperative «вставай»."
+    },
+    {
+      id: "q_imp_10",
+      topicId: "imperatives",
+      sentencePattern: "Пожа́луйста, [blank] (познакомиться) с на́шим но́вым колле́гой.",
+      answer: "познакомьтесь",
+      choices: ["познакомьтесь", "познакомились", "знакомьтесь", "познакомитесь"],
+      translation: "Please get acquainted with our new colleague.",
+      transliteration: "Pozhaluysta, poznakomtes s nashim novym kollegoy.",
+      explanation: "Reflexive imperative ending in -ьтесь: «познакомьтесь»."
+    },
+    {
+      id: "q_imp_11",
+      topicId: "imperatives",
+      sentencePattern: "[blank] (написать) мне письмо́, как то́лько прие́дешь на ме́сто.",
+      answer: "напиши",
+      choices: ["напиши", "пиши", "написал", "напишешь"],
+      translation: "Write me a letter as soon as you arrive at the place.",
+      transliteration: "Napishi mne pismo, kak tolko priedesh na mesto.",
+      explanation: "Specific future single instruction: «напиши»."
+    },
+
+    // 18. REFLEXIVE VERBS (11 Questions)
+    {
+      id: "q_refl_1",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Мой мла́дший брат [blank] (учиться) в тре́тьем кла́ссе.",
+      answer: "учится",
+      choices: ["учится", "учит", "учусь", "учатся"],
+      translation: "My younger brother studies in the third grade.",
+      transliteration: "Moy mladshiy brat uchitsya v tretyem klasse.",
+      explanation: "3rd person singular after consonant ending takes -ся: «учится»."
+    },
+    {
+      id: "q_refl_2",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Ка́ждое у́тро я ра́но [blank] (просыпаться) и де́лаю заря́дку.",
+      answer: "просыпаюсь",
+      choices: ["просыпаюсь", "просыпается", "просыпаемся", "просыпаются"],
+      translation: "Every morning I wake up early and do exercises.",
+      transliteration: "Kazhdoe utro ya rano prosypayus i delayu zaryadku.",
+      explanation: "1st person singular vowel ending takes -сь: «просыпаюсь»."
+    },
+    {
+      id: "q_refl_3",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Мы с колле́гами ча́сто [blank] (встречаться) в ка́фе по суббо́там.",
+      answer: "встречаемся",
+      choices: ["встречаемся", "встречаетесь", "встречается", "встречаются"],
+      translation: "My colleagues and I often meet in a cafe on Saturdays.",
+      transliteration: "My s kollegami chasto vstrechaemsya v kafe po subbotam.",
+      explanation: "1st person plural reciprocal verb: «встречаемся»."
+    },
+    {
+      id: "q_refl_4",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Ребёнок о́чень [blank] (бояться) темноты́ и грозы́.",
+      answer: "боится",
+      choices: ["боится", "боюсь", "боятся", "боимся"],
+      translation: "The child is very afraid of the dark and thunderstorm.",
+      transliteration: "Rebyonok ochen boitsya temnoty i grozy.",
+      explanation: "3rd person singular emotional state verb: «боится»."
+    },
+    {
+      id: "q_refl_5",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Она́ бы́стро [blank] (одеться) и вы́бежала на у́лицу.",
+      answer: "оделась",
+      choices: ["оделась", "оделся", "оделись", "оделось"],
+      translation: "She quickly got dressed and ran out into the street.",
+      transliteration: "Ona bystro odelas i vybezhala na ulitsu.",
+      explanation: "Feminine past tense vowel ending takes -сь: «оделась»."
+    },
+    {
+      id: "q_refl_6",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Студе́нты и́скренне [blank] (радоваться) успе́шной сда́че экза́мена.",
+      answer: "радуются",
+      choices: ["радуются", "радуется", "радуемся", "радуюсь"],
+      translation: "The students genuinely rejoice at successfully passing the exam.",
+      transliteration: "Studenty iskrenne raduyutsya uspeshnoy sdache ekzamena.",
+      explanation: "3rd person plural present tense: «радуются»."
+    },
+    {
+      id: "q_refl_7",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Этот совреме́нный музе́й [blank] (открываться) в де́сять часо́в утра́.",
+      answer: "открывается",
+      choices: ["открывается", "открываюсь", "открываются", "открываемся"],
+      translation: "This modern museum opens at ten in the morning.",
+      transliteration: "Etot sovremennyy muzey otkryvaetsya v desyat chasov utra.",
+      explanation: "Passive/middle voice 3rd person singular: «открывается»."
+    },
+    {
+      id: "q_refl_8",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Вчера́ ве́чером мы до́лго [blank] (прощаться) на вокза́ле.",
+      answer: "прощались",
+      choices: ["прощались", "прощался", "прощалась", "прощалось"],
+      translation: "Yesterday evening we said goodbye for a long time at the station.",
+      transliteration: "Vchera vecherom my dolgo proshchalis na vokzale.",
+      explanation: "Plural past tense reciprocal verb ending in vowel + сь: «прощались»."
+    },
+    {
+      id: "q_refl_9",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Ты всегда́ так ве́село [blank] (смеяться) над шу́тками!",
+      answer: "смеёшься",
+      choices: ["смеёшься", "смеётся", "смеюсь", "смеются"],
+      translation: "You always laugh so cheerfully at jokes!",
+      transliteration: "Ty vsegda tak veselo smeyoshsya nad shutkami!",
+      explanation: "2nd person singular verb ending in -шься: «смеёшься»."
+    },
+    {
+      id: "q_refl_10",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Мой де́душка [blank] (родиться) в ма́ленькой дере́вне на се́вере.",
+      answer: "родился",
+      choices: ["родился", "родилась", "родились", "родилось"],
+      translation: "My grandfather was born in a small village in the north.",
+      transliteration: "Moy dedushka rodilsya v malenkoy derevne na severe.",
+      explanation: "Masculine past tense ending in consonant takes -ся: «родился»."
+    },
+    {
+      id: "q_refl_11",
+      topicId: "reflexive_verbs",
+      sentencePattern: "Как [blank] (называться) э́та краси́вая у́лица?",
+      answer: "называется",
+      choices: ["называется", "называюсь", "называются", "называем"],
+      translation: "What is this beautiful street called?",
+      transliteration: "Kak nazyvaetsya eta krasivaya ulitsa?",
+      explanation: "Inanimate 3rd person singular: «называется»."
+    },
+
+    // 19. SUBJUNCTIVE & CONDITIONAL MOOD (11 Questions)
+    {
+      id: "q_subj_1",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Е́сли бы у меня́ бы́ло вре́мя, я [blank] (помочь) тебе́ с уро́ками.",
+      answer: "помог бы",
+      choices: ["помог бы", "помогу", "помогал", "буду помогать"],
+      translation: "If I had time, I would help you with your homework.",
+      transliteration: "Esli by u menya bylo vremya, ya pomog by tebe s urokami.",
+      explanation: "Counterfactual conditional requires past tense + particle бы: «помог бы»."
+    },
+    {
+      id: "q_subj_2",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Ма́ма хо́чет, что́бы сын [blank] (поступить) в университе́т.",
+      answer: "поступил",
+      choices: ["поступил", "поступит", "поступать", "поступает"],
+      translation: "Mom wants her son to enter the university.",
+      transliteration: "Mama khochet, chtoby syn postupil v universitet.",
+      explanation: "Clause with «чтобы» expressing a wish for another subject requires past tense: «поступил»."
+    },
+    {
+      id: "q_subj_3",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Я пришёл сюда́, что́бы [blank] (поговорить) с ва́ми.",
+      answer: "поговорить",
+      choices: ["поговорить", "поговорил", "поговорю", "поговорили"],
+      translation: "I came here in order to speak with you.",
+      transliteration: "Ya prishyol syuda, chtoby pogovorit s vami.",
+      explanation: "Purpose clause sharing the same subject takes «чтобы + infinitive»: «поговорить»."
+    },
+    {
+      id: "q_subj_4",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Е́сли бы вчера́ не бы́ло дождя́, мы [blank] (поехать) за́ город.",
+      answer: "поехали бы",
+      choices: ["поехали бы", "поедем", "поезжали", "будем ехать"],
+      translation: "If it had not rained yesterday, we would have gone out of town.",
+      transliteration: "Esli by vchera ne bylo dozhdya, my poekhali by za gorod.",
+      explanation: "Plural past conditional with particle бы: «поехали бы»."
+    },
+    {
+      id: "q_subj_5",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Я [blank] (хотеть) вы́пить ча́шку горя́чего ко́фе.",
+      answer: "хотел бы",
+      choices: ["хотел бы", "хочу", "хотел", "буду хотеть"],
+      translation: "I would like to drink a cup of hot coffee.",
+      transliteration: "Ya khotel by vypit chashku goryachego kofe.",
+      explanation: "Polite softened wish uses past tense + бы: «хотел бы»."
+    },
+    {
+      id: "q_subj_6",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Учи́тель тре́бует, что́бы ученики́ [blank] (сдать) тетра́ди во́время.",
+      answer: "сдали",
+      choices: ["сдали", "сдадут", "сдавать", "сдают"],
+      translation: "The teacher demands that students hand in notebooks on time.",
+      transliteration: "Uchitel trebuet, chtoby ucheniki sdali tetradi vovremya.",
+      explanation: "Subjunctive clause with «чтобы» takes past tense: «сдали»."
+    },
+    {
+      id: "q_subj_7",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Е́сли бы ты сказа́л ра́ньше, я [blank] (купить) два биле́та.",
+      answer: "купил бы",
+      choices: ["купил бы", "куплю", "покупал", "буду покупать"],
+      translation: "If you had told me earlier, I would have bought two tickets.",
+      transliteration: "Esli by ty skazal ranshe, ya kupil by dva bileta.",
+      explanation: "Past hypothetical result: «купил бы»."
+    },
+    {
+      id: "q_subj_8",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Врачи́ сове́туют, что́бы пацие́нт бо́льше [blank] (отдыхать) на све́жем во́здухе.",
+      answer: "отдыхал",
+      choices: ["отдыхал", "отдыхает", "отдыхать", "отдохнёт"],
+      translation: "Doctors advise that the patient rest more in fresh air.",
+      transliteration: "Vrachi sovetuyut, chtoby patsient bolshe otdykhal na svezhem vozdukhe.",
+      explanation: "Past tense after «чтобы»: «отдыхал»."
+    },
+    {
+      id: "q_subj_9",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Мы поспеши́ли на авто́бус, что́бы не [blank] (опоздать) в аэропо́рт.",
+      answer: "опоздать",
+      choices: ["опоздать", "опоздали", "опаздывать", "опоздает"],
+      translation: "We hurried to the bus in order not to be late for the airport.",
+      transliteration: "My pospeshili na avtobus, chtoby ne opozdat v aeroport.",
+      explanation: "Same-subject purpose clause: «чтобы не опоздать»."
+    },
+    {
+      id: "q_subj_10",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Без твое́й по́мощи мы ни за что не [blank] (решить) э́ту зада́чу.",
+      answer: "решили бы",
+      choices: ["решили бы", "решим", "решали", "будем решать"],
+      translation: "Without your help we would never have solved this problem.",
+      transliteration: "Bez tvoey pomoshchi my ni za chto ne reshili by etu zadachu.",
+      explanation: "Conditional without explicit 'если': «решили бы»."
+    },
+    {
+      id: "q_subj_11",
+      topicId: "subjunctive_conditional",
+      sentencePattern: "Она́ мечта́ет о том, что́бы мир [blank] (стать) добре́е.",
+      answer: "стал",
+      choices: ["стал", "станет", "становиться", "становился"],
+      translation: "She dreams that the world would become kinder.",
+      transliteration: "Ona mechtaet o tom, chtoby mir stal dobree.",
+      explanation: "Clause of desire with «чтобы + past»: «стал»."
+    },
+
+    // 20. IMPERSONAL SENTENCES (11 Questions)
+    {
+      id: "q_impn_1",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Сего́дня ве́чером мне о́чень [blank] (холодно) на у́лице.",
+      answer: "холодно",
+      choices: ["холодно", "холодный", "холодная", "холодом"],
+      translation: "This evening I feel very cold outside.",
+      transliteration: "Segodnya vecherom mne ochen kholodno na ulitse.",
+      explanation: "Impersonal physical sensation with Dative experiencer: «мне холодно»."
+    },
+    {
+      id: "q_impn_2",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Студе́нтам [blank] (нужно) внима́тельно прочита́ть э́ту главу́.",
+      answer: "нужно",
+      choices: ["нужно", "нужный", "нужная", "нужные"],
+      translation: "Students need to attentively read this chapter.",
+      transliteration: "Studentam nuzhno vnimatelno prochitat etu glavu.",
+      explanation: "Impersonal modal category of necessity: «нужно»."
+    },
+    {
+      id: "q_impn_3",
+      topicId: "impersonal_sentences",
+      sentencePattern: "В э́том чита́льном за́ле [blank] (нельзя) громко разговаривать.",
+      answer: "нельзя",
+      choices: ["нельзя", "можно", "нужно", "надо"],
+      translation: "In this reading hall one is not allowed to speak loudly.",
+      transliteration: "V etom chitalnom zale nelzya gromko razgovarivat.",
+      explanation: "Strict prohibition word: «нельзя»."
+    },
+    {
+      id: "q_impn_4",
+      topicId: "impersonal_sentences",
+      sentencePattern: "У меня́ сего́дня соверше́нно нет [blank] (время).",
+      answer: "времени",
+      choices: ["времени", "время", "временем", "времена"],
+      translation: "I have absolutely no time today.",
+      transliteration: "U menya segodnya sovershenno net vremeni.",
+      explanation: "Negative existential particle «нет» governs the Genitive: «нет времени»."
+    },
+    {
+      id: "q_impn_5",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Вчера́ на у́лице [blank] (не было) со́лнца, весь день шёл снег.",
+      answer: "не было",
+      choices: ["не было", "не был", "не была", "не были"],
+      translation: "Yesterday there was no sun outside, it snowed all day.",
+      transliteration: "Vchera na ulitse ne bylo solntsa, ves den shyol sneg.",
+      explanation: "Past tense negative existential verb is always neuter singular: «не было»."
+    },
+    {
+      id: "q_impn_6",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Моему́ дру́гу [blank] (приходиться) ка́ждый день ра́но встава́ть.",
+      answer: "приходится",
+      choices: ["приходится", "приходят", "прихожу", "приходим"],
+      translation: "My friend has to get up early every day.",
+      transliteration: "Moemu drugu prikhoditsya kazhdyy den rano vstavat.",
+      explanation: "Impersonal external constraint with Dative: «приходится»."
+    },
+    {
+      id: "q_impn_7",
+      topicId: "impersonal_sentences",
+      sentencePattern: "В э́том па́рке [blank] (можно) ката́ться на велосипе́дах.",
+      answer: "можно",
+      choices: ["можно", "нельзя", "нужен", "надо"],
+      translation: "In this park one is allowed to ride bicycles.",
+      transliteration: "V etom parke mozhno katatsya na velosipedakh.",
+      explanation: "Permission modal adverb: «можно»."
+    },
+    {
+      id: "q_impn_8",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Ма́ленькой сестре́ ста́ло [blank] (скучно) во вре́мя спекта́кля.",
+      answer: "скучно",
+      choices: ["скучно", "скучный", "скучная", "скучные"],
+      translation: "The little sister started feeling bored during the show.",
+      transliteration: "Malenkoy sestre stalo skuchno vo vremya spektaklya.",
+      explanation: "Impersonal psychological state adverb: «скучно»."
+    },
+    {
+      id: "q_impn_9",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Зимо́й на се́вере [blank] (рассветать) о́чень по́здно.",
+      answer: "рассветает",
+      choices: ["рассветает", "рассветают", "рассветал", "рассветёт"],
+      translation: "In winter in the north dawn breaks very late.",
+      transliteration: "Zimoy na severe rassvetaet ochen pozdno.",
+      explanation: "Natural impersonal phenomena 3rd person singular: «рассветает»."
+    },
+    {
+      id: "q_impn_10",
+      topicId: "impersonal_sentences",
+      sentencePattern: "Пассажи́рам [blank] (следовать) сохрани́ть поса́дочные тало́ны.",
+      answer: "следует",
+      choices: ["следует", "следуют", "следовал", "следуем"],
+      translation: "Passengers ought to retain their boarding passes.",
+      transliteration: "Passazhiram sleduet sokhranit posadochnye talony.",
+      explanation: "Formal obligation with Dative experiencer: «следует»."
+    },
+    {
+      id: "q_impn_11",
+      topicId: "impersonal_sentences",
+      sentencePattern: "За́втра у нас [blank] (не будет) свобо́дных уро́ков.",
+      answer: "не будет",
+      choices: ["не будет", "не будут", "не был", "не есть"],
+      translation: "Tomorrow we will have no free periods.",
+      transliteration: "Zavtra u nas ne budet svobodnykh urokov.",
+      explanation: "Future negative existential takes singular «не будет»."
+    },
+
+    // 21. COMPARATIVES & SUPERLATIVES (11 Questions)
+    {
+      id: "q_comp_1",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "По́езд е́дет бы́стро, но самолёт лети́т ещё [blank] (быстро).",
+      answer: "быстрее",
+      choices: ["быстрее", "быстрый", "более быстро", "быстрейший"],
+      translation: "The train goes fast, but the plane flies even faster.",
+      transliteration: "Poezd edet bystro, no samolyot letit eshchyo bystree.",
+      explanation: "Simple comparative adverb ending in -ее: «быстрее»."
+    },
+    {
+      id: "q_comp_2",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Золото́е кольцо́ [blank] (дорогой) сере́бряного.",
+      answer: "дороже",
+      choices: ["дороже", "дорогее", "более дорогой", "самый дорогой"],
+      translation: "The gold ring is more expensive than the silver one.",
+      transliteration: "Zolotoe koltso dorozhe serebryanogo.",
+      explanation: "Comparative with consonant mutation г → ж: «дороже»."
+    },
+    {
+      id: "q_comp_3",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Этот но́вый фильм о́казался намно́го [blank] (хороший) преды́дущего.",
+      answer: "лучше",
+      choices: ["лучше", "хорошее", "более хороший", "самый хороший"],
+      translation: "This new movie turned out much better than the previous one.",
+      transliteration: "Etot novyy film okazalsya namnogo luchshe predydushchego.",
+      explanation: "Suppletive comparative from «хороший»: «лучше»."
+    },
+    {
+      id: "q_comp_4",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Эвере́ст — [blank] (высокий) верши́на на Земле́.",
+      answer: "самая высокая",
+      choices: ["самая высокая", "самый высокий", "самое высокое", "выше"],
+      translation: "Everest is the highest peak on Earth.",
+      transliteration: "Everest — samaya vysokaya vershina na Zemle.",
+      explanation: "Superlative agreeing with feminine noun «вершина»: «самая высокая»."
+    },
+    {
+      id: "q_comp_5",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Ста́рший брат на два го́да [blank] (молодой) своего́ дру́га.",
+      answer: "моложе",
+      choices: ["моложе", "молодее", "более молодой", "младший"],
+      translation: "The elder brother is two years younger than his friend.",
+      transliteration: "Starshiy brat na dva goda molozhe svoego druga.",
+      explanation: "Consonant mutation д → ж: «моложе»."
+    },
+    {
+      id: "q_comp_6",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Сего́дня морозная пого́да ста́ла намно́го [blank] (плохой), чем вчера́.",
+      answer: "хуже",
+      choices: ["хуже", "плохее", "более плохой", "худший"],
+      translation: "Today the frosty weather became much worse than yesterday.",
+      transliteration: "Segodnya moroznaya pogoda stala namnogo khuzhe, chem vchera.",
+      explanation: "Suppletive comparative from «плохой»: «хуже»."
+    },
+    {
+      id: "q_comp_7",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "В э́том ти́хом переу́лке [blank] (тихий), чем на проспе́кте.",
+      answer: "тише",
+      choices: ["тише", "тихее", "более тихо", "тишайший"],
+      translation: "In this quiet alley it is quieter than on the avenue.",
+      transliteration: "V etom tikhom pereulke tishe, chem na prospekte.",
+      explanation: "Consonant mutation х → ш: «тише»."
+    },
+    {
+      id: "q_comp_8",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "В на́шем кла́ссе учи́лся [blank] (умный) ма́льчик в шко́ле.",
+      answer: "самый умный",
+      choices: ["самый умный", "самая умная", "умнее", "умнейший"],
+      translation: "In our class studied the smartest boy in school.",
+      transliteration: "V nashem klasse uchilsya samyy umnyy malchik v shkole.",
+      explanation: "Superlative masculine form: «самый умный»."
+    },
+    {
+      id: "q_comp_9",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Зимо́й но́чи намно́го [blank] (длинный), а дни коро́че.",
+      answer: "длиннее",
+      choices: ["длиннее", "длинный", "более длинный", "длиннейший"],
+      translation: "In winter the nights are much longer, and days are shorter.",
+      transliteration: "Zimoy nochi namnogo dlinnee, a dni koroche.",
+      explanation: "Comparative ending in -ее: «длиннее»."
+    },
+    {
+      id: "q_comp_10",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Чемода́н оказа́лся намно́го [blank] (тяжёлый), чем каза́лся снаружи.",
+      answer: "тяжелее",
+      choices: ["тяжелее", "тяжеле", "более тяжёлый", "тягчайший"],
+      translation: "The suitcase turned out much heavier than it looked from outside.",
+      transliteration: "Chemodan okazalsya namnogo tyazhelee, chem kazalsya snaruzhi.",
+      explanation: "Comparative ending in -ее: «тяжелее»."
+    },
+    {
+      id: "q_comp_11",
+      topicId: "comparatives_superlatives",
+      sentencePattern: "Это [blank] (важный) вопро́с на сего́дняшней пове́стке дня.",
+      answer: "самый важный",
+      choices: ["самый важный", "самая важная", "важнее", "важней"],
+      translation: "This is the most important question on today's agenda.",
+      transliteration: "Eto samyy vazhnyy vopros na segodnyashney povestke dnya.",
+      explanation: "Superlative modifying masculine «вопрос»: «самый важный»."
+    },
+
+    // 22. TIME & FREQUENCY EXPRESSIONS (11 Questions)
+    {
+      id: "q_time_1",
+      topicId: "time_expressions",
+      sentencePattern: "По́езд на Санкт-Петербу́рг отправля́ется ро́вно [blank] (через) де́сять мину́т.",
+      answer: "через",
+      choices: ["через", "назад", "за", "на"],
+      translation: "The train to Saint Petersburg departs in exactly ten minutes.",
+      transliteration: "Poezd na Sankt-Peterburg otpravlyaetsya rovno cherez desyat minut.",
+      explanation: "Future time span from now requires «через»: «через десять минут»."
+    },
+    {
+      id: "q_time_2",
+      topicId: "time_expressions",
+      sentencePattern: "Мы верну́лись из о́тпуска ро́вно две неде́ли [blank] (назад).",
+      answer: "назад",
+      choices: ["назад", "через", "за", "после"],
+      translation: "We returned from vacation exactly two weeks ago.",
+      transliteration: "My vernulis iz otpuska rovno dve nedeli nazad.",
+      explanation: "Past time duration from now requires postposition «назад»."
+    },
+    {
+      id: "q_time_3",
+      topicId: "time_expressions",
+      sentencePattern: "Студе́нт реши́л всю сло́жную зада́чу [blank] (за) оди́н час.",
+      answer: "за",
+      choices: ["за", "на", "через", "в"],
+      translation: "The student solved the entire complex problem in one hour.",
+      transliteration: "Student reshil vsyu slozhnuyu zadachu za odin chas.",
+      explanation: "Time required to complete a result takes «за + Acc»: «за один час»."
+    },
+    {
+      id: "q_time_4",
+      topicId: "time_expressions",
+      sentencePattern: "Мой колле́га уе́хал в командиро́вку [blank] (на) це́лый ме́сяц.",
+      answer: "на",
+      choices: ["на", "за", "через", "в"],
+      translation: "My colleague left on a business trip for a whole month.",
+      transliteration: "Moy kollega uekhal v komandirovku na tselyy mesyats.",
+      explanation: "Intended planned duration of stay/result takes «на + Acc»: «на целый месяц»."
+    },
+    {
+      id: "q_time_5",
+      topicId: "time_expressions",
+      sentencePattern: "[blank] (по) понеде́льникам наш музе́й закры́т для посеще́ния.",
+      answer: "По",
+      choices: ["По", "В", "На", "За"],
+      translation: "On Mondays our museum is closed for visits.",
+      transliteration: "Po ponedelnikam nash muzey zakryt dlya poseshcheniya.",
+      explanation: "Recurring regular day of the week takes «по + Dat pl»: «По понедельникам»."
+    },
+    {
+      id: "q_time_6",
+      topicId: "time_expressions",
+      sentencePattern: "Собра́ние зако́нчилось ро́вно [blank] (в) три часа́ дня.",
+      answer: "в",
+      choices: ["в", "на", "через", "за"],
+      translation: "The meeting ended at exactly three o'clock in the afternoon.",
+      transliteration: "Sobranie zakonchilos rovno v tri chasa dnya.",
+      explanation: "Exact clock hour takes «в + Acc»: «в три часа»."
+    },
+    {
+      id: "q_time_7",
+      topicId: "time_expressions",
+      sentencePattern: "Врач при́мет сле́дующего пацие́нта [blank] (через) по́лчаса.",
+      answer: "через",
+      choices: ["через", "назад", "за", "до"],
+      translation: "The doctor will see the next patient in half an hour.",
+      transliteration: "Vrach primet sleduyushchego patsienta cherez polchasa.",
+      explanation: "Future point in time uses «через»."
+    },
+    {
+      id: "q_time_8",
+      topicId: "time_expressions",
+      sentencePattern: "Они́ постро́или но́вый дом всего́ [blank] (за) одно́ ле́то.",
+      answer: "за",
+      choices: ["за", "на", "через", "по"],
+      translation: "They built the new house in just one summer.",
+      transliteration: "Oni postroili novyy dom vsego za odno leto.",
+      explanation: "Time frame to complete a construction: «за одно лето»."
+    },
+    {
+      id: "q_time_9",
+      topicId: "time_expressions",
+      sentencePattern: "Семья́ перее́хала в э́ту кварти́ру пять лет [blank] (назад).",
+      answer: "назад",
+      choices: ["назад", "через", "за", "на"],
+      translation: "The family moved into this apartment five years ago.",
+      transliteration: "Semya pereekhala v etu kvartiru pyat let nazad.",
+      explanation: "Time span in the past: «пять лет назад»."
+    },
+    {
+      id: "q_time_10",
+      topicId: "time_expressions",
+      sentencePattern: "Студе́нты взя́ли кни́ги в библиоте́ке [blank] (на) две неде́ли.",
+      answer: "на",
+      choices: ["на", "за", "через", "в"],
+      translation: "The students checked out books from the library for two weeks.",
+      transliteration: "Studenty vzyali knigi v biblioteke na dve nedeli.",
+      explanation: "Target intended time duration: «на две недели»."
+    },
+    {
+      id: "q_time_11",
+      topicId: "time_expressions",
+      sentencePattern: "Мы ча́сто гуля́ем по па́рку [blank] (по) ве́черам.",
+      answer: "по",
+      choices: ["по", "в", "на", "за"],
+      translation: "We often walk around the park in the evenings.",
+      transliteration: "My chasto gulyaem po parku po vecheram.",
+      explanation: "Recurring time of day takes «по + Dat pl»: «по вечерам»."
+    },
+
+    // 23. RELATIVE CLAUSES & CONJUNCTIONS (11 Questions)
+    {
+      id: "q_rel_1",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Это тот са́мый челове́к, [blank] (который) помо́г мне вчера́.",
+      answer: "который",
+      choices: ["который", "которого", "которому", "котором"],
+      translation: "This is the very person who helped me yesterday.",
+      transliteration: "Eto tot samyy chelovek, kotoryy pomog mne vchera.",
+      explanation: "Subject of the relative clause: «который»."
+    },
+    {
+      id: "q_rel_2",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Кни́га, [blank] (которую) ты мне посове́товал, о́чень интере́сная.",
+      answer: "которую",
+      choices: ["которую", "которая", "которой", "которым"],
+      translation: "The book which you recommended to me is very interesting.",
+      transliteration: "Kniga, kotoruyu ty mne posovetoval, ochen interesnaya.",
+      explanation: "Direct object in feminine subclause: «которую»."
+    },
+    {
+      id: "q_rel_3",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Го́род, в [blank] (котором) я роди́лся, нахо́дится на ю́ге.",
+      answer: "котором",
+      choices: ["котором", "который", "которого", "которому"],
+      translation: "The city in which I was born is located in the south.",
+      transliteration: "Gorod, v kotorom ya rodilsya, nakhoditsya na yuge.",
+      explanation: "Location inside masculine noun with «в»: «в котором»."
+    },
+    {
+      id: "q_rel_4",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Я не пошёл на трениро́вку, [blank] (потому что) пло́хо себя́ чу́вствовал.",
+      answer: "потому что",
+      choices: ["потому что", "поэтому", "хотя", "но"],
+      translation: "I did not go to training because I was feeling unwell.",
+      transliteration: "Ya ne poshyol na trenirovku, potomu chto plokho sebya chuvstvoval.",
+      explanation: "Subordinating conjunction of cause: «потому что»."
+    },
+    {
+      id: "q_rel_5",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "На у́лице начался́ си́льный ли́вень, [blank] (поэтому) мы взяли такси́.",
+      answer: "поэтому",
+      choices: ["поэтому", "потому что", "хотя", "а"],
+      translation: "A heavy downpour began outside, so we took a taxi.",
+      transliteration: "Na ulitse nachalsya silnyy liven, poetomu my vzyali taksi.",
+      explanation: "Consequence conjunction: «поэтому»."
+    },
+    {
+      id: "q_rel_6",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Я люблю́ чита́ть рома́ны, [blank] (а) мой брат предпочита́ет детекти́вы.",
+      answer: "а",
+      choices: ["а", "и", "но", "или"],
+      translation: "I like reading novels, whereas my brother prefers detective stories.",
+      transliteration: "Ya lyublyu chitat romany, a moy brat predpochitaet detektivy.",
+      explanation: "Contrastive perspective shift: «а»."
+    },
+    {
+      id: "q_rel_7",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Мы о́чень уста́ли по́сле похо́да, [blank] (но) оста́лись дово́льны.",
+      answer: "но",
+      choices: ["но", "а", "и", "или"],
+      translation: "We were very tired after the hike, but remained satisfied.",
+      transliteration: "My ochen ustali posle pokhoda, no ostalis dovolny.",
+      explanation: "Adversative contradiction: «но»."
+    },
+    {
+      id: "q_rel_8",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Дом, о́коло [blank] (которого) стоя́ла маши́на, был ста́рым.",
+      answer: "которого",
+      choices: ["которого", "который", "котором", "которому"],
+      translation: "The house near which the car was parked was old.",
+      transliteration: "Dom, okolo kotorogo stoyala mashina, byl starym.",
+      explanation: "Genitive after preposition «около»: «около которого»."
+    },
+    {
+      id: "q_rel_9",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Студе́нты, с [blank] (которыми) мы учи́лись, разье́хались по города́м.",
+      answer: "которыми",
+      choices: ["которыми", "которые", "которых", "которым"],
+      translation: "The students with whom we studied scattered to different cities.",
+      transliteration: "Studenty, s kotorymi my uchilis, razehalis po gorodam.",
+      explanation: "Plural companionship with «с»: «с которыми»."
+    },
+    {
+      id: "q_rel_10",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Она́ зна́ет англи́йский [blank] (и) францу́зский языки́.",
+      answer: "и",
+      choices: ["и", "а", "но", "потому что"],
+      translation: "She knows English and French languages.",
+      transliteration: "Ona znaet angliyskiy i frantsuzskiy yazyki.",
+      explanation: "Simple additive conjunction: «и»."
+    },
+    {
+      id: "q_rel_11",
+      topicId: "relative_clauses_conjunctions",
+      sentencePattern: "Де́вушка, [blank] (которой) я подари́л цветы́, улыбну́лась.",
+      answer: "которой",
+      choices: ["которой", "которая", "которую", "котором"],
+      translation: "The girl to whom I gave flowers smiled.",
+      transliteration: "Devushka, kotoroy ya podaril tsvety, ulybnulas.",
+      explanation: "Indirect object recipient in Dative: «которой»."
+    },
+
+    // 24. PARTICIPLES & GERUNDS (11 Questions)
+    {
+      id: "q_part_1",
+      topicId: "participles_gerunds",
+      sentencePattern: "Студе́нт, [blank] (читающий) кни́гу у окна́, учи́лся на филфа́ке.",
+      answer: "читающий",
+      choices: ["читающий", "читавший", "читаемый", "читая"],
+      translation: "The student reading a book by the window studied at the philology department.",
+      transliteration: "Student, chitayushchiy knigu u okna, uchilsya na filfake.",
+      explanation: "Present active participle describing current ongoing action: «читающий»."
+    },
+    {
+      id: "q_part_2",
+      topicId: "participles_gerunds",
+      sentencePattern: "Письмо́, [blank] (написанное) изве́стным писа́телем, храня́т в музе́е.",
+      answer: "написанное",
+      choices: ["написанное", "написавший", "пишущее", "написав"],
+      translation: "The letter written by the famous writer is kept in the museum.",
+      transliteration: "Pismo, napisannoe izvestnym pisatelem, khranyat v muzee.",
+      explanation: "Past passive participle modifying neuter «письмо»: «написанное»."
+    },
+    {
+      id: "q_part_3",
+      topicId: "participles_gerunds",
+      sentencePattern: "[blank] (Прочитав) статью́ до конца́, он сде́лал ва́жные вы́воды.",
+      answer: "Прочитав",
+      choices: ["Прочитав", "Читая", "Прочитанный", "Прочитавший"],
+      translation: "Having read the article to the end, he made important conclusions.",
+      transliteration: "Prochitav statyu do kontsa, on sdelal vazhnye vyvody.",
+      explanation: "Perfective verbal adverb (gerund) expressing a completed prior action: «Прочитав»."
+    },
+    {
+      id: "q_part_4",
+      topicId: "participles_gerunds",
+      sentencePattern: "[blank] (Слушая) споко́йную му́зыку, она́ бы́стро усну́ла.",
+      answer: "Слушая",
+      choices: ["Слушая", "Послушав", "Слушающий", "Слушаемый"],
+      translation: "While listening to calm music, she quickly fell asleep.",
+      transliteration: "Slushaya spokoynuyu muzyku, ona bystro usnula.",
+      explanation: "Imperfective verbal adverb (gerund) expressing simultaneous action: «Слушая»."
+    },
+    {
+      id: "q_part_5",
+      topicId: "participles_gerunds",
+      sentencePattern: "На столе́ лежа́ла [blank] (открытая) тетра́дь с конспе́ктами.",
+      answer: "открытая",
+      choices: ["открытая", "открывшая", "открывая", "открыв"],
+      translation: "On the table lay an open notebook with notes.",
+      transliteration: "Na stole lezhala otkrytaya tetrad s konspektami.",
+      explanation: "Passive participle in feminine: «открытая»."
+    },
+    {
+      id: "q_part_6",
+      topicId: "participles_gerunds",
+      sentencePattern: "Лю́ди, [blank] (живущие) в э́том го́роде, о́чень гостеприи́мны.",
+      answer: "живущие",
+      choices: ["живущие", "жившие", "живя", "житые"],
+      translation: "People living in this city are very hospitable.",
+      transliteration: "Lyudi, zhivushchie v etom gorode, ochen gostepriimny.",
+      explanation: "Present active participle plural: «живущие»."
+    },
+    {
+      id: "q_part_7",
+      topicId: "participles_gerunds",
+      sentencePattern: "Все вопро́сы бы́ли [blank] (решены) на вчера́шнем собра́нии.",
+      answer: "решены",
+      choices: ["решены", "решившие", "решая", "решивши"],
+      translation: "All questions were resolved at yesterday's meeting.",
+      transliteration: "Vse voprosy byli resheny na vcherashnem sobranii.",
+      explanation: "Short form past passive participle plural: «решены»."
+    },
+    {
+      id: "q_part_8",
+      topicId: "participles_gerunds",
+      sentencePattern: "[blank] (Увидев) ста́рого дру́га, он ра́достно помаха́л руко́й.",
+      answer: "Увидев",
+      choices: ["Увидев", "Видя", "Увиденный", "Увидевший"],
+      translation: "Having seen his old friend, he waved his hand joyfully.",
+      transliteration: "Uvidev starogo druga, on radostno pomakhal rukoy.",
+      explanation: "Perfective gerund: «Увидев»."
+    },
+    {
+      id: "q_part_9",
+      topicId: "participles_gerunds",
+      sentencePattern: "Статья́, [blank] (опубликованная) в нау́чном журна́ле, вы́звала спо́ры.",
+      answer: "опубликованная",
+      choices: ["опубликованная", "опубликовавшая", "публикуя", "опубликовав"],
+      translation: "The article published in the scientific journal sparked debate.",
+      transliteration: "Statya, opublikovannaya v nauchnom zhurnale, vyzvala spory.",
+      explanation: "Past passive participle feminine: «опубликованная»."
+    },
+    {
+      id: "q_part_10",
+      topicId: "participles_gerunds",
+      sentencePattern: "Челове́к, [blank] (потерявший) па́спорт, обрати́лся в поли́цию.",
+      answer: "потерявший",
+      choices: ["потерявший", "теряющий", "потеряв", "потерянный"],
+      translation: "The person who lost his passport turned to the police.",
+      transliteration: "Chelovek, poteryavshiy pasport, obratilsya v politsiyu.",
+      explanation: "Past active participle masculine: «потерявший»."
+    },
+    {
+      id: "q_part_11",
+      topicId: "participles_gerunds",
+      sentencePattern: "Ма́льчик бежа́л по у́лице, [blank] (громко крича) от ра́дости.",
+      answer: "громко крича",
+      choices: ["громко крича", "кричавший", "закричав", "кричащий"],
+      translation: "The boy ran along the street, shouting loudly with joy.",
+      transliteration: "Malchik bezhal po ulitse, gromko kricha ot radosti.",
+      explanation: "Imperfective gerund of simultaneous action: «громко крича»."
     }
   ];
 

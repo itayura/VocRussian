@@ -253,7 +253,7 @@ test("offline grammar engine provides 14 structured lessons, validated question 
   assert.ok(GrammarOffline, "GrammarOffline failed to load");
 
   const topics = GrammarOffline.getAllTopics();
-  assert.equal(topics.length, 14, "Expected 14 offline grammar topics");
+  assert.equal(topics.length, 24, "Expected 24 offline grammar topics");
 
   topics.forEach(topicId => {
     const lesson = GrammarOffline.getLesson(topicId);
@@ -265,7 +265,7 @@ test("offline grammar engine provides 14 structured lessons, validated question 
   });
 
   // Verify all questions pass isValidQuizQuestion
-  assert.ok(Array.isArray(QUESTIONS) && QUESTIONS.length >= 140, "Expected at least 140 curated questions");
+  assert.ok(Array.isArray(QUESTIONS) && QUESTIONS.length >= 250, "Expected at least 250 curated questions");
   
   QUESTIONS.forEach(q => {
     assert.equal(grammar.isValidQuizQuestion(q, [q.topicId]), true, `Question ${q.id} failed validation: ${JSON.stringify(q)}`);
@@ -324,7 +324,7 @@ test("offline grammar question bank has no learner-facing labels or duplicate pr
   const { GrammarOffline } = require("../js/grammar_offline.js");
   const report = GrammarOffline.validateQuestionBank();
   assert.equal(report.valid, true, JSON.stringify(report.errors));
-  assert.ok(report.total >= 154);
+  assert.ok(report.total >= 264);
   assert.ok(report.byLevel.A1 > 0);
   assert.ok(report.byLevel.A2 > 0);
   assert.ok(report.byLevel.B1 > 0);
