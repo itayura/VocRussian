@@ -366,11 +366,10 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
     await expect(page.locator('#tutor-explanation-content')).toContainText('Nominative Case (Именительный падеж)');
 
-    // Attempting any other grammar operation (like Dative Case) while signed out should show the guest CTA modal
+    // Offline Grammar is available for every visitor, including Dative Case.
     await selectGrammarTopic(page, 'dative_case');
-    await expect(page.locator('#modal-grammar-cta')).toHaveClass(/active/);
-    await page.locator('#grammar-cta-close-btn').click();
     await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
+    await expect(page.locator('#tutor-explanation-content')).toContainText('Dative Case (Дательный падеж)');
 
     // Perform successful mock login
     await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
@@ -385,6 +384,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // Navigating back to grammar and clicking a topic should successfully load the lesson explanation without showing the guest CTA
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await selectGrammarTopic(page, 'dative_case');
     await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
     await expect(page.locator('#tutor-explanation-content')).toContainText('Mock Lesson: dative_case');
@@ -504,7 +504,8 @@ test.describe('Privyetik E2E Test Suite', () => {
     // Verify AI Tutor is active subtab
     await expect(page.locator('#grammar-tab-tutor')).toHaveClass(/active/);
 
-    // Select Dative Case button, verify explanation renders
+    // Select the Cloud AI engine and verify the mocked explanation renders
+    await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await selectGrammarTopic(page, 'dative_case');
     await expect(page.locator('#tutor-explanation-content')).toContainText('Mock Lesson: dative_case');
   });
@@ -516,6 +517,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // Navigate to AI Grammar Workspace -> Practice Arena subtab
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await page.locator('#grammar-tab-practice').click();
 
     // Verify custom checkboxes panel is display: flex
@@ -675,6 +677,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // Navigate to AI Grammar -> AI Tutor, trigger explain action
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await selectGrammarTopic(page, 'dative_case');
 
     // Verify rate limit warning is displayed inline

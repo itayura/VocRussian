@@ -800,6 +800,9 @@
       if (typeof window.updateAIGrammarLockState === "function") {
         window.updateAIGrammarLockState();
       }
+      if (typeof window.refreshOfflineGrammarFeatureAccess === "function") {
+        window.refreshOfflineGrammarFeatureAccess();
+      }
     },
 
     updateSyncButtonState: function (syncing) {
