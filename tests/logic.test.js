@@ -297,6 +297,27 @@ test("offline grammar engine provides 14 structured lessons, validated question 
   assert.equal(aspectRound.pairs.length, 5);
   assert.equal(aspectRound.left.length, 5);
   assert.equal(aspectRound.right.length, 5);
+
+  // Expanded Aspect dataset & drill methods verification
+  const allAspectPairs = GrammarOffline.getAspectPairs();
+  assert.ok(allAspectPairs.length >= 100, `Expected at least 100 aspect pairs, got ${allAspectPairs.length}`);
+  const a1Pairs = GrammarOffline.getAspectPairs({ level: "A1" });
+  assert.ok(a1Pairs.length >= 20);
+  const prefixPairs = GrammarOffline.getAspectPairs({ pattern: "prefix" });
+  assert.ok(prefixPairs.length >= 30);
+  const searched = GrammarOffline.getAspectPairs({ search: "читать" });
+  assert.ok(searched.length >= 1 && searched[0].sv === "прочитать");
+
+  const triggerDrill = GrammarOffline.getAspectTriggerDrill();
+  assert.ok(triggerDrill && triggerDrill.sentencePattern && triggerDrill.trigger && triggerDrill.answer);
+  assert.ok([triggerDrill.nsv, triggerDrill.sv].includes(triggerDrill.answer));
+
+  const nuanceDrill = GrammarOffline.getAspectNuanceDrill();
+  assert.ok(nuanceDrill && nuanceDrill.sentenceA && nuanceDrill.meaningA && nuanceDrill.sentenceB && nuanceDrill.meaningB);
+
+  const transformDrill = GrammarOffline.getAspectTransformDrill();
+  assert.ok(transformDrill && transformDrill.sourceSentence && transformDrill.targetSentencePattern && transformDrill.answer);
+  assert.ok(transformDrill.choices.includes(transformDrill.answer));
 });
 
 test("offline grammar question bank has no learner-facing labels or duplicate prompts", () => {

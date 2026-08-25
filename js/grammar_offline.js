@@ -1905,23 +1905,518 @@
     { sentence: "Мы с [учителем] долго обсуждали результаты теста.", targetWord: "учителем", correctCase: "Instrumental Case", choices: ["Instrumental Case", "Prepositional Case", "Dative Case", "Genitive Case"], explanation: "Companionship with preposition «с» requires the Instrumental case." }
   ];
 
-  // 3. Verb Aspect Matcher Pairs
+  // 3. Verb Aspect Pairs (100+ CEFR & Formation Categorized)
   const ASPECT_PAIRS = [
-    { nsv: "читать", sv: "прочитать", translation: "to read" },
-    { nsv: "писать", sv: "написать", translation: "to write" },
-    { nsv: "делать", sv: "сделать", translation: "to do / make" },
-    { nsv: "брать", sv: "взять", translation: "to take" },
-    { nsv: "говорить", sv: "сказать", translation: "to speak / say" },
-    { nsv: "покупать", sv: "купить", translation: "to buy" },
-    { nsv: "решать", sv: "решить", translation: "to solve / decide" },
-    { nsv: "открывать", sv: "открыть", translation: "to open" },
-    { nsv: "закрывать", sv: "закрыть", translation: "to close" },
-    { nsv: "помогать", sv: "помочь", translation: "to help" },
-    { nsv: "понимать", sv: "понять", translation: "to understand" },
-    { nsv: "вспоминать", sv: "вспомнить", translation: "to recall" },
-    { nsv: "изучать", sv: "изучить", translation: "to study / master" },
-    { nsv: "давать", sv: "дать", translation: "to give" },
-    { nsv: "забывать", sv: "забыть", translation: "to forget" }
+    // --- PREFIXATION (A1-B2) ---
+    { nsv: "читать", sv: "прочитать", nsvAccented: "чита́ть", svAccented: "прочита́ть", translation: "to read", level: "A1", pattern: "prefix", exampleNsv: "Я весь вечер читал книгу.", exampleSv: "Я наконец прочитал книгу." },
+    { nsv: "писать", sv: "написать", nsvAccented: "писа́ть", svAccented: "написа́ть", translation: "to write", level: "A1", pattern: "prefix", exampleNsv: "Он долго писал письмо.", exampleSv: "Он написал и отправил письмо." },
+    { nsv: "делать", sv: "сделать", nsvAccented: "де́лать", svAccented: "сде́лать", translation: "to do / make", level: "A1", pattern: "prefix", exampleNsv: "Что ты делал вчера?", exampleSv: "Я сделал всё домашнее задание." },
+    { nsv: "звонить", sv: "позвонить", nsvAccented: "звони́ть", svAccented: "позвони́ть", translation: "to call / ring", level: "A1", pattern: "prefix", exampleNsv: "Я звонил тебе три раза.", exampleSv: "Я позвоню тебе завтра вечером." },
+    { nsv: "пить", sv: "выпить", nsvAccented: "пить", svAccented: "вы́пить", translation: "to drink", level: "A1", pattern: "prefix", exampleNsv: "Он медленно пил кофе.", exampleSv: "Он выпил стакан воды залпом." },
+    { nsv: "есть", sv: "съесть", nsvAccented: "есть", svAccented: "съесть", translation: "to eat", level: "A1", pattern: "prefix", exampleNsv: "Дети с аппетитом ели суп.", exampleSv: "Они быстро съели весь торт." },
+    { nsv: "смотреть", sv: "посмотреть", nsvAccented: "смотре́ть", svAccented: "посмотре́ть", translation: "to watch / look", level: "A1", pattern: "prefix", exampleNsv: "Мы смотрели фильм два часа.", exampleSv: "Мы посмотрели новый фильм." },
+    { nsv: "слушать", sv: "послушать", nsvAccented: "слу́шать", svAccented: "послу́шать", translation: "to listen", level: "A1", pattern: "prefix", exampleNsv: "Она всегда слушает музыку.", exampleSv: "Послушай эту прекрасную песню." },
+    { nsv: "учить", sv: "выучить", nsvAccented: "учи́ть", svAccented: "вы́учить", translation: "to learn / memorize", level: "A1", pattern: "prefix", exampleNsv: "Я каждый день учу слова.", exampleSv: "Я выучил все тридцать слов." },
+    { nsv: "готовить", sv: "приготовить", nsvAccented: "гото́вить", svAccented: "пригото́вить", translation: "to cook / prepare", level: "A1", pattern: "prefix", exampleNsv: "Мама готовила ужин весь вечер.", exampleSv: "Мама приготовила вкусный пирог." },
+    { nsv: "рисовать", sv: "нарисовать", nsvAccented: "рисова́ть", svAccented: "нарисова́ть", translation: "to draw / paint", level: "A1", pattern: "prefix", exampleNsv: "Художник рисовал портрет.", exampleSv: "Он нарисовал красивый пейзаж." },
+    { nsv: "завтракать", sv: "позавтракать", nsvAccented: "за́втракать", svAccented: "поза́втракать", translation: "to have breakfast", level: "A1", pattern: "prefix", exampleNsv: "Я обычно завтракаю в восемь.", exampleSv: "Я быстро позавтракал и вышел." },
+    { nsv: "обедать", sv: "пообедать", nsvAccented: "обе́дать", svAccented: "пообе́дать", translation: "to have lunch", level: "A1", pattern: "prefix", exampleNsv: "Мы долго обедали в кафе.", exampleSv: "Давай пообедаем вместе сегодня." },
+    { nsv: "ужинать", sv: "поужинать", nsvAccented: "у́жинать", svAccented: "поу́жинать", translation: "to have dinner", level: "A1", pattern: "prefix", exampleNsv: "Семья ужинала в тишине.", exampleSv: "Мы вкусно поужинали в ресторане." },
+    { nsv: "гулять", sv: "погулять", nsvAccented: "гуля́ть", svAccented: "погуля́ть", translation: "to walk / stroll", level: "A1", pattern: "prefix", exampleNsv: "Мы гуляли по парку два часа.", exampleSv: "Пойдём погуляем полчаса." },
+    { nsv: "спать", sv: "поспать", nsvAccented: "спать", svAccented: "поспа́ть", translation: "to sleep", level: "A1", pattern: "prefix", exampleNsv: "Ребёнок спал всю ночь.", exampleSv: "Мне нужно поспать часок." },
+    { nsv: "играть", sv: "поиграть", nsvAccented: "игра́ть", svAccented: "поигра́ть", translation: "to play", level: "A1", pattern: "prefix", exampleNsv: "Дети играли во дворе.", exampleSv: "Мы немного поиграли в шахматы." },
+    { nsv: "знать", sv: "узнать", nsvAccented: "знать", svAccented: "узна́ть", translation: "to know / find out", level: "A1", pattern: "prefix", exampleNsv: "Я давно знаю этого человека.", exampleSv: "Вчера я узнал важную новость." },
+    { nsv: "думать", sv: "подумать", nsvAccented: "ду́мать", svAccented: "поду́мать", translation: "to think", level: "A1", pattern: "prefix", exampleNsv: "Я долго думал об этом.", exampleSv: "Дай мне подумать одну минуту." },
+    { nsv: "видеть", sv: "увидеть", nsvAccented: "ви́деть", svAccented: "уви́деть", translation: "to see / catch sight of", level: "A1", pattern: "prefix", exampleNsv: "Я часто видел его здесь.", exampleSv: "Вдруг я увидел своего друга." },
+    { nsv: "слышать", sv: "услышать", nsvAccented: "слы́шать", svAccented: "услы́шать", translation: "to hear", level: "A1", pattern: "prefix", exampleNsv: "Ты слышишь этот странный звук?", exampleSv: "Я сразу услышал его голос." },
+    { nsv: "помнить", sv: "запомнить", nsvAccented: "по́мнить", svAccented: "запо́мнить", translation: "to remember / memorize", level: "A2", pattern: "prefix", exampleNsv: "Я хорошо помню этот день.", exampleSv: "Постарайся запомнить это правило." },
+    { nsv: "строить", sv: "построить", nsvAccented: "стро́ить", svAccented: "постро́ить", translation: "to build", level: "A2", pattern: "prefix", exampleNsv: "Рабочие строили мост два года.", exampleSv: "Они построили новый дом." },
+    { nsv: "чистить", sv: "почистить", nsvAccented: "чи́стить", svAccented: "почи́стить", translation: "to clean / brush", level: "A2", pattern: "prefix", exampleNsv: "Я чищу зубы каждое утро.", exampleSv: "Я быстро почистил ботинки." },
+    { nsv: "мыть", sv: "вымыть", nsvAccented: "мыть", svAccented: "вы́мыть", translation: "to wash", level: "A2", pattern: "prefix", exampleNsv: "Она мыла посуду полчаса.", exampleSv: "Она начисто вымыла полы." },
+    { nsv: "стирать", sv: "постирать", nsvAccented: "стира́ть", svAccented: "постира́ть", translation: "to launder / wash clothes", level: "A2", pattern: "prefix", exampleNsv: "Машина стирает одежду.", exampleSv: "Я постирал все рубашки." },
+    { nsv: "планировать", sv: "запланировать", nsvAccented: "плани́ровать", svAccented: "заплани́ровать", translation: "to plan", level: "A2", pattern: "prefix", exampleNsv: "Мы долго планировали отпуск.", exampleSv: "Мы запланировали поездку на май." },
+    { nsv: "советовать", sv: "посоветовать", nsvAccented: "сове́товать", svAccented: "посове́товать", translation: "to advise", level: "A2", pattern: "prefix", exampleNsv: "Врач всегда советует отдыхать.", exampleSv: "Друг посоветовал хорошую книгу." },
+    { nsv: "благодарить", sv: "поблагодарить", nsvAccented: "благодари́ть", svAccented: "поблагодари́ть", translation: "to thank", level: "A2", pattern: "prefix", exampleNsv: "Мы искренне благодарили гостей.", exampleSv: "Он тепло поблагодарил учителя." },
+    { nsv: "просить", sv: "попросить", nsvAccented: "проси́ть", svAccented: "попроси́ть", translation: "to ask / request", level: "A2", pattern: "prefix", exampleNsv: "Он часто просил о помощи.", exampleSv: "Она попросила стакан воды." },
+    { nsv: "платить", sv: "заплатить", nsvAccented: "плати́ть", svAccented: "заплати́ть", translation: "to pay", level: "A2", pattern: "prefix", exampleNsv: "Я всегда плачу картой.", exampleSv: "Он заплатил за весь обед." },
+    { nsv: "дарить", sv: "подарить", nsvAccented: "дари́ть", svAccented: "подари́ть", translation: "to gift / give present", level: "A2", pattern: "prefix", exampleNsv: "Он любил дарить цветы.", exampleSv: "Друзья подарили мне часы." },
+    { nsv: "варить", sv: "сварить", nsvAccented: "вари́ть", svAccented: "свари́ть", translation: "to boil / cook", level: "A2", pattern: "prefix", exampleNsv: "Суп варился на слабом огне.", exampleSv: "Она сварила вкусный кофе." },
+    { nsv: "жарить", sv: "пожарить", nsvAccented: "жа́рить", svAccented: "пожа́рить", translation: "to fry / roast", level: "A2", pattern: "prefix", exampleNsv: "Повар жарил мясо.", exampleSv: "Я пожарил картошку на ужин." },
+    { nsv: "печь", sv: "испечь", nsvAccented: "печь", svAccented: "испе́чь", translation: "to bake", level: "B1", pattern: "prefix", exampleNsv: "Бабушка пекла пирожки.", exampleSv: "Она испекла праздничный торт." },
+    { nsv: "терять", sv: "потерять", nsvAccented: "теря́ть", svAccented: "потеря́ть", translation: "to lose", level: "A2", pattern: "prefix", exampleNsv: "Он часто теряет ключи.", exampleSv: "Вчера я потерял паспорт." },
+    { nsv: "прятать", sv: "спрятать", nsvAccented: "пря́тать", svAccented: "спря́тать", translation: "to hide", level: "B1", pattern: "prefix", exampleNsv: "Собака прятала косточку.", exampleSv: "Он спрятал подарок в шкаф." },
+    { nsv: "сушить", sv: "высушить", nsvAccented: "суши́ть", svAccented: "вы́сушить", translation: "to dry", level: "B1", pattern: "prefix", exampleNsv: "Ветер сушил мокрое бельё.", exampleSv: "Она высушила волосы феном." },
+    { nsv: "ремонтировать", sv: "отремонтировать", nsvAccented: "ремонти́ровать", svAccented: "отремонти́ровать", translation: "to repair", level: "B1", pattern: "prefix", exampleNsv: "Мастер ремонтировал часы.", exampleSv: "Он быстро отремонтировал мотор." },
+    { nsv: "копировать", sv: "скопировать", nsvAccented: "копи́ровать", svAccented: "скопи́ровать", translation: "to copy", level: "B1", pattern: "prefix", exampleNsv: "Студент копировал файлы.", exampleSv: "Я скопировал нужный документ." },
+    { nsv: "фотографировать", sv: "сфотографировать", nsvAccented: "фотографи́ровать", svAccented: "сфотографи́ровать", translation: "to photograph", level: "A2", pattern: "prefix", exampleNsv: "Туристы фотографировали город.", exampleSv: "Сфотографируй нас, пожалуйста." },
+    { nsv: "контролировать", sv: "проконтролировать", nsvAccented: "контроли́ровать", svAccented: "проконтроли́ровать", translation: "to monitor / check", level: "B2", pattern: "prefix", exampleNsv: "Инспектор контролировал процесс.", exampleSv: "Директор лично проконтролировал сделку." },
+    { nsv: "анализировать", sv: "проанализировать", nsvAccented: "анализи́ровать", svAccented: "проанализи́ровать", translation: "to analyze", level: "B2", pattern: "prefix", exampleNsv: "Учёные анализировали данные.", exampleSv: "Мы детально проанализировали отчёт." },
+    { nsv: "публиковать", sv: "опубликовать", nsvAccented: "публикова́ть", svAccented: "опубликова́ть", translation: "to publish", level: "B2", pattern: "prefix", exampleNsv: "Журнал регулярно публикует статьи.", exampleSv: "Автор опубликовал новую книгу." },
+    { nsv: "организовывать", sv: "организовать", nsvAccented: "организо́вывать", svAccented: "организова́ть", translation: "to organize", level: "B1", pattern: "prefix", exampleNsv: "Комитет организовывал форум.", exampleSv: "Они блестяще организовали встречу." },
+    { nsv: "требовать", sv: "потребовать", nsvAccented: "тре́бовать", svAccented: "потре́бовать", translation: "to demand / require", level: "B2", pattern: "prefix", exampleNsv: "Закон строго требует соблюдения норм.", exampleSv: "Клиент потребовал вернуть деньги." },
+
+    // --- SUFFIXATION & STEM ALTERATIONS (A1-B2) ---
+    { nsv: "открывать", sv: "открыть", nsvAccented: "открыва́ть", svAccented: "откры́ть", translation: "to open", level: "A1", pattern: "suffix", exampleNsv: "Магазин открывается в 9.", exampleSv: "Он открыл окно настежь." },
+    { nsv: "закрывать", sv: "закрыть", nsvAccented: "закрыва́ть", svAccented: "закры́ть", translation: "to close", level: "A1", pattern: "suffix", exampleNsv: "Она всегда закрывает дверь.", exampleSv: "Он закрыл книгу и улыбнулся." },
+    { nsv: "покупать", sv: "купить", nsvAccented: "покупа́ть", svAccented: "купи́ть", translation: "to buy", level: "A1", pattern: "suffix", exampleNsv: "Я часто покупаю фрукты здесь.", exampleSv: "Вчера я купил новый ноутбук." },
+    { nsv: "решать", sv: "решить", nsvAccented: "реша́ть", svAccented: "реши́ть", translation: "to solve / decide", level: "A1", pattern: "suffix", exampleNsv: "Мы долго решали эту задачу.", exampleSv: "Мы наконец решили эту проблему." },
+    { nsv: "помогать", sv: "помочь", nsvAccented: "помога́ть", svAccented: "помо́чь", translation: "to help", level: "A1", pattern: "suffix", exampleNsv: "Он всегда помогает родителям.", exampleSv: "Спасибо, ты очень помог мне." },
+    { nsv: "понимать", sv: "понять", nsvAccented: "понима́ть", svAccented: "поня́ть", translation: "to understand", level: "A1", pattern: "suffix", exampleNsv: "Я плохо понимаю по-немецки.", exampleSv: "Я сразу всё понял." },
+    { nsv: "вспоминать", sv: "вспомнить", nsvAccented: "вспомина́ть", svAccented: "вспо́мнить", translation: "to recall / recollect", level: "A2", pattern: "suffix", exampleNsv: "Старик часто вспоминал юность.", exampleSv: "Я внезапно вспомнил его имя." },
+    { nsv: "изучать", sv: "изучить", nsvAccented: "изуча́ть", svAccented: "изучи́ть", translation: "to study / master", level: "A2", pattern: "suffix", exampleNsv: "Студенты изучают грамматику.", exampleSv: "Он досконально изучил вопрос." },
+    { nsv: "давать", sv: "дать", nsvAccented: "дава́ть", svAccented: "дать", translation: "to give", level: "A1", pattern: "suffix", exampleNsv: "Учитель давал полезные советы.", exampleSv: "Дай мне, пожалуйста, ручку." },
+    { nsv: "забывать", sv: "забыть", nsvAccented: "забыва́ть", svAccented: "забы́ть", translation: "to forget", level: "A1", pattern: "suffix", exampleNsv: "Не забывай звонить родителям.", exampleSv: "Я совершенно забыл про встречу." },
+    { nsv: "начинать", sv: "начать", nsvAccented: "начина́ть", svAccented: "нача́ть", translation: "to begin / start", level: "A1", pattern: "suffix", exampleNsv: "Урок начинается в девять.", exampleSv: "Артист начал выступление." },
+    { nsv: "кончать", sv: "кончить", nsvAccented: "конча́ть", svAccented: "ко́нчить", translation: "to end / finish", level: "A2", pattern: "suffix", exampleNsv: "Рабочий день кончается в шесть.", exampleSv: "Я наконец кончил эту работу." },
+    { nsv: "получать", sv: "получить", nsvAccented: "получа́ть", svAccented: "получи́ть", translation: "to receive / get", level: "A1", pattern: "suffix", exampleNsv: "Я регулярно получаю письма.", exampleSv: "Вчера я получил визу." },
+    { nsv: "посылать", sv: "послать", nsvAccented: "посыла́ть", svAccented: "посла́ть", translation: "to send", level: "A2", pattern: "suffix", exampleNsv: "Она часто посылает открытки.", exampleSv: "Я послал важное сообщение." },
+    { nsv: "отправлять", sv: "отправить", nsvAccented: "отправля́ть", svAccented: "отпра́вить", translation: "to dispatch / send", level: "A2", pattern: "suffix", exampleNsv: "Курьер отправляет посылки.", exampleSv: "Я отправил письмо утром." },
+    { nsv: "объяснять", sv: "объяснить", nsvAccented: "объясня́ть", svAccented: "объясни́ть", translation: "to explain", level: "A2", pattern: "suffix", exampleNsv: "Учитель терпеливо объяснял тему.", exampleSv: "Он понятно объяснил задачу." },
+    { nsv: "повторять", sv: "повторить", nsvAccented: "повторя́ть", svAccented: "повтори́ть", translation: "to repeat / review", level: "A2", pattern: "suffix", exampleNsv: "Мы повторяем слова каждый день.", exampleSv: "Повторите, пожалуйста, ещё раз." },
+    { nsv: "проверять", sv: "проверить", nsvAccented: "проверя́ть", svAccented: "прове́рить", translation: "to check / test", level: "A2", pattern: "suffix", exampleNsv: "Профессор проверяет тесты.", exampleSv: "Я уже проверил баланс карты." },
+    { nsv: "отвечать", sv: "ответить", nsvAccented: "отвеча́ть", svAccented: "отве́тить", translation: "to answer / reply", level: "A1", pattern: "suffix", exampleNsv: "Студент уверенно отвечал на вопросы.", exampleSv: "Он сразу ответил на звонок." },
+    { nsv: "спрашивать", sv: "спросить", nsvAccented: "спра́шивать", svAccented: "спроси́ть", translation: "to ask a question", level: "A1", pattern: "suffix", exampleNsv: "Дети часто спрашивают обо всём.", exampleSv: "Я спросил прохожего о дороге." },
+    { nsv: "приглашать", sv: "пригласить", nsvAccented: "приглаша́ть", svAccented: "пригласи́ть", translation: "to invite", level: "A2", pattern: "suffix", exampleNsv: "Мы всегда приглашаем друзей.", exampleSv: "Они пригласили нас на свадьбу." },
+    { nsv: "выбирать", sv: "выбрать", nsvAccented: "выбира́ть", svAccented: "вы́брать", translation: "to choose / select", level: "A2", pattern: "suffix", exampleNsv: "Она долго выбирала платье.", exampleSv: "Я выбрал самый лучший вариант." },
+    { nsv: "собирать", sv: "собрать", nsvAccented: "собира́ть", svAccented: "собра́ть", translation: "to gather / pack", level: "A2", pattern: "suffix", exampleNsv: "Осенью люди собирают грибы.", exampleSv: "Я быстро собрал чемодан." },
+    { nsv: "продавать", sv: "продать", nsvAccented: "продава́ть", svAccented: "прода́ть", translation: "to sell", level: "A2", pattern: "suffix", exampleNsv: "Магазин продаёт сувениры.", exampleSv: "Он выгодно продал машину." },
+    { nsv: "передавать", sv: "передать", nsvAccented: "передава́ть", svAccented: "переда́ть", translation: "to pass / transmit", level: "B1", pattern: "suffix", exampleNsv: "Радио передавало новости.", exampleSv: "Передайте соль, пожалуйста." },
+    { nsv: "вставать", sv: "встать", nsvAccented: "встава́ть", svAccented: "встать", translation: "to stand up / get up", level: "A1", pattern: "suffix", exampleNsv: "Я обычно встаю в 7 утра.", exampleSv: "Сегодня я встал очень рано." },
+    { nsv: "уставать", sv: "устать", nsvAccented: "устава́ть", svAccented: "уста́ть", translation: "to get tired", level: "A2", pattern: "suffix", exampleNsv: "К вечеру я сильно устаю.", exampleSv: "После пробежки я ужасно устал." },
+    { nsv: "оставаться", sv: "остаться", nsvAccented: "остава́ться", svAccented: "оста́ться", translation: "to stay / remain", level: "A2", pattern: "suffix", exampleNsv: "Мы часто оставались дома.", exampleSv: "Я остался в городе на выходные." },
+    { nsv: "одеваться", sv: "одеться", nsvAccented: "одева́ться", svAccented: "оде́ться", translation: "to get dressed", level: "A2", pattern: "suffix", exampleNsv: "Она долго одевается перед зеркалом.", exampleSv: "Оденься теплее, на улице мороз." },
+    { nsv: "раздеваться", sv: "раздеться", nsvAccented: "раздева́ться", svAccented: "разде́ться", translation: "to undress / take off coat", level: "B1", pattern: "suffix", exampleNsv: "Гости раздевались в прихожей.", exampleSv: "Разденьтесь и проходите в зал." },
+    { nsv: "обуваться", sv: "обуться", nsvAccented: "обува́ться", svAccented: "обу́ться", translation: "to put on shoes", level: "B1", pattern: "suffix", exampleNsv: "Малыш учился обуваться сам.", exampleSv: "Он быстро обулся и выбежал." },
+    { nsv: "опаздывать", sv: "опоздать", nsvAccented: "опа́здывать", svAccented: "опозда́ть", translation: "to be late", level: "A2", pattern: "suffix", exampleNsv: "Он никогда не опаздывает на работу.", exampleSv: "Из-за пробки я опоздал на поезд." },
+    { nsv: "успевать", sv: "успеть", nsvAccented: "успева́ть", svAccented: "успе́ть", translation: "to manage in time / catch", level: "A2", pattern: "suffix", exampleNsv: "Я всегда успеваю сделать отчёт.", exampleSv: "Мы успели на последний автобус." },
+    { nsv: "привыкать", sv: "привыкнуть", nsvAccented: "привыка́ть", svAccented: "привы́кнуть", translation: "to get used to", level: "B1", pattern: "suffix", exampleNsv: "Я постепенно привыкаю к климату.", exampleSv: "Я уже привык к новому расписанию." },
+    { nsv: "отвыкать", sv: "отвыкнуть", nsvAccented: "отвыка́ть", svAccented: "отвы́кнуть", translation: "to unlearn / get out of habit", level: "B2", pattern: "suffix", exampleNsv: "Он отвыкает от сладкого.", exampleSv: "Я совершенно отвык от морозов." },
+    { nsv: "исчезать", sv: "исчезнуть", nsvAccented: "исчеза́ть", svAccented: "исче́знуть", translation: "to disappear", level: "B1", pattern: "suffix", exampleNsv: "Солнце медленно исчезало за горами.", exampleSv: "Туман внезапно исчез." },
+    { nsv: "возникать", sv: "возникнуть", nsvAccented: "возника́ть", svAccented: "возни́кнуть", translation: "to arise / emerge", level: "B2", pattern: "suffix", exampleNsv: "Часто возникают вопросы.", exampleSv: "У нас внезапно возникла проблема." },
+    { nsv: "достигать", sv: "достичь", nsvAccented: "достига́ть", svAccented: "дости́чь", translation: "to reach / achieve", level: "B2", pattern: "suffix", exampleNsv: "Спортсмены достигают рекордов.", exampleSv: "Команда достигла поставленной цели." },
+    { nsv: "соглашаться", sv: "согласиться", nsvAccented: "соглаша́ться", svAccented: "согласи́ться", translation: "to agree", level: "B1", pattern: "suffix", exampleNsv: "Он редко соглашался на уступки.", exampleSv: "Директор согласился с нашим планом." },
+    { nsv: "отказываться", sv: "отказаться", nsvAccented: "отка́зываться", svAccented: "отказа́ться", translation: "to refuse / decline", level: "B1", pattern: "suffix", exampleNsv: "Она всегда отказывается от сахара.", exampleSv: "Он наотрез отказался от предложения." },
+    { nsv: "обещать", sv: "пообещать", nsvAccented: "обеща́ть", svAccented: "пообеща́ть", translation: "to promise", level: "A2", pattern: "suffix", exampleNsv: "Политики много обещают.", exampleSv: "Он пообещал приехать вовремя." },
+    { nsv: "замечать", sv: "заметить", nsvAccented: "замеча́ть", svAccented: "заме́тить", translation: "to notice", level: "B1", pattern: "suffix", exampleNsv: "Она замечает каждую мелочь.", exampleSv: "Я сразу заметил ошибку в тексте." },
+    { nsv: "разрешать", sv: "разрешить", nsvAccented: "разреша́ть", svAccented: "разреши́ть", translation: "to permit / allow", level: "B1", pattern: "suffix", exampleNsv: "Закон разрешает мирные собрания.", exampleSv: "Врач разрешил пациенту вставать." },
+    { nsv: "запрещать", sv: "запретить", nsvAccented: "запреща́ть", svAccented: "запрети́ть", translation: "to forbid / prohibit", level: "B1", pattern: "suffix", exampleNsv: "Знак запрещает парковку.", exampleSv: "Отец строго запретил трогать прибор." },
+    { nsv: "предупреждать", sv: "предупредить", nsvAccented: "предупрежда́ть", svAccented: "предупреди́ть", translation: "to warn in advance", level: "B1", pattern: "suffix", exampleNsv: "Синоптики предупреждают о шторме.", exampleSv: "Я предупредил друга об опасности." },
+    { nsv: "спасать", sv: "спасти", nsvAccented: "спаса́ть", svAccented: "спасти́", translation: "to save / rescue", level: "B1", pattern: "suffix", exampleNsv: "Врачи спасают человеческие жизни.", exampleSv: "Пожарный спас ребёнка из огня." },
+    { nsv: "встречать", sv: "встретить", nsvAccented: "встреча́ть", svAccented: "встре́тить", translation: "to meet / greet", level: "A2", pattern: "suffix", exampleNsv: "Я каждый день встречаю её в метро.", exampleSv: "Вчера на вокзале я встретил брата." },
+
+    // --- SUPPLETIVE & IRREGULAR (A1-B2) ---
+    { nsv: "говорить", sv: "сказать", nsvAccented: "говори́ть", svAccented: "сказа́ть", translation: "to speak / say", level: "A1", pattern: "suppletive", exampleNsv: "Он долго говорил по телефону.", exampleSv: "Он сказал мне всю правду." },
+    { nsv: "брать", sv: "взять", nsvAccented: "брать", svAccented: "взять", translation: "to take", level: "A1", pattern: "suppletive", exampleNsv: "Я всегда беру с собой зонт.", exampleSv: "Он взял ключ со стола." },
+    { nsv: "класть", sv: "положить", nsvAccented: "класть", svAccented: "положи́ть", translation: "to put / lay horizontally", level: "A1", pattern: "suppletive", exampleNsv: "Она обычно кладёт телефон сюда.", exampleSv: "Положи книгу на полку." },
+    { nsv: "ложиться", sv: "лечь", nsvAccented: "ложи́ться", svAccented: "лечь", translation: "to lie down / go to bed", level: "A2", pattern: "suppletive", exampleNsv: "Я обычно ложусь спать в полночь.", exampleSv: "Больной лёг в постель." },
+    { nsv: "садиться", sv: "сесть", nsvAccented: "сади́ться", svAccented: "сесть", translation: "to sit down / board", level: "A2", pattern: "suppletive", exampleNsv: "Пассажиры садятся в поезд.", exampleSv: "Садитесь, пожалуйста, на этот стул." },
+    { nsv: "становиться", sv: "стать", nsvAccented: "станови́ться", svAccented: "стать", translation: "to become / stand", level: "A2", pattern: "suppletive", exampleNsv: "Погода становится теплее.", exampleSv: "Он стал известным учёным." },
+    { nsv: "возвращаться", sv: "вернуться", nsvAccented: "возвраща́ться", svAccented: "верну́ться", translation: "to return / come back", level: "A2", pattern: "suppletive", exampleNsv: "Отец поздно возвращается с работы.", exampleSv: "Мы благополучно вернулись домой." },
+    { nsv: "находить", sv: "найти", nsvAccented: "находи́ть", svAccented: "найти́", translation: "to find", level: "A2", pattern: "suppletive", exampleNsv: "Детектив часто находит улики.", exampleSv: "Я наконец нашёл свои очки." },
+    { nsv: "ловить", sv: "поймать", nsvAccented: "лови́ть", svAccented: "пойма́ть", translation: "to catch", level: "B1", pattern: "suppletive", exampleNsv: "Рыбак всё утро ловил рыбу.", exampleSv: "Кот ловко поймал мышь." },
+    { nsv: "вешать", sv: "повесить", nsvAccented: "ве́шать", svAccented: "пове́сить", translation: "to hang up", level: "B1", pattern: "suppletive", exampleNsv: "Она вешала картины на стену.", exampleSv: "Повесь пальто на вешалку." },
+    { nsv: "умирать", sv: "умереть", nsvAccented: "умира́ть", svAccented: "умере́ть", translation: "to die", level: "B1", pattern: "suppletive", exampleNsv: "Растение медленно умирало без воды.", exampleSv: "Поэт умер в молодом возрасте." },
+
+    // --- STRESS SHIFT PAIRS (B1-B2) ---
+    { nsv: "отреза́ть", sv: "отре́зать", nsvAccented: "отреза́ть", svAccented: "отре́зать", translation: "to cut off / slice", level: "B1", pattern: "stress", exampleNsv: "Повар медленно отреза́л хлеб.", exampleSv: "Отре́жь мне кусочек сыра." },
+    { nsv: "засыпа́ть", sv: "засы́пать", nsvAccented: "засыпа́ть", svAccented: "засы́пать", translation: "to cover with sand/earth / fall asleep", level: "B1", pattern: "stress", exampleNsv: "Снег постепенно засыпа́л дорогу.", exampleSv: "Яма была быстро засы́пана землёй." },
+    { nsv: "избега́ть", sv: "избежа́ть", nsvAccented: "избега́ть", svAccented: "избежа́ть", translation: "to avoid / escape", level: "B2", pattern: "stress", exampleNsv: "Он старательно избега́ет конфликтов.", exampleSv: "Водителю удалось избежа́ть аварии." }
+  ];
+
+  // --- TRIGGER DRILLS DATA (30+ High-Yield Sentences with Clue Highlighting) ---
+  const ASPECT_TRIGGER_DATA = [
+    {
+      id: "trig_1",
+      sentencePattern: "Вчера вечером я долго [blank] интересную книгу.",
+      nsv: "читал",
+      sv: "прочитал",
+      answer: "читал",
+      aspect: "Imperfective (НСВ)",
+      trigger: "долго",
+      translation: "Yesterday evening I was reading an interesting book for a long time.",
+      explanation: "Trigger word «долго» (for a long time) indicates duration of an ongoing process → Imperfective (НСВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_2",
+      sentencePattern: "Я [blank] эту книгу за два часа и пошёл гулять.",
+      nsv: "читал",
+      sv: "прочитал",
+      answer: "прочитал",
+      aspect: "Perfective (СВ)",
+      trigger: "за два часа",
+      translation: "I finished reading this book in two hours and went for a walk.",
+      explanation: "Timeframe construction «за + Accusative» (in / within 2 hours) denotes a completed result → Perfective (СВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_3",
+      sentencePattern: "Каждое утро он [blank] чашку крепкого кофе.",
+      nsv: "пьёт",
+      sv: "выпьет",
+      answer: "пьёт",
+      aspect: "Imperfective (НСВ)",
+      trigger: "Каждое утро",
+      translation: "Every morning he drinks a cup of strong coffee.",
+      explanation: "Habitual repetition with «каждое утро» (every morning) requires the Imperfective (НСВ) aspect.",
+      level: "A1"
+    },
+    {
+      id: "trig_4",
+      sentencePattern: "Вдруг в коридоре [blank] телефон.",
+      nsv: "звонил",
+      sv: "позвонил",
+      answer: "позвонил",
+      aspect: "Perfective (СВ)",
+      trigger: "Вдруг",
+      translation: "Suddenly the telephone rang in the hallway.",
+      explanation: "Sudden one-time events triggered by «вдруг» (suddenly) require the Perfective (СВ) aspect.",
+      level: "A1"
+    },
+    {
+      id: "trig_5",
+      sentencePattern: "Студенты [blank] сложную задачу весь урок.",
+      nsv: "решали",
+      sv: "решили",
+      answer: "решали",
+      aspect: "Imperfective (НСВ)",
+      trigger: "весь урок",
+      translation: "The students were solving the difficult problem the whole lesson.",
+      explanation: "Continuous duration expressions like «весь урок» (the whole lesson) demand the Imperfective (НСВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_6",
+      sentencePattern: "После долгих споров мы наконец [blank] проблему.",
+      nsv: "решали",
+      sv: "решили",
+      answer: "решили",
+      aspect: "Perfective (СВ)",
+      trigger: "наконец",
+      translation: "After long arguments we finally resolved the problem.",
+      explanation: "The trigger «наконец» (at last / finally) emphasizes achieving a conclusive result → Perfective (СВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_7",
+      sentencePattern: "Он часто [blank] ключи от квартиры.",
+      nsv: "забывает",
+      sv: "забудет",
+      answer: "забывает",
+      aspect: "Imperfective (НСВ)",
+      trigger: "часто",
+      translation: "He often forgets the apartment keys.",
+      explanation: "Recurrent frequency indicated by «часто» (often) requires the Imperfective (НСВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_8",
+      sentencePattern: "Смотри не [blank] паспорт дома!",
+      nsv: "забывай",
+      sv: "забудь",
+      answer: "забудь",
+      aspect: "Perfective (СВ)",
+      trigger: "Смотри не",
+      translation: "Watch out that you don't forget your passport at home!",
+      explanation: "Warning against a single undesirable event («Смотри не... / Не... случайно») uses the Perfective (СВ).",
+      level: "A2"
+    },
+    {
+      id: "trig_9",
+      sentencePattern: "Пока мама готовила ужин, папа [blank] телевизор.",
+      nsv: "смотрел",
+      sv: "посмотрел",
+      answer: "смотрел",
+      aspect: "Imperfective (НСВ)",
+      trigger: "Пока (simultaneous)",
+      translation: "While mom was cooking dinner, dad was watching TV.",
+      explanation: "Parallel simultaneous actions introduced by «пока» (while) require the Imperfective (НСВ).",
+      level: "A2"
+    },
+    {
+      id: "trig_10",
+      sentencePattern: "Он вошёл в комнату, снял пальто и [blank] на диван.",
+      nsv: "садился",
+      sv: "сел",
+      answer: "сел",
+      aspect: "Perfective (СВ)",
+      trigger: "Sequence of actions",
+      translation: "He entered the room, took off his coat, and sat down on the sofa.",
+      explanation: "A sequence of consecutive completed actions in the past always takes the Perfective (СВ).",
+      level: "A2"
+    },
+    {
+      id: "trig_11",
+      sentencePattern: "Обычно мы [blank] продукты в супермаркете возле дома.",
+      nsv: "покупаем",
+      sv: "купим",
+      answer: "покупаем",
+      aspect: "Imperfective (НСВ)",
+      trigger: "Обычно",
+      translation: "Usually we buy groceries at the supermarket near our house.",
+      explanation: "Habitual regular routine with «обычно» (usually) uses the Imperfective (НСВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_12",
+      sentencePattern: "Вчера в торговом центре я [blank] отличный подарок другу.",
+      nsv: "покупал",
+      sv: "купил",
+      answer: "купил",
+      aspect: "Perfective (СВ)",
+      trigger: "Specific completed purchase",
+      translation: "Yesterday at the mall I bought a great gift for my friend.",
+      explanation: "A concrete completed transaction achieving a result uses the Perfective (СВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_13",
+      sentencePattern: "По выходным мы всегда [blank] по старым улицам города.",
+      nsv: "гуляем",
+      sv: "погуляем",
+      answer: "гуляем",
+      aspect: "Imperfective (НСВ)",
+      trigger: "По выходным / всегда",
+      translation: "On weekends we always stroll along the old streets of the city.",
+      explanation: "Recurring time markers («по выходным», «всегда») demand the Imperfective (НСВ).",
+      level: "A1"
+    },
+    {
+      id: "trig_14",
+      sentencePattern: "Погода наладилась, давай [blank] полчаса на свежем воздухе.",
+      nsv: "гулять",
+      sv: "погуляем",
+      answer: "погуляем",
+      aspect: "Perfective (СВ)",
+      trigger: "давай (single joint event)",
+      translation: "The weather improved, let's take a walk for half an hour in the fresh air.",
+      explanation: "Delimitative prefix «по-» expressing a single brief session («погуляем полчаса») takes the Perfective (СВ).",
+      level: "A2"
+    },
+    {
+      id: "trig_15",
+      sentencePattern: "Ученик [blank] стихотворение наизусть за один вечер.",
+      nsv: "учил",
+      sv: "выучил",
+      answer: "выучил",
+      aspect: "Perfective (СВ)",
+      trigger: "за один вечер",
+      translation: "The pupil memorized the poem by heart in one evening.",
+      explanation: "Reaching 100% completion in a timeframe («за один вечер») requires Perfective (СВ) «выучил».",
+      level: "A2"
+    },
+    {
+      id: "trig_16",
+      sentencePattern: "Никогда не [blank] чужие вещи без спроса!",
+      nsv: "бери",
+      sv: "возьми",
+      answer: "бери",
+      aspect: "Imperfective (НСВ)",
+      trigger: "Никогда не (general prohibition)",
+      translation: "Never take other people's belongings without asking!",
+      explanation: "Universal prohibitions with «никогда не» require the Imperfective (НСВ) imperative.",
+      level: "A2"
+    },
+    {
+      id: "trig_17",
+      sentencePattern: "Пожалуйста, [blank] со стола этот документ и передай директору.",
+      nsv: "бери",
+      sv: "возьми",
+      answer: "возьми",
+      aspect: "Perfective (СВ)",
+      trigger: "Specific single request",
+      translation: "Please take this document from the table and hand it to the director.",
+      explanation: "A specific single request to perform an action to completion takes the Perfective (СВ) imperative.",
+      level: "A1"
+    },
+    {
+      id: "trig_18",
+      sentencePattern: "Профессор начал [blank] новую тему.",
+      nsv: "объяснять",
+      sv: "объяснить",
+      answer: "объяснять",
+      aspect: "Imperfective (НСВ)",
+      trigger: "Phasal verb: начал",
+      translation: "The professor began explaining the new topic.",
+      explanation: "Phasal verbs expressing the start, continuation, or end of an action (начать, продолжать, закончить) always require an Imperfective (НСВ) infinitive.",
+      level: "A2"
+    },
+    {
+      id: "trig_19",
+      sentencePattern: "Мы уже закончили [blank] проект.",
+      nsv: "писать",
+      sv: "написать",
+      answer: "писать",
+      aspect: "Imperfective (НСВ)",
+      trigger: "Phasal verb: закончили",
+      translation: "We have already finished writing the project.",
+      explanation: "Verb «закончить» (to finish) is a phasal verb and exclusively governs the Imperfective (НСВ) infinitive.",
+      level: "A2"
+    },
+    {
+      id: "trig_20",
+      sentencePattern: "Она внезапно [blank] и побледнела.",
+      nsv: "вставала",
+      sv: "встала",
+      answer: "встала",
+      aspect: "Perfective (СВ)",
+      trigger: "внезапно",
+      translation: "She abruptly stood up and turned pale.",
+      explanation: "Abrupt single events triggered by «внезапно» (abruptly) require the Perfective (СВ).",
+      level: "B1"
+    }
+  ];
+
+  // --- NUANCE CONTRAST DATA (Process vs. Result / Situational Scenarios) ---
+  const ASPECT_NUANCE_DATA = [
+    {
+      id: "nuance_1",
+      title: "General Fact vs. Total Completion",
+      sentenceA: "Ты читал эту книгу?",
+      meaningA: "Have you read / are you familiar with this book? (General fact / experience)",
+      aspectA: "Imperfective (НСВ)",
+      sentenceB: "Ты прочитал эту книгу?",
+      meaningB: "Did you finish reading the book to the very end? (Total completion / result)",
+      aspectB: "Perfective (СВ)",
+      explanation: "In questions, the Imperfective «читал» simply inquires about knowledge of the book, whereas the Perfective «прочитал» checks whether you completed reading all of it.",
+      level: "A1"
+    },
+    {
+      id: "nuance_2",
+      title: "Attempted Action vs. Successful Result",
+      sentenceA: "Я долго сдавал экзамен по вождению.",
+      meaningA: "I was taking the driving test / attempted it multiple times (process / attempts).",
+      aspectA: "Imperfective (НСВ)",
+      sentenceB: "Я наконец сдал экзамен по вождению!",
+      meaningB: "I finally passed the driving test! (Successful achievement / result).",
+      aspectB: "Perfective (СВ)",
+      explanation: "«Сдавать» (НСВ) refers to the process or attempt of taking an exam; «сдать» (СВ) signifies successfully passing it.",
+      level: "A2"
+    },
+    {
+      id: "nuance_3",
+      title: "Calling Attempt vs. Reaching the Person",
+      sentenceA: "Я звонил тебе вчера вечером.",
+      meaningA: "I placed calls to you yesterday evening (fact of dialing / calling).",
+      aspectA: "Imperfective (НСВ)",
+      sentenceB: "Я наконец дозвонился до тебя!",
+      meaningB: "I finally reached you / got through on the phone (successful connection).",
+      aspectB: "Perfective (СВ)",
+      explanation: "«Звонить» (НСВ) states the general activity of calling; «дозвониться» (СВ) expresses overcoming obstacles and getting an answer.",
+      level: "B1"
+    },
+    {
+      id: "nuance_4",
+      title: "General Invitation vs. Specific Prompt",
+      sentenceA: "Проходите, садитесь, пожалуйста.",
+      meaningA: "Come in and sit down, please (Polite, welcoming general invitation).",
+      aspectA: "Imperfective (НСВ)",
+      sentenceB: "Сядь ровно и не крутись!",
+      meaningB: "Sit straight and don't fidget! (Direct command / specific physical movement).",
+      aspectB: "Perfective (СВ)",
+      explanation: "Imperfective imperatives («садитесь», «проходите») express welcoming courtesy, while Perfective imperatives («сядь») demand immediate execution.",
+      level: "A2"
+    },
+    {
+      id: "nuance_5",
+      title: "General Prohibition vs. Negative Warning",
+      sentenceA: "Не открывай окно, в комнате сквозняк.",
+      meaningA: "Do not open the window (Prohibition of action / do not do it).",
+      aspectA: "Imperfective (НСВ)",
+      sentenceB: "Смотри не урони тарелку!",
+      meaningB: "Watch out that you don't accidentally drop the plate! (Warning against mishap).",
+      aspectB: "Perfective (СВ)",
+      explanation: "Negative particle «не» with Imperfective means 'don't do this action (prohibition)'; with Perfective, it warns against an accidental unintended outcome.",
+      level: "B1"
+    },
+    {
+      id: "nuance_6",
+      title: "Process Duration vs. Speed of Completion",
+      sentenceA: "Художник рисовал картину два года.",
+      meaningA: "The artist worked on the painting for two years (lengthy process).",
+      aspectA: "Imperfective (НСВ)",
+      sentenceB: "Художник нарисовал картину за два дня.",
+      meaningB: "The artist finished painting the entire canvas in two days (speedy result).",
+      aspectB: "Perfective (СВ)",
+      explanation: "«Два года» without prepositions indicates time spent doing the activity (НСВ); «за два дня» indicates the timeframe needed to deliver the result (СВ).",
+      level: "A2"
+    }
+  ];
+
+  // --- TRANSFORMATION DRILLS DATA (Conjugation & Aspect Shifts) ---
+  const ASPECT_TRANSFORM_DATA = [
+    {
+      id: "trans_1",
+      title: "Past Process → Past Completed Result",
+      sourceSentence: "Вчера мы долго решали сложную задачу.",
+      sourceAspect: "Imperfective Past (НСВ - process)",
+      instruction: "Convert the sentence into a completed action with the result «наконец»:",
+      targetSentencePattern: "Вчера мы наконец [blank] сложную задачу.",
+      answer: "решили",
+      choices: ["решили", "решали", "решим", "будем решать"],
+      explanation: "When switching from prolonged process to finalized result, use the Perfective past: «решили».",
+      level: "A1"
+    },
+    {
+      id: "trans_2",
+      title: "Compound Future (НСВ) → Simple Future (СВ)",
+      sourceSentence: "Завтра я буду писать письма весь день.",
+      sourceAspect: "Compound Future (НСВ - duration)",
+      instruction: "Convert into a single completed action taking place tomorrow morning:",
+      targetSentencePattern: "Завтра утром я [blank] важное письмо и отправлю его.",
+      answer: "напишу",
+      choices: ["напишу", "буду писать", "писал", "написал"],
+      explanation: "A one-time completed action in the future uses the Simple Future formed with the Perfective verb: «напишу».",
+      level: "A1"
+    },
+    {
+      id: "trans_3",
+      title: "Phasal Verb Rule (начать / закончить + Infinitive)",
+      sourceSentence: "Студент внимательно читает текст.",
+      sourceAspect: "Present Tense (НСВ)",
+      instruction: "Insert the phasal verb «начал» (began). Remember the phasal verb rule for the infinitive:",
+      targetSentencePattern: "Студент вчера начал [blank] этот сложный текст.",
+      answer: "читать",
+      choices: ["читать", "прочитать", "прочитал", "читал"],
+      explanation: "Phasal verbs (начать, стать, продолжать, кончить) MUST always be followed by an Imperfective (НСВ) infinitive: «читать».",
+      level: "A2"
+    },
+    {
+      id: "trans_4",
+      title: "General Prohibition (Не + Imperative)",
+      sourceSentence: "Ты открыл дверь настежь.",
+      sourceAspect: "Perfective Past (СВ)",
+      instruction: "Form a general prohibition command (Do not open!):",
+      targetSentencePattern: "Пожалуйста, не [blank] дверь, на улице мороз.",
+      answer: "открывай",
+      choices: ["открывай", "открой", "откроешь", "открывал"],
+      explanation: "Prohibiting an action («не делай этого») requires the Imperfective imperative: «не открывай».",
+      level: "A2"
+    },
+    {
+      id: "trans_5",
+      title: "Accidental Mishap Warning (Смотри не + Imperative)",
+      sourceSentence: "Осторожно, чашка очень горячая!",
+      sourceAspect: "Warning context",
+      instruction: "Warn the person not to accidentally drop the cup:",
+      targetSentencePattern: "Смотри не [blank] чашку на пол!",
+      answer: "урони",
+      choices: ["урони", "роняй", "уронишь", "уронял"],
+      explanation: "Warning against an accidental result («смотри не...») takes the Perfective imperative: «урони».",
+      level: "B1"
+    },
+    {
+      id: "trans_6",
+      title: "Habitual Routine → Single Specific Instance",
+      sourceSentence: "По вечерам я обычно покупаю свежий хлеб.",
+      sourceAspect: "Habitual Present (НСВ)",
+      instruction: "Express that yesterday you bought a delicious cake for the party:",
+      targetSentencePattern: "Вчера к празднику я [blank] большой шоколадный торт.",
+      answer: "купил",
+      choices: ["купил", "покупал", "куплю", "буду покупать"],
+      explanation: "A single concrete purchase completing the action requires the Perfective past: «купил».",
+      level: "A1"
+    }
   ];
 
   const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -2027,15 +2522,91 @@
       return shuffled[0];
     },
 
-    getAspectMatchingRound: function (pairCount = 5) {
-      const shuffled = [...ASPECT_PAIRS].sort(() => 0.5 - Math.random()).slice(0, pairCount);
-      const leftItems = shuffled.map((p, idx) => ({ id: `nsv_${idx}`, text: p.nsv, pairId: idx, aspect: "Imperfective (НСВ)" }));
-      const rightItems = shuffled.map((p, idx) => ({ id: `sv_${idx}`, text: p.sv, pairId: idx, aspect: "Perfective (СВ)" }));
+    getAspectPairs: function (filter = {}) {
+      const { level = "all", pattern = "all", search = "" } = filter;
+      return ASPECT_PAIRS.filter(p => {
+        if (level !== "all" && p.level.toLowerCase() !== level.toLowerCase()) return false;
+        if (pattern !== "all" && p.pattern.toLowerCase() !== pattern.toLowerCase()) return false;
+        if (search) {
+          const q = search.toLowerCase().trim();
+          const matchNsv = p.nsv.toLowerCase().includes(q);
+          const matchSv = p.sv.toLowerCase().includes(q);
+          const matchTrans = p.translation.toLowerCase().includes(q);
+          if (!matchNsv && !matchSv && !matchTrans) return false;
+        }
+        return true;
+      });
+    },
+
+    getAspectMatchingRound: function (pairCount = 5, level = "all", pattern = "all") {
+      let pool = ASPECT_PAIRS;
+      if (level && level !== "all") {
+        pool = pool.filter(p => p.level.toLowerCase() === level.toLowerCase());
+      }
+      if (pattern && pattern !== "all") {
+        pool = pool.filter(p => p.pattern.toLowerCase() === pattern.toLowerCase());
+      }
+      if (pool.length < pairCount) {
+        pool = ASPECT_PAIRS; // Fallback to entire bank if filter is too narrow
+      }
+      const shuffled = [...pool].sort(() => 0.5 - Math.random()).slice(0, pairCount);
+      const leftItems = shuffled.map((p, idx) => ({
+        id: `nsv_${idx}`,
+        text: p.nsv,
+        accented: p.nsvAccented,
+        pairId: idx,
+        aspect: "Imperfective (НСВ)",
+        translation: p.translation,
+        pattern: p.pattern,
+        level: p.level,
+        example: p.exampleNsv
+      }));
+      const rightItems = shuffled.map((p, idx) => ({
+        id: `sv_${idx}`,
+        text: p.sv,
+        accented: p.svAccented,
+        pairId: idx,
+        aspect: "Perfective (СВ)",
+        translation: p.translation,
+        pattern: p.pattern,
+        level: p.level,
+        example: p.exampleSv
+      }));
       return {
         pairs: shuffled,
         left: leftItems.sort(() => 0.5 - Math.random()),
         right: rightItems.sort(() => 0.5 - Math.random())
       };
+    },
+
+    getAspectTriggerDrill: function (level = "all") {
+      let pool = ASPECT_TRIGGER_DATA;
+      if (level && level !== "all") {
+        const filtered = pool.filter(d => d.level.toLowerCase() === level.toLowerCase());
+        if (filtered.length > 0) pool = filtered;
+      }
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      return shuffled[0];
+    },
+
+    getAspectNuanceDrill: function (level = "all") {
+      let pool = ASPECT_NUANCE_DATA;
+      if (level && level !== "all") {
+        const filtered = pool.filter(d => d.level.toLowerCase() === level.toLowerCase());
+        if (filtered.length > 0) pool = filtered;
+      }
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      return shuffled[0];
+    },
+
+    getAspectTransformDrill: function (level = "all") {
+      let pool = ASPECT_TRANSFORM_DATA;
+      if (level && level !== "all") {
+        const filtered = pool.filter(d => d.level.toLowerCase() === level.toLowerCase());
+        if (filtered.length > 0) pool = filtered;
+      }
+      const shuffled = [...pool].sort(() => 0.5 - Math.random());
+      return shuffled[0];
     }
   };
 
@@ -2044,6 +2615,16 @@
     window.GrammarOffline = GrammarOffline;
   }
   if (typeof module !== "undefined" && module.exports) {
-    module.exports = { GrammarOffline, LESSONS, QUESTIONS: QUESTION_BANK, ENDING_PICKER_DATA, CASE_DETECTIVE_DATA, ASPECT_PAIRS };
+    module.exports = {
+      GrammarOffline,
+      LESSONS,
+      QUESTIONS: QUESTION_BANK,
+      ENDING_PICKER_DATA,
+      CASE_DETECTIVE_DATA,
+      ASPECT_PAIRS,
+      ASPECT_TRIGGER_DATA,
+      ASPECT_NUANCE_DATA,
+      ASPECT_TRANSFORM_DATA
+    };
   }
 })();

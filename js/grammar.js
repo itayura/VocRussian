@@ -150,6 +150,19 @@
   let currentAspectRound = null;
   let currentPracticeMode = "quiz"; // "quiz" | "ending" | "detective" | "aspect"
 
+  // Aspects Hub State (5 Dedicated Modes)
+  let currentAspectHubMode = "matcher"; // "matcher" | "trigger" | "nuance" | "transform" | "explorer"
+  let aspectHubMatchedCount = 0;
+  let aspectHubSelectedLeft = null;
+  let aspectHubCurrentRound = null;
+  let aspectHubMatcherStreak = 0;
+  let aspectTriggerStreak = 0;
+  let currentAspectTriggerDrill = null;
+  let currentAspectNuanceDrill = null;
+  let aspectTransformStreak = 0;
+  let currentAspectTransformDrill = null;
+  let isAspectHubBound = false;
+
   // Parse server-side/Deno JSON error messages
   function getErrorMessage(error) {
     if (!error) return "Unknown error";
@@ -1056,21 +1069,23 @@
     // UI Tab controller switching
     switchSubtab: function (tabId) {
       // Deactivate all tabs
-      document.getElementById("grammar-tab-tutor").classList.remove("active");
-      document.getElementById("grammar-tab-practice").classList.remove("active");
-      document.getElementById("grammar-tab-sandbox").classList.remove("active");
-
-      // Hide panels
-      document.getElementById("grammar-subview-tutor").style.display = "none";
-      document.getElementById("grammar-subview-practice").style.display = "none";
-      document.getElementById("grammar-subview-sandbox").style.display = "none";
+      ["tutor", "practice", "aspects", "sandbox"].forEach(id => {
+        const tabEl = document.getElementById(`grammar-tab-${id}`);
+        if (tabEl) tabEl.classList.remove("active");
+        const panelEl = document.getElementById(`grammar-subview-${id}`);
+        if (panelEl) panelEl.style.display = "none";
+      });
 
       // Activate clicked
-      document.getElementById(`grammar-tab-${tabId}`).classList.add("active");
-      document.getElementById(`grammar-subview-${tabId}`).style.display = "flex";
+      const activeTabEl = document.getElementById(`grammar-tab-${tabId}`);
+      if (activeTabEl) activeTabEl.classList.add("active");
+      const activePanelEl = document.getElementById(`grammar-subview-${tabId}`);
+      if (activePanelEl) activePanelEl.style.display = "flex";
 
       if (tabId === "practice") {
         this.updateGrammarPracticeMasteryUI();
+      } else if (tabId === "aspects") {
+        this.initAspectsHub();
       }
     },
 
@@ -1119,9 +1134,10 @@
       }
 
       // Subtab pills
-      document.getElementById("grammar-tab-tutor").addEventListener("click", () => self.switchSubtab("tutor"));
-      document.getElementById("grammar-tab-practice").addEventListener("click", () => self.switchSubtab("practice"));
-      document.getElementById("grammar-tab-sandbox").addEventListener("click", () => self.switchSubtab("sandbox"));
+      document.getElementById("grammar-tab-tutor")?.addEventListener("click", () => self.switchSubtab("tutor"));
+      document.getElementById("grammar-tab-practice")?.addEventListener("click", () => self.switchSubtab("practice"));
+      document.getElementById("grammar-tab-aspects")?.addEventListener("click", () => self.switchSubtab("aspects"));
+      document.getElementById("grammar-tab-sandbox")?.addEventListener("click", () => self.switchSubtab("sandbox"));
 
       // Tutor Topic selection buttons
       document.querySelectorAll(".grammar-topic-btn").forEach(btn => {
@@ -1963,6 +1979,575 @@
           }
           selectedAspectLeft = null;
         }, 500);
+      }
+    },
+
+    // ==========================================
+    // --- VERB ASPECTS HUB CONTROLLER (5 MODES) ---
+    // ==========================================
+    initAspectsHub: function () {
+      if (!window.GrammarOffline) return;
+
+      if (!isAspectHubBound) {
+        isAspectHubBound = true;
+
+        // 1. Mode Tab switching
+        document.querySelectorAll(".aspect-mode-tab").forEach(tab => {
+          tab.addEventListener("click", () => {
+            const mode = tab.getAttribute("data-mode");
+            this.switchAspectMode(mode);
+          });
+        });
+
+        // 2. Global Filters
+        const levelFilter = document.getElementById("aspect-hub-level-filter");
+        if (levelFilter) {
+          levelFilter.addEventListener("change", () => {
+            this.switchAspectMode(currentAspectHubMode);
+          });
+        }
+
+        const patternFilter = document.getElementById("aspect-hub-pattern-filter");
+        if (patternFilter) {
+          patternFilter.addEventListener("change", () => {
+            this.switchAspectMode(currentAspectHubMode);
+          });
+        }
+
+        // 3. Screen 1: Matcher Play Again
+        const matcherPlayAgain = document.getElementById("aspect-hub-play-again-btn");
+        if (matcherPlayAgain) {
+          matcherPlayAgain.addEventListener("click", () => this.startAspectHubMatcher());
+        }
+
+        // 4. Screen 2: Trigger Hunt Next & TTS
+        const triggerChoiceNsv = document.getElementById("aspect-trigger-choice-nsv");
+        const triggerChoiceSv = document.getElementById("aspect-trigger-choice-sv");
+        if (triggerChoiceNsv) {
+          triggerChoiceNsv.addEventListener("click", () => this.handleAspectTriggerChoice("nsv"));
+        }
+        if (triggerChoiceSv) {
+          triggerChoiceSv.addEventListener("click", () => this.handleAspectTriggerChoice("sv"));
+        }
+        const triggerNextBtn = document.getElementById("aspect-trigger-next-btn");
+        if (triggerNextBtn) {
+          triggerNextBtn.addEventListener("click", () => this.startAspectTriggerDrill());
+        }
+        const triggerTtsBtn = document.getElementById("aspect-trigger-tts-btn");
+        if (triggerTtsBtn) {
+          triggerTtsBtn.addEventListener("click", () => {
+            if (currentAspectTriggerDrill) {
+              const fullSentence = currentAspectTriggerDrill.sentencePattern.replace(/\[blank\]/gi, currentAspectTriggerDrill.answer);
+              if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
+                window.AudioEngine.speak(fullSentence);
+              }
+            }
+          });
+        }
+
+        // 5. Screen 3: Nuance Next & TTS
+        const nuanceNextBtn = document.getElementById("aspect-nuance-next-btn");
+        if (nuanceNextBtn) {
+          nuanceNextBtn.addEventListener("click", () => this.startAspectNuanceDrill());
+        }
+        const nuanceTtsA = document.getElementById("aspect-nuance-tts-a");
+        if (nuanceTtsA) {
+          nuanceTtsA.addEventListener("click", () => {
+            if (currentAspectNuanceDrill && window.AudioEngine) {
+              window.AudioEngine.speak(currentAspectNuanceDrill.sentenceA);
+            }
+          });
+        }
+        const nuanceTtsB = document.getElementById("aspect-nuance-tts-b");
+        if (nuanceTtsB) {
+          nuanceTtsB.addEventListener("click", () => {
+            if (currentAspectNuanceDrill && window.AudioEngine) {
+              window.AudioEngine.speak(currentAspectNuanceDrill.sentenceB);
+            }
+          });
+        }
+
+        // 6. Screen 4: Transform Next
+        const transformNextBtn = document.getElementById("aspect-transform-next-btn");
+        if (transformNextBtn) {
+          transformNextBtn.addEventListener("click", () => this.startAspectTransformDrill());
+        }
+
+        // 7. Screen 5: Explorer Search Input
+        const explorerSearch = document.getElementById("aspect-explorer-search-input");
+        if (explorerSearch) {
+          explorerSearch.addEventListener("input", () => this.renderAspectExplorer());
+        }
+      }
+
+      this.switchAspectMode(currentAspectHubMode);
+    },
+
+    switchAspectMode: function (mode) {
+      currentAspectHubMode = mode || "matcher";
+
+      // Deactivate tabs
+      document.querySelectorAll(".aspect-mode-tab").forEach(tab => {
+        if (tab.getAttribute("data-mode") === currentAspectHubMode) {
+          tab.classList.add("active");
+        } else {
+          tab.classList.remove("active");
+        }
+      });
+
+      // Hide all panels
+      document.querySelectorAll(".aspect-screen-panel").forEach(p => p.style.display = "none");
+
+      // Show chosen panel
+      const targetPanel = document.getElementById(`aspect-screen-${currentAspectHubMode}`);
+      if (targetPanel) {
+        targetPanel.style.display = "flex";
+      }
+
+      if (currentAspectHubMode === "matcher") {
+        this.startAspectHubMatcher();
+      } else if (currentAspectHubMode === "trigger") {
+        this.startAspectTriggerDrill();
+      } else if (currentAspectHubMode === "nuance") {
+        this.startAspectNuanceDrill();
+      } else if (currentAspectHubMode === "transform") {
+        this.startAspectTransformDrill();
+      } else if (currentAspectHubMode === "explorer") {
+        this.renderAspectExplorer();
+      }
+    },
+
+    // --- 1. PAIR MATCHER ---
+    startAspectHubMatcher: function () {
+      if (!window.GrammarOffline) return;
+      const level = document.getElementById("aspect-hub-level-filter")?.value || "all";
+      const pattern = document.getElementById("aspect-hub-pattern-filter")?.value || "all";
+
+      aspectHubMatchedCount = 0;
+      aspectHubSelectedLeft = null;
+      aspectHubCurrentRound = window.GrammarOffline.getAspectMatchingRound(5, level, pattern);
+
+      this.renderAspectHubMatcher();
+    },
+
+    renderAspectHubMatcher: function () {
+      const round = aspectHubCurrentRound;
+      if (!round) return;
+
+      const matchesCountEl = document.getElementById("aspect-hub-matches-count");
+      const streakEl = document.getElementById("aspect-hub-matcher-streak");
+      const leftCol = document.getElementById("aspect-hub-left-column");
+      const rightCol = document.getElementById("aspect-hub-right-column");
+      const completeBox = document.getElementById("aspect-hub-round-complete-box");
+
+      if (matchesCountEl) matchesCountEl.innerText = `${aspectHubMatchedCount} / ${round.pairs.length}`;
+      if (streakEl) streakEl.innerText = `🔥 ${aspectHubMatcherStreak} Streak`;
+      if (completeBox) completeBox.style.display = "none";
+
+      if (leftCol) {
+        leftCol.innerHTML = "";
+        round.left.forEach(item => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-secondary aspect-match-tile";
+          btn.id = `aspect_hub_btn_${item.id}`;
+          btn.innerHTML = `<span>${item.accented || item.text}</span> <small style="display:block;font-size:0.75rem;color:var(--color-text-muted);font-weight:normal;">${item.translation}</small>`;
+          btn.style.padding = "0.75rem 1rem";
+          btn.style.fontSize = "1.05rem";
+          btn.style.fontWeight = "bold";
+          btn.style.cursor = "pointer";
+          btn.style.transition = "all 0.2s";
+          btn.style.border = "1px solid var(--border-glass)";
+          btn.style.flexDirection = "column";
+
+          btn.addEventListener("click", () => this.handleAspectHubLeftClick(item, btn));
+          leftCol.appendChild(btn);
+        });
+      }
+
+      if (rightCol) {
+        rightCol.innerHTML = "";
+        round.right.forEach(item => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "btn btn-secondary aspect-match-tile";
+          btn.id = `aspect_hub_btn_${item.id}`;
+          btn.innerHTML = `<span>${item.accented || item.text}</span> <small style="display:block;font-size:0.75rem;color:var(--color-text-muted);font-weight:normal;">${item.translation}</small>`;
+          btn.style.padding = "0.75rem 1rem";
+          btn.style.fontSize = "1.05rem";
+          btn.style.fontWeight = "bold";
+          btn.style.cursor = "pointer";
+          btn.style.transition = "all 0.2s";
+          btn.style.border = "1px solid var(--border-glass)";
+          btn.style.flexDirection = "column";
+
+          btn.addEventListener("click", () => this.handleAspectHubRightClick(item, btn));
+          rightCol.appendChild(btn);
+        });
+      }
+    },
+
+    handleAspectHubLeftClick: function (item, btnEl) {
+      if (btnEl.disabled) return;
+
+      document.querySelectorAll("#aspect-hub-left-column .aspect-match-tile").forEach(b => {
+        if (!b.disabled) {
+          b.style.borderColor = "var(--border-glass)";
+          b.style.background = "var(--bg-input)";
+        }
+      });
+
+      aspectHubSelectedLeft = { item, btnEl };
+      btnEl.style.borderColor = "#00d2d3";
+      btnEl.style.background = "rgba(0, 210, 211, 0.15)";
+
+      if (window.AudioEngine && typeof window.AudioEngine.speak === "function") {
+        window.AudioEngine.speak(item.text);
+      }
+    },
+
+    handleAspectHubRightClick: function (item, btnEl) {
+      if (btnEl.disabled || !aspectHubSelectedLeft) return;
+
+      const left = aspectHubSelectedLeft;
+      if (left.item.pairId === item.pairId) {
+        left.btnEl.disabled = true;
+        btnEl.disabled = true;
+
+        left.btnEl.style.background = "rgba(46, 213, 115, 0.2)";
+        left.btnEl.style.borderColor = "#2ed573";
+        left.btnEl.style.color = "#2ed573";
+        left.btnEl.innerHTML = `<span>✔ ${left.item.accented || left.item.text}</span> <small style="display:block;font-size:0.75rem;color:#2ed573;">${left.item.translation}</small>`;
+
+        btnEl.style.background = "rgba(46, 213, 115, 0.2)";
+        btnEl.style.borderColor = "#2ed573";
+        btnEl.style.color = "#2ed573";
+        btnEl.innerHTML = `<span>✔ ${item.accented || item.text}</span> <small style="display:block;font-size:0.75rem;color:#2ed573;">${item.translation}</small>`;
+
+        aspectHubSelectedLeft = null;
+        aspectHubMatchedCount++;
+
+        const matchesCountEl = document.getElementById("aspect-hub-matches-count");
+        if (matchesCountEl) matchesCountEl.innerText = `${aspectHubMatchedCount} / 5`;
+
+        if (window.AudioEngine) {
+          if (typeof window.AudioEngine.playSuccess === "function") window.AudioEngine.playSuccess();
+          if (typeof window.AudioEngine.speak === "function") window.AudioEngine.speak(item.text);
+        }
+
+        if (aspectHubMatchedCount === 5) {
+          aspectHubMatcherStreak++;
+          const streakEl = document.getElementById("aspect-hub-matcher-streak");
+          if (streakEl) streakEl.innerText = `🔥 ${aspectHubMatcherStreak} Streak`;
+
+          const completeBox = document.getElementById("aspect-hub-round-complete-box");
+          if (completeBox) completeBox.style.display = "flex";
+          if (window.SRS) window.SRS.addActivityXP(20, "aspect_matcher_complete");
+          this.showXpToast("🎉 +20 XP (Aspect Master!)");
+        }
+      } else {
+        btnEl.style.borderColor = "rgb(255, 59, 48)";
+        left.btnEl.style.borderColor = "rgb(255, 59, 48)";
+        if (window.AudioEngine && typeof window.AudioEngine.playError === "function") {
+          window.AudioEngine.playError();
+        }
+
+        setTimeout(() => {
+          if (!left.btnEl.disabled) {
+            left.btnEl.style.borderColor = "var(--border-glass)";
+            left.btnEl.style.background = "var(--bg-input)";
+          }
+          if (!btnEl.disabled) {
+            btnEl.style.borderColor = "var(--border-glass)";
+            btnEl.style.background = "var(--bg-input)";
+          }
+          aspectHubSelectedLeft = null;
+        }, 500);
+      }
+    },
+
+    // --- 2. TRIGGER HUNT ---
+    startAspectTriggerDrill: function () {
+      if (!window.GrammarOffline) return;
+      const level = document.getElementById("aspect-hub-level-filter")?.value || "all";
+      currentAspectTriggerDrill = window.GrammarOffline.getAspectTriggerDrill(level);
+      this.renderAspectTriggerDrill();
+    },
+
+    renderAspectTriggerDrill: function () {
+      const q = currentAspectTriggerDrill;
+      if (!q) return;
+
+      const streakEl = document.getElementById("aspect-trigger-streak");
+      const levelBadge = document.getElementById("aspect-trigger-level-badge");
+      const clueBadge = document.getElementById("aspect-trigger-clue-badge");
+      const promptEl = document.getElementById("aspect-trigger-sentence-prompt");
+      const translEl = document.getElementById("aspect-trigger-translation-prompt");
+      const nsvBtn = document.getElementById("aspect-trigger-choice-nsv");
+      const svBtn = document.getElementById("aspect-trigger-choice-sv");
+      const nsvText = document.getElementById("aspect-trigger-choice-nsv-text");
+      const svText = document.getElementById("aspect-trigger-choice-sv-text");
+      const feedbackBox = document.getElementById("aspect-trigger-feedback-box");
+
+      if (streakEl) streakEl.innerText = `🔥 ${aspectTriggerStreak} Streak`;
+      if (levelBadge) levelBadge.innerText = `${q.level || "A1"} Level`;
+      if (clueBadge) clueBadge.innerHTML = `🔍 Trigger Clue: <strong>${escapeHTML(q.trigger)}</strong>`;
+
+      // Highlight [blank]
+      const formattedPrompt = escapeHTML(q.sentencePattern).replace(/\[blank\]/gi, '<span class="aspect-trigger-highlight">[ ___ ]</span>');
+      if (promptEl) promptEl.innerHTML = formattedPrompt;
+      if (translEl) translEl.innerText = `"${q.translation}"`;
+
+      if (nsvText) nsvText.innerText = q.nsv;
+      if (svText) svText.innerText = q.sv;
+
+      // Reset choice buttons
+      [nsvBtn, svBtn].forEach(btn => {
+        if (btn) {
+          btn.disabled = false;
+          btn.style.borderColor = "var(--border-glass)";
+          btn.style.background = "var(--bg-card)";
+        }
+      });
+
+      if (feedbackBox) feedbackBox.style.display = "none";
+    },
+
+    handleAspectTriggerChoice: function (chosenAspect) {
+      const q = currentAspectTriggerDrill;
+      if (!q) return;
+
+      const nsvBtn = document.getElementById("aspect-trigger-choice-nsv");
+      const svBtn = document.getElementById("aspect-trigger-choice-sv");
+      const feedbackBox = document.getElementById("aspect-trigger-feedback-box");
+      const feedbackTitle = document.getElementById("aspect-trigger-feedback-title");
+      const feedbackText = document.getElementById("aspect-trigger-feedback-text");
+      const streakEl = document.getElementById("aspect-trigger-streak");
+
+      if (nsvBtn) nsvBtn.disabled = true;
+      if (svBtn) svBtn.disabled = true;
+
+      const chosenWord = chosenAspect === "nsv" ? q.nsv : q.sv;
+      const isCorrect = chosenWord.trim().toLowerCase() === q.answer.trim().toLowerCase();
+
+      const clickedBtn = chosenAspect === "nsv" ? nsvBtn : svBtn;
+
+      if (isCorrect) {
+        if (clickedBtn) {
+          clickedBtn.style.borderColor = "#2ed573";
+          clickedBtn.style.background = "rgba(46, 213, 115, 0.15)";
+        }
+        if (window.AudioEngine) {
+          if (typeof window.AudioEngine.playSuccess === "function") window.AudioEngine.playSuccess();
+        }
+        if (feedbackTitle) feedbackTitle.innerHTML = `<span style="color:#2ed573;">✅ Correct! (${escapeHTML(q.aspect)})</span>`;
+        if (feedbackText) feedbackText.innerText = q.explanation;
+        aspectTriggerStreak++;
+        if (window.SRS) window.SRS.addActivityXP(15, "aspect_trigger_drill");
+        this.showXpToast("🎯 +15 XP (Trigger Master!)");
+      } else {
+        if (clickedBtn) {
+          clickedBtn.style.borderColor = "rgb(255, 59, 48)";
+          clickedBtn.style.background = "rgba(255, 59, 48, 0.15)";
+        }
+        if (window.AudioEngine && typeof window.AudioEngine.playError === "function") {
+          window.AudioEngine.playError();
+        }
+        if (feedbackTitle) feedbackTitle.innerHTML = `<span style="color:rgb(255, 59, 48);">❌ Incorrect. Correct form: «${escapeHTML(q.answer)}» (${escapeHTML(q.aspect)})</span>`;
+        if (feedbackText) feedbackText.innerText = q.explanation;
+        aspectTriggerStreak = 0;
+      }
+
+      if (streakEl) streakEl.innerText = `🔥 ${aspectTriggerStreak} Streak`;
+      if (feedbackBox) feedbackBox.style.display = "flex";
+    },
+
+    // --- 3. NUANCE EXPLORER ---
+    startAspectNuanceDrill: function () {
+      if (!window.GrammarOffline) return;
+      const level = document.getElementById("aspect-hub-level-filter")?.value || "all";
+      currentAspectNuanceDrill = window.GrammarOffline.getAspectNuanceDrill(level);
+      this.renderAspectNuanceDrill();
+    },
+
+    renderAspectNuanceDrill: function () {
+      const q = currentAspectNuanceDrill;
+      if (!q) return;
+
+      const titleBadge = document.getElementById("aspect-nuance-title-badge");
+      const sentenceA = document.getElementById("aspect-nuance-sentence-a");
+      const meaningA = document.getElementById("aspect-nuance-meaning-a");
+      const sentenceB = document.getElementById("aspect-nuance-sentence-b");
+      const meaningB = document.getElementById("aspect-nuance-meaning-b");
+      const explanationText = document.getElementById("aspect-nuance-explanation-text");
+
+      if (titleBadge) titleBadge.innerText = q.title;
+      if (sentenceA) sentenceA.innerText = q.sentenceA;
+      if (meaningA) meaningA.innerText = q.meaningA;
+      if (sentenceB) sentenceB.innerText = q.sentenceB;
+      if (meaningB) meaningB.innerText = q.meaningB;
+      if (explanationText) explanationText.innerText = q.explanation;
+    },
+
+    // --- 4. TENSE & ASPECT SHIFT ---
+    startAspectTransformDrill: function () {
+      if (!window.GrammarOffline) return;
+      const level = document.getElementById("aspect-hub-level-filter")?.value || "all";
+      currentAspectTransformDrill = window.GrammarOffline.getAspectTransformDrill(level);
+      this.renderAspectTransformDrill();
+    },
+
+    renderAspectTransformDrill: function () {
+      const q = currentAspectTransformDrill;
+      if (!q) return;
+
+      const streakEl = document.getElementById("aspect-transform-streak");
+      const titleBadge = document.getElementById("aspect-transform-title-badge");
+      const sourceSentence = document.getElementById("aspect-transform-source-sentence");
+      const sourceAspect = document.getElementById("aspect-transform-source-aspect");
+      const instructionEl = document.getElementById("aspect-transform-instruction");
+      const targetPrompt = document.getElementById("aspect-transform-target-prompt");
+      const choicesContainer = document.getElementById("aspect-transform-choices-container");
+      const feedbackBox = document.getElementById("aspect-transform-feedback-box");
+
+      if (streakEl) streakEl.innerText = `🔄 ${aspectTransformStreak} Streak`;
+      if (titleBadge) titleBadge.innerText = q.title;
+      if (sourceSentence) sourceSentence.innerText = q.sourceSentence;
+      if (sourceAspect) sourceAspect.innerText = q.sourceAspect;
+      if (instructionEl) instructionEl.innerText = q.instruction;
+
+      const formattedPrompt = escapeHTML(q.targetSentencePattern).replace(/\[blank\]/gi, '<span class="aspect-trigger-highlight">[ ___ ]</span>');
+      if (targetPrompt) targetPrompt.innerHTML = formattedPrompt;
+
+      if (choicesContainer) {
+        choicesContainer.innerHTML = "";
+        q.choices.forEach(choice => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "choice-btn";
+          btn.innerText = choice;
+          btn.style.fontSize = "1.1rem";
+          btn.style.padding = "0.85rem 1rem";
+          btn.style.fontWeight = "600";
+          btn.addEventListener("click", () => this.handleAspectTransformChoice(choice, btn));
+          choicesContainer.appendChild(btn);
+        });
+      }
+
+      if (feedbackBox) feedbackBox.style.display = "none";
+    },
+
+    handleAspectTransformChoice: function (choice, btnEl) {
+      const q = currentAspectTransformDrill;
+      if (!q) return;
+
+      const feedbackBox = document.getElementById("aspect-transform-feedback-box");
+      const feedbackTitle = document.getElementById("aspect-transform-feedback-title");
+      const feedbackText = document.getElementById("aspect-transform-feedback-text");
+      const streakEl = document.getElementById("aspect-transform-streak");
+
+      document.querySelectorAll("#aspect-transform-choices-container .choice-btn").forEach(b => b.disabled = true);
+
+      const isCorrect = choice.trim().toLowerCase() === q.answer.trim().toLowerCase();
+
+      if (isCorrect) {
+        btnEl.classList.add("correct");
+        if (window.AudioEngine && typeof window.AudioEngine.playSuccess === "function") {
+          window.AudioEngine.playSuccess();
+        }
+        if (feedbackTitle) feedbackTitle.innerHTML = `<span style="color:#2ed573;">✅ Correct! «${escapeHTML(q.answer)}»</span>`;
+        if (feedbackText) feedbackText.innerText = q.explanation;
+        aspectTransformStreak++;
+        if (window.SRS) window.SRS.addActivityXP(15, "aspect_transform_drill");
+        this.showXpToast("🔄 +15 XP (Aspect Shift!)");
+      } else {
+        btnEl.classList.add("incorrect");
+        if (window.AudioEngine && typeof window.AudioEngine.playError === "function") {
+          window.AudioEngine.playError();
+        }
+        if (feedbackTitle) feedbackTitle.innerHTML = `<span style="color:rgb(255, 59, 48);">❌ Incorrect. Expected: «${escapeHTML(q.answer)}»</span>`;
+        if (feedbackText) feedbackText.innerText = q.explanation;
+        aspectTransformStreak = 0;
+      }
+
+      if (streakEl) streakEl.innerText = `🔄 ${aspectTransformStreak} Streak`;
+      if (feedbackBox) feedbackBox.style.display = "flex";
+    },
+
+    // --- 5. PAIR EXPLORER ---
+    renderAspectExplorer: function () {
+      if (!window.GrammarOffline) return;
+      const level = document.getElementById("aspect-hub-level-filter")?.value || "all";
+      const pattern = document.getElementById("aspect-hub-pattern-filter")?.value || "all";
+      const search = document.getElementById("aspect-explorer-search-input")?.value || "";
+
+      const pairs = window.GrammarOffline.getAspectPairs({ level, pattern, search });
+
+      const countEl = document.getElementById("aspect-explorer-count");
+      const grid = document.getElementById("aspect-explorer-grid");
+
+      if (countEl) countEl.innerText = `Showing ${pairs.length} aspect pair${pairs.length === 1 ? "" : "s"}`;
+
+      if (grid) {
+        grid.innerHTML = "";
+        if (pairs.length === 0) {
+          grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--color-text-muted);">No aspect pairs found matching your search.</div>`;
+          return;
+        }
+
+        pairs.forEach(p => {
+          const card = document.createElement("div");
+          card.className = "aspect-pair-card";
+
+          const patternLabels = {
+            prefix: "Prefixation",
+            suffix: "Suffixation",
+            suppletive: "Irregular",
+            stress: "Stress Shift"
+          };
+
+          card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem;">
+              <span style="font-weight: 700; font-size: 1.05rem; color: var(--color-text-main);">${escapeHTML(p.translation)}</span>
+              <div style="display: flex; gap: 0.35rem; align-items: center;">
+                <span class="card-category-tag" style="margin: 0; font-size: 0.7rem;">${p.level}</span>
+                <span style="font-size: 0.7rem; padding: 0.15rem 0.4rem; border-radius: 4px; background: rgba(255,255,255,0.06); color: var(--color-text-muted);">${patternLabels[p.pattern] || p.pattern}</span>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 0.25rem 0;">
+              <!-- NSV side -->
+              <div style="background: rgba(0, 210, 211, 0.06); border: 1px solid rgba(0, 210, 211, 0.2); border-radius: var(--border-radius-sm); padding: 0.6rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="aspect-badge-nsv" style="padding: 0.1rem 0.4rem; font-size: 0.65rem;">НСВ</span>
+                  <button type="button" class="audio-btn aspect-speak-nsv" style="width: 26px; height: 26px; font-size: 0.75rem;" title="Listen">🔊</button>
+                </div>
+                <strong style="font-size: 1.15rem; color: var(--color-text-main);">${escapeHTML(p.nsvAccented || p.nsv)}</strong>
+                <span style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.3;">${escapeHTML(p.exampleNsv || "")}</span>
+              </div>
+
+              <!-- SV side -->
+              <div style="background: rgba(255, 159, 67, 0.06); border: 1px solid rgba(255, 159, 67, 0.2); border-radius: var(--border-radius-sm); padding: 0.6rem; display: flex; flex-direction: column; gap: 0.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="aspect-badge-sv" style="padding: 0.1rem 0.4rem; font-size: 0.65rem;">СВ</span>
+                  <button type="button" class="audio-btn aspect-speak-sv" style="width: 26px; height: 26px; font-size: 0.75rem;" title="Listen">🔊</button>
+                </div>
+                <strong style="font-size: 1.15rem; color: var(--color-text-main);">${escapeHTML(p.svAccented || p.sv)}</strong>
+                <span style="font-size: 0.75rem; color: var(--color-text-muted); line-height: 1.3;">${escapeHTML(p.exampleSv || "")}</span>
+              </div>
+            </div>
+          `;
+
+          // Bind audio buttons
+          card.querySelector(".aspect-speak-nsv")?.addEventListener("click", () => {
+            if (window.AudioEngine) window.AudioEngine.speak(p.nsv);
+          });
+          card.querySelector(".aspect-speak-sv")?.addEventListener("click", () => {
+            if (window.AudioEngine) window.AudioEngine.speak(p.sv);
+          });
+
+          grid.appendChild(card);
+        });
       }
     },
 

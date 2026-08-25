@@ -3409,4 +3409,448 @@ body.practice-focus #quiz-next-btn {
   }
 }
 
+/* --- Verb Aspects Hub & Multi-Mode Styles --- */
+.aspect-mode-tab {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--border-radius-pill) !important;
+  white-space: nowrap;
+}
 
+.aspect-mode-tab:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.aspect-mode-tab.active {
+  background: var(--color-primary) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px var(--color-primary-glow);
+}
+
+.aspect-badge-nsv {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--border-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(0, 210, 211, 0.15);
+  color: #00d2d3;
+  border: 1px solid rgba(0, 210, 211, 0.35);
+}
+
+.aspect-badge-sv {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--border-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 159, 67, 0.15);
+  color: #ff9f43;
+  border: 1px solid rgba(255, 159, 67, 0.35);
+}
+
+.aspect-trigger-highlight {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.aspect-choice-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1.25rem 1rem;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-glass);
+  background: var(--bg-card);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+  font-weight: 600;
+  width: 100%;
+}
+
+.aspect-choice-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  transform: translateY(-2px);
+}
+
+.aspect-nuance-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-md);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.aspect-nuance-card:hover {
+  border-color: var(--border-glass-hover);
+}
+
+.aspect-explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 0.35rem;
+}
+
+.aspect-pair-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.aspect-pair-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .aspect-dual-col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --- PRONUNCIATION PRACTICE MODE & VOICE UI --- */
+.pronounce-card-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-lg);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-shadow: var(--shadow-main);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.pronounce-listen-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.25rem 0 1.75rem 0;
+  justify-content: center;
+}
+
+.pronounce-mic-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0 1rem 0;
+  position: relative;
+}
+
+.pronounce-mic-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: white;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 8px 24px var(--color-primary-glow);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, background 0.25s ease;
+  position: relative;
+  user-select: none;
+}
+
+.pronounce-mic-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px var(--color-primary-glow);
+}
+
+.pronounce-mic-btn.listening {
+  background: linear-gradient(135deg, hsl(350, 89%, 60%), hsl(340, 85%, 48%));
+  box-shadow: 0 0 0 0 hsla(350, 89%, 60%, 0.7);
+  animation: pulse-mic-ring 1.5s infinite cubic-bezier(0.66, 0, 0, 1);
+  transform: scale(1.05);
+}
+
+@keyframes pulse-mic-ring {
+  0% {
+    box-shadow: 0 0 0 0 hsla(350, 89%, 60%, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 24px hsla(350, 89%, 60%, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsla(350, 89%, 60%, 0);
+  }
+}
+
+.pronounce-mic-hint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pronounce-interim-bubble {
+  min-height: 48px;
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-md);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-size: 1.15rem;
+  font-family: var(--font-heading);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--color-text-main);
+  transition: var(--transition-fast);
+}
+
+.pronounce-interim-bubble.listening {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-glow);
+  color: var(--color-primary-hover);
+}
+
+.pronounce-feedback-card {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.pronounce-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.pronounce-score-badge {
+  font-family: var(--font-heading);
+  font-size: 1.85rem;
+  font-weight: 800;
+  padding: 0.4rem 1rem;
+  border-radius: var(--border-radius-pill, 30px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pronounce-score-badge.perfect,
+.pronounce-score-badge.excellent {
+  background: var(--color-success-glow);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+.pronounce-score-badge.good,
+.pronounce-score-badge.almost {
+  background: hsla(45, 100%, 50%, 0.15);
+  color: hsl(40, 95%, 40%);
+  border: 1px solid hsl(45, 100%, 50%);
+}
+
+.pronounce-score-badge.poor {
+  background: var(--color-error-glow);
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.pronounce-diff-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem;
+  font-family: var(--font-heading);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.5rem;
+}
+
+.pronounce-char {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+}
+
+.pronounce-char.correct {
+  color: var(--color-success);
+  background: var(--color-success-glow);
+}
+
+.pronounce-char.mismatch {
+  color: var(--color-error);
+  background: var(--color-error-glow);
+  text-decoration: underline;
+}
+
+.pronounce-char.missing {
+  color: var(--color-error);
+  opacity: 0.6;
+  border-bottom: 2px dashed var(--color-error);
+}
+
+.pronounce-char.extra {
+  color: var(--color-error);
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.pronounce-action-buttons {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 400px;
+  margin-top: 1rem;
+}
+
+.pronounce-action-buttons .btn {
+  flex: 1;
+}
+
+/* Inline writing microphone */
+.writing-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.writing-mic-btn {
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--border-radius-md);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+  border: 2px solid var(--border-glass);
+  color: var(--color-text-main);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.writing-mic-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+}
+
+.writing-mic-btn.listening {
+  background: var(--color-error-glow);
+  border-color: var(--color-error);
+  color: var(--color-error);
+  animation: pulse-mic-ring 1.5s infinite;
+}
+
+/* Flashcard pronounce button */
+.fc-pronounce-btn {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--border-radius-pill, 20px);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: var(--transition-fast);
+  z-index: 10;
+}
+
+.fc-pronounce-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-glow);
+}
+
+.fc-pronounce-btn.listening {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  background: var(--color-error-glow);
+  animation: pulse-mic-ring 1.5s infinite;
+}
+
+/* Alphabet Card Mic Button */
+.alphabet-mic-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: var(--transition-fast);
+}
+
+.alphabet-mic-btn:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+}
+
+.alphabet-mic-btn.listening {
+  border-color: var(--color-error);
+  background: var(--color-error-glow);
+  color: var(--color-error);
+  animation: pulse-mic-ring 1.5s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

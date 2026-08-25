@@ -1032,6 +1032,7 @@
         <div class="card" style="padding: 0.5rem 1rem; border-radius: var(--border-radius-md); display: flex; flex-wrap: wrap; gap: 0.5rem; border: 1px solid var(--border-glass); background: var(--bg-card); align-self: flex-start; max-width: 100%; position: relative; z-index: 10;">
           <button type="button" id="grammar-tab-tutor" class="btn btn-secondary btn-pill active" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">🤖 AI Tutor</button>
           <button type="button" id="grammar-tab-practice" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">📝 Practice Arena</button>
+          <button type="button" id="grammar-tab-aspects" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">⚡ Aspects</button>
           <button type="button" id="grammar-tab-sandbox" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">✍️ Sandbox</button>
         </div>
 
@@ -1367,6 +1368,208 @@
               <strong style="color: var(--color-text-main); font-size: 1.25rem;">All Aspect Pairs Matched!</strong>
               <div style="font-size: 0.95rem; color: var(--color-text-muted);">+20 XP Awarded for Aspect Mastery.</div>
               <button type="button" id="aspect-play-again-btn" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Play Next Round ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBVIEW: VERB ASPECTS HUB -->
+        <div id="grammar-subview-aspects" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
+          <!-- Aspect Hub Header -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 style="font-family: var(--font-heading); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>⚡</span> Verb Aspects Training Hub
+              </h2>
+              <p class="page-subtitle" style="margin: 0;">Master the Russian aspectual system (Imperfective vs. Perfective / НСВ vs. СВ) across 5 interactive training methods.</p>
+            </div>
+            <!-- Quick filter bar: CEFR level & Formation Pattern -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+              <select id="aspect-hub-level-filter" class="filter-select" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; width: auto; background-color: var(--bg-input);" title="Filter by CEFR Level">
+                <option value="all">All Levels (A1-B2)</option>
+                <option value="A1">A1 Beginner</option>
+                <option value="A2">A2 Elementary</option>
+                <option value="B1">B1 Intermediate</option>
+                <option value="B2">B2 Upper Int.</option>
+              </select>
+              <select id="aspect-hub-pattern-filter" class="filter-select" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; width: auto; background-color: var(--bg-input);" title="Filter by Formation Pattern">
+                <option value="all">All Formation Types</option>
+                <option value="prefix">Prefixation (читать → прочитать)</option>
+                <option value="suffix">Suffixation (открывать → открыть)</option>
+                <option value="suppletive">Irregular / Suppletive (говорить → сказать)</option>
+                <option value="stress">Stress Shift (отреза́ть → отре́зать)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Aspects Mode Selector Tabs (5 Modes) -->
+          <div class="card" style="padding: 0.4rem 0.6rem; border-radius: var(--border-radius-md); display: flex; flex-wrap: wrap; gap: 0.5rem; border: 1px solid var(--border-glass); background: var(--bg-card); align-self: flex-start; max-width: 100%;">
+            <button type="button" id="aspect-mode-tab-matcher" class="btn btn-secondary btn-pill aspect-mode-tab active" data-mode="matcher" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">⚡ 1. Pair Matcher</button>
+            <button type="button" id="aspect-mode-tab-trigger" class="btn btn-secondary btn-pill aspect-mode-tab" data-mode="trigger" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">🎯 2. Trigger Hunt</button>
+            <button type="button" id="aspect-mode-tab-nuance" class="btn btn-secondary btn-pill aspect-mode-tab" data-mode="nuance" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">⚖️ 3. Nuance Explorer</button>
+            <button type="button" id="aspect-mode-tab-transform" class="btn btn-secondary btn-pill aspect-mode-tab" data-mode="transform" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">🔄 4. Tense Shift</button>
+            <button type="button" id="aspect-mode-tab-explorer" class="btn btn-secondary btn-pill aspect-mode-tab" data-mode="explorer" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">📖 5. Pair Explorer</button>
+          </div>
+
+          <!-- SCREEN 1: PAIR MATCHER -->
+          <div id="aspect-screen-matcher" class="aspect-screen-panel" style="display: flex; flex-direction: column; gap: 1.25rem; max-width: 700px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Pair Matcher • Matches: <span id="aspect-hub-matches-count" style="color: var(--color-primary-hover); font-weight: bold;">0 / 5</span></span>
+              <span id="aspect-hub-matcher-streak" style="font-size: 0.85rem; color: orange; font-weight: bold;">🔥 0 Streak</span>
+            </div>
+
+            <div class="info-banner" style="background: rgba(138, 43, 226, 0.15); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--color-text-main); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚡</span>
+              <span>Click an <span class="aspect-badge-nsv">Imperfective (НСВ)</span> verb on the left, then click its corresponding <span class="aspect-badge-sv">Perfective (СВ)</span> pair on the right!</span>
+            </div>
+
+            <div class="aspect-dual-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <span style="font-weight: bold; font-size: 0.9rem; color: #00d2d3; text-align: center;">Imperfective (НСВ)</span>
+                <div id="aspect-hub-left-column" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <!-- Left verb tiles -->
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <span style="font-weight: bold; font-size: 0.9rem; color: #ff9f43; text-align: center;">Perfective (СВ)</span>
+                <div id="aspect-hub-right-column" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <!-- Right verb tiles -->
+                </div>
+              </div>
+            </div>
+
+            <div id="aspect-hub-round-complete-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.5rem; flex-direction: column; align-items: center; gap: 1rem; text-align: center; animation: fadeIn 0.3s forwards;">
+              <div style="font-size: 2.5rem;">🎉</div>
+              <strong style="color: var(--color-text-main); font-size: 1.25rem;">All Aspect Pairs Matched!</strong>
+              <div id="aspect-hub-round-summary" style="font-size: 0.95rem; color: var(--color-text-muted);">+20 XP Awarded for Aspect Mastery.</div>
+              <button type="button" id="aspect-hub-play-again-btn" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Play Next Round ➔</button>
+            </div>
+          </div>
+
+          <!-- SCREEN 2: TRIGGER HUNT (Contextual Binary Choice) -->
+          <div id="aspect-screen-trigger" class="aspect-screen-panel" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 680px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Trigger Hunt • <span id="aspect-trigger-streak" style="color: orange; font-weight: bold;">🔥 0 Streak</span></span>
+              <span class="card-category-tag" id="aspect-trigger-level-badge">A1 Beginner</span>
+            </div>
+
+            <div class="choice-question-box" style="padding: 2.5rem 1.5rem; margin-top: 0.5rem; text-align: center;">
+              <span class="card-category-tag" id="aspect-trigger-clue-badge">🔍 Trigger Clue: <strong>каждый день</strong></span>
+              <div class="card-word-title" id="aspect-trigger-sentence-prompt" style="font-size: 1.9rem; line-height: 1.35; margin: 0.8rem 0;">
+                Каждое утро он <span class="aspect-trigger-highlight">[blank]</span> кофе.
+              </div>
+              <div class="card-word-example-en" id="aspect-trigger-translation-prompt" style="margin-top: 0.5rem; font-size: 1.05rem; color: var(--color-text-muted);">
+                "Every morning he drinks a cup of coffee."
+              </div>
+            </div>
+
+            <!-- Dual Choice Buttons: NSV vs SV -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; width: 100%;">
+              <button type="button" id="aspect-trigger-choice-nsv" class="aspect-choice-btn">
+                <span class="aspect-badge-nsv">Imperfective (НСВ)</span>
+                <span id="aspect-trigger-choice-nsv-text" style="font-size: 1.35rem; margin-top: 0.25rem;">пьёт</span>
+              </button>
+              <button type="button" id="aspect-trigger-choice-sv" class="aspect-choice-btn">
+                <span class="aspect-badge-sv">Perfective (СВ)</span>
+                <span id="aspect-trigger-choice-sv-text" style="font-size: 1.35rem; margin-top: 0.25rem;">выпьет</span>
+              </button>
+            </div>
+
+            <!-- Trigger Feedback Box -->
+            <div id="aspect-trigger-feedback-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.75rem; animation: fadeIn 0.3s forwards;">
+              <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <strong style="color: var(--color-text-main); font-size: 1.05rem;" id="aspect-trigger-feedback-title">✅ Correct!</strong>
+                <button type="button" id="aspect-trigger-tts-btn" class="audio-btn" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;" title="Listen to sentence">🔊</button>
+              </div>
+              <div id="aspect-trigger-feedback-text" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.45;"></div>
+              <button type="button" id="aspect-trigger-next-btn" class="btn btn-primary" style="align-self: flex-end; padding: 0.6rem 1.4rem;">Next Sentence ➔</button>
+            </div>
+          </div>
+
+          <!-- SCREEN 3: NUANCE EXPLORER (Process vs Result / Contrastive Scenarios) -->
+          <div id="aspect-screen-nuance" class="aspect-screen-panel" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 720px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Nuance Explorer • <span id="aspect-nuance-streak" style="color: orange; font-weight: bold;">⚖️ Contrast</span></span>
+              <span class="card-category-tag" id="aspect-nuance-title-badge">General Fact vs. Completed Result</span>
+            </div>
+
+            <div class="aspect-dual-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; width: 100%;">
+              <!-- Side A: Imperfective -->
+              <div class="aspect-nuance-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="aspect-badge-nsv">Imperfective (НСВ)</span>
+                  <button type="button" id="aspect-nuance-tts-a" class="audio-btn" style="width: 32px; height: 32px;" title="Listen">🔊</button>
+                </div>
+                <div id="aspect-nuance-sentence-a" style="font-size: 1.4rem; font-weight: 700; color: var(--color-text-main);">Ты читал эту книгу?</div>
+                <div id="aspect-nuance-meaning-a" style="font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.4;">Have you read / are you familiar with this book? (General fact / experience)</div>
+              </div>
+
+              <!-- Side B: Perfective -->
+              <div class="aspect-nuance-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="aspect-badge-sv">Perfective (СВ)</span>
+                  <button type="button" id="aspect-nuance-tts-b" class="audio-btn" style="width: 32px; height: 32px;" title="Listen">🔊</button>
+                </div>
+                <div id="aspect-nuance-sentence-b" style="font-size: 1.4rem; font-weight: 700; color: var(--color-text-main);">Ты прочитал эту книгу?</div>
+                <div id="aspect-nuance-meaning-b" style="font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.4;">Did you finish reading the whole book? (Total completion / result)</div>
+              </div>
+            </div>
+
+            <!-- Deep Linguistic Explanation -->
+            <div class="card" style="background: rgba(138, 43, 226, 0.08); border: 1px solid var(--border-glass); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+              <strong style="color: var(--color-primary-hover); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>💡</span> Key Pedagogical Nuance
+              </strong>
+              <div id="aspect-nuance-explanation-text" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.5;"></div>
+            </div>
+
+            <button type="button" id="aspect-nuance-next-btn" class="btn btn-primary" style="align-self: flex-end; padding: 0.75rem 1.75rem;">Next Comparison ➔</button>
+          </div>
+
+          <!-- SCREEN 4: TENSE & ASPECT SHIFT (Conjugation & Transformation Challenges) -->
+          <div id="aspect-screen-transform" class="aspect-screen-panel" style="display: none; flex-direction: column; gap: 1.5rem; max-width: 680px; margin: 0 auto; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="progress-header-text">Tense & Aspect Shift • <span id="aspect-transform-streak" style="color: orange; font-weight: bold;">🔄 0 Streak</span></span>
+              <span class="card-category-tag" id="aspect-transform-title-badge">Process → Result</span>
+            </div>
+
+            <!-- Source Card -->
+            <div class="card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-glass); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 600; text-transform: uppercase;">Source Sentence:</span>
+              <div id="aspect-transform-source-sentence" style="font-size: 1.25rem; font-weight: 600; color: var(--color-text-main);">Вчера мы долго решали сложную задачу.</div>
+              <span id="aspect-transform-source-aspect" style="font-size: 0.8rem; color: #00d2d3;">Imperfective Past (НСВ - process)</span>
+            </div>
+
+            <!-- Target Instruction & Prompt -->
+            <div class="choice-question-box" style="padding: 1.75rem 1.25rem; text-align: center;">
+              <span id="aspect-transform-instruction" style="font-size: 0.95rem; color: var(--color-text-muted); font-weight: 500;">Convert into a completed action with the result «наконец»:</span>
+              <div class="card-word-title" id="aspect-transform-target-prompt" style="font-size: 1.75rem; line-height: 1.35; margin: 0.75rem 0;">Вчера мы наконец [blank] сложную задачу.</div>
+            </div>
+
+            <!-- Choices Grid -->
+            <div class="choices-grid" id="aspect-transform-choices-container" style="grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+              <!-- 4 transform choices -->
+            </div>
+
+            <!-- Transform Feedback Box -->
+            <div id="aspect-transform-feedback-box" class="card" style="display: none; background: var(--color-primary-glow); border: 1px solid var(--color-primary); padding: 1.25rem; flex-direction: column; gap: 0.75rem; animation: fadeIn 0.3s forwards;">
+              <strong style="color: var(--color-text-main); font-size: 1.05rem;" id="aspect-transform-feedback-title">✅ Correct!</strong>
+              <div id="aspect-transform-feedback-text" style="font-size: 0.9rem; color: var(--color-text-main); line-height: 1.45;"></div>
+              <button type="button" id="aspect-transform-next-btn" class="btn btn-primary" style="align-self: flex-end; padding: 0.6rem 1.4rem;">Next Challenge ➔</button>
+            </div>
+          </div>
+
+          <!-- SCREEN 5: PAIR EXPLORER & DICTIONARY -->
+          <div id="aspect-screen-explorer" class="aspect-screen-panel" style="display: none; flex-direction: column; gap: 1.25rem; width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div style="flex: 1; min-width: 250px;">
+                <input type="text" id="aspect-explorer-search-input" class="filter-input" placeholder="🔍 Search by Russian verb (читать, сказать) or English translation (read, see)..." style="width: 100%; box-sizing: border-box; padding: 0.6rem 1rem; font-size: 0.9rem; background-color: var(--bg-input);">
+              </div>
+              <span id="aspect-explorer-count" style="font-size: 0.85rem; color: var(--color-text-muted); font-weight: 500;">Showing 100+ aspect pairs</span>
+            </div>
+
+            <!-- Dynamic Aspect Pairs Grid -->
+            <div id="aspect-explorer-grid" class="aspect-explorer-grid">
+              <!-- Dynamically populated aspect pair cards -->
             </div>
           </div>
         </div>

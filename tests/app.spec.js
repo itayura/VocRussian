@@ -1239,5 +1239,88 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#practice-mode-selector-container')).toBeVisible();
   });
 
+  test('Verb Aspects Hub provides 5 interactive training modes and filter explorer', async ({ page }) => {
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await expect(page.locator('#grammar-tab-aspects')).toBeVisible();
+
+    // 1. Switch to Aspects tab
+    await page.locator('#grammar-tab-aspects').click();
+    const aspectsPanel = page.locator('#grammar-subview-aspects');
+    await expect(aspectsPanel).toBeVisible();
+
+    // Mode tabs exist
+    await expect(page.locator('#aspect-mode-tab-matcher')).toBeVisible();
+    await expect(page.locator('#aspect-mode-tab-trigger')).toBeVisible();
+    await expect(page.locator('#aspect-mode-tab-nuance')).toBeVisible();
+    await expect(page.locator('#aspect-mode-tab-transform')).toBeVisible();
+    await expect(page.locator('#aspect-mode-tab-explorer')).toBeVisible();
+
+    // 2. Mode 1: Pair Matcher Screen
+    const matcherScreen = page.locator('#aspect-screen-matcher');
+    await expect(matcherScreen).toBeVisible();
+    const leftTiles = page.locator('#aspect-hub-left-column .aspect-match-tile');
+    const rightTiles = page.locator('#aspect-hub-right-column .aspect-match-tile');
+    await expect(leftTiles).toHaveCount(5);
+    await expect(rightTiles).toHaveCount(5);
+    await leftTiles.first().click();
+    await rightTiles.first().click();
+
+    // 3. Mode 2: Trigger Hunt Screen
+    await page.locator('#aspect-mode-tab-trigger').click();
+    const triggerScreen = page.locator('#aspect-screen-trigger');
+    await expect(triggerScreen).toBeVisible();
+    await expect(page.locator('#aspect-trigger-clue-badge')).toBeVisible();
+    await expect(page.locator('#aspect-trigger-sentence-prompt')).toBeVisible();
+    await expect(page.locator('#aspect-trigger-choice-nsv')).toBeVisible();
+    await expect(page.locator('#aspect-trigger-choice-sv')).toBeVisible();
+    await page.locator('#aspect-trigger-choice-nsv').click();
+    await expect(page.locator('#aspect-trigger-feedback-box')).toBeVisible();
+    await page.locator('#aspect-trigger-next-btn').click();
+    await expect(page.locator('#aspect-trigger-sentence-prompt')).toBeVisible();
+
+    // 4. Mode 3: Nuance Explorer Screen
+    await page.locator('#aspect-mode-tab-nuance').click();
+    const nuanceScreen = page.locator('#aspect-screen-nuance');
+    await expect(nuanceScreen).toBeVisible();
+    await expect(page.locator('#aspect-nuance-sentence-a')).toBeVisible();
+    await expect(page.locator('#aspect-nuance-sentence-b')).toBeVisible();
+    await expect(page.locator('#aspect-nuance-explanation-text')).toBeVisible();
+    await page.locator('#aspect-nuance-next-btn').click();
+    await expect(page.locator('#aspect-nuance-sentence-a')).toBeVisible();
+
+    // 5. Mode 4: Tense & Aspect Shift Screen
+    await page.locator('#aspect-mode-tab-transform').click();
+    const transformScreen = page.locator('#aspect-screen-transform');
+    await expect(transformScreen).toBeVisible();
+    await expect(page.locator('#aspect-transform-source-sentence')).toBeVisible();
+    await expect(page.locator('#aspect-transform-target-prompt')).toBeVisible();
+    const transformChoices = page.locator('#aspect-transform-choices-container .choice-btn');
+    await expect(transformChoices).toHaveCount(4);
+    await transformChoices.first().click();
+    await expect(page.locator('#aspect-transform-feedback-box')).toBeVisible();
+    await page.locator('#aspect-transform-next-btn').click();
+
+    // 6. Mode 5: Pair Explorer Screen & Search
+    await page.locator('#aspect-mode-tab-explorer').click();
+    const explorerScreen = page.locator('#aspect-screen-explorer');
+    await expect(explorerScreen).toBeVisible();
+    const explorerCards = page.locator('#aspect-explorer-grid .aspect-pair-card');
+    const initialCount = await explorerCards.count();
+    expect(initialCount).toBeGreaterThanOrEqual(100);
+
+    // Test search filter
+    await page.locator('#aspect-explorer-search-input').fill('читать');
+    await expect(page.locator('#aspect-explorer-grid')).toContainText('to read');
+    await expect(page.locator('#aspect-explorer-grid')).toContainText(/прочит/i);
+    await page.locator('#aspect-explorer-search-input').fill('');
+
+    // Test CEFR filter
+    await page.locator('#aspect-hub-level-filter').selectOption('A1');
+    const a1Count = await page.locator('#aspect-explorer-grid .aspect-pair-card').count();
+    expect(a1Count).toBeGreaterThanOrEqual(20);
+    expect(a1Count).toBeLessThan(initialCount);
+  });
+
 });
+
 
