@@ -563,7 +563,7 @@
       <section id="view-study-select" class="view-section">
         <div>
           <h1 class="page-title">Choose Study Mode</h1>
-          <p class="page-subtitle">Practice Russian with four distinct active recall training methods.</p>
+          <p class="page-subtitle">Practice Russian with five distinct active recall training methods.</p>
         </div>
         
         <div class="study-modes-grid">
@@ -586,6 +586,11 @@
             <div class="mode-icon">🎨</div>
             <div class="mode-title">Visual Recall</div>
             <div class="mode-desc">Reinforce memory with rich visual art and audio associations for vocabulary words.</div>
+          </div>
+          <div class="card mode-card card-glowing" id="mode-select-pronunciation">
+            <div class="mode-icon">🎙️</div>
+            <div class="mode-title">Pronunciation Practice</div>
+            <div class="mode-desc">Speak Russian words into your microphone. Get real-time phoneme feedback, accuracy scoring, and voice training.</div>
           </div>
         </div>
         
@@ -707,6 +712,7 @@
                 <!-- Front Side -->
                 <div class="card-face card-face-front">
                   <span class="card-category-tag" id="fc-category-front">Nouns</span>
+                  <button type="button" class="fc-pronounce-btn" id="fc-pronounce-btn" title="Practice Russian Pronunciation">🎙️ <span>Pronounce</span></button>
                   <button class="card-star-btn" id="fc-star-btn">★</button>
                   <div class="card-word-title" id="fc-word-front">Дом</div>
                   <div class="card-word-translit" id="fc-word-translit-front">[dom]</div>
@@ -773,7 +779,10 @@
             </div>
 
             <div class="writing-input-wrapper">
-              <input type="text" id="writing-user-input" class="writing-input" placeholder="Type in Russian Cyrillic..." autocomplete="off" spellcheck="false">
+              <div class="writing-input-group">
+                <input type="text" id="writing-user-input" class="writing-input" placeholder="Type or speak in Russian..." autocomplete="off" spellcheck="false">
+                <button type="button" id="writing-mic-btn" class="writing-mic-btn" title="Speak Answer into Microphone" aria-label="Microphone input">🎙️</button>
+              </div>
               
               <div class="writing-diff-output" id="writing-diff-container" style="display: none;">
                 <!-- Diff feedback -->
@@ -856,6 +865,66 @@
                 <span>Easy</span>
                 <span>Box +2 <kbd>3</kbd></span>
               </button>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: PRONUNCIATION PRACTICE COMPONENT -->
+          <div id="study-sub-pronunciation" class="study-stage-component" style="display: none;">
+            <div class="pronounce-card-box">
+              <span class="card-category-tag" id="pronounce-category">Conversation</span>
+              <div class="card-word-title" id="pronounce-word">Здравствуйте</div>
+              <div class="card-word-translit" id="pronounce-translit">[zdrav-stvuy-te]</div>
+              <div class="card-word-translation" id="pronounce-translation">Hello / How do you do</div>
+              <div class="card-word-pos" id="pronounce-pos">Phrase</div>
+
+              <div class="pronounce-listen-actions">
+                <button type="button" id="pronounce-listen-normal-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; gap: 0.35rem;">
+                  🔊 Listen (Normal)
+                </button>
+                <button type="button" id="pronounce-listen-slow-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; gap: 0.35rem;">
+                  🐢 Slow
+                </button>
+              </div>
+
+              <div class="pronounce-mic-container">
+                <button type="button" id="pronounce-mic-btn" class="pronounce-mic-btn" title="Tap to Speak Russian" aria-label="Microphone">
+                  🎙️
+                </button>
+                <div id="pronounce-mic-hint" class="pronounce-mic-hint">
+                  <span>Tap microphone or press</span> <kbd>Space</kbd> <span>to speak</span>
+                </div>
+              </div>
+
+              <div id="pronounce-interim-bubble" class="pronounce-interim-bubble">
+                <span id="pronounce-interim-text" style="opacity: 0.65;">Say the word aloud...</span>
+              </div>
+
+              <!-- Pronunciation Result & Score Feedback -->
+              <div id="pronounce-feedback-panel" class="pronounce-feedback-card" style="display: none;">
+                <div class="pronounce-score-row">
+                  <div id="pronounce-score-badge" class="pronounce-score-badge perfect">
+                    <span id="pronounce-score-emoji">🌟</span>
+                    <span id="pronounce-score-val">95%</span>
+                  </div>
+                </div>
+                <div id="pronounce-feedback-text" style="font-size: 1.05rem; font-weight: 600; color: var(--color-text-main);">
+                  Outstanding! / Превосходно!
+                </div>
+                <div id="pronounce-diff-box" class="pronounce-diff-container">
+                  <!-- Rendered dynamically -->
+                </div>
+                <div style="font-size: 0.85rem; color: var(--color-text-muted);">
+                  Spoken: <strong id="pronounce-spoken-text" style="color: var(--color-text-main);">здравствуйте</strong>
+                </div>
+                <div class="pronounce-action-buttons">
+                  <button type="button" id="pronounce-retry-btn" class="btn btn-secondary">
+                    🔄 Try Again
+                  </button>
+                  <button type="button" id="pronounce-next-btn" class="btn btn-primary">
+                    Next Word <kbd>Enter</kbd>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -2182,9 +2251,10 @@
           </div>
 
           <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem; max-width: 500px; margin: 0 auto;">
-            <div id="alphabet-game-mode-toggle" style="display: flex; background: var(--bg-input); border-radius: 20px; padding: 0.25rem; border: 1px solid var(--border-glass); width: 100%;">
-              <button id="game-mode-sound" class="btn active" style="flex: 1; border-radius: 18px; padding: 0.5rem; font-size: 0.85rem; border: none; background: var(--color-primary); color: var(--color-text-main);">🔊 Sound Match</button>
-              <button id="game-mode-typing" class="btn" style="flex: 1; border-radius: 18px; padding: 0.5rem; font-size: 0.85rem; border: none; background: transparent; color: var(--color-text-muted);">⌨️ Typing Practice</button>
+            <div id="alphabet-game-mode-toggle" style="display: flex; background: var(--bg-input); border-radius: 20px; padding: 0.25rem; border: 1px solid var(--border-glass); width: 100%; gap: 4px;">
+              <button id="game-mode-sound" class="btn active" style="flex: 1; border-radius: 18px; padding: 0.5rem 0.25rem; font-size: 0.8rem; border: none; background: var(--color-primary); color: var(--color-text-main);">🔊 Sound</button>
+              <button id="game-mode-typing" class="btn" style="flex: 1; border-radius: 18px; padding: 0.5rem 0.25rem; font-size: 0.8rem; border: none; background: transparent; color: var(--color-text-muted);">⌨️ Typing</button>
+              <button id="game-mode-pronounce" class="btn" style="flex: 1; border-radius: 18px; padding: 0.5rem 0.25rem; font-size: 0.8rem; border: none; background: transparent; color: var(--color-text-muted);">🎙️ Pronounce</button>
             </div>
 
             <!-- Quiz Display Area -->
@@ -2209,6 +2279,12 @@
               </div>
 
               <button id="alphabet-typing-submit-btn" class="btn btn-primary" style="width: 100%;">Check Answer</button>
+            </div>
+
+            <!-- Answers Area (Pronounce Mode) -->
+            <div id="alphabet-quiz-pronounce-container" style="display: none; width: 100%; flex-direction: column; align-items: center; gap: 1rem;">
+              <button type="button" id="alphabet-quiz-mic-btn" class="pronounce-mic-btn" style="width: 70px; height: 70px; font-size: 1.75rem;" title="Speak the letter or word" aria-label="Microphone">🎙️</button>
+              <div id="alphabet-quiz-mic-hint" style="font-size: 0.85rem; color: var(--color-text-muted);">Tap mic and pronounce the letter clearly</div>
             </div>
 
             <div id="alphabet-quiz-feedback" style="min-height: 24px; font-weight: bold; font-size: 1.1rem; width: 100%;"></div>
@@ -2797,6 +2873,7 @@
   <script src="js/visual_assets.js"></script>
   <script src="js/srs.js"></script>
   <script src="js/audio.js"></script>
+  <script src="js/speech.js"></script>
   <script src="js/grammar_offline.js"></script>
   <script src="js/grammar.js"></script>
   <script src="js/alphabet.js"></script>

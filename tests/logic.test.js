@@ -467,3 +467,109 @@ test("visual replanning removes stale generated batches without touching other f
     fs.rmSync(batchRoot, { recursive: true, force: true });
   }
 });
+
+test("SpeechUtils Russian text cleaning strips stress marks, trims, and removes punctuation", () => {
+  const { SpeechUtils } = require("../js/speech.js");
+  
+  assert.equal(SpeechUtils.cleanRussianText("Приве́т!"), "привет");
+  assert.equal(SpeechUtils.cleanRussianText("  Здравствуйте, друг... "), "здравствуйте друг");
+  assert.equal(SpeechUtils.cleanRussianText("холо́дный"), "холодный");
+  assert.equal(SpeechUtils.cleanRussianText("Ко́шка?"), "кошка");
+});
+
+test("SpeechUtils phonetic normalization treats ё and е as equivalents", () => {
+  const { SpeechUtils } = require("../js/speech.js");
+  
+  assert.equal(SpeechUtils.phoneticNormalize("ёлка"), "елка");
+  assert.equal(SpeechUtils.phoneticNormalize("Ещё"), "еще");
+  assert.equal(SpeechUtils.phoneticNormalize("самолёт"), "самолет");
+});
+
+test("SpeechUtils Levenshtein distance and similarity calculation accurately measures pronunciation closeness", () => {
+  const { SpeechUtils } = require("../js/speech.js");
+  
+  assert.equal(SpeechUtils.levenshteinDistance("привет", "привет"), 0);
+  assert.equal(SpeechUtils.calculateSimilarity("привет", "привет"), 100);
+  
+  // Minor vowel vowel difference (phonetic tolerance for unstressed vowels in speech recognition)
+  const simMinor = SpeechUtils.calculateSimilarity("спасибо", "спасиба");
+  assert.ok(simMinor >= 80, `Expected similarity >= 80, got ${simMinor}`);
+  
+  // Completely different words
+  const simDiff = SpeechUtils.calculateSimilarity("собака", "самолет");
+  assert.ok(simDiff < 50, `Expected similarity < 50, got ${simDiff}`);
+});
+
+test("SpeechUtils computePronunciationDiff generates correct character breakdown", () => {
+  const { SpeechUtils } = require("../js/speech.js");
+  
+  const diff = SpeechUtils.computePronunciationDiff("дом", "дам");
+  assert.equal(diff.length, 3);
+  assert.equal(diff[0].char, "д");
+  assert.equal(diff[0].status, "correct");
+  assert.equal(diff[1].char, "о");
+  assert.equal(diff[1].status, "mismatch");
+  assert.equal(diff[1].spokenChar, "а");
+  assert.equal(diff[2].char, "м");
+  assert.equal(diff[2].status, "correct");
+});
+
+test("SpeechEngine evaluate produces correct grades, emojis, and considers transcript alternatives", () => {
+  const { SpeechEngine } = require("../js/speech.js");
+  
+  // Exact match
+  const exact = SpeechEngine.evaluate("Здравствуйте", "здравствуйте");
+  assert.equal(exact.isCorrect, true);
+  assert.equal(exact.grade, "perfect");
+  assert.equal(exact.score, 100);
+  assert.equal(exact.emoji, "🌟");
+  
+  // Accented target word vs spoken transcript
+  const accented = SpeechEngine.evaluate("холо́дный", "холодный");
+  assert.equal(accented.isCorrect, true);
+  assert.equal(accented.score, 100);
+  
+  // Alternative transcripts selection (if 2nd alternative is better)
+  const withAlts = SpeechEngine.evaluate("пожалуйста", "пажалуста", {
+    alternatives: ["пажалуста", "пожалуйста"]
+  });
+  assert.equal(withAlts.isCorrect, true);
+  assert.equal(withAlts.score, 100);
+  
+  // Poor match
+  const poor = SpeechEngine.evaluate("хорошо", "плохо");
+  assert.equal(poor.isCorrect, false);
+  assert.ok(poor.score < 50);
+  assert.equal(poor.grade, "poor");
+});
+
+test("SpeechEngine agnostic provider architecture allows custom provider registration and activation", () => {
+  const { SpeechEngine } = require("../js/speech.js");
+  
+  let started = false;
+  let stopped = false;
+  
+  const mockProvider = {
+    name: "mock",
+    isSupported: () => true,
+    startListening: (options) => {
+      started = true;
+      return Promise.resolve({ transcript: "тест", confidence: 0.95, alternatives: ["тест"] });
+    },
+    stopListening: () => {
+      stopped = true;
+    }
+  };
+  
+  SpeechEngine.registerProvider("mock", mockProvider);
+  assert.equal(SpeechEngine.getProviderName(), "web-speech");
+  
+  SpeechEngine.setProvider("mock");
+  assert.equal(SpeechEngine.getProviderName(), "mock");
+  assert.equal(SpeechEngine.isSupported(), true);
+  
+  // Switch back to default
+  SpeechEngine.setProvider("webspeech");
+  assert.equal(SpeechEngine.getProviderName(), "web-speech");
+});
+

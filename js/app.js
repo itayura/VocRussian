@@ -1479,6 +1479,13 @@
       });
     }
 
+    const pronounceModeCard = document.getElementById("mode-select-pronunciation");
+    if (pronounceModeCard) {
+      pronounceModeCard.addEventListener("click", () => {
+        startStudySession("pronunciation");
+      });
+    }
+
     // Database Deck Switcher
     document.getElementById("study-filter-db").addEventListener("change", (e) => {
       SRS.setActiveDb(e.target.value);
@@ -1544,9 +1551,9 @@
       slowTtsBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (currentCard) AudioEngine.speak(currentCard.word, 0.55);
-
       });
     }
+
     // --- FLASHCARD EVENTS ---
     const flashcardClickArea = document.getElementById("flashcard-click-wrapper");
     flashcardClickArea.addEventListener("click", flipFlashcard);
@@ -1560,6 +1567,14 @@
         btn.innerText = starred ? "★" : "☆";
       }
     });
+
+    const fcPronounceBtn = document.getElementById("fc-pronounce-btn");
+    if (fcPronounceBtn) {
+      fcPronounceBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleFlashcardPronounceCheck();
+      });
+    }
 
     // SRS Scores clicks
     document.getElementById("srs-score-1").addEventListener("click", () => handleSrsScore(false, "hard"));
@@ -1598,6 +1613,50 @@
     document.getElementById("writing-check-btn").addEventListener("click", () => {
       handleWritingSubmit();
     });
+
+    const writingMicBtn = document.getElementById("writing-mic-btn");
+    if (writingMicBtn) {
+      writingMicBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handleWritingVoiceInput();
+      });
+    }
+
+    // --- PRONUNCIATION PRACTICE MODE EVENTS ---
+    const pronounceMicBtn = document.getElementById("pronounce-mic-btn");
+    if (pronounceMicBtn) {
+      pronounceMicBtn.addEventListener("click", () => {
+        togglePronunciationRecording();
+      });
+    }
+
+    const pListenNormal = document.getElementById("pronounce-listen-normal-btn");
+    if (pListenNormal) {
+      pListenNormal.addEventListener("click", () => {
+        if (currentCard) AudioEngine.speak(currentCard.word, 1.0);
+      });
+    }
+
+    const pListenSlow = document.getElementById("pronounce-listen-slow-btn");
+    if (pListenSlow) {
+      pListenSlow.addEventListener("click", () => {
+        if (currentCard) AudioEngine.speak(currentCard.word, 0.55);
+      });
+    }
+
+    const pRetryBtn = document.getElementById("pronounce-retry-btn");
+    if (pRetryBtn) {
+      pRetryBtn.addEventListener("click", () => {
+        resetPronunciationCardForRetry();
+      });
+    }
+
+    const pNextBtn = document.getElementById("pronounce-next-btn");
+    if (pNextBtn) {
+      pNextBtn.addEventListener("click", () => {
+        showNextCard();
+      });
+    }
 
     // --- COMPLETE OVERLAY EVENTS ---
     document.getElementById("complete-home-btn").addEventListener("click", () => {
@@ -1742,6 +1801,8 @@
     document.getElementById("study-sub-writing").style.display = mode === "writing" ? "block" : "none";
     const visualSub = document.getElementById("study-sub-visual");
     if (visualSub) visualSub.style.display = mode === "visual" ? "block" : "none";
+    const pronounceSub = document.getElementById("study-sub-pronunciation");
+    if (pronounceSub) pronounceSub.style.display = mode === "pronunciation" ? "block" : "none";
     document.getElementById("study-sub-complete").style.display = "none";
     placeStudyAudioControls(mode);
 
@@ -1759,13 +1820,16 @@
         ? document.getElementById("visual-rating-panel")
         : mode === "choice"
           ? document.getElementById("choices-container")
-          : stage.querySelector(".writing-input-wrapper");
+          : mode === "pronunciation"
+            ? document.getElementById("pronounce-feedback-panel")
+            : stage.querySelector(".writing-input-wrapper");
     if (anchor && anchor.parentElement === stage) {
       stage.insertBefore(controls, anchor);
     } else {
       stage.appendChild(controls);
     }
   }
+
   function loadCardInSession() {
     currentCard = sessionDeck[sessionIndex];
     isCardFlipped = false;
@@ -1794,6 +1858,8 @@
       setupWritingLayout();
     } else if (currentStudyMode === "visual") {
       setupVisualLayout();
+    } else if (currentStudyMode === "pronunciation") {
+      setupPronunciationLayout();
     }
   }
 
@@ -2373,6 +2439,312 @@
     }
   }
 
+  // --- PRONUNCIATION PRACTICE MODE ---
+  let isPronounceListening = false;
+
+  function setupPronunciationLayout() {
+    if (!currentCard) return;
+
+    isPronounceListening = false;
+
+    // Reset feedback panel and interim bubble
+    const feedbackPanel = document.getElementById("pronounce-feedback-panel");
+    if (feedbackPanel) feedbackPanel.style.display = "none";
+
+    const interimBubble = document.getElementById("pronounce-interim-bubble");
+    const interimText = document.getElementById("pronounce-interim-text");
+    if (interimBubble) interimBubble.classList.remove("listening");
+    if (interimText) {
+      interimText.innerText = "Say the word aloud...";
+      interimText.style.opacity = "0.65";
+    }
+
+    const micBtn = document.getElementById("pronounce-mic-btn");
+    if (micBtn) {
+      micBtn.classList.remove("listening");
+      micBtn.disabled = false;
+    }
+
+    const micHint = document.getElementById("pronounce-mic-hint");
+    if (micHint) {
+      micHint.innerHTML = '<span>Tap microphone or press</span> <kbd>Space</kbd> <span>to speak</span>';
+    }
+
+    // Set card data
+    const catEl = document.getElementById("pronounce-category");
+    if (catEl) catEl.innerText = currentCard.category || "Vocabulary";
+
+    const wordEl = document.getElementById("pronounce-word");
+    if (wordEl) wordEl.innerText = currentCard.accented || currentCard.word;
+
+    const translitEl = document.getElementById("pronounce-translit");
+    if (translitEl) translitEl.innerText = `[${escapeHTML(currentCard.transliteration || "")}]`;
+
+    const posEl = document.getElementById("pronounce-pos");
+    if (posEl) posEl.innerText = currentCard.pos || "Word";
+
+    const nativeLang = SRS.getSetting("nativeLanguage", "en");
+    let translationText = currentCard.translation;
+    if (nativeLang !== "en") {
+      translationText = window.getOrTriggerTranslation(
+        currentCard.id, currentCard.word, nativeLang,
+        (translatedVal) => {
+          const transEl = document.getElementById("pronounce-translation");
+          if (transEl) transEl.innerText = translatedVal;
+        },
+        "ru"
+      );
+    } else {
+      translationText = window.getOrTriggerTranslation(
+        currentCard.id, currentCard.translation, nativeLang,
+        (translatedVal) => {
+          const transEl = document.getElementById("pronounce-translation");
+          if (transEl) transEl.innerText = translatedVal;
+        }
+      );
+    }
+    const transEl = document.getElementById("pronounce-translation");
+    if (transEl) transEl.innerText = translationText;
+  }
+
+  function resetPronunciationCardForRetry() {
+    setupPronunciationLayout();
+    setTimeout(() => {
+      togglePronunciationRecording();
+    }, 200);
+  }
+
+  function togglePronunciationRecording() {
+    if (!currentCard || currentStudyMode !== "pronunciation") return;
+
+    if (!window.SpeechEngine || !window.SpeechEngine.isSupported()) {
+      alert("Microphone speech recognition is not supported in this browser or permission was denied.");
+      return;
+    }
+
+    if (isPronounceListening) {
+      window.SpeechEngine.stopListening();
+      return;
+    }
+
+    const micBtn = document.getElementById("pronounce-mic-btn");
+    const interimBubble = document.getElementById("pronounce-interim-bubble");
+    const interimText = document.getElementById("pronounce-interim-text");
+    const micHint = document.getElementById("pronounce-mic-hint");
+    const feedbackPanel = document.getElementById("pronounce-feedback-panel");
+
+    if (feedbackPanel) feedbackPanel.style.display = "none";
+
+    isPronounceListening = true;
+    if (micBtn) micBtn.classList.add("listening");
+    if (interimBubble) interimBubble.classList.add("listening");
+    if (interimText) {
+      interimText.innerText = "Listening... Speak in Russian";
+      interimText.style.opacity = "1";
+    }
+    if (micHint) {
+      micHint.innerHTML = '<span style="color:var(--color-error);">Listening... Tap again or wait when done</span>';
+    }
+
+    window.SpeechEngine.startListening({
+      targetWord: currentCard.word,
+      onStart: () => {
+        isPronounceListening = true;
+      },
+      onInterim: (text) => {
+        if (interimText && text) {
+          interimText.innerText = `"${text}"`;
+        }
+      },
+      onError: (err) => {
+        isPronounceListening = false;
+        if (micBtn) micBtn.classList.remove("listening");
+        if (interimBubble) interimBubble.classList.remove("listening");
+        if (interimText) {
+          interimText.innerText = "Could not detect speech. Please try again.";
+        }
+        if (micHint) {
+          micHint.innerHTML = '<span>Tap microphone or press</span> <kbd>Space</kbd> <span>to speak</span>';
+        }
+      },
+      onEnd: () => {
+        isPronounceListening = false;
+        if (micBtn) micBtn.classList.remove("listening");
+        if (interimBubble) interimBubble.classList.remove("listening");
+      }
+    }).then(result => {
+      isPronounceListening = false;
+      if (micBtn) micBtn.classList.remove("listening");
+      if (interimBubble) interimBubble.classList.remove("listening");
+      
+      const transcript = result ? result.transcript : "";
+      if (!transcript) {
+        if (interimText) interimText.innerText = "No speech detected. Tap microphone to retry.";
+        if (micHint) micHint.innerHTML = '<span>Tap microphone or press</span> <kbd>Space</kbd> <span>to speak</span>';
+        return;
+      }
+
+      handlePronunciationEvaluation(transcript, result.alternatives || []);
+    }).catch(err => {
+      console.warn("Speech recognition error:", err);
+      isPronounceListening = false;
+      if (micBtn) micBtn.classList.remove("listening");
+      if (interimBubble) interimBubble.classList.remove("listening");
+    });
+  }
+
+  function handlePronunciationEvaluation(spokenText, alternatives = []) {
+    if (!currentCard) return;
+
+    const evalResult = window.SpeechEngine.evaluate(currentCard.word, spokenText, { alternatives, threshold: 75 });
+    
+    // Score via SRS
+    const rating = evalResult.score >= 90 ? "easy" : evalResult.isCorrect ? "good" : "hard";
+    const srsResult = SRS.scoreCard(currentCard.id, evalResult.isCorrect, rating);
+    sessionXpGained += srsResult.xpGained;
+    studyHistory.push({ wordId: currentCard.id, isCorrect: evalResult.isCorrect });
+
+    // Render UI Feedback
+    const feedbackPanel = document.getElementById("pronounce-feedback-panel");
+    const scoreBadge = document.getElementById("pronounce-score-badge");
+    const scoreEmoji = document.getElementById("pronounce-score-emoji");
+    const scoreVal = document.getElementById("pronounce-score-val");
+    const feedbackText = document.getElementById("pronounce-feedback-text");
+    const diffBox = document.getElementById("pronounce-diff-box");
+    const spokenTextEl = document.getElementById("pronounce-spoken-text");
+    const interimText = document.getElementById("pronounce-interim-text");
+
+    if (interimText) {
+      interimText.innerText = `You said: "${spokenText}"`;
+    }
+
+    if (scoreBadge) {
+      scoreBadge.className = `pronounce-score-badge ${evalResult.grade}`;
+    }
+    if (scoreEmoji) scoreEmoji.innerText = evalResult.emoji;
+    if (scoreVal) scoreVal.innerText = `${evalResult.score}%`;
+    if (feedbackText) feedbackText.innerText = evalResult.feedback;
+    if (spokenTextEl) spokenTextEl.innerText = evalResult.transcript || spokenText || "(unrecognized)";
+
+    if (diffBox) {
+      diffBox.innerHTML = "";
+      evalResult.letterDiff.forEach(d => {
+        const span = document.createElement("span");
+        span.className = `pronounce-char ${d.status}`;
+        span.innerText = d.char || d.spokenChar || "";
+        if (d.status === "mismatch" && d.spokenChar) {
+          span.title = `Spoken: ${d.spokenChar}`;
+        }
+        diffBox.appendChild(span);
+      });
+    }
+
+    if (feedbackPanel) feedbackPanel.style.display = "flex";
+
+    // Sound cues & animations
+    const animationsEnabled = SRS.getSetting("animationsEnabled", true);
+    if (evalResult.isCorrect) {
+      AudioEngine.playSuccess();
+      if (window.updateMascotState) window.updateMascotState("correct");
+      if (animationsEnabled && window.showConfettiBurst && evalResult.score >= 90) {
+        window.showConfettiBurst(scoreBadge);
+      }
+    } else {
+      AudioEngine.playError();
+      if (window.updateMascotState) window.updateMascotState("incorrect");
+    }
+  }
+
+  // Voice Input helper for Writing Mode
+  function handleWritingVoiceInput() {
+    if (!window.SpeechEngine || !window.SpeechEngine.isSupported()) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+    const micBtn = document.getElementById("writing-mic-btn");
+    const input = document.getElementById("writing-user-input");
+    if (!micBtn || !input) return;
+
+    if (micBtn.classList.contains("listening")) {
+      window.SpeechEngine.stopListening();
+      return;
+    }
+
+    micBtn.classList.add("listening");
+    window.SpeechEngine.startListening({
+      onStart: () => micBtn.classList.add("listening"),
+      onInterim: (text) => {
+        if (text) input.value = text;
+      },
+      onError: () => {
+        micBtn.classList.remove("listening");
+      },
+      onEnd: () => {
+        micBtn.classList.remove("listening");
+      }
+    }).then(res => {
+      micBtn.classList.remove("listening");
+      if (res && res.transcript) {
+        input.value = res.transcript;
+        handleWritingSubmit();
+      }
+    }).catch(() => {
+      micBtn.classList.remove("listening");
+    });
+  }
+
+  // Quick Pronunciation check for Flashcards
+  function handleFlashcardPronounceCheck() {
+    if (!currentCard) return;
+    if (!window.SpeechEngine || !window.SpeechEngine.isSupported()) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+    const btn = document.getElementById("fc-pronounce-btn");
+    if (!btn) return;
+
+    if (btn.classList.contains("listening")) {
+      window.SpeechEngine.stopListening();
+      return;
+    }
+
+    btn.classList.add("listening");
+    const span = btn.querySelector("span");
+    if (span) span.innerText = "Listening...";
+
+    window.SpeechEngine.startListening({
+      targetWord: currentCard.word,
+      onError: () => {
+        btn.classList.remove("listening");
+        if (span) span.innerText = "Pronounce";
+      },
+      onEnd: () => {
+        btn.classList.remove("listening");
+        if (span) span.innerText = "Pronounce";
+      }
+    }).then(res => {
+      btn.classList.remove("listening");
+      if (span) span.innerText = "Pronounce";
+      if (res && res.transcript) {
+        const evalRes = window.SpeechEngine.evaluate(currentCard.word, res.transcript, { alternatives: res.alternatives });
+        if (span) {
+          span.innerText = `${evalRes.score}% ${evalRes.emoji}`;
+          setTimeout(() => {
+            if (span) span.innerText = "Pronounce";
+          }, 3500);
+        }
+        if (evalRes.isCorrect) {
+          AudioEngine.playSuccess();
+        } else {
+          AudioEngine.playError();
+        }
+      }
+    }).catch(() => {
+      btn.classList.remove("listening");
+      if (span) span.innerText = "Pronounce";
+    });
+  }
+
   function showSessionComplete() {
     // Fill full progress indicator
     document.getElementById("study-progress-bar").style.width = "100%";
@@ -2383,6 +2755,8 @@
     document.getElementById("study-sub-writing").style.display = "none";
     const visualSub = document.getElementById("study-sub-visual");
     if (visualSub) visualSub.style.display = "none";
+    const pronounceSub = document.getElementById("study-sub-pronunciation");
+    if (pronounceSub) pronounceSub.style.display = "none";
     
     document.getElementById("study-sub-complete").style.display = "block";
     
@@ -4434,6 +4808,27 @@
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           handleWritingSubmit();
+        }
+      }
+
+      // 4. PRONUNCIATION SHORTCUTS
+      else if (currentStudyMode === "pronunciation" && document.getElementById("study-sub-pronunciation").style.display !== "none") {
+        const feedbackPanel = document.getElementById("pronounce-feedback-panel");
+        const isFeedbackOpen = feedbackPanel && feedbackPanel.style.display !== "none";
+        
+        if (isFeedbackOpen) {
+          if (e.key === " " || e.key === "Spacebar" || e.key === "Enter") {
+            e.preventDefault();
+            showNextCard();
+          } else if (e.key === "r" || e.key === "R") {
+            e.preventDefault();
+            resetPronunciationCardForRetry();
+          }
+        } else {
+          if (e.key === " " || e.key === "Spacebar") {
+            e.preventDefault();
+            togglePronunciationRecording();
+          }
         }
       }
     });

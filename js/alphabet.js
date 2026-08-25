@@ -65,6 +65,7 @@
       ALPHABET_DB.forEach(item => {
         html += `
           <div class="card alphabet-letter-card" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1rem; position: relative; border: 1px solid var(--border-glass); background: var(--bg-input); transition: var(--transition-fast); border-radius: var(--border-radius-md);">
+            <button class="vocab-action-btn alphabet-mic-btn" data-letter="${item.char}" data-example="${item.example}" style="position: absolute; top: 8px; left: 8px; font-size: 0.85rem;" title="Practice pronouncing letter">🎤</button>
             <div style="font-size: 1.75rem; font-family: var(--font-heading); font-weight: 800; color: var(--color-text-main); margin-bottom: 0.15rem;">
               ${item.char} <span style="font-size: 1.25rem; font-weight: 500; opacity: 0.7;">${item.lower}</span>
             </div>
@@ -96,6 +97,68 @@
           const word = wordEl.getAttribute("data-word");
           this.playLetterSound(word);
         });
+      });
+
+      // Bind Grid Mic Practice
+      container.querySelectorAll(".alphabet-mic-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const letter = btn.getAttribute("data-letter");
+          const example = btn.getAttribute("data-example");
+          this.practiceLetterPronunciation(btn, letter, example);
+        });
+      });
+    },
+
+    practiceLetterPronunciation: function (btn, letter, example) {
+      if (!window.SpeechEngine || !window.SpeechEngine.isSupported()) {
+        alert("Speech recognition is not supported in this browser.");
+        return;
+      }
+
+      if (btn.classList.contains("listening")) {
+        window.SpeechEngine.stopListening();
+        return;
+      }
+
+      btn.classList.add("listening");
+      btn.textContent = "🎙️";
+
+      window.SpeechEngine.startListening({
+        targetWord: letter,
+        onError: () => {
+          btn.classList.remove("listening");
+          btn.textContent = "🎤";
+        },
+        onEnd: () => {
+          btn.classList.remove("listening");
+          btn.textContent = "🎤";
+        }
+      }).then(res => {
+        btn.classList.remove("listening");
+        btn.textContent = "🎤";
+        if (res && res.transcript) {
+          const evalLetter = window.SpeechEngine.evaluate(letter, res.transcript, { alternatives: res.alternatives, threshold: 50 });
+          const evalWord = window.SpeechEngine.evaluate(example, res.transcript, { alternatives: res.alternatives, threshold: 60 });
+          const bestEval = (evalWord.score > evalLetter.score) ? evalWord : evalLetter;
+
+          if (bestEval.isCorrect) {
+            if (window.AudioEngine) window.AudioEngine.playSuccess();
+            btn.textContent = "✓";
+            btn.style.color = "var(--color-success)";
+          } else {
+            if (window.AudioEngine) window.AudioEngine.playError();
+            btn.textContent = "✗";
+            btn.style.color = "var(--color-error)";
+          }
+          setTimeout(() => {
+            btn.textContent = "🎤";
+            btn.style.color = "";
+          }, 2000);
+        }
+      }).catch(() => {
+        btn.classList.remove("listening");
+        btn.textContent = "🎤";
       });
     },
 
@@ -133,29 +196,43 @@
       // Game mode toggles
       const soundModeBtn = document.getElementById("game-mode-sound");
       const typingModeBtn = document.getElementById("game-mode-typing");
+      const pronounceModeBtn = document.getElementById("game-mode-pronounce");
 
-      if (soundModeBtn && typingModeBtn) {
+      const updateModeButtons = (activeBtn) => {
+        [soundModeBtn, typingModeBtn, pronounceModeBtn].forEach(btn => {
+          if (!btn) return;
+          if (btn === activeBtn) {
+            btn.classList.add("active");
+            btn.style.background = "var(--color-primary)";
+            btn.style.color = "var(--color-text-main)";
+          } else {
+            btn.classList.remove("active");
+            btn.style.background = "transparent";
+            btn.style.color = "var(--color-text-muted)";
+          }
+        });
+      };
+
+      if (soundModeBtn) {
         soundModeBtn.addEventListener("click", () => {
-          soundModeBtn.classList.add("active");
-          soundModeBtn.style.background = "var(--color-primary)";
-          soundModeBtn.style.color = "var(--color-text-main)";
-          typingModeBtn.classList.remove("active");
-          typingModeBtn.style.background = "transparent";
-          typingModeBtn.style.color = "var(--color-text-muted)";
-          
+          updateModeButtons(soundModeBtn);
           gameMode = "sound";
           this.startNewGame();
         });
+      }
 
+      if (typingModeBtn) {
         typingModeBtn.addEventListener("click", () => {
-          typingModeBtn.classList.add("active");
-          typingModeBtn.style.background = "var(--color-primary)";
-          typingModeBtn.style.color = "var(--color-text-main)";
-          soundModeBtn.classList.remove("active");
-          soundModeBtn.style.background = "transparent";
-          soundModeBtn.style.color = "var(--color-text-muted)";
-          
+          updateModeButtons(typingModeBtn);
           gameMode = "typing";
+          this.startNewGame();
+        });
+      }
+
+      if (pronounceModeBtn) {
+        pronounceModeBtn.addEventListener("click", () => {
+          updateModeButtons(pronounceModeBtn);
+          gameMode = "pronounce";
           this.startNewGame();
         });
       }
@@ -181,6 +258,14 @@
           if (e.key === "Enter") {
             this.checkTypingAnswer();
           }
+        });
+      }
+
+      // Pronounce Mode mic button
+      const quizMicBtn = document.getElementById("alphabet-quiz-mic-btn");
+      if (quizMicBtn) {
+        quizMicBtn.addEventListener("click", () => {
+          this.startQuizPronunciationRecording();
         });
       }
     },
@@ -246,16 +331,19 @@
       const choicesContainer = document.getElementById("alphabet-quiz-choices");
       const typingContainer = document.getElementById("alphabet-quiz-typing-container");
       const typingInput = document.getElementById("alphabet-typing-input");
+      const pronounceContainer = document.getElementById("alphabet-quiz-pronounce-container");
       const feedback = document.getElementById("alphabet-quiz-feedback");
       const instruction = document.getElementById("alphabet-quiz-instruction");
 
       if (feedback) feedback.innerHTML = "";
       if (typingInput) typingInput.value = "";
       
-      // Auto-play audio
-      setTimeout(() => {
-        if (currentTargetLetter) this.playLetterSound(currentTargetLetter.audioText);
-      }, 300);
+      // Auto-play audio (for sound and typing modes)
+      if (gameMode !== "pronounce") {
+        setTimeout(() => {
+          if (currentTargetLetter) this.playLetterSound(currentTargetLetter.audioText);
+        }, 300);
+      }
 
       if (gameMode === "sound") {
         // Mode 1: Sound Matching Choice Mode
@@ -263,6 +351,7 @@
         if (qChar) qChar.style.display = "none";
         if (choicesContainer) choicesContainer.style.display = "grid";
         if (typingContainer) typingContainer.style.display = "none";
+        if (pronounceContainer) pronounceContainer.style.display = "none";
         if (instruction) instruction.textContent = "Click the speaker to hear the sound, then choose the matching letter.";
 
         // Populate multiple choices
@@ -292,12 +381,13 @@
             choicesContainer.appendChild(btn);
           });
         }
-      } else {
+      } else if (gameMode === "typing") {
         // Mode 2: Typing Practice Mode
         if (qSound) qSound.style.display = "block";
         if (qChar) qChar.style.display = "none";
         if (choicesContainer) choicesContainer.style.display = "none";
         if (typingContainer) typingContainer.style.display = "flex";
+        if (pronounceContainer) pronounceContainer.style.display = "none";
         if (instruction) instruction.textContent = "Listen to the letter and type it (using keyboard or custom keys below).";
         
         const submitBtn = document.getElementById("alphabet-typing-submit-btn");
@@ -309,7 +399,90 @@
           typingInput.disabled = false;
           typingInput.focus();
         }
+      } else if (gameMode === "pronounce") {
+        // Mode 3: Pronunciation Practice Mode
+        if (qSound) qSound.style.display = "none";
+        if (qChar) {
+          qChar.style.display = "block";
+          qChar.textContent = currentTargetLetter.char;
+        }
+        if (choicesContainer) choicesContainer.style.display = "none";
+        if (typingContainer) typingContainer.style.display = "none";
+        if (pronounceContainer) pronounceContainer.style.display = "flex";
+        if (instruction) instruction.textContent = "Look at the Cyrillic letter above and pronounce it aloud.";
+        
+        const micStatus = document.getElementById("alphabet-quiz-mic-status");
+        if (micStatus) micStatus.textContent = "Tap microphone to speak";
       }
+    },
+
+    startQuizPronunciationRecording: function () {
+      if (!currentTargetLetter) return;
+      if (!window.SpeechEngine || !window.SpeechEngine.isSupported()) {
+        alert("Speech recognition is not supported in this browser.");
+        return;
+      }
+
+      const micBtn = document.getElementById("alphabet-quiz-mic-btn");
+      const micStatus = document.getElementById("alphabet-quiz-mic-status");
+      if (!micBtn) return;
+
+      if (micBtn.classList.contains("listening")) {
+        window.SpeechEngine.stopListening();
+        return;
+      }
+
+      micBtn.classList.add("listening");
+      if (micStatus) micStatus.textContent = "Listening... Speak the letter";
+
+      window.SpeechEngine.startListening({
+        targetWord: currentTargetLetter.char,
+        onError: () => {
+          micBtn.classList.remove("listening");
+          if (micStatus) micStatus.textContent = "Tap microphone to retry";
+        },
+        onEnd: () => {
+          micBtn.classList.remove("listening");
+        }
+      }).then(res => {
+        micBtn.classList.remove("listening");
+        if (res && res.transcript) {
+          this.checkPronunciationAnswer(res.transcript, res.alternatives || []);
+        } else {
+          if (micStatus) micStatus.textContent = "No speech heard. Tap to retry.";
+        }
+      }).catch(() => {
+        micBtn.classList.remove("listening");
+        if (micStatus) micStatus.textContent = "Tap microphone to retry";
+      });
+    },
+
+    checkPronunciationAnswer: function (transcript, alternatives = []) {
+      const feedback = document.getElementById("alphabet-quiz-feedback");
+      const micStatus = document.getElementById("alphabet-quiz-mic-status");
+      if (!currentTargetLetter) return;
+
+      const evalLetter = window.SpeechEngine.evaluate(currentTargetLetter.char, transcript, { alternatives, threshold: 50 });
+      const evalExample = window.SpeechEngine.evaluate(currentTargetLetter.example, transcript, { alternatives, threshold: 60 });
+      const bestEval = (evalExample.score > evalLetter.score) ? evalExample : evalLetter;
+
+      if (micStatus) micStatus.textContent = `Heard: "${transcript}" (${bestEval.score}%)`;
+
+      if (bestEval.isCorrect) {
+        currentScore++;
+        if (feedback) feedback.innerHTML = `<span style="color:var(--color-success)">✓ Great pronunciation! (${bestEval.score}%)</span>`;
+        if (window.AudioEngine) window.AudioEngine.playSuccess();
+      } else {
+        if (feedback) feedback.innerHTML = `<span style="color:var(--color-error)">✗ Said "${transcript}". Expected sound: /${currentTargetLetter.sound}/</span>`;
+        if (window.AudioEngine) window.AudioEngine.playError();
+      }
+
+      currentQuestionIndex++;
+      this.updateScoreDisplay();
+
+      setTimeout(() => {
+        this.nextQuestion();
+      }, 2000);
     },
 
     handleChoiceSelect: function (btn, selectedChoice) {
@@ -390,6 +563,7 @@
       const qChar = document.getElementById("alphabet-quiz-question-char");
       const choicesContainer = document.getElementById("alphabet-quiz-choices");
       const typingContainer = document.getElementById("alphabet-quiz-typing-container");
+      const pronounceContainer = document.getElementById("alphabet-quiz-pronounce-container");
       const feedback = document.getElementById("alphabet-quiz-feedback");
       const instruction = document.getElementById("alphabet-quiz-instruction");
 
@@ -398,6 +572,7 @@
       if (qChar) qChar.textContent = "🏆";
       if (choicesContainer) choicesContainer.style.display = "none";
       if (typingContainer) typingContainer.style.display = "none";
+      if (pronounceContainer) pronounceContainer.style.display = "none";
       if (instruction) instruction.textContent = "You have completed the Alphabet Quiz!";
 
       if (feedback) {
