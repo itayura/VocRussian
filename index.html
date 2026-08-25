@@ -563,7 +563,7 @@
       <section id="view-study-select" class="view-section">
         <div>
           <h1 class="page-title">Choose Study Mode</h1>
-          <p class="page-subtitle">Practice Russian with three distinct active recall training methods.</p>
+          <p class="page-subtitle">Practice Russian with four distinct active recall training methods.</p>
         </div>
         
         <div class="study-modes-grid">
@@ -582,7 +582,7 @@
             <div class="mode-title">Writing Practice</div>
             <div class="mode-desc">Test spelling and memory recall. Type out the exact Russian word based on its English translation, transliteration, and example context.</div>
           </div>
-          <div class="card mode-card card-glowing" id="mode-select-visual" style="display: none;">
+          <div class="card mode-card card-glowing" id="mode-select-visual">
             <div class="mode-icon">🎨</div>
             <div class="mode-title">Visual Recall</div>
             <div class="mode-desc">Reinforce memory with rich visual art and audio associations for vocabulary words.</div>
@@ -835,10 +835,11 @@
               </div>
             </div>
 
-            <!-- Recall cue intentionally avoids revealing the translation. -->
-            <div id="visual-recall-cue" class="visual-recall-cue">
-              <span class="visual-recall-kicker">Picture → Russian</span>
-              <span class="visual-recall-instruction">Say the word aloud, then reveal it.</span>
+            <!-- The picture and the learner's non-Russian meaning form the recall prompt. -->
+            <div id="visual-recall-cue" class="visual-recall-cue" aria-live="polite">
+              <span class="visual-recall-kicker">Meaning</span>
+              <span id="visual-translation-front" class="visual-recall-translation">House / Home</span>
+              <span class="visual-recall-instruction">Picture + meaning → say it in Russian</span>
             </div>
 
             <!-- SRS Rating Controls (shown when card is flipped) -->
@@ -1675,8 +1676,8 @@
               </select>
             </div>
 
-            <!-- Visual Art Theme (Guarded by Feature Flag) -->
-            <div id="settings-visual-theme-row" style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <!-- Visual Art Theme -->
+            <div id="settings-visual-theme-row" style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
               <div>
                 <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Visual Art Theme</strong>
                 <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
@@ -1690,20 +1691,6 @@
                 <option value="storybook">📖 Storybook Watercolor</option>
                 <option value="glossy">✨ Glossy Frosted 3D</option>
               </select>
-            </div>
-
-            <!-- Visual Mode Feature Flag Toggle -->
-            <div id="settings-visual-feature-row" style="display: none; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-              <div>
-                <strong style="color: var(--color-text-main); font-size: 1rem; display: block; margin-bottom: 0.25rem;">Visual Recall Mode (Beta)</strong>
-                <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">
-                  Enable experimental Visual Recall study mode with illustrated cards.
-                </span>
-              </div>
-              <label class="switch-container">
-                <input type="checkbox" id="settings-visual-feature-flag">
-                <span class="switch-slider"></span>
-              </label>
             </div>
 
             <hr style="border: 0; border-top: 1px solid var(--border-glass); margin: 0.25rem 0;">

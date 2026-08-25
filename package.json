@@ -9,7 +9,12 @@
     "test:ui": "playwright test --ui",
     "test:logic": "node tests/logic.test.js",
     "test:preflight": "node scripts/release-preflight.js",
-    "build:info": "node scripts/write-build-info.js"
+    "build:info": "node scripts/write-build-info.js",
+    "visual:plan": "node scripts/plan-visual-generation.js --deck expanded",
+    "visual:pilot:plan": "node scripts/plan-visual-generation.js --deck expanded --limit 100 --batch-size 100 --output scratch/visual-generation/expanded-pilot-mobile-memory-v2",
+    "visual:optimize": "node scripts/optimize-visual-assets.js",
+    "visual:optimize:expanded": "node scripts/optimize-visual-assets.js --input scratch/visual-generation/expanded-mobile-memory-v2/staging --output assets/images/words/memory/expanded/concepts",
+    "visual:manifest": "node scripts/write-visual-runtime-manifest.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.1",

@@ -358,7 +358,7 @@ test("visual generation planner deduplicates expanded concepts and emits mobile-
 test("visual runtime manifest keeps only published files and serializes valid browser code", () => {
   const {
     collectCompletedAssets,
-    collectStandardAssets,
+    collectWordAssets,
     keepExistingAssets,
     sortAssets,
     serializeManifest
@@ -368,20 +368,24 @@ test("visual runtime manifest keeps only published files and serializes valid br
   try {
     fs.mkdirSync(path.join(assetRoot, "expanded", "concepts"), { recursive: true });
     fs.writeFileSync(path.join(assetRoot, "v_2.webp"), "webp");
+    fs.writeFileSync(path.join(assetRoot, "ve_7.webp"), "webp");
+    fs.writeFileSync(path.join(assetRoot, "vx_3.webp"), "webp");
     fs.writeFileSync(path.join(assetRoot, "expanded", "concepts", "concept-ready.webp"), "webp");
 
     const retained = keepExistingAssets({ v_10: "missing.webp" }, assetRoot);
-    const standard = collectStandardAssets(assetRoot);
+    const localWords = collectWordAssets(assetRoot);
     const completed = collectCompletedAssets({
       assets: {
         ve_1: { file: "expanded/concepts/concept-ready.webp" },
         ve_2: { file: "expanded/concepts/concept-missing.webp" }
       }
     }, assetRoot);
-    const assets = sortAssets({ ...retained, ...standard, ...completed });
+    const assets = sortAssets({ ...retained, ...localWords, ...completed });
     assert.deepEqual(assets, {
       v_2: "v_2.webp",
-      ve_1: "expanded/concepts/concept-ready.webp"
+      ve_1: "expanded/concepts/concept-ready.webp",
+      ve_7: "ve_7.webp",
+      vx_3: "vx_3.webp"
     });
 
     const source = serializeManifest({
@@ -399,6 +403,30 @@ test("visual runtime manifest keeps only published files and serializes valid br
     );
   } finally {
     fs.rmSync(assetRoot, { recursive: true, force: true });
+  }
+});
+
+test("visual runtime manifest publishes every direct word image within the mobile size budget", () => {
+  const repoRoot = path.resolve(__dirname, "..");
+  const assetRoot = path.join(repoRoot, "assets", "images", "words", "memory");
+  const directImages = fs.readdirSync(assetRoot).filter(filename =>
+    /^((?:v|ve|vx)_\d+)\.webp$/i.test(filename)
+  );
+  const sandbox = { window: {} };
+  vm.runInNewContext(
+    fs.readFileSync(path.join(repoRoot, "js", "visual_assets.js"), "utf8"),
+    sandbox
+  );
+  const manifest = sandbox.window.visualAssetManifest;
+
+  assert.ok(directImages.length > 0);
+  for (const filename of directImages) {
+    const wordId = path.parse(filename).name.toLowerCase();
+    assert.equal(manifest.assets[wordId], filename);
+    assert.ok(
+      fs.statSync(path.join(assetRoot, filename)).size <= manifest.target.maxBytes,
+      `${filename} exceeds the ${manifest.target.maxBytes}-byte mobile budget`
+    );
   }
 });
 

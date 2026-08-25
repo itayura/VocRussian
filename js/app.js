@@ -952,10 +952,6 @@
         window.GrammarManager.updateGrammarPracticeMasteryUI();
       }
     } else if (targetViewId === "study-select") {
-      const visualModeCard = document.getElementById("mode-select-visual");
-      if (visualModeCard) {
-        visualModeCard.style.display = isVisualFeatureEnabled() ? "flex" : "none";
-      }
       updateSelectedCategoryMasteryUI();
     } else if (targetViewId === "stats") {
       renderStatisticsPage();
@@ -1379,31 +1375,6 @@
   // Export to window so it can be called from DOMContentLoaded
   window.loadStudySessionSettings = loadStudySessionSettings;
 
-  function hasAuthenticatedFeatureFlag(flagName) {
-    const user = window.SupabaseSync && window.SupabaseSync.user;
-    const flags = user && user.app_metadata && user.app_metadata.feature_flags;
-    if (Array.isArray(flags)) return flags.includes(flagName);
-    return Boolean(flags && typeof flags === "object" && flags[flagName] === true);
-  }
-  window.hasAuthenticatedFeatureFlag = hasAuthenticatedFeatureFlag;
-
-  function isVisualFeatureEnabled() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has("feature_visual") || urlParams.has("visual") || urlParams.has("dev")) {
-      localStorage.setItem("voc_feature_visual_mode", "true");
-      return true;
-    }
-    if (hasAuthenticatedFeatureFlag("visual_mode")) return true;
-    if (window.SupabaseSync && window.SupabaseSync.user) {
-      const email = (window.SupabaseSync.user.email || "").toLowerCase().trim();
-      if (email === "itayura@gmail.com" || email === "itayuralevich@gmail.com") {
-        return true;
-      }
-    }
-    return localStorage.getItem("voc_feature_visual_mode") === "true";
-  }
-  window.isVisualFeatureEnabled = isVisualFeatureEnabled;
-
   function isOfflineGrammarFeatureEnabled() {
     // Offline grammar is part of the standard Grammar workspace for every user.
     return true;
@@ -1503,11 +1474,6 @@
 
     const visualModeCard = document.getElementById("mode-select-visual");
     if (visualModeCard) {
-      if (isVisualFeatureEnabled()) {
-        visualModeCard.style.display = "flex";
-      } else {
-        visualModeCard.style.display = "none";
-      }
       visualModeCard.addEventListener("click", () => {
         startStudySession("visual");
       });
@@ -2335,18 +2301,21 @@
       if (exRuBack) exRuBack.innerText = card.exampleRu || "";
 
       let translationText = card.translation;
+      const applyVisualTranslation = (translatedVal) => {
+        if (!currentCard || currentCard.id !== card.id) return;
+        const backTranslation = document.getElementById("visual-translation-back");
+        const frontTranslation = document.getElementById("visual-translation-front");
+        if (backTranslation) backTranslation.innerText = translatedVal;
+        if (frontTranslation) frontTranslation.innerText = translatedVal;
+      };
       if (nativeLang !== "en") {
         translationText = window.getOrTriggerTranslation(
           card.id, card.word, nativeLang,
-          (translatedVal) => {
-            const transEl = document.getElementById("visual-translation-back");
-            if (transEl) transEl.innerText = translatedVal;
-          },
+          applyVisualTranslation,
           "ru"
         );
       }
-      const transEl = document.getElementById("visual-translation-back");
-      if (transEl) transEl.innerText = translationText;
+      applyVisualTranslation(translationText);
 
       let exampleEnText = card.exampleEn || "";
       if (card.exampleEn) {
@@ -3185,16 +3154,8 @@
       });
     }
 
-    // Visual Theme & Feature Flag Settings
-    const visualThemeRow = document.getElementById("settings-visual-theme-row");
-    const visualFeatureRow = document.getElementById("settings-visual-feature-row");
+    // Visual Theme Settings
     const visualThemeSelect = document.getElementById("settings-visual-theme");
-    const visualFeatureFlagCheckbox = document.getElementById("settings-visual-feature-flag");
-
-    if (isVisualFeatureEnabled()) {
-      if (visualThemeRow) visualThemeRow.style.display = "flex";
-      if (visualFeatureRow) visualFeatureRow.style.display = "flex";
-    }
 
     if (visualThemeSelect) {
       visualThemeSelect.value = localStorage.getItem("voc_visual_theme") || "memory";
@@ -3203,16 +3164,6 @@
         if (currentStudyMode === "visual" && currentCard) {
           setupVisualLayout();
         }
-      });
-    }
-
-    if (visualFeatureFlagCheckbox) {
-      visualFeatureFlagCheckbox.checked = isVisualFeatureEnabled();
-      visualFeatureFlagCheckbox.addEventListener("change", () => {
-        localStorage.setItem("voc_feature_visual_mode", visualFeatureFlagCheckbox.checked ? "true" : "false");
-        const visualCard = document.getElementById("mode-select-visual");
-        if (visualCard) visualCard.style.display = visualFeatureFlagCheckbox.checked ? "flex" : "none";
-        if (visualThemeRow) visualThemeRow.style.display = visualFeatureFlagCheckbox.checked ? "flex" : "none";
       });
     }
 

@@ -50,9 +50,6 @@ test.describe('Privyetik E2E Test Suite', () => {
               email: body.email || 'test@example.com',
               app_metadata: {
                 provider: 'email',
-                ...(body.email === 'flagged@example.com' ? {
-                  feature_flags: { visual_mode: true, offline_grammar: true }
-                } : {})
               },
               user_metadata: {},
               created_at: new Date().toISOString(),
@@ -994,18 +991,13 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.locator('#custom-alert-ok-btn').click();
   });
 
-  test('Visual Recall Mode: feature flag gating, mnemonic art, and recall-first interaction', async ({ page }) => {
-    // 1. Without flag: Visual Mode is hidden from Study Selection
+  test('Visual Recall Mode: universal access, mnemonic art, and translated recall cue', async ({ page }) => {
+    // 1. Visual Recall is available by default for a fresh signed-out visitor.
     await page.goto('http://localhost:8080');
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
-    await expect(page.locator('#mode-select-visual')).not.toBeVisible();
-
-    // 2. Enable flag via URL parameter
-    await page.goto('http://localhost:8080?feature_visual=1');
     await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
     await expect(page.locator('#mode-select-visual')).toBeVisible();
 
-    // 3. Go to Settings and verify Visual Theme selector is visible
+    // 2. Go to Settings and verify Visual Theme selector is visible
     await page.locator('.nav-item[data-target="settings"]').click({ force: true });
     const visualThemeRow = page.locator('#settings-visual-theme-row');
     await expect(visualThemeRow).toBeVisible();
@@ -1014,14 +1006,20 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(visualThemeSelect).toBeVisible();
     await expect(visualThemeSelect).toHaveValue('memory');
 
-    // Generated scenes are used when available; the complete storybook set is
-    // the intentional fallback for words that do not have a generated scene yet.
+    // Generated scenes are used whenever the matching word asset exists; the
+    // complete storybook set remains the standard-deck fallback.
     expect(await page.evaluate(() => window.getWordVisualArtUrl('v_28')))
       .toContain('assets/images/words/memory/v_28.webp');
     expect(await page.evaluate(() => window.getWordVisualArtUrl('v_29')))
       .toContain('assets/images/words/memory/v_29.webp');
     expect(await page.evaluate(() => window.getWordVisualArtUrl('v_102')))
-      .toContain('assets/images/words/storybook/v_102.svg');
+      .toContain('assets/images/words/memory/v_102.webp');
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('ve_1')))
+      .toContain('assets/images/words/memory/ve_1.webp');
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('ve_3295')))
+      .toContain('assets/images/words/memory/ve_3295.webp');
+    expect(await page.evaluate(() => window.getWordVisualArtUrl('ve_3296')))
+      .toBe('');
 
     // Existing themes remain selectable.
     await visualThemeSelect.selectOption('vector');
@@ -1029,13 +1027,13 @@ test.describe('Privyetik E2E Test Suite', () => {
       .toContain('assets/images/words/vector/v_28.svg');
     await visualThemeSelect.selectOption('memory');
 
-    // 4. Start Visual Recall session
+    // 3. Start Visual Recall session
     await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
     await page.locator('#mode-select-visual').click();
     await expect(page.locator('#view-study-active')).toHaveClass(/active/);
     await expect(page.locator('#study-sub-visual')).toBeVisible();
 
-    // The picture must load, while the English answer stays hidden before reveal.
+    // The picture and the learner's non-Russian meaning are both visible before reveal.
     const frontImg = page.locator('#visual-img-front');
     await expect(frontImg).toBeVisible();
     const imgSrc = await frontImg.getAttribute('src');
@@ -1043,9 +1041,10 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect.poll(() => frontImg.evaluate(img => img.naturalWidth)).toBe(768);
     await expect.poll(() => frontImg.evaluate(img => img.naturalHeight)).toBe(512);
 
-    await expect(page.locator('#visual-translation-front')).toHaveCount(0);
-    await expect(page.locator('#visual-recall-cue')).toContainText('Picture → Russian');
-    await expect(page.locator('#study-sub-visual').getByText('Meaning:', { exact: true })).toHaveCount(0);
+    await expect(page.locator('#visual-translation-front')).toBeVisible();
+    await expect(page.locator('#visual-translation-front')).not.toHaveText('');
+    await expect(page.locator('#visual-translation-front')).not.toContainText(/[А-Яа-яЁё]/);
+    await expect(page.locator('#visual-recall-cue')).toContainText('Picture + meaning');
 
     const cardBox = await page.locator('#visual-click-wrapper').boundingBox();
     expect(cardBox).not.toBeNull();
@@ -1054,7 +1053,7 @@ test.describe('Privyetik E2E Test Suite', () => {
       expect(cardBox.height).toBeLessThanOrEqual(300);
     }
 
-    // 5. Flip visual card
+    // 4. Flip visual card
     await page.locator('#visual-click-wrapper').click();
     await expect(page.locator('#visual-click-wrapper')).toHaveClass(/flipped/);
     await expect(page.locator('#visual-word-back')).toBeVisible();
@@ -1071,38 +1070,27 @@ test.describe('Privyetik E2E Test Suite', () => {
     expect(Math.abs(frontFaceBox.x - backFaceBox.x)).toBeLessThanOrEqual(1);
     expect(Math.abs(frontFaceBox.y - backFaceBox.y)).toBeLessThanOrEqual(1);
 
-    // 6. Score card Good (Box +1)
+    // 5. Score card Good (Box +1)
     await page.locator('#visual-score-3').click();
     await expect(page.locator('#study-index-val')).toHaveText('2');
     await expect(page.locator('#visual-click-wrapper')).not.toHaveClass(/flipped/);
     await expect(page.locator('#visual-rating-panel')).toHaveCSS('pointer-events', 'none');
     await expect(frontImg).toBeVisible();
 
-    // 7. Expanded visual sessions stay unavailable until generated assets are
-    // published, instead of opening a card with a broken image URL.
+    // 6. Expanded visual sessions include the published generated images.
     await page.locator('#study-quit-btn').click();
     await expect(page.locator('#custom-confirm-modal')).toHaveClass(/active/);
     await page.locator('#custom-confirm-ok-btn').click();
     await page.locator('#study-filter-db').selectOption('expanded');
     await page.locator('#mode-select-visual').click();
-    await expect(page.locator('#custom-alert-modal')).toHaveClass(/active/);
-    await expect(page.locator('#custom-alert-message')).toContainText('does not have generated scenes');
-    await page.locator('#custom-alert-ok-btn').click();
-    await expect(page.locator('#view-study-select')).toHaveClass(/active/);
+    await expect(page.locator('#view-study-active')).toHaveClass(/active/);
+    await expect(page.locator('#study-sub-visual')).toBeVisible();
+    const expandedImg = page.locator('#visual-img-front');
+    await expect(expandedImg).toHaveAttribute('src', /assets\/images\/words\/memory\/ve_\d+\.webp$/);
+    await expect.poll(() => expandedImg.evaluate(img => img.naturalWidth)).toBe(768);
+    await expect.poll(() => expandedImg.evaluate(img => img.naturalHeight)).toBe(512);
+    await expect(page.locator('#visual-translation-front')).toBeVisible();
 
-    // 8. Test user account gating for itayura@gmail.com
-    await page.goto('http://localhost:8080');
-    await page.evaluate(() => localStorage.removeItem('voc_feature_visual_mode'));
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
-    await page.locator('#supabase-email').fill('itayura@gmail.com');
-    await page.locator('#supabase-password').fill('securepassword123');
-    await page.locator('#supabase-auth-submit-btn').click();
-    const okBtn = page.locator('#custom-alert-ok-btn');
-    await okBtn.waitFor({ state: 'visible' });
-    await okBtn.click();
-
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
-    await expect(page.locator('#mode-select-visual')).toBeVisible();
   });
 
   test('Example Deck: selection in dictionary and study views, cards rendering', async ({ page }) => {
@@ -1246,26 +1234,6 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     await page.locator('#grammar-tab-practice').click();
     await expect(page.locator('#practice-mode-selector-container')).toBeVisible();
-  });
-
-  test('account metadata enables Visual Recall and Offline Grammar without an email allowlist', async ({ page }) => {
-    await page.goto('http://localhost:8080');
-    await page.evaluate(() => {
-      localStorage.removeItem('voc_feature_visual_mode');
-      localStorage.removeItem('voc_feature_offline_grammar');
-    });
-
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
-    await page.locator('#supabase-email').fill('flagged@example.com');
-    await page.locator('#supabase-password').fill('securepassword123');
-    await page.locator('#supabase-auth-submit-btn').click();
-    await page.locator('#custom-alert-ok-btn').click();
-
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
-    await expect(page.locator('#mode-select-visual')).toBeVisible();
-
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
-    await expect(page.locator('#grammar-engine-selector-container')).toBeVisible();
   });
 
 });
