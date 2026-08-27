@@ -829,6 +829,7 @@ kbd {
   border: 1px solid var(--border-glass);
   border-radius: var(--border-radius-lg);
   padding: 3rem 2rem;
+  position: relative;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1092,7 +1093,10 @@ kbd {
   background-color: rgba(6, 9, 17, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 500;
+  /* Mobile navigation uses an intentionally high stacking layer. Dialogs must
+     remain the top-most interactive surface so their actions are never hidden
+     behind the bottom tab bar. */
+  z-index: 1000000;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
@@ -1297,8 +1301,43 @@ kbd {
     display: flex !important;
     align-items: center !important;
     overflow-x: auto !important;
+    scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch !important;
     scrollbar-width: none !important;
+  }
+
+  aside::before,
+  aside::after {
+    position: absolute;
+    top: 2px;
+    bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 2;
+    display: flex;
+    width: 22px;
+    align-items: center;
+    justify-content: center;
+    color: #8a99ad;
+    font-size: 1.15rem;
+    font-weight: 700;
+    pointer-events: none;
+    transition: opacity 160ms ease;
+  }
+
+  aside::before {
+    left: 0;
+    content: "‹";
+    background: linear-gradient(to right, #0b0f19 42%, transparent);
+  }
+
+  aside::after {
+    right: 0;
+    content: "›";
+    background: linear-gradient(to left, #0b0f19 42%, transparent);
+  }
+
+  aside.nav-at-start::before,
+  aside.nav-at-end::after {
+    opacity: 0;
   }
 
   aside nav::-webkit-scrollbar {
@@ -1320,6 +1359,7 @@ kbd {
   
   .nav-item {
     flex-shrink: 0 !important;
+    scroll-snap-align: center;
   }
   
   .nav-item button {
@@ -2911,8 +2951,13 @@ body.practice-focus .study-viewport {
 body.practice-focus .choice-question-box,
 body.practice-focus #practice-active-screen .choice-question-box {
   gap: 0.6rem;
-  padding: 1.15rem 1rem !important;
+  padding: 3rem 1rem 1.15rem !important;
   margin-top: 0 !important;
+}
+
+body.practice-focus .choice-question-box > .card-category-tag {
+  top: 0.75rem;
+  left: 0.75rem;
 }
 
 body.practice-focus #quiz-sentence-prompt {
@@ -3789,7 +3834,8 @@ body.practice-focus #quiz-next-btn {
 .fc-pronounce-btn {
   position: absolute;
   top: 1.25rem;
-  left: 1.25rem;
+  left: auto;
+  right: 4.25rem;
   background: var(--bg-glass);
   border: 1px solid var(--border-glass);
   border-radius: var(--border-radius-pill, 20px);
@@ -3803,6 +3849,154 @@ body.practice-focus #quiz-next-btn {
   gap: 0.35rem;
   transition: var(--transition-fast);
   z-index: 10;
+}
+
+/* These badges sit in ordinary flex headers rather than on top of a card. */
+#aspect-trigger-level-badge,
+#aspect-nuance-title-badge,
+#aspect-transform-title-badge {
+  position: static;
+  flex: 0 1 auto;
+  max-width: 100%;
+  text-align: center;
+}
+
+.compact-session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.alphabet-quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .dashboard-deck-filter-row {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .dashboard-deck-filter-row select {
+    min-width: 0 !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .auth-fields-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .auth-fields-grid :is(.form-group, input) {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #supabase-config-card {
+    padding: 1rem;
+  }
+
+  #supabase-operations-panel {
+    padding: 1rem !important;
+  }
+
+  .aspect-hub-filter-bar {
+    flex-direction: column;
+    align-items: stretch !important;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .aspect-hub-filter-bar select {
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .aspect-explorer-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding-right: 0;
+  }
+
+  .aspect-pair-card {
+    min-width: 0;
+    padding: 0.85rem;
+  }
+
+  .aspect-pair-card > div:first-child,
+  .aspect-pair-card > div:first-child > div {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .aspect-pair-card > div:nth-child(2) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .aspect-pair-card .card-category-tag {
+    position: static;
+  }
+
+  .aspect-pair-card :is(strong, span) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .session-header {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .session-header > div {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem !important;
+    width: 100%;
+  }
+
+  .session-header > div > :is(button, .btn-pill) {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .compact-session-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .alphabet-quiz-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.45rem 0.75rem;
+    text-align: left;
+  }
+
+  .alphabet-quiz-header #alphabet-quiz-progress-text {
+    grid-column: 1;
+  }
+
+  .alphabet-quiz-header #alphabet-quiz-close-btn {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  #alphabet-custom-keyboard {
+    grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)) !important;
+  }
+
+  #alphabet-custom-keyboard button {
+    min-height: 44px;
+  }
 }
 
 .fc-pronounce-btn:hover {

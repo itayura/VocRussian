@@ -251,6 +251,12 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     expect(box1).not.toBeNull();
     expect(box2).not.toBeNull();
 
+    if (isMobile) {
+      const deckFilter = await page.locator('#dashboard-filter-db').boundingBox();
+      expect(deckFilter).not.toBeNull();
+      expect(deckFilter.x + deckFilter.width).toBeLessThanOrEqual(viewport.width + 1);
+    }
+
     if (isTabletOrMobile) {
       // Elements stack vertically under 968px width
       expect(box2.y).toBeGreaterThanOrEqual(box1.y + box1.height - 5); // Stacked
@@ -259,6 +265,25 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
       expect(Math.abs(box1.y - box2.y)).toBeLessThan(15); // Aligned vertically
       expect(box2.x).toBeGreaterThanOrEqual(box1.x + box1.width - 5); // Positioned to the right
     }
+  });
+
+  test('Mobile navigation reveals and centers features outside the first tab group', async ({ page }) => {
+    const viewport = page.viewportSize();
+    if (!viewport || viewport.width > 768) return;
+
+    const nav = page.locator('aside nav');
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await expect.poll(() => nav.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
+
+    const navBox = await nav.boundingBox();
+    const settingsBox = await page.locator('.nav-item[data-target="settings"]').boundingBox();
+    expect(navBox).not.toBeNull();
+    expect(settingsBox).not.toBeNull();
+    expect(settingsBox.x).toBeGreaterThanOrEqual(navBox.x - 1);
+    expect(settingsBox.x + settingsBox.width).toBeLessThanOrEqual(navBox.x + navBox.width + 1);
+
+    await page.locator('.nav-item[data-target="landing"]').click({ force: true });
+    await expect.poll(() => nav.evaluate(element => element.scrollLeft)).toBe(0);
   });
 
   // 3. Study Mode Selection & SRS Card Layout
@@ -550,6 +575,155 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
       return getComputedStyle(document.body).getPropertyValue('--color-primary').trim();
     });
     expect(emeraldColor).toContain('150'); // Emerald: hsl(150, 80%, 48%)
+  });
+
+  test('Study badges and flashcard actions stay inside their mobile cards', async ({ page }) => {
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await page.locator('#mode-select-choice').click();
+
+    const questionBox = await page.locator('#study-sub-choice .choice-question-box').boundingBox();
+    const categoryBadge = await page.locator('#choice-category').boundingBox();
+    expect(questionBox).not.toBeNull();
+    expect(categoryBadge).not.toBeNull();
+    expect(categoryBadge.y).toBeGreaterThanOrEqual(questionBox.y);
+    expect(categoryBadge.y + categoryBadge.height).toBeLessThanOrEqual(questionBox.y + questionBox.height);
+    const choiceWord = await page.locator('#choice-word').boundingBox();
+    expect(choiceWord).not.toBeNull();
+    const choiceHorizontalOverlap = Math.max(0, Math.min(categoryBadge.x + categoryBadge.width, choiceWord.x + choiceWord.width) - Math.max(categoryBadge.x, choiceWord.x));
+    const choiceVerticalOverlap = Math.max(0, Math.min(categoryBadge.y + categoryBadge.height, choiceWord.y + choiceWord.height) - Math.max(categoryBadge.y, choiceWord.y));
+    expect(choiceHorizontalOverlap * choiceVerticalOverlap).toBe(0);
+
+    await page.locator('#study-quit-btn').click();
+    await page.locator('#custom-confirm-ok-btn').click();
+    await page.locator('#mode-select-flashcard').click();
+
+    const flashcardCategory = await page.locator('#fc-category-front').boundingBox();
+    const pronounceButton = await page.locator('#fc-pronounce-btn').boundingBox();
+    expect(flashcardCategory).not.toBeNull();
+    expect(pronounceButton).not.toBeNull();
+    const horizontalOverlap = Math.max(0, Math.min(flashcardCategory.x + flashcardCategory.width, pronounceButton.x + pronounceButton.width) - Math.max(flashcardCategory.x, pronounceButton.x));
+    const verticalOverlap = Math.max(0, Math.min(flashcardCategory.y + flashcardCategory.height, pronounceButton.y + pronounceButton.height) - Math.max(flashcardCategory.y, pronounceButton.y));
+    expect(horizontalOverlap * verticalOverlap).toBe(0);
+  });
+
+  test('Grammar status badges remain in their own exercise panels', async ({ page }) => {
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await page.locator('#grammar-tab-aspects').click();
+
+    const aspectsPanel = await page.locator('#grammar-subview-aspects').boundingBox();
+    const patternFilter = await page.locator('#aspect-hub-pattern-filter').boundingBox();
+    expect(aspectsPanel).not.toBeNull();
+    expect(patternFilter).not.toBeNull();
+    expect(patternFilter.x).toBeGreaterThanOrEqual(aspectsPanel.x - 1);
+    expect(patternFilter.x + patternFilter.width).toBeLessThanOrEqual(aspectsPanel.x + aspectsPanel.width + 1);
+
+    await page.locator('#aspect-mode-tab-trigger').click();
+
+    await expect(page.locator('#aspect-trigger-level-badge')).toHaveCSS('position', 'static');
+    const promptBox = await page.locator('#aspect-screen-trigger .choice-question-box').boundingBox();
+    const clueBadge = await page.locator('#aspect-trigger-clue-badge').boundingBox();
+    expect(promptBox).not.toBeNull();
+    expect(clueBadge).not.toBeNull();
+    expect(clueBadge.y).toBeGreaterThanOrEqual(promptBox.y);
+    expect(clueBadge.y + clueBadge.height).toBeLessThanOrEqual(promptBox.y + promptBox.height);
+
+    await page.locator('#aspect-mode-tab-explorer').click();
+    const pairCard = await page.locator('.aspect-pair-card').first().boundingBox();
+    const explorerGrid = await page.locator('#aspect-explorer-grid').boundingBox();
+    expect(pairCard).not.toBeNull();
+    expect(explorerGrid).not.toBeNull();
+    expect(pairCard.x).toBeGreaterThanOrEqual(explorerGrid.x - 1);
+    expect(pairCard.x + pairCard.width).toBeLessThanOrEqual(explorerGrid.x + explorerGrid.width + 1);
+
+    const viewport = page.viewportSize();
+    if (viewport && viewport.width <= 600) {
+      const pairSides = page.locator('.aspect-pair-card').first().locator('> div:nth-child(2) > div');
+      const firstSide = await pairSides.nth(0).boundingBox();
+      const secondSide = await pairSides.nth(1).boundingBox();
+      expect(firstSide).not.toBeNull();
+      expect(secondSide).not.toBeNull();
+      expect(secondSide.y).toBeGreaterThanOrEqual(firstSide.y + firstSide.height - 1);
+    }
+  });
+
+  test('Mobile dialogs stack above the persistent bottom navigation', async ({ page }) => {
+    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await page.locator('#dict-add-word-btn').click();
+
+    const layers = await page.evaluate(() => ({
+      dialog: Number.parseInt(getComputedStyle(document.querySelector('#modal-add-word')).zIndex, 10),
+      navigation: Number.parseInt(getComputedStyle(document.querySelector('aside')).zIndex, 10),
+    }));
+    expect(layers.dialog).toBeGreaterThan(layers.navigation);
+  });
+
+  test('Account credentials stay inside the cloud-sync card on narrow screens', async ({ page }) => {
+    const viewport = page.viewportSize();
+    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+
+    const operations = await page.locator('#supabase-operations-panel').boundingBox();
+    const email = await page.locator('#supabase-email').boundingBox();
+    const password = await page.locator('#supabase-password').boundingBox();
+    expect(operations).not.toBeNull();
+    expect(email).not.toBeNull();
+    expect(password).not.toBeNull();
+    for (const input of [email, password]) {
+      expect(input.x).toBeGreaterThanOrEqual(operations.x - 1);
+      expect(input.x + input.width).toBeLessThanOrEqual(operations.x + operations.width + 1);
+      if (viewport) {
+        expect(input.x + input.width).toBeLessThanOrEqual(viewport.width + 1);
+      }
+    }
+  });
+
+  test('Changing views resets the document scroll position', async ({ page }) => {
+    await page.locator('.nav-item[data-target="alphabet"]').click({ force: true });
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    expect(await page.evaluate(() => document.scrollingElement.scrollTop)).toBeGreaterThan(0);
+
+    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await expect(page.locator('#view-settings')).toHaveClass(/active/);
+    await expect.poll(() => page.evaluate(() => document.scrollingElement.scrollTop)).toBe(0);
+  });
+
+  test('Alphabet typing game keeps Cyrillic keys touch-sized on mobile', async ({ page }) => {
+    const viewport = page.viewportSize();
+    await page.locator('.nav-item[data-target="alphabet"]').click({ force: true });
+    await page.locator('#alphabet-quiz-btn').click();
+    await page.locator('#game-mode-typing').click();
+
+    const keys = page.locator('#alphabet-custom-keyboard button');
+    expect(await keys.count()).toBe(33);
+    if (viewport && viewport.width <= 768) {
+      const sizes = await keys.evaluateAll(elements => elements.map(element => {
+        const rect = element.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
+      }));
+      expect(Math.min(...sizes.map(size => size.width))).toBeGreaterThanOrEqual(43);
+      expect(Math.min(...sizes.map(size => size.height))).toBeGreaterThanOrEqual(43);
+    }
+  });
+
+  test('One-card study sessions finish with a usable mobile summary', async ({ page }) => {
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await page.locator('#study-deck-size').fill('1');
+    await page.locator('#mode-select-flashcard').click();
+    await page.locator('#flashcard-click-wrapper').click();
+    await page.locator('#srs-score-3').click();
+
+    const summary = page.locator('#study-sub-complete');
+    await expect(summary).toBeVisible();
+    await expect(page.locator('#complete-home-btn')).toBeVisible();
+    await expect(page.locator('#complete-again-btn')).toBeVisible();
+
+    const horizontalOverflow = await summary.evaluate(root => {
+      return [...root.querySelectorAll('*')].some(element => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== 'none' && rect.width > 0 && (rect.left < -1 || rect.right > window.innerWidth + 1);
+      });
+    });
+    expect(horizontalOverflow).toBe(false);
   });
 
 

@@ -1,5 +1,5 @@
 // Privyetik Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v51";
+const CACHE_NAME = "voc-russian-cache-v59";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -7,10 +7,10 @@ const ASSETS_TO_CACHE = [
   "./logo.jpeg",
   "./privacy.html",
   "./delete-account.html",
-  "./css/styles.css?v=41",
+  "./css/styles.css?v=48",
   "./js/config.js",
   "./js/build-info.js",
-  "./js/app.js",
+  "./js/app.js?v=4",
   "./js/audio.js",
   "./js/db.js",
   "./js/db_expanded.js",

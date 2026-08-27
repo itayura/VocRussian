@@ -22,7 +22,7 @@
       overlay.className = "modal-overlay";
       overlay.setAttribute("role", "dialog");
       overlay.setAttribute("aria-modal", "true");
-      overlay.style.zIndex = "10000"; // Sit on top of other modals
+      overlay.style.zIndex = "1000010"; // Sit on top of feature modals and the mobile navigation
       
       overlay.innerHTML = `
         <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
@@ -74,7 +74,7 @@
         overlay.className = "modal-overlay";
         overlay.setAttribute("role", "dialog");
         overlay.setAttribute("aria-modal", "true");
-        overlay.style.zIndex = "10000"; // Sit on top of other modals
+        overlay.style.zIndex = "1000010"; // Sit on top of feature modals and the mobile navigation
         
         overlay.innerHTML = `
           <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
@@ -881,7 +881,30 @@
 
 
   // --- VIEW ROUTING ---
+  function updateMobileNavOverflowHints() {
+    const aside = document.querySelector("aside");
+    const nav = aside?.querySelector("nav");
+    if (!aside || !nav) return;
+    const maxScrollLeft = Math.max(0, nav.scrollWidth - nav.clientWidth);
+    aside.classList.toggle("nav-at-start", nav.scrollLeft <= 4);
+    aside.classList.toggle("nav-at-end", maxScrollLeft - nav.scrollLeft <= 4);
+  }
+
+  function centerActiveMobileNavItem(item) {
+    if (!item || !window.matchMedia("(max-width: 1024px), (pointer: coarse)").matches) return;
+    const nav = item.closest("nav");
+    if (!nav || nav.scrollWidth <= nav.clientWidth + 2) return;
+    const centeredLeft = item.offsetLeft - ((nav.clientWidth - item.offsetWidth) / 2);
+    nav.scrollTo({ left: Math.max(0, centeredLeft), behavior: "auto" });
+    updateMobileNavOverflowHints();
+  }
+
   function setupNavigation() {
+    const mobileNav = document.querySelector("aside nav");
+    mobileNav?.addEventListener("scroll", updateMobileNavOverflowHints, { passive: true });
+    window.addEventListener("resize", updateMobileNavOverflowHints);
+    window.requestAnimationFrame(updateMobileNavOverflowHints);
+
     navItems.forEach(item => {
       const button = item.querySelector("button");
       button.addEventListener("click", () => {
@@ -924,6 +947,7 @@
     navItems.forEach(item => {
       if (item.getAttribute("data-target") === targetViewId) {
         item.classList.add("active");
+        window.requestAnimationFrame(() => centerActiveMobileNavItem(item));
       } else {
         item.classList.remove("active");
       }
@@ -965,10 +989,19 @@
     }
 
     // Scroll the main content viewport back to top on view changes
-    const mainEl = document.querySelector("main");
-    if (mainEl) {
-      mainEl.scrollTop = 0;
-    }
+    const resetViewScroll = () => {
+      const mainEl = document.querySelector("main");
+      if (mainEl) {
+        mainEl.scrollTop = 0;
+      }
+      const scrollingElement = document.scrollingElement || document.documentElement;
+      if (scrollingElement) {
+        scrollingElement.scrollTop = 0;
+      }
+      window.scrollTo(0, 0);
+    };
+    resetViewScroll();
+    window.requestAnimationFrame(resetViewScroll);
 
     // Google Analytics Virtual Page View Tracking
     if (typeof gtag === 'function') {
