@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const GrammarCatalog = require("../js/grammar_topics.js");
 
 function makeStorage(initial = {}) {
   const values = new Map(Object.entries(initial));
@@ -45,6 +46,17 @@ function loadGrammar() {
   context.window.GrammarManager.loadFromStorage();
   return context.window.GrammarManager;
 }
+
+test("grammar catalog defines one unique 24-topic path across five groups", () => {
+  assert.equal(GrammarCatalog.topics.length, 24);
+  assert.equal(GrammarCatalog.groups.length, 5);
+  assert.equal(new Set(GrammarCatalog.topics.map(topic => topic.id)).size, 24);
+  assert.deepEqual(
+    GrammarCatalog.groups.map(group => GrammarCatalog.getTopicsForGroup(group.id).length),
+    [4, 5, 7, 6, 2]
+  );
+  assert.equal(GrammarCatalog.getTopic("verb_aspects").hasTrainingHub, true);
+});
 
 test("streak starts at the documented 20 XP goal and only increments once per day", () => {
   const { SRS } = loadSRS();
@@ -246,7 +258,7 @@ test("example vocabulary deck loads, contains unique cards, and integrates with 
   assert.equal(context.window.SRS.getWord(words[0].id).word, words[0].word);
 });
 
-test("offline grammar engine provides 14 structured lessons, validated question bank, and matrix drills", () => {
+test("offline grammar engine provides 24 structured lessons, validated question bank, and matrix drills", () => {
   const grammar = loadGrammar();
   const { GrammarOffline, QUESTIONS } = require("../js/grammar_offline.js");
   
@@ -573,3 +585,19 @@ test("SpeechEngine agnostic provider architecture allows custom provider registr
   assert.equal(SpeechEngine.getProviderName(), "web-speech");
 });
 
+test("VoiceAnswers normalizes spoken choice labels and selects the closest unambiguous option", () => {
+  const { normalizeAnswer, matchVoiceOption, chooseLanguage } = require("../js/voice_answers.js");
+
+  assert.equal(normalizeAnswer("  -о́м! "), "ом");
+  assert.equal(chooseLanguage(["книга", "книги", "книгу"]), "ru-RU");
+  assert.equal(chooseLanguage(["Genitive Case", "Dative Case"]), "en-US");
+
+  const russianMatch = matchVoiceOption("книгу", ["книга", "книги", "книгу", "книге"]);
+  assert.equal(russianMatch.index, 2);
+  assert.equal(russianMatch.label, "книгу");
+
+  const englishMatch = matchVoiceOption("the genitive case", ["Accusative Case", "Genitive Case", "Dative Case"]);
+  assert.equal(englishMatch.label, "Genitive Case");
+  assert.equal(matchVoiceOption(["книгу", "книга"], ["книга", "книгу"]), null);
+  assert.equal(matchVoiceOption("something unrelated", ["книга", "ручка"]), null);
+});

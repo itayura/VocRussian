@@ -102,9 +102,12 @@
 
   const STORAGE_KEYS = {
     GRAMMAR_PROGRESS: "voc_russian_grammar_progress",
+    GRAMMAR_MISTAKES: "voc_russian_grammar_mistakes_v1",
+    ACTIVE_TOPIC: "voc_russian_grammar_active_topic",
+    ACTIVE_SUBTAB: "voc_russian_grammar_active_subtab"
   };
 
-  const TOPICS_MAP = {
+  const FALLBACK_TOPICS_MAP = {
     nominative_case: "Nominative Case",
     accusative_case: "Accusative Case",
     genitive_case: "Genitive Case",
@@ -131,6 +134,31 @@
     participles_gerunds: "Participles & Gerunds"
   };
 
+  const GRAMMAR_CATALOG = window.GrammarCatalog || {
+    groups: [{ id: "all", title: "Grammar", icon: "📚", description: "Grammar topics" }],
+    topics: Object.entries(FALLBACK_TOPICS_MAP).map(([id, title]) => ({
+      id, title, russian: "", group: "all", level: "A1–B1", summary: "Learn this Russian grammar pattern.", tip: "Use the examples to notice the pattern."
+    })),
+    getTopic(topicId) {
+      return this.topics.find(topic => topic.id === topicId) || this.topics[0];
+    },
+    getGroup() { return this.groups[0]; },
+    getTopicsForGroup() { return this.topics; },
+    getPrimaryLevel(level) {
+      const match = String(level || "").match(/A1|A2|B1|B2|C1|C2/);
+      return match ? match[0] : "A1";
+    },
+    getPreviousTopic(topicId) {
+      const index = Math.max(0, this.topics.findIndex(topic => topic.id === topicId));
+      return this.topics[Math.max(0, index - 1)];
+    },
+    getNextTopic(topicId) {
+      const index = Math.max(0, this.topics.findIndex(topic => topic.id === topicId));
+      return this.topics[Math.min(this.topics.length - 1, index + 1)];
+    }
+  };
+  const TOPICS_MAP = Object.fromEntries(GRAMMAR_CATALOG.topics.map(topic => [topic.id, topic.title]));
+
 
   const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
   const CEFR_TOPIC_WEIGHTS = { A1: 0.35, A2: 0.5, B1: 0.65, B2: 0.78, C1: 0.9, C2: 1 };
@@ -148,7 +176,11 @@
   let currentQuizTopicIds = [];
   let currentQuizResults = [];
   let activeTopic = "nominative_case";
+  let currentSubtab = "home";
+  let activeTopicGroupFilter = "all";
   let activePresetName = null;
+  let grammarMistakes = [];
+  let sandboxUndoTimer = null;
 
   // Matrix Drills State (Strategy C)
   let endingDrillStreak = 0;
@@ -215,16 +247,338 @@
 
     init: function () {
       this.loadFromStorage();
+      this.renderCatalogNavigation();
       this.setupEventListeners();
       this.initCollapsibleSidebar();
       this.initCustomTopicsPanel();
       this.initEngineSelector();
       this.initPracticeModeSelector();
       this.updateGrammarLevelUI();
+      this.switchSubtab("home", { remember: false, focus: false });
+      this.refreshGrammarWorkspace();
       // Trigger background prefetch on initialize if user is already logged in
       setTimeout(() => {
         this.prefetchQuizToBuffer();
       }, 1500);
+    },
+
+    trackGrammarEvent: function (eventName, properties = {}) {
+      if (typeof window.gtag !== "function") return;
+      const allowed = {
+        grammar_section: properties.grammar_section,
+        topic_id: TOPICS_MAP[properties.topic_id] ? properties.topic_id : undefined,
+        cefr: CEFR_LEVELS.includes(properties.cefr) ? properties.cefr : undefined,
+        question_count: Number.isFinite(properties.question_count) ? properties.question_count : undefined,
+        source: ["offline", "ai"].includes(properties.source) ? properties.source : undefined
+      };
+      Object.keys(allowed).forEach(key => allowed[key] === undefined && delete allowed[key]);
+      window.gtag("event", eventName, allowed);
+    },
+
+    getTopicProgressSummary: function (topicId) {
+      const lessonRecord = grammarProgress[topicId] || {};
+      const evidence = CEFR_LEVELS.map(level => this.getTopicEvidence(topicId, level));
+      const attempts = evidence.reduce((sum, result) => sum + result.attempts, 0);
+      const mastery = Math.round(this.getTopicMastery(topicId));
+      const lastPracticed = Math.max(
+        Number(lessonRecord.lastPracticed || 0),
+        ...CEFR_LEVELS.map(level => Number(grammarProgress[`${topicId}_${level}`]?.lastPracticed || 0))
+      );
+      const lessonStarted = Number(lessonRecord.lessonsCompleted || 0) > 0;
+      const status = mastery >= 70 ? "Mastered" : (lessonStarted || attempts > 0 ? "In progress" : "New");
+      return { lessonStarted, attempts, mastery, lastPracticed, status };
+    },
+
+    getRecommendedTopicId: function () {
+      const inProgress = GRAMMAR_CATALOG.topics
+        .map(topic => ({ topic, progress: this.getTopicProgressSummary(topic.id) }))
+        .filter(item => item.progress.status === "In progress")
+        .sort((a, b) => b.progress.lastPracticed - a.progress.lastPracticed);
+      if (inProgress.length > 0) return inProgress[0].topic.id;
+      const nextNew = GRAMMAR_CATALOG.topics.find(topic => this.getTopicProgressSummary(topic.id).mastery < 70);
+      return nextNew?.id || GRAMMAR_CATALOG.topics[0].id;
+    },
+
+    getUnresolvedMistakes: function () {
+      return grammarMistakes.filter(mistake => !mistake.recovered);
+    },
+
+    getMistakeKey: function (question) {
+      return `${question?.topicId || "unknown"}:${normalizeQuizText(question?.sentencePattern || question?.id || "")}`;
+    },
+
+    recordGrammarMistake: function (question, level) {
+      const key = this.getMistakeKey(question);
+      const existing = grammarMistakes.find(mistake => mistake.key === key);
+      if (existing) {
+        existing.wrongCount = Number(existing.wrongCount || 0) + 1;
+        existing.lastWrongAt = Date.now();
+        existing.recovered = false;
+      } else {
+        grammarMistakes.unshift({
+          key,
+          topicId: TOPICS_MAP[question?.topicId] ? question.topicId : activeTopic,
+          level: CEFR_LEVELS.includes(level) ? level : GRAMMAR_CATALOG.getPrimaryLevel(GRAMMAR_CATALOG.getTopic(activeTopic).level),
+          wrongCount: 1,
+          lastWrongAt: Date.now(),
+          recovered: false
+        });
+      }
+      grammarMistakes = grammarMistakes.slice(0, 100);
+      localStorage.setItem(STORAGE_KEYS.GRAMMAR_MISTAKES, JSON.stringify(grammarMistakes));
+      this.refreshGrammarWorkspace();
+    },
+
+    resolveGrammarMistake: function (question) {
+      const key = this.getMistakeKey(question);
+      const existing = grammarMistakes.find(mistake => mistake.key === key && !mistake.recovered);
+      if (!existing) return;
+      existing.recovered = true;
+      existing.recoveredAt = Date.now();
+      localStorage.setItem(STORAGE_KEYS.GRAMMAR_MISTAKES, JSON.stringify(grammarMistakes));
+      this.refreshGrammarWorkspace();
+    },
+
+    getWeakTopicIds: function () {
+      const mistakeTopics = [...new Set(this.getUnresolvedMistakes().map(mistake => mistake.topicId).filter(topicId => TOPICS_MAP[topicId]))];
+      if (mistakeTopics.length > 0) return mistakeTopics;
+      return GRAMMAR_CATALOG.topics
+        .map(topic => ({ id: topic.id, progress: this.getTopicProgressSummary(topic.id) }))
+        .filter(item => item.progress.attempts > 0 && item.progress.mastery < 70)
+        .sort((a, b) => a.progress.mastery - b.progress.mastery)
+        .slice(0, 4)
+        .map(item => item.id);
+    },
+
+    renderCatalogNavigation: function () {
+      const topicList = document.querySelector(".grammar-topic-list");
+      const mobileSelect = document.getElementById("tutor-topic-select-mobile");
+      const filterContainer = document.getElementById("grammar-topic-group-filters");
+      if (!topicList || !mobileSelect || !filterContainer) return;
+
+      topicList.innerHTML = "";
+      mobileSelect.innerHTML = "";
+      filterContainer.innerHTML = "";
+
+      const allFilter = document.createElement("button");
+      allFilter.type = "button";
+      allFilter.className = "grammar-topic-filter active";
+      allFilter.dataset.group = "all";
+      allFilter.textContent = "All";
+      allFilter.setAttribute("aria-pressed", "true");
+      filterContainer.appendChild(allFilter);
+
+      GRAMMAR_CATALOG.groups.forEach(group => {
+        const filter = document.createElement("button");
+        filter.type = "button";
+        filter.className = "grammar-topic-filter";
+        filter.dataset.group = group.id;
+        filter.textContent = `${group.icon} ${group.title}`;
+        filter.setAttribute("aria-pressed", "false");
+        filterContainer.appendChild(filter);
+
+        const optionGroup = document.createElement("optgroup");
+        optionGroup.label = group.title;
+
+        const section = document.createElement("section");
+        section.className = "grammar-topic-group";
+        section.dataset.group = group.id;
+        const heading = document.createElement("h4");
+        heading.textContent = `${group.icon} ${group.title}`;
+        section.appendChild(heading);
+
+        GRAMMAR_CATALOG.getTopicsForGroup(group.id).forEach(topic => {
+          const progress = this.getTopicProgressSummary(topic.id);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "grammar-topic-btn";
+          button.dataset.topic = topic.id;
+          button.dataset.searchText = `${topic.title} ${topic.russian} ${group.title}`.toLocaleLowerCase();
+          button.innerHTML = `
+            <span class="grammar-topic-btn-copy">
+              <strong>${escapeHTML(topic.title)}</strong>
+              <small>${escapeHTML(topic.russian)}</small>
+            </span>
+            <span class="grammar-topic-btn-state">
+              <span class="grammar-level-chip">${escapeHTML(topic.level)}</span>
+              <span class="grammar-status-dot grammar-status-${progress.status.toLowerCase().replace(/\s+/g, "-")}" aria-label="${progress.status}"></span>
+            </span>`;
+          section.appendChild(button);
+
+          const option = document.createElement("option");
+          option.value = topic.id;
+          option.textContent = `${topic.title} (${topic.russian}) · ${topic.level}`;
+          optionGroup.appendChild(option);
+        });
+        topicList.appendChild(section);
+        mobileSelect.appendChild(optionGroup);
+      });
+
+      const empty = document.createElement("p");
+      empty.id = "grammar-topic-search-empty";
+      empty.className = "grammar-topic-search-empty";
+      empty.textContent = "No grammar topics match that search.";
+      empty.hidden = true;
+      topicList.appendChild(empty);
+      this.updateTopicNavigationState();
+    },
+
+    updateTopicNavigationState: function () {
+      document.querySelectorAll(".grammar-topic-btn").forEach(button => {
+        const isActive = button.dataset.topic === activeTopic;
+        button.classList.toggle("active", isActive);
+        if (isActive) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+        const progress = this.getTopicProgressSummary(button.dataset.topic);
+        const dot = button.querySelector(".grammar-status-dot");
+        if (dot) {
+          dot.className = `grammar-status-dot grammar-status-${progress.status.toLowerCase().replace(/\s+/g, "-")}`;
+          dot.setAttribute("aria-label", progress.status);
+        }
+      });
+      const mobileSelect = document.getElementById("tutor-topic-select-mobile");
+      if (mobileSelect && TOPICS_MAP[activeTopic]) mobileSelect.value = activeTopic;
+    },
+
+    filterTopicNavigation: function () {
+      const search = normalizeQuizText(document.getElementById("grammar-topic-search-input")?.value || "");
+      let visibleCount = 0;
+      document.querySelectorAll(".grammar-topic-group").forEach(section => {
+        const groupMatches = activeTopicGroupFilter === "all" || section.dataset.group === activeTopicGroupFilter;
+        let groupVisibleCount = 0;
+        section.querySelectorAll(".grammar-topic-btn").forEach(button => {
+          const searchMatches = !search || normalizeQuizText(button.dataset.searchText).includes(search);
+          const visible = groupMatches && searchMatches;
+          button.hidden = !visible;
+          if (visible) groupVisibleCount += 1;
+        });
+        section.hidden = groupVisibleCount === 0;
+        visibleCount += groupVisibleCount;
+      });
+      const empty = document.getElementById("grammar-topic-search-empty");
+      if (empty) empty.hidden = visibleCount > 0;
+    },
+
+    selectTopic: function (topicId, options = {}) {
+      if (!TOPICS_MAP[topicId]) return;
+      activeTopic = topicId;
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_TOPIC, topicId);
+      this.updateTopicNavigationState();
+      this.updateQuickPracticeUI();
+      this.renderOverview();
+      if (options.switchToLearn !== false) this.switchSubtab("tutor");
+      if (options.load !== false) this.loadTutorLesson(topicId);
+    },
+
+    openTopicGroup: function (groupId) {
+      if (!GRAMMAR_CATALOG.groups.some(group => group.id === groupId)) return;
+      activeTopicGroupFilter = groupId;
+      document.querySelectorAll(".grammar-topic-filter").forEach(button => {
+        const active = button.dataset.group === groupId;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      this.filterTopicNavigation();
+      const first = GRAMMAR_CATALOG.getTopicsForGroup(groupId)[0];
+      const topic = GRAMMAR_CATALOG.getTopic(activeTopic).group === groupId ? activeTopic : first?.id;
+      if (topic) this.selectTopic(topic);
+    },
+
+    renderOverview: function () {
+      const topic = GRAMMAR_CATALOG.getTopic(activeTopic || this.getRecommendedTopicId());
+      const progress = this.getTopicProgressSummary(topic.id);
+      const group = GRAMMAR_CATALOG.getGroup(topic.group);
+      const title = document.getElementById("grammar-continue-title");
+      const summary = document.getElementById("grammar-continue-summary");
+      const meta = document.getElementById("grammar-continue-meta");
+      if (title) title.textContent = `${progress.status === "New" ? "Start" : "Continue"}: ${topic.title}`;
+      if (summary) summary.textContent = topic.summary;
+      if (meta) meta.innerHTML = `<span class="grammar-level-chip">${escapeHTML(topic.level)}</span><span>${escapeHTML(group.title)}</span><span>${escapeHTML(progress.status)}${progress.mastery ? ` · ${progress.mastery}% mastery` : ""}</span>`;
+
+      const started = GRAMMAR_CATALOG.topics.filter(item => this.getTopicProgressSummary(item.id).lessonStarted).length;
+      const practiced = GRAMMAR_CATALOG.topics.filter(item => this.getTopicProgressSummary(item.id).attempts > 0).length;
+      const mistakes = this.getUnresolvedMistakes().length;
+      const startedEl = document.getElementById("grammar-lessons-started-val");
+      const practicedEl = document.getElementById("grammar-topics-practiced-val");
+      const mistakesEl = document.getElementById("grammar-mistakes-count-val");
+      if (startedEl) startedEl.textContent = String(started);
+      if (practicedEl) practicedEl.textContent = String(practiced);
+      if (mistakesEl) mistakesEl.textContent = String(mistakes);
+
+      const pathGrid = document.getElementById("grammar-path-grid");
+      if (pathGrid) {
+        pathGrid.innerHTML = GRAMMAR_CATALOG.groups.map(path => {
+          const topics = GRAMMAR_CATALOG.getTopicsForGroup(path.id);
+          const complete = topics.filter(item => this.getTopicProgressSummary(item.id).mastery >= 70).length;
+          const percent = topics.length ? Math.round((complete / topics.length) * 100) : 0;
+          return `<button type="button" class="grammar-path-card card" data-group="${escapeHTML(path.id)}">
+            <span class="grammar-path-icon">${path.icon}</span>
+            <span class="grammar-path-copy"><strong>${escapeHTML(path.title)}</strong><small>${escapeHTML(path.description)}</small></span>
+            <span class="grammar-path-progress"><span>${complete}/${topics.length}</span><span class="grammar-path-track"><span style="width:${percent}%"></span></span></span>
+          </button>`;
+        }).join("");
+      }
+      this.updateQuickPracticeUI();
+    },
+
+    updateQuickPracticeUI: function () {
+      const topic = GRAMMAR_CATALOG.getTopic(activeTopic || this.getRecommendedTopicId());
+      const quickTitle = document.getElementById("practice-quick-title");
+      const quickSummary = document.getElementById("practice-quick-summary");
+      const mistakesCount = document.getElementById("practice-mistakes-count");
+      const reviewButton = document.getElementById("practice-review-mistakes-btn");
+      if (quickTitle) quickTitle.textContent = `Quick practice: ${topic.title}`;
+      if (quickSummary) quickSummary.textContent = `Five ${topic.level} questions focused on ${topic.summary.toLowerCase()}`;
+      const unresolvedCount = this.getUnresolvedMistakes().length;
+      if (mistakesCount) mistakesCount.textContent = String(unresolvedCount);
+      if (reviewButton) {
+        reviewButton.disabled = this.getWeakTopicIds().length === 0;
+        reviewButton.textContent = unresolvedCount > 0 ? "Review weak topics" : "No weak topics yet";
+      }
+      const engineMode = localStorage.getItem("voc_grammar_engine_mode") || "offline";
+      const note = document.getElementById("practice-engine-note");
+      if (note) note.textContent = engineMode === "offline"
+        ? "Reviewed questions work instantly and offline."
+        : "AI-enhanced questions require a signed-in account and connection.";
+    },
+
+    selectPracticeTopics: function (topicIds, level, count = 5) {
+      const allowed = topicIds.filter(topicId => TOPICS_MAP[topicId]);
+      document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox").forEach(checkbox => {
+        checkbox.checked = allowed.includes(checkbox.value);
+      });
+      const levelSelect = document.getElementById("practice-quiz-level");
+      const countSelect = document.getElementById("practice-quiz-count");
+      if (levelSelect && CEFR_LEVELS.includes(level)) levelSelect.value = level;
+      if (countSelect) countSelect.value = String(count);
+      activePresetName = null;
+      this.updateGrammarPracticeMasteryUI();
+    },
+
+    startQuickPractice: function (topicId = activeTopic) {
+      const topic = GRAMMAR_CATALOG.getTopic(topicId);
+      const level = GRAMMAR_CATALOG.getPrimaryLevel(topic.level);
+      this.selectPracticeTopics([topic.id], level, 5);
+      this.switchSubtab("practice");
+      this.trackGrammarEvent("grammar_quick_practice_start", { topic_id: topic.id, cefr: level, question_count: 5, source: localStorage.getItem("voc_grammar_engine_mode") || "offline" });
+      this.startPracticeQuiz({ topicIds: [topic.id], level, count: 5 });
+    },
+
+    startMistakeReview: function () {
+      const topicIds = this.getWeakTopicIds();
+      if (topicIds.length === 0) return;
+      const level = this.getUnresolvedMistakes().find(mistake => CEFR_LEVELS.includes(mistake.level))?.level
+        || GRAMMAR_CATALOG.getPrimaryLevel(GRAMMAR_CATALOG.getTopic(topicIds[0]).level);
+      this.selectPracticeTopics(topicIds, level, 5);
+      this.switchSubtab("practice");
+      this.trackGrammarEvent("grammar_mistakes_review_start", { topic_id: topicIds[0], cefr: level, question_count: 5 });
+      this.startPracticeQuiz({ topicIds, level, count: 5 });
+    },
+
+    refreshGrammarWorkspace: function () {
+      this.renderOverview();
+      this.updateTopicNavigationState();
+      this.updateQuickPracticeUI();
     },
 
     initEngineSelector: function () {
@@ -240,7 +594,9 @@
           select.dataset.grammarEngineBound = "true";
           select.addEventListener("change", () => {
             localStorage.setItem("voc_grammar_engine_mode", select.value);
-            this.showXpToast(select.value === "offline" ? "⚡ Switched to Instant Offline Engine" : "🤖 Switched to Cloud AI Engine");
+            this.updateQuickPracticeUI();
+            this.showXpToast(select.value === "offline" ? "Using reviewed offline lessons" : "Using AI-enhanced lessons");
+            if (currentSubtab === "tutor") this.loadTutorLesson(activeTopic);
           });
         }
       } else {
@@ -338,11 +694,20 @@
         console.error("Failed to load local grammar progress, initializing empty.", e);
         grammarProgress = {};
       }
+      try {
+        const storedMistakes = JSON.parse(localStorage.getItem(STORAGE_KEYS.GRAMMAR_MISTAKES)) || [];
+        grammarMistakes = Array.isArray(storedMistakes) ? storedMistakes.slice(0, 100) : [];
+      } catch (e) {
+        grammarMistakes = [];
+      }
+      const storedTopic = localStorage.getItem(STORAGE_KEYS.ACTIVE_TOPIC);
+      activeTopic = TOPICS_MAP[storedTopic] ? storedTopic : this.getRecommendedTopicId();
     },
 
     saveToStorage: function () {
       localStorage.setItem(STORAGE_KEYS.GRAMMAR_PROGRESS, JSON.stringify(grammarProgress));
       this.updateGrammarLevelUI();
+      this.refreshGrammarWorkspace();
     },
 
     initCollapsibleSidebar: function () {
@@ -374,38 +739,38 @@
       if (!container) return;
 
       container.innerHTML = "";
-      Object.entries(TOPICS_MAP).forEach(([id, name]) => {
-        const label = document.createElement("label");
-        label.style.display = "flex";
-        label.style.alignItems = "center";
-        label.style.gap = "0.5rem";
-        label.style.fontSize = "0.85rem";
-        label.style.color = "var(--color-text-main)";
-        label.style.cursor = "pointer";
-        label.style.padding = "0.25rem 0";
-        label.style.userSelect = "none";
-        label.style.position = "relative";
-        label.style.zIndex = "10";
+      GRAMMAR_CATALOG.groups.forEach(group => {
+        const fieldset = document.createElement("fieldset");
+        fieldset.className = "grammar-topic-checkbox-group";
+        const legend = document.createElement("legend");
+        legend.textContent = `${group.icon} ${group.title}`;
+        fieldset.appendChild(legend);
 
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.value = id;
-        input.className = "topic-checkbox";
-        input.style.cursor = "pointer";
-        input.style.accentColor = "var(--color-primary)";
-        input.style.position = "relative";
-        input.style.zIndex = "10";
-        
-        input.addEventListener("change", () => {
-          activePresetName = null;
-          this.updatePresetPillsHighlight();
-          this.updateGrammarPracticeMasteryUI();
-          this.debouncePrefetch();
+        const options = document.createElement("div");
+        options.className = "grammar-topic-checkbox-options";
+        GRAMMAR_CATALOG.getTopicsForGroup(group.id).forEach(topic => {
+          const label = document.createElement("label");
+          label.className = "grammar-topic-checkbox-label";
+
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.value = topic.id;
+          input.className = "topic-checkbox";
+          input.addEventListener("change", () => {
+            activePresetName = null;
+            this.updatePresetPillsHighlight();
+            this.updateGrammarPracticeMasteryUI();
+            this.debouncePrefetch();
+          });
+
+          const copy = document.createElement("span");
+          copy.innerHTML = `<strong>${escapeHTML(topic.title)}</strong><small>${escapeHTML(topic.level)}</small>`;
+          label.appendChild(input);
+          label.appendChild(copy);
+          options.appendChild(label);
         });
-
-        label.appendChild(input);
-        label.appendChild(document.createTextNode(name));
-        container.appendChild(label);
+        fieldset.appendChild(options);
+        container.appendChild(fieldset);
       });
 
       // Hook up Select All / Clear All
@@ -1076,24 +1441,53 @@
       }
     },
 
-    // UI Tab controller switching
-    switchSubtab: function (tabId) {
-      // Deactivate all tabs
-      ["tutor", "practice", "aspects", "sandbox"].forEach(id => {
+    // Primary workspace navigation. Aspect training is launched contextually.
+    switchSubtab: function (tabId, options = {}) {
+      if (!["home", "tutor", "practice", "aspects", "sandbox"].includes(tabId)) return;
+      ["home", "tutor", "practice", "aspects", "sandbox"].forEach(id => {
         const tabEl = document.getElementById(`grammar-tab-${id}`);
-        if (tabEl) tabEl.classList.remove("active");
+        if (tabEl) {
+          tabEl.classList.remove("active");
+          if (!tabEl.hidden) {
+            tabEl.setAttribute("aria-selected", "false");
+            tabEl.tabIndex = -1;
+          }
+        }
         const panelEl = document.getElementById(`grammar-subview-${id}`);
-        if (panelEl) panelEl.style.display = "none";
+        if (panelEl) {
+          panelEl.hidden = true;
+          panelEl.style.display = "none";
+        }
       });
 
-      // Activate clicked
       const activeTabEl = document.getElementById(`grammar-tab-${tabId}`);
-      if (activeTabEl) activeTabEl.classList.add("active");
+      if (activeTabEl && !activeTabEl.hidden) {
+        activeTabEl.classList.add("active");
+        activeTabEl.setAttribute("aria-selected", "true");
+        activeTabEl.tabIndex = 0;
+        if (options.focus) activeTabEl.focus();
+      }
       const activePanelEl = document.getElementById(`grammar-subview-${tabId}`);
-      if (activePanelEl) activePanelEl.style.display = "flex";
+      if (activePanelEl) {
+        activePanelEl.hidden = false;
+        activePanelEl.style.display = "flex";
+      }
 
-      if (tabId === "practice") {
+      currentSubtab = tabId;
+      if (options.remember !== false && tabId !== "aspects") {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_SUBTAB, tabId);
+      }
+      this.trackGrammarEvent("grammar_section_view", { grammar_section: tabId });
+
+      if (tabId === "home") {
+        this.renderOverview();
+      } else if (tabId === "tutor") {
+        this.updateTopicNavigationState();
+        const content = document.getElementById("tutor-explanation-content");
+        if (content?.dataset.topicId !== activeTopic) this.loadTutorLesson(activeTopic);
+      } else if (tabId === "practice") {
         this.updateGrammarPracticeMasteryUI();
+        this.updateQuickPracticeUI();
       } else if (tabId === "aspects") {
         this.initAspectsHub();
       }
@@ -1143,59 +1537,79 @@
         controls.appendChild(quizAudioBtn);
       }
 
-      // Subtab pills
-      document.getElementById("grammar-tab-tutor")?.addEventListener("click", () => self.switchSubtab("tutor"));
-      document.getElementById("grammar-tab-practice")?.addEventListener("click", () => self.switchSubtab("practice"));
-      document.getElementById("grammar-tab-aspects")?.addEventListener("click", () => self.switchSubtab("aspects"));
-      document.getElementById("grammar-tab-sandbox")?.addEventListener("click", () => self.switchSubtab("sandbox"));
-
-      // Tutor Topic selection buttons
-      document.querySelectorAll(".grammar-topic-btn").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          document.querySelectorAll(".grammar-topic-btn").forEach(b => {
-            b.classList.remove("active");
-            b.style.background = "transparent";
-            b.style.borderColor = "transparent";
-            b.style.color = "var(--color-text-muted)";
-          });
-          btn.classList.add("active");
-          btn.style.background = "var(--bg-input)";
-          btn.style.borderColor = "var(--border-glass)";
-          btn.style.color = "var(--color-text-main)";
-          
-          activeTopic = btn.getAttribute("data-topic");
-          const mobileSelect = document.getElementById("tutor-topic-select-mobile");
-          if (mobileSelect) {
-            mobileSelect.value = activeTopic;
-          }
-          self.loadTutorLesson(activeTopic);
-        });
+      // Primary grammar navigation
+      const primaryTabIds = ["home", "tutor", "practice", "sandbox"];
+      primaryTabIds.forEach(tabId => {
+        document.getElementById(`grammar-tab-${tabId}`)?.addEventListener("click", () => self.switchSubtab(tabId));
+      });
+      document.querySelector(".grammar-primary-nav")?.addEventListener("keydown", event => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        const currentIndex = primaryTabIds.indexOf(currentSubtab);
+        let nextIndex = currentIndex < 0 ? 0 : currentIndex;
+        if (event.key === "ArrowRight") nextIndex = (nextIndex + 1) % primaryTabIds.length;
+        if (event.key === "ArrowLeft") nextIndex = (nextIndex - 1 + primaryTabIds.length) % primaryTabIds.length;
+        if (event.key === "Home") nextIndex = 0;
+        if (event.key === "End") nextIndex = primaryTabIds.length - 1;
+        event.preventDefault();
+        self.switchSubtab(primaryTabIds[nextIndex], { focus: true });
       });
 
-      // Synchronize mobile topic select dropdown
+      document.getElementById("grammar-continue-btn")?.addEventListener("click", () => self.selectTopic(activeTopic));
+      document.getElementById("grammar-quick-practice-btn")?.addEventListener("click", () => self.startQuickPractice(activeTopic));
+      document.getElementById("grammar-browse-all-btn")?.addEventListener("click", () => {
+        activeTopicGroupFilter = "all";
+        document.querySelectorAll(".grammar-topic-filter").forEach(button => {
+          const active = button.dataset.group === "all";
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+        self.filterTopicNavigation();
+        self.switchSubtab("tutor");
+      });
+      document.getElementById("grammar-open-aspects-btn")?.addEventListener("click", () => self.switchSubtab("aspects"));
+      document.getElementById("aspect-back-to-lesson-btn")?.addEventListener("click", () => self.selectTopic("verb_aspects"));
+      document.getElementById("grammar-open-writing-btn")?.addEventListener("click", () => self.switchSubtab("sandbox"));
+      document.getElementById("grammar-path-grid")?.addEventListener("click", event => {
+        const card = event.target.closest("[data-group]");
+        if (card) self.openTopicGroup(card.dataset.group);
+      });
+
+      // Catalog-driven topic navigation
+      document.querySelectorAll(".grammar-topic-btn").forEach(btn => {
+        btn.addEventListener("click", () => self.selectTopic(btn.dataset.topic, { switchToLearn: false }));
+      });
+      document.querySelectorAll(".grammar-topic-filter").forEach(button => {
+        button.addEventListener("click", () => {
+          activeTopicGroupFilter = button.dataset.group;
+          document.querySelectorAll(".grammar-topic-filter").forEach(filter => {
+            const active = filter === button;
+            filter.classList.toggle("active", active);
+            filter.setAttribute("aria-pressed", String(active));
+          });
+          self.filterTopicNavigation();
+        });
+      });
+      document.getElementById("grammar-topic-search-input")?.addEventListener("input", () => self.filterTopicNavigation());
+
       const mobileSelect = document.getElementById("tutor-topic-select-mobile");
       if (mobileSelect) {
         mobileSelect.addEventListener("change", (e) => {
-          const val = e.target.value;
-          activeTopic = val;
-          document.querySelectorAll(".grammar-topic-btn").forEach(b => {
-            if (b.getAttribute("data-topic") === val) {
-              b.classList.add("active");
-              b.style.background = "var(--bg-input)";
-              b.style.borderColor = "var(--border-glass)";
-              b.style.color = "var(--color-text-main)";
-            } else {
-              b.classList.remove("active");
-              b.style.background = "transparent";
-              b.style.borderColor = "transparent";
-              b.style.color = "var(--color-text-muted)";
-            }
-          });
-          self.loadTutorLesson(val);
+          self.selectTopic(e.target.value, { switchToLearn: false });
         });
       }
 
-      // Practice Arena Buttons
+      document.getElementById("tutor-explanation-content")?.addEventListener("click", event => {
+        const action = event.target.closest("[data-grammar-action]")?.dataset.grammarAction;
+        if (!action) return;
+        if (action === "practice-topic") self.startQuickPractice(activeTopic);
+        if (action === "previous-topic") self.selectTopic(GRAMMAR_CATALOG.getPreviousTopic(activeTopic).id, { switchToLearn: false });
+        if (action === "next-topic") self.selectTopic(GRAMMAR_CATALOG.getNextTopic(activeTopic).id, { switchToLearn: false });
+        if (action === "aspect-training") self.switchSubtab("aspects");
+      });
+
+      // Practice actions
+      document.getElementById("practice-quick-start-btn")?.addEventListener("click", () => self.startQuickPractice(activeTopic));
+      document.getElementById("practice-review-mistakes-btn")?.addEventListener("click", () => self.startMistakeReview());
       document.getElementById("practice-start-btn").addEventListener("click", () => self.startPracticeQuiz());
       document.getElementById("quiz-quit-btn").addEventListener("click", () => self.quitPracticeQuiz());
       document.getElementById("quiz-next-btn").addEventListener("click", () => self.nextQuizQuestion());
@@ -1208,6 +1622,13 @@
           self.startPracticeQuiz();
         });
       }
+      document.getElementById("quiz-complete-learn-btn")?.addEventListener("click", () => {
+        self.resetPracticeArenaUI();
+        const nextTopic = self.getTopicProgressSummary(activeTopic).mastery >= 70
+          ? GRAMMAR_CATALOG.getNextTopic(activeTopic).id
+          : activeTopic;
+        self.selectTopic(nextTopic);
+      });
 
       // Target settings change
       document.getElementById("practice-quiz-level").addEventListener("change", () => {
@@ -1218,8 +1639,24 @@
       // Sandbox Buttons
       document.getElementById("sandbox-analyze-btn").addEventListener("click", () => self.analyzeSandboxWriting());
       document.getElementById("sandbox-clear-btn").addEventListener("click", () => {
-        document.getElementById("sandbox-user-input").value = "";
+        const input = document.getElementById("sandbox-user-input");
+        const undoButton = document.getElementById("sandbox-undo-btn");
+        if (!input || !input.value) return;
+        undoButton.dataset.previousText = input.value;
+        input.value = "";
         document.getElementById("sandbox-results-panel").style.display = "none";
+        undoButton.hidden = false;
+        clearTimeout(sandboxUndoTimer);
+        sandboxUndoTimer = setTimeout(() => {
+          undoButton.hidden = true;
+          undoButton.dataset.previousText = "";
+        }, 8000);
+      });
+      document.getElementById("sandbox-undo-btn")?.addEventListener("click", event => {
+        const input = document.getElementById("sandbox-user-input");
+        input.value = event.currentTarget.dataset.previousText || "";
+        event.currentTarget.hidden = true;
+        input.focus();
       });
 
     },
@@ -1245,77 +1682,108 @@
         examples: Array.isArray(payload?.examples) ? payload.examples.map(example => ({ ru: escapeHTML(example.ru), en: escapeHTML(example.en), explanation: escapeHTML(example.explanation) })) : []
       };
       const contentEl = document.getElementById("tutor-explanation-content");
+      if (!contentEl) return;
+      const topic = GRAMMAR_CATALOG.getTopic(activeTopic);
+      const group = GRAMMAR_CATALOG.getGroup(topic.group);
+      const progress = this.getTopicProgressSummary(activeTopic);
+      const previousTopic = GRAMMAR_CATALOG.getPreviousTopic(activeTopic);
+      const nextTopic = GRAMMAR_CATALOG.getNextTopic(activeTopic);
       const rulesCollapsed = localStorage.getItem("voc_tutor_rules_collapsed") === "true";
       const examplesCollapsed = localStorage.getItem("voc_tutor_examples_collapsed") === "true";
 
       const html = `
-        <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%; display: flex; flex-direction: column; gap: 1rem; box-sizing: border-box;">
-          <h3 style="font-family: var(--font-heading); font-size: 1.4rem; margin: 0 0 0.5rem 0; color: var(--color-primary-hover);">${payload.title}</h3>
-          <div class="tutor-explanation-text" style="line-height: 1.6; font-size: 1rem; color: var(--color-text-main); word-break: break-word; overflow-wrap: break-word; max-width: 100%; overflow-x: auto;">${payload.explanation}</div>
-          
-          <h4 class="tutor-collapsible-trigger" data-target="voc_tutor_rules_collapsed" style="font-family: var(--font-heading); margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; user-select: none; -webkit-user-select: none;">
-            <span class="collapse-arrow" style="font-size: 0.8rem; color: var(--color-primary); transition: transform 0.2s;">${rulesCollapsed ? "▶" : "▼"}</span> Declension / Conjugation Rules
-          </h4>
-          <div id="tutor-rules-section" style="overflow-x: auto; width: 100%; display: ${rulesCollapsed ? "none" : "block"};">
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
-              <thead>
-                <tr style="background-color: var(--bg-input); border-bottom: 2px solid var(--border-glass);">
-                  <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-primary);">Pattern/Form</th>
-                  <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-primary);">Ending Shift</th>
-                  <th style="padding: 0.75rem 1rem; text-align: left; color: var(--color-primary);">Example</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${payload.rules.map(r => `
-                  <tr style="border-bottom: 1px solid var(--border-glass);">
-                    <td style="padding: 0.75rem 1rem;"><strong>${r.ending}</strong></td>
-                    <td style="padding: 0.75rem 1rem;">${r.rule}</td>
-                    <td style="padding: 0.75rem 1rem;"><code>${r.example}</code></td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
+        <article class="grammar-lesson-card card">
+          <header class="grammar-lesson-header">
+            <div class="grammar-topic-meta">
+              <span class="grammar-level-chip">${escapeHTML(topic.level)}</span>
+              <span>${escapeHTML(group.title)}</span>
+              <span>${escapeHTML(progress.status)}${progress.mastery ? ` · ${progress.mastery}% mastery` : ""}</span>
+            </div>
+            <h2>${payload.title}</h2>
+            <div class="tutor-explanation-text grammar-lesson-overview">${payload.explanation}</div>
+          </header>
+
+          <section class="grammar-lesson-section">
+            <button type="button" class="tutor-collapsible-trigger" data-target="voc_tutor_rules_collapsed" aria-expanded="${String(!rulesCollapsed)}" aria-controls="tutor-rules-section">
+              <span><span class="grammar-section-number">1</span> Learn the pattern</span>
+              <span class="collapse-arrow" aria-hidden="true">${rulesCollapsed ? "＋" : "−"}</span>
+            </button>
+            <div id="tutor-rules-section" class="grammar-rule-grid" ${rulesCollapsed ? "hidden" : ""}>
+              ${payload.rules.map(r => `
+                <article class="grammar-rule-card">
+                  <strong class="grammar-rule-ending">${r.ending}</strong>
+                  <span class="grammar-rule-meaning">${r.rule}</span>
+                  <code class="grammar-rule-example">${r.example}</code>
+                </article>
+              `).join("")}
+            </div>
+          </section>
+
+          <div class="grammar-mistake-tip" role="note">
+            <span aria-hidden="true">💡</span>
+            <div><strong>What to watch for</strong><p>${escapeHTML(topic.tip)}</p></div>
           </div>
 
-          <h4 class="tutor-collapsible-trigger" data-target="voc_tutor_examples_collapsed" style="font-family: var(--font-heading); margin-top: 1.25rem; margin-bottom: 0.5rem; color: var(--color-text-main); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; user-select: none; -webkit-user-select: none;">
-            <span class="collapse-arrow" style="font-size: 0.8rem; color: var(--color-primary); transition: transform 0.2s;">${examplesCollapsed ? "▶" : "▼"}</span> Interactive Examples
-          </h4>
-          <div id="tutor-examples-section" style="display: ${examplesCollapsed ? "none" : "flex"}; flex-direction: column; gap: 0.75rem; width: 100%;">
-            ${payload.examples.map(ex => `
-              <div style="background: rgba(255,255,255,0.02); border-radius: var(--border-radius-sm); padding: 0.85rem 1rem; border: 1px solid var(--border-glass); display: flex; flex-direction: column; gap: 0.35rem; box-sizing: border-box;">
-                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 0.5rem; width: 100%;">
-                  <strong style="font-size:1.15rem; color:var(--color-primary-hover); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">${ex.ru}</strong>
-                  <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" style="width:32px; height:32px; font-size:0.9rem; border-color:transparent; background:var(--bg-card); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%;">🔊</button>
-                </div>
-                <div class="page-subtitle" style="font-size: 0.9rem; margin: 0; color: var(--color-text-main); font-weight: 500;">${ex.en}</div>
-                <div style="font-size: 0.85rem; font-style:italic; color:var(--color-text-muted);">${ex.explanation}</div>
-              </div>
-            `).join("")}
-          </div>
+          <section class="grammar-lesson-section">
+            <button type="button" class="tutor-collapsible-trigger" data-target="voc_tutor_examples_collapsed" aria-expanded="${String(!examplesCollapsed)}" aria-controls="tutor-examples-section">
+              <span><span class="grammar-section-number">2</span> See it in context</span>
+              <span class="collapse-arrow" aria-hidden="true">${examplesCollapsed ? "＋" : "−"}</span>
+            </button>
+            <div id="tutor-examples-section" class="grammar-example-grid" ${examplesCollapsed ? "hidden" : ""}>
+              ${payload.examples.map(ex => `
+                <article class="grammar-example-card">
+                  <div class="grammar-example-heading">
+                    <strong class="grammar-example-ru">${ex.ru}</strong>
+                    <button type="button" class="audio-btn tutor-tts-btn" data-text="${ex.ru.replace(/[́]/g, '')}" aria-label="Listen to example">🔊</button>
+                  </div>
+                  <p class="grammar-example-translation">${ex.en}</p>
+                  <p class="grammar-example-explanation">${ex.explanation}</p>
+                </article>
+              `).join("")}
+            </div>
+          </section>
 
-        </div>
+          <section class="grammar-lesson-action card">
+            <div>
+              <span class="grammar-eyebrow">Quick check</span>
+              <h3>Can you use this pattern?</h3>
+              <p>Answer five focused questions. Your result updates this topic's mastery.</p>
+            </div>
+            <div class="grammar-lesson-action-buttons">
+              <button type="button" class="btn btn-primary" data-grammar-action="practice-topic">Practice this topic →</button>
+              ${topic.hasTrainingHub ? '<button type="button" class="btn btn-secondary" data-grammar-action="aspect-training">Open aspect drills</button>' : ""}
+            </div>
+          </section>
+
+          <nav class="grammar-lesson-pagination" aria-label="Lesson sequence">
+            <button type="button" class="btn btn-secondary" data-grammar-action="previous-topic" ${previousTopic.id === activeTopic ? "disabled" : ""}>← ${escapeHTML(previousTopic.title)}</button>
+            <button type="button" class="btn btn-secondary" data-grammar-action="next-topic" ${nextTopic.id === activeTopic ? "disabled" : ""}>${escapeHTML(nextTopic.title)} →</button>
+          </nav>
+        </article>
       `;
 
-      contentEl.innerHTML = window.wrapCyrillicWords ? window.wrapCyrillicWords(html) : html;
+      contentEl.innerHTML = html;
+      contentEl.dataset.topicId = activeTopic;
+      const breadcrumb = document.getElementById("grammar-lesson-breadcrumb");
+      if (breadcrumb) breadcrumb.textContent = `${group.title}  /  ${topic.title}`;
+      if (window.wrapCyrillicWords) {
+        contentEl.querySelectorAll(".grammar-example-ru, .grammar-rule-example").forEach(element => {
+          element.innerHTML = window.wrapCyrillicWords(element.innerHTML);
+        });
+      }
 
       // Bind collapsible headers inside tutor explanation
       contentEl.querySelectorAll(".tutor-collapsible-trigger").forEach(trigger => {
         trigger.addEventListener("click", () => {
           const cacheKey = trigger.getAttribute("data-target");
-          const sectionEl = trigger.nextElementSibling;
+          const sectionEl = document.getElementById(trigger.getAttribute("aria-controls"));
           const arrowEl = trigger.querySelector(".collapse-arrow");
           if (!sectionEl || !arrowEl) return;
-          
-          const isCollapsed = sectionEl.style.display === "none";
-          if (isCollapsed) {
-            sectionEl.style.display = cacheKey.includes("rules") ? "block" : "flex";
-            arrowEl.textContent = "▼";
-            localStorage.setItem(cacheKey, "false");
-          } else {
-            sectionEl.style.display = "none";
-            arrowEl.textContent = "▶";
-            localStorage.setItem(cacheKey, "true");
-          }
+          const expanding = sectionEl.hidden;
+          sectionEl.hidden = !expanding;
+          trigger.setAttribute("aria-expanded", String(expanding));
+          arrowEl.textContent = expanding ? "−" : "＋";
+          localStorage.setItem(cacheKey, String(!expanding));
         });
       });
 
@@ -1340,6 +1808,10 @@
 
     // --- AI / OFFLINE TUTOR ACTION ---
     loadTutorLesson: async function (topicId) {
+      if (!TOPICS_MAP[topicId]) topicId = this.getRecommendedTopicId();
+      activeTopic = topicId;
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_TOPIC, topicId);
+      this.updateTopicNavigationState();
       const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
       const engineMode = isFeatureEnabled ? (localStorage.getItem("voc_grammar_engine_mode") || "offline") : "ai";
       const isLoggedIn = !!(window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user);
@@ -1357,6 +1829,7 @@
         if (loader) loader.style.display = "none";
         const payload = window.GrammarOffline.getLesson(topicId);
         this.renderTutorExplanation(payload);
+        this.trackGrammarEvent("grammar_lesson_open", { topic_id: topicId, cefr: GRAMMAR_CATALOG.getPrimaryLevel(GRAMMAR_CATALOG.getTopic(topicId).level), source: "offline" });
         const firstCompletion = this.recordLessonCompleted(topicId);
         if (firstCompletion && window.SRS) {
           window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
@@ -1372,6 +1845,7 @@
           setTimeout(() => {
             if (loader) loader.style.display = "none";
             this.renderTutorExplanation(PREVIEW_LESSON_NOMINATIVE);
+            this.trackGrammarEvent("grammar_lesson_open", { topic_id: topicId, cefr: "A1", source: "ai" });
           }, 300);
           return;
         } else {
@@ -1395,6 +1869,7 @@
       if (explanationsCache[topicId]) {
         try {
           this.renderTutorExplanation(explanationsCache[topicId]);
+          this.trackGrammarEvent("grammar_lesson_open", { topic_id: topicId, cefr: GRAMMAR_CATALOG.getPrimaryLevel(GRAMMAR_CATALOG.getTopic(topicId).level), source: "ai" });
           const firstCompletion = this.recordLessonCompleted(topicId);
           if (firstCompletion && window.SRS) {
             window.SRS.addActivityXP(15, "grammar_lesson", { topicId });
@@ -1433,6 +1908,7 @@
 
         // Render AI Response
         this.renderTutorExplanation(payload);
+        this.trackGrammarEvent("grammar_lesson_open", { topic_id: topicId, cefr: GRAMMAR_CATALOG.getPrimaryLevel(GRAMMAR_CATALOG.getTopic(topicId).level), source: "ai" });
 
         // Save to cache
         try {
@@ -1470,26 +1946,41 @@
       return shuffled.slice(0, 15).map(w => w.word);
     },
 
-    startPracticeQuiz: async function () {
+    startPracticeQuiz: async function (options = {}) {
       const setupScreen = document.getElementById("practice-setup-screen");
       const loadingScreen = document.getElementById("practice-loading");
       const activeScreen = document.getElementById("practice-active-screen");
 
-      const cefr = document.getElementById("practice-quiz-level").value;
-      const count = parseInt(document.getElementById("practice-quiz-count").value, 10);
+      const cefr = CEFR_LEVELS.includes(options.level) ? options.level : document.getElementById("practice-quiz-level").value;
+      const count = Number.isFinite(options.count) ? Math.max(1, Math.min(10, Math.floor(options.count))) : parseInt(document.getElementById("practice-quiz-count").value, 10);
+      const requestedTopics = Array.isArray(options.topicIds) ? options.topicIds.filter(topicId => TOPICS_MAP[topicId]) : [];
+      if (requestedTopics.length > 0) this.selectPracticeTopics(requestedTopics, cefr, count);
 
       const checkedTopics = [];
       const checkedNames = [];
-      document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
-        checkedTopics.push(cb.value);
-        checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
-      });
+      if (requestedTopics.length > 0) {
+        requestedTopics.forEach(topicId => {
+          checkedTopics.push(topicId);
+          checkedNames.push(TOPICS_MAP[topicId]);
+        });
+      } else {
+        document.querySelectorAll("#custom-topics-checkboxes .topic-checkbox:checked").forEach(cb => {
+          checkedTopics.push(cb.value);
+          checkedNames.push(TOPICS_MAP[cb.value] || cb.value);
+        });
+      }
       if (checkedNames.length === 0) {
         alert("Please select at least one grammar topic to start the quiz.");
         return;
       }
       const topicParam = checkedNames.join(", ");
       currentQuizTopicIds = [...checkedTopics];
+      this.trackGrammarEvent("grammar_quiz_start", {
+        topic_id: checkedTopics.length === 1 ? checkedTopics[0] : undefined,
+        cefr,
+        question_count: count,
+        source: localStorage.getItem("voc_grammar_engine_mode") || "offline"
+      });
 
       // Check Offline Engine
       const isFeatureEnabled = window.isOfflineGrammarFeatureEnabled && window.isOfflineGrammarFeatureEnabled();
@@ -2647,6 +3138,10 @@
       const fallbackTopic = currentQuizTopicIds.length === 1 ? currentQuizTopicIds[0] : null;
       const topicId = TOPICS_MAP[q.topicId] ? q.topicId : fallbackTopic;
       currentQuizResults.push({ topicId, isCorrect });
+      const evidenceQuestion = { ...q, topicId: topicId || activeTopic };
+      const evidenceLevel = document.getElementById("practice-quiz-level")?.value || "A1";
+      if (isCorrect) this.resolveGrammarMistake(evidenceQuestion);
+      else this.recordGrammarMistake(evidenceQuestion, evidenceLevel);
       
       // Disable further clicks on all choice buttons
       document.querySelectorAll("#quiz-choices-container .choice-btn").forEach(btn => {
@@ -2846,6 +3341,13 @@
       if (xpGained > 0 && window.SRS) {
         window.SRS.addActivityXP(xpGained, "grammar_quiz", { level, topics: currentQuizTopicIds });
       }
+      this.trackGrammarEvent("grammar_quiz_complete", {
+        topic_id: currentQuizTopicIds.length === 1 ? currentQuizTopicIds[0] : undefined,
+        cefr: level,
+        question_count: currentQuizQuestions.length,
+        source: localStorage.getItem("voc_grammar_engine_mode") || "offline"
+      });
+      this.refreshGrammarWorkspace();
       this.showXpToast(`+${xpGained} XP (Quiz Completed)`);
     },
 

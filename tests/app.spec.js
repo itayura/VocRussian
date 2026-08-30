@@ -13,6 +13,9 @@ test.describe('Privyetik E2E Test Suite', () => {
   }
 
   async function selectGrammarTopic(page, topic) {
+    if (await page.locator('#grammar-subview-tutor').isHidden()) {
+      await page.locator('#grammar-tab-tutor').click();
+    }
     const mobileSelect = page.locator('#tutor-topic-select-mobile');
     if (await mobileSelect.isVisible()) {
       await mobileSelect.selectOption(topic);
@@ -431,6 +434,36 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#writing-user-input')).toBeVisible();
   });
 
+  test('Multiple-choice answers can be selected by speaking', async ({ page }) => {
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await page.locator('#mode-select-choice').click();
+
+    const choices = page.locator('#choices-container .choice-btn');
+    await expect(choices.first()).toBeVisible();
+    const spokenAnswer = (await choices.nth(1).innerText()).trim();
+
+    await page.evaluate(answer => {
+      window.SpeechEngine.registerProvider('voice-answer-test', {
+        name: 'voice-answer-test',
+        isListening: false,
+        isSupported: () => true,
+        startListening(options = {}) {
+          this.isListening = true;
+          options.onInterim?.(answer);
+          this.isListening = false;
+          return Promise.resolve({ transcript: answer, alternatives: [] });
+        },
+        stopListening() { this.isListening = false; },
+        abortListening() { this.isListening = false; }
+      });
+      window.SpeechEngine.setProvider('voice-answer-test');
+    }, spokenAnswer);
+
+    await page.locator('[data-voice-target="choices-container"] .voice-answer-btn').click();
+    await expect(page.locator('[data-voice-target="choices-container"] .voice-answer-status')).toContainText('Selected:');
+    await expect(page.locator('#choice-next-btn')).toBeVisible();
+  });
+
   // 5. Dictionary and Card CRUD Operations
   test('Dictionary search and card addition/editing/deletion', async ({ page }) => {
     // Log in to enable AI autofill sentences
@@ -493,21 +526,111 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('body')).toHaveClass(/theme-emerald/);
   });
 
-  // 7. AI Grammar Tutor
-  test('AI Grammar Tutor case selection, explanation rendering and custom chat question', async ({ page }) => {
+  // 7. Grammar learning workspace
+  test('Grammar Learn opens from the overview and renders an enhanced lesson', async ({ page }) => {
     // Unlock grammar by logging in
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
 
-    // Verify AI Tutor is active subtab
+    // The organized overview is the starting point; Learn is one explicit destination.
+    await expect(page.locator('#grammar-tab-home')).toHaveClass(/active/);
+    await page.locator('#grammar-tab-tutor').click();
     await expect(page.locator('#grammar-tab-tutor')).toHaveClass(/active/);
 
     // Select the Cloud AI engine and verify the mocked explanation renders
     await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await selectGrammarTopic(page, 'dative_case');
     await expect(page.locator('#tutor-explanation-content')).toContainText('Mock Lesson: dative_case');
+  });
+
+  test('Grammar overview exposes a grouped path and a structured lesson flow', async ({ page }) => {
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+
+    await expect(page.locator('#grammar-subview-home')).toBeVisible();
+    await expect(page.locator('.grammar-primary-tab:visible')).toHaveCount(4);
+    await expect(page.locator('#grammar-tab-aspects')).toBeHidden();
+    await expect(page.locator('.grammar-path-card')).toHaveCount(5);
+    await expect(page.locator('.grammar-topic-btn')).toHaveCount(24);
+
+    await page.locator('#grammar-continue-btn').click();
+    await expect(page.locator('#grammar-tab-tutor')).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('#tutor-explanation-content')).toHaveAttribute('data-topic-id', 'nominative_case');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('Learn the pattern');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('What to watch for');
+    await expect(page.locator('#tutor-explanation-content')).toContainText('See it in context');
+    await expect(page.locator('[data-grammar-action="practice-topic"]')).toBeVisible();
+
+    const topicSearch = page.locator('#grammar-topic-search-input');
+    if (await topicSearch.isVisible()) {
+      await topicSearch.fill('aspect');
+      const filteredTopics = await page.locator('.grammar-topic-btn').evaluateAll(buttons =>
+        buttons.filter(button => !button.hidden).map(button => button.dataset.topic)
+      );
+      expect(filteredTopics).toEqual(['verb_aspects']);
+    } else {
+      await page.locator('#tutor-topic-select-mobile').selectOption('verb_aspects');
+      await expect(page.locator('#tutor-explanation-content')).toHaveAttribute('data-topic-id', 'verb_aspects');
+    }
+
+    await page.locator('#grammar-tab-home').click();
+    await page.locator('#grammar-tab-home').focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('#grammar-tab-tutor')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  test('Grammar tools stay contextual and writing clear supports undo', async ({ page }) => {
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+
+    await page.locator('#grammar-open-aspects-btn').click();
+    await expect(page.locator('#grammar-subview-aspects')).toBeVisible();
+    await expect(page.locator('#grammar-tab-aspects')).toBeHidden();
+    await page.locator('#aspect-back-to-lesson-btn').click();
+    await expect(page.locator('#tutor-explanation-content')).toHaveAttribute('data-topic-id', 'verb_aspects');
+
+    await page.locator('#grammar-tab-home').click();
+    await page.locator('#grammar-open-writing-btn').click();
+    const writingInput = page.locator('#sandbox-user-input');
+    await writingInput.fill('Я живу в Москва.');
+    await page.locator('#sandbox-clear-btn').click();
+    await expect(writingInput).toHaveValue('');
+    await expect(page.locator('#sandbox-undo-btn')).toBeVisible();
+    await page.locator('#sandbox-undo-btn').click();
+    await expect(writingInput).toHaveValue('Я живу в Москва.');
+  });
+
+  test('Quick practice starts in one action and saves mistakes for review', async ({ page }) => {
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await page.evaluate(() => {
+      window.GrammarOffline.getQuestions = () => Array.from({ length: 5 }, (_, index) => ({
+        id: `roadmap-question-${index}`,
+        topicId: 'nominative_case',
+        sentencePattern: `Это [blank] номер ${index + 1}.`,
+        answer: 'книга',
+        choices: ['книги', 'книга'],
+        translation: 'This is a book.',
+        transliteration: 'Eto kniga.',
+        explanation: 'The subject uses the Nominative case.'
+      }));
+    });
+
+    await page.locator('#grammar-quick-practice-btn').click();
+    await expect(page.locator('#practice-active-screen')).toBeVisible();
+    await expect(page.locator('#quiz-total-val')).toHaveText('5');
+    await page.locator('#quiz-choices-container .choice-btn', { hasText: 'книги' }).click();
+    await expect(page.locator('#quiz-result-title')).toHaveText('Incorrect');
+    await expect.poll(() => page.evaluate(() => {
+      const mistakes = JSON.parse(localStorage.getItem('voc_russian_grammar_mistakes_v1') || '[]');
+      return mistakes.filter(item => !item.recovered).length;
+    })).toBe(1);
+
+    await page.locator('#quiz-quit-btn').click();
+    await page.locator('#custom-confirm-ok-btn').click();
+    await page.locator('#grammar-tab-home').click();
+    await expect(page.locator('#grammar-mistakes-count-val')).toHaveText('1');
+    await page.locator('#grammar-tab-practice').click();
+    await expect(page.locator('#practice-review-mistakes-btn')).toBeEnabled();
   });
 
   // 8. AI Grammar Practice Arena (Checklist, Presets, Mastery, Quiz completion)
@@ -520,7 +643,11 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await page.locator('#grammar-tab-practice').click();
 
-    // Verify custom checkboxes panel is display: flex
+    // Advanced configuration stays out of the way until requested.
+    await expect(page.locator('#practice-customize-details')).not.toHaveAttribute('open', '');
+    await page.locator('#practice-customize-details > summary').click();
+
+    // Verify custom checkboxes panel is display: flex once expanded.
     await expect(page.locator('#custom-topics-panel')).toBeVisible();
 
     // Nominative Case case checkbox should be checked by default
@@ -635,7 +762,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     // Navigate to Practice Arena
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
     await page.locator('#grammar-tab-practice').click();
-    await page.locator('#practice-start-btn').click();
+    await page.locator('#practice-quick-start-btn').click();
 
     // Check we are in the quiz
     await expect(page.locator('#practice-active-screen')).toBeVisible();
@@ -1170,6 +1297,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#ending-drill-feedback-box')).toBeVisible();
     await page.locator('#ending-drill-next-btn').click();
     expect(await page.evaluate(() => window.__endingDrillCalls)).toBe(2);
+    await page.locator('#ending-drill-quit-btn').click();
 
     // 6. Strategy C: Matrix Drill - Case Detective
     await page.locator('.practice-mode-tab[data-mode="detective"]').click();
@@ -1179,6 +1307,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(detectiveChoices.first()).toBeVisible();
     await detectiveChoices.first().click();
     await expect(page.locator('#detective-feedback-box')).toBeVisible();
+    await page.locator('#detective-drill-quit-btn').click();
 
     // 7. Strategy C: Matrix Drill - Aspect Matcher
     await page.locator('.practice-mode-tab[data-mode="aspect"]').click();
@@ -1190,9 +1319,11 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(rightTiles.first()).toBeVisible();
     await leftTiles.first().click();
     await rightTiles.first().click();
+    await page.locator('#aspect-quit-btn').click();
 
     // 8. Strategy A: Instant Offline Cloze Quiz
     await page.locator('.practice-mode-tab[data-mode="quiz"]').click();
+    await page.locator('#practice-customize-details > summary').click();
     await page.locator('#practice-quiz-level').selectOption('C2');
     await page.locator('#practice-start-btn').click();
     await expect(page.locator('#custom-alert-modal')).toHaveClass(/active/);
@@ -1241,10 +1372,11 @@ test.describe('Privyetik E2E Test Suite', () => {
 
   test('Verb Aspects Hub provides 5 interactive training modes and filter explorer', async ({ page }) => {
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
-    await expect(page.locator('#grammar-tab-aspects')).toBeVisible();
+    await expect(page.locator('#grammar-open-aspects-btn')).toBeVisible();
+    await expect(page.locator('#grammar-tab-aspects')).toBeHidden();
 
-    // 1. Switch to Aspects tab
-    await page.locator('#grammar-tab-aspects').click();
+    // 1. Open the focused tool from the overview.
+    await page.locator('#grammar-open-aspects-btn').click();
     const aspectsPanel = page.locator('#grammar-subview-aspects');
     await expect(aspectsPanel).toBeVisible();
 

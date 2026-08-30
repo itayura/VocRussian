@@ -1073,214 +1073,253 @@
 
       <!-- VIEW: GRAMMAR -->
       <section id="view-grammar" class="view-section">
-        <div class="page-header">
+        <div class="page-header grammar-page-header">
           <div>
-            <h1 class="page-title">Grammar Workspace</h1>
-            <p class="page-subtitle">Learn rules, practice quizzes, and get grammar corrections powered by AI.</p>
+            <h1 class="page-title">Grammar</h1>
+            <p class="page-subtitle">Follow a clear path from explanation to practice and review.</p>
           </div>
-          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <div class="grammar-header-actions">
             <!-- Offline / AI Engine Selector (Guarded by Feature Flag) -->
-            <div id="grammar-engine-selector-container" style="display: none; align-items: center; gap: 0.5rem; background: var(--bg-card); border: 1px solid var(--border-glass); padding: 0.35rem 0.75rem; border-radius: var(--border-radius-md);">
-              <label for="grammar-engine-mode-select" style="font-size: 0.75rem; color: var(--color-text-muted); font-weight: bold; margin: 0;">Engine:</label>
-              <select id="grammar-engine-mode-select" class="filter-select" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; height: auto; margin: 0; background-color: var(--bg-input);">
-                <option value="offline" selected>⚡ Instant Offline (0ms)</option>
-                <option value="ai">🤖 Cloud AI Tutor</option>
+            <div id="grammar-engine-selector-container" class="grammar-source-control" style="display: none;">
+              <label for="grammar-engine-mode-select">Lesson source</label>
+              <select id="grammar-engine-mode-select" class="filter-select">
+                <option value="offline" selected>⚡ Reviewed offline</option>
+                <option value="ai">🤖 AI-enhanced</option>
               </select>
             </div>
-            <div class="stats-badge-sidebar" style="margin-top: 0; background: var(--bg-card); border: 1px solid var(--border-glass);" title="CEFR estimate based on recent quiz accuracy, evidence, and topic coverage">
+            <div class="stats-badge-sidebar grammar-estimate-badge" title="CEFR estimate based on recent quiz accuracy, evidence, and topic coverage">
               <span>⭐</span>
               <div>
                 <div>Grammar estimate: <span id="grammar-level-val">Pre-A1</span></div>
-                <div id="grammar-progress-val" style="font-size: 0.7rem; color: var(--color-text-muted); font-weight: 500; margin-top: 0.1rem;">0% to A1</div>
+                <div id="grammar-progress-val" class="grammar-estimate-progress">0% to A1</div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Tab Pills for Grammar Subviews -->
-        <div class="card" style="padding: 0.5rem 1rem; border-radius: var(--border-radius-md); display: flex; flex-wrap: wrap; gap: 0.5rem; border: 1px solid var(--border-glass); background: var(--bg-card); align-self: flex-start; max-width: 100%; position: relative; z-index: 10;">
-          <button type="button" id="grammar-tab-tutor" class="btn btn-secondary btn-pill active" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">🤖 AI Tutor</button>
-          <button type="button" id="grammar-tab-practice" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">📝 Practice Arena</button>
-          <button type="button" id="grammar-tab-aspects" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">⚡ Aspects</button>
-          <button type="button" id="grammar-tab-sandbox" class="btn btn-secondary btn-pill" style="padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: bold; border-color: transparent; position: relative; z-index: 10;">✍️ Sandbox</button>
+        <!-- Primary grammar destinations. Specialized drills are launched in context. -->
+        <div class="grammar-primary-nav card" role="tablist" aria-label="Grammar sections">
+          <button type="button" id="grammar-tab-home" class="grammar-primary-tab active" role="tab" aria-selected="true" aria-controls="grammar-subview-home">🏠 Overview</button>
+          <button type="button" id="grammar-tab-tutor" class="grammar-primary-tab" role="tab" aria-selected="false" aria-controls="grammar-subview-tutor">📖 Learn</button>
+          <button type="button" id="grammar-tab-practice" class="grammar-primary-tab" role="tab" aria-selected="false" aria-controls="grammar-subview-practice">🎯 Practice</button>
+          <button type="button" id="grammar-tab-sandbox" class="grammar-primary-tab" role="tab" aria-selected="false" aria-controls="grammar-subview-sandbox">✍️ Writing feedback</button>
+          <button type="button" id="grammar-tab-aspects" hidden aria-hidden="true" tabindex="-1">Aspect training</button>
         </div>
 
-        <!-- SUBVIEW: AI TUTOR -->
-        <div id="grammar-subview-tutor" class="grammar-subview-panel card" style="display: flex; flex-direction: column; gap: 1.5rem;">
-          <div class="tutor-grid-container">
-            <!-- Left Side: Lesson Topics List -->
-            <div class="tutor-topics-sidebar">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; width: 100%;">
-                <h3 style="font-family: var(--font-heading); font-size: 1.15rem; margin: 0;">Grammar Topics</h3>
-                <button type="button" id="tutor-sidebar-collapse-btn" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); cursor: pointer; color: var(--color-text-muted);" title="Collapse topic list">◀ Hide</button>
-              </div>
-              
-              <!-- Mobile Selector (visible on mobile only) -->
-              <div class="tutor-topic-select-mobile-container" style="display: none; margin-bottom: 1rem; width: 100%;">
-                <select id="tutor-topic-select-mobile" class="filter-select" style="width: 100%; box-sizing: border-box; background-color: var(--bg-input);">
-                  <option value="nominative_case">Nominative Case (Именительный)</option>
-                  <option value="accusative_case">Accusative Case (Винительный)</option>
-                  <option value="genitive_case">Genitive Case (Родительный)</option>
-                  <option value="dative_case">Dative Case (Дательный)</option>
-                  <option value="instrumental_case">Instrumental Case (Творительный)</option>
-                  <option value="prepositional_case">Prepositional Case (Предложный)</option>
-                  <option value="verb_aspects">Verb Aspects (Aspects)</option>
-                  <option value="verbs_of_motion">Verbs of Motion (Движение)</option>
-                  <option value="verb_conjugations">Verb Conjugations (Спряжение)</option>
-                  <option value="past_tense">Past Tense (Прошедшее время)</option>
-                  <option value="future_tense">Future Tense (Будущее время)</option>
-                  <option value="adjectives_declension">Adjectives Declension (Прилагательные)</option>
-                  <option value="pronouns_declension">Pronouns Declension (Местоимения)</option>
-                  <option value="noun_plurals">Noun Plurals (Множественное число)</option>
-                  <option value="numerals_agreement">Numerals & Agreement (Числительные)</option>
-                  <option value="prefixed_motion_verbs">Prefixed Verbs of Motion (Приставки движения)</option>
-                  <option value="imperatives">Imperatives & Commands (Повелительное наклонение)</option>
-                  <option value="reflexive_verbs">Reflexive Verbs (Возвратные глаголы: -ся/-сь)</option>
-                  <option value="subjunctive_conditional">Conditional & Subjunctive (Частицы бы/чтобы)</option>
-                  <option value="impersonal_sentences">Impersonal Sentences (Безличные предложения)</option>
-                  <option value="comparatives_superlatives">Comparatives & Superlatives (Степени сравнения)</option>
-                  <option value="time_expressions">Time & Frequency Expressions (Выражение времени)</option>
-                  <option value="relative_clauses_conjunctions">Relative Clauses & Conjunctions (Который & Союзы)</option>
-                  <option value="participles_gerunds">Participles & Gerunds (Причастия и деепричастия)</option>
-                </select>
-              </div>
-
-              <div class="grammar-topic-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <button type="button" class="grammar-topic-btn active" data-topic="nominative_case" style="text-align: left; background: var(--bg-input); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-main); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Nominative Case (Именительный)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="accusative_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Accusative Case (Винительный)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="genitive_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Genitive Case (Родительный)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="dative_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Dative Case (Дательный)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="instrumental_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Instrumental Case (Творительный)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="prepositional_case" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Prepositional Case (Предложный)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="verb_aspects" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Verb Aspects (Aspects)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="verbs_of_motion" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Verbs of Motion (Движение)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="verb_conjugations" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Verb Conjugations (Спряжение)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="past_tense" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Past Tense (Прошедшее время)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="future_tense" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Future Tense (Будущее время)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="adjectives_declension" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Adjectives Declension (Прилагательные)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="pronouns_declension" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Pronouns Declension (Местоимения)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="noun_plurals" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Noun Plurals (Множественное число)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="numerals_agreement" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Numerals & Agreement (Числительные)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="prefixed_motion_verbs" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Prefixed Motion Verbs (Приставки движения)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="imperatives" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Imperatives & Commands (Повелительное наклонение)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="reflexive_verbs" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Reflexive Verbs (Возвратные глаголы: -ся/-сь)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="subjunctive_conditional" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Conditional & Subjunctive (Частицы бы/чтобы)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="impersonal_sentences" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Impersonal Sentences (Безличные предложения)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="comparatives_superlatives" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Comparatives & Superlatives (Степени сравнения)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="time_expressions" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Time & Expressions (Выражение времени)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="relative_clauses_conjunctions" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Relative Clauses & Conjunctions (Который & Союзы)</button>
-                <button type="button" class="grammar-topic-btn" data-topic="participles_gerunds" style="text-align: left; background: transparent; border: 1px solid transparent; padding: 0.75rem 1rem; border-radius: var(--border-radius-sm); color: var(--color-text-muted); font-family: var(--font-heading); cursor: pointer; transition: all 0.2s; position: relative; z-index: 10;">Participles & Gerunds (Причастия и деепричастия)</button>
+        <!-- SUBVIEW: OVERVIEW -->
+        <div id="grammar-subview-home" class="grammar-subview-panel grammar-home-panel" role="tabpanel" aria-labelledby="grammar-tab-home">
+          <div class="grammar-home-hero card">
+            <div class="grammar-home-hero-copy">
+              <span class="grammar-eyebrow">Recommended next</span>
+              <h2 id="grammar-continue-title">Start with the Nominative Case</h2>
+              <p id="grammar-continue-summary">Learn how Russian marks the subject of a sentence.</p>
+              <div class="grammar-topic-meta" id="grammar-continue-meta">
+                <span class="grammar-level-chip">A1</span>
+                <span>New lesson</span>
               </div>
             </div>
-            <!-- Right Side: Tutor Panel -->
-            <div style="display: flex; flex-direction: column; gap: 1rem; min-height: 400px; flex: 1; width: 100%; min-width: 0;">
-              <button type="button" id="tutor-sidebar-expand-btn" class="btn btn-secondary" style="display: none; align-items: center; gap: 0.5rem; align-self: flex-start; margin-bottom: 0.25rem; padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); cursor: pointer; color: var(--color-text-main); font-weight: bold;">
-                ▶ Show Topics List
-              </button>
-              <!-- Explanation Display Area -->
-              <div id="tutor-explanation-content" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                <div class="info-banner" style="background: rgba(138, 43, 226, 0.15); border: 1px solid var(--border-glass); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem; color: var(--color-text-main); display: flex; align-items: center; gap: 0.5rem; box-sizing: border-box; width: 100%;">
-                  <span>💡</span>
-                  <span><strong>Tip:</strong> Click or tap any Russian word in the explanation text below to instantly translate and save it to your vocabulary!</span>
-                </div>
-                <div class="card" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.5rem; width: 100%;">
-                  <span id="tutor-initial-msg" style="color: var(--color-text-muted);">Select topics...</span>
-                </div>
-              </div>
-              
-              <!-- Loader -->
-              <div id="tutor-loading" style="display: none; align-items: center; gap: 0.5rem; justify-content: center; padding: 2rem 1rem; width: 100%;">
-                <div style="width: 20px; height: 20px; border: 2px solid var(--color-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
-                <span class="page-subtitle" style="margin:0;">AI is explaining...</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SUBVIEW: PRACTICE ARENA -->
-        <div id="grammar-subview-practice" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
-          <!-- Practice Mode Tabs (Guarded by Feature Flag) -->
-          <div id="practice-mode-selector-container" style="display: none; margin-bottom: 0.5rem;">
-            <div class="card" style="padding: 0.4rem 0.6rem; border-radius: var(--border-radius-md); display: flex; flex-wrap: wrap; gap: 0.5rem; border: 1px solid var(--border-glass); background: var(--bg-card); align-self: flex-start; max-width: 100%;">
-              <button type="button" id="practice-mode-tab-quiz" class="btn btn-secondary btn-pill practice-mode-tab active" data-mode="quiz" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">📝 Cloze Quiz</button>
-              <button type="button" id="practice-mode-tab-ending" class="btn btn-secondary btn-pill practice-mode-tab" data-mode="ending" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">🎯 Ending Picker</button>
-              <button type="button" id="practice-mode-tab-detective" class="btn btn-secondary btn-pill practice-mode-tab" data-mode="detective" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">🔍 Case Detective</button>
-              <button type="button" id="practice-mode-tab-aspect" class="btn btn-secondary btn-pill practice-mode-tab" data-mode="aspect" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: bold; border-color: transparent;">⚡ Aspect Matcher</button>
+            <div class="grammar-home-hero-actions">
+              <button type="button" id="grammar-continue-btn" class="btn btn-primary">Continue learning →</button>
+              <button type="button" id="grammar-quick-practice-btn" class="btn btn-secondary">Quick practice · 5 questions</button>
             </div>
           </div>
 
-          <div id="practice-setup-screen" style="display: flex; flex-direction: column; gap: 1.5rem;">
+          <div class="grammar-overview-stats" aria-label="Grammar progress summary">
+            <div class="grammar-overview-stat card">
+              <span class="grammar-overview-stat-icon">📚</span>
+              <strong id="grammar-lessons-started-val">0</strong>
+              <span>Lessons started</span>
+            </div>
+            <div class="grammar-overview-stat card">
+              <span class="grammar-overview-stat-icon">🎯</span>
+              <strong id="grammar-topics-practiced-val">0</strong>
+              <span>Topics practiced</span>
+            </div>
+            <div class="grammar-overview-stat card">
+              <span class="grammar-overview-stat-icon">🧠</span>
+              <strong id="grammar-mistakes-count-val">0</strong>
+              <span>Mistakes to review</span>
+            </div>
+          </div>
+
+          <div class="grammar-section-heading">
             <div>
-              <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Grammar Practice Arena</h2>
-              <p class="page-subtitle">Configure a customized AI-generated grammar quiz to test your declension and conjugation skills.</p>
+              <span class="grammar-eyebrow">Learning path</span>
+              <h2>Browse by skill</h2>
             </div>
-            
-            <div class="dictionary-filter-bar" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; width: 100%;">
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="practice-quiz-level">Difficulty Level</label>
-                <select id="practice-quiz-level" class="filter-select">
-                  <option value="A1">A1 (Beginner)</option>
-                  <option value="A2">A2 (Elementary)</option>
-                  <option value="B1">B1 (Intermediate)</option>
-                  <option value="B2">B2 (Upper Intermediate)</option>
-                  <option value="C1">C1 (Advanced)</option>
-                  <option value="C2">C2 (Mastery)</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <label for="practice-quiz-count">Number of Questions</label>
-                <select id="practice-quiz-count" class="filter-select">
-                  <option value="3">3 Questions</option>
-                  <option value="5" selected>5 Questions</option>
-                  <option value="10">10 Questions</option>
-                </select>
-              </div>
-            </div>
+            <button type="button" id="grammar-browse-all-btn" class="btn btn-secondary">Browse all topics</button>
+          </div>
+          <div id="grammar-path-grid" class="grammar-path-grid"><!-- Rendered from grammar_topics.js --></div>
 
-            <!-- Custom Topics selection panel (Visible when random/multiple or a subset is chosen) -->
-            <div id="custom-topics-panel" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem; border: 1px solid var(--border-glass); background: rgba(255, 255, 255, 0.02); border-radius: var(--border-radius-md); width: 100%; box-sizing: border-box;">
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-weight: 600; font-size: 0.95rem; color: var(--color-text-main);">Practice Target Topics:</span>
-                <div style="display: flex; gap: 0.5rem;">
-                  <button type="button" id="topics-select-all" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); color: var(--color-text-muted); cursor: pointer;">Select All</button>
-                  <button type="button" id="topics-clear-all" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass); background: var(--bg-input); color: var(--color-text-muted); cursor: pointer;">Clear All</button>
+          <div class="grammar-tool-grid">
+            <article class="grammar-tool-card card">
+              <div class="grammar-tool-icon">⚡</div>
+              <div>
+                <span class="grammar-eyebrow">Focused drill</span>
+                <h3>Verb aspect training</h3>
+                <p>Match pairs, identify trigger words, and compare process with result.</p>
+              </div>
+              <button type="button" id="grammar-open-aspects-btn" class="btn btn-secondary">Open aspect drills</button>
+            </article>
+            <article class="grammar-tool-card card">
+              <div class="grammar-tool-icon">✍️</div>
+              <div>
+                <span class="grammar-eyebrow">Apply what you know</span>
+                <h3>Writing feedback</h3>
+                <p>Write in Russian and get corrections with explanations.</p>
+              </div>
+              <button type="button" id="grammar-open-writing-btn" class="btn btn-secondary">Check my writing</button>
+            </article>
+          </div>
+        </div>
+
+        <!-- SUBVIEW: LEARN -->
+        <div id="grammar-subview-tutor" class="grammar-subview-panel card" role="tabpanel" aria-labelledby="grammar-tab-tutor" hidden>
+          <div class="grammar-learn-heading">
+            <div>
+              <span class="grammar-eyebrow">Learn</span>
+              <h2>Choose a topic, understand the pattern, then practice it.</h2>
+            </div>
+            <label class="grammar-topic-search">
+              <span class="sr-only">Search grammar topics</span>
+              <input type="search" id="grammar-topic-search-input" class="filter-input" placeholder="Search topics…" autocomplete="off">
+            </label>
+          </div>
+          <div class="tutor-grid-container">
+            <div class="tutor-topics-sidebar">
+              <div class="grammar-sidebar-heading">
+                <h3>Topics</h3>
+                <button type="button" id="tutor-sidebar-collapse-btn" class="grammar-sidebar-toggle" title="Collapse topic list" aria-label="Collapse topic list">◀ Hide</button>
+              </div>
+              <div class="tutor-topic-select-mobile-container">
+                <label for="tutor-topic-select-mobile" class="sr-only">Choose a grammar topic</label>
+                <select id="tutor-topic-select-mobile" class="filter-select"><!-- Rendered from catalog --></select>
+              </div>
+              <div id="grammar-topic-group-filters" class="grammar-topic-group-filters" aria-label="Filter topics by skill"><!-- Rendered from catalog --></div>
+              <div class="grammar-topic-list" aria-label="Grammar topics"><!-- Rendered from catalog --></div>
+            </div>
+            <div class="grammar-lesson-column">
+              <button type="button" id="tutor-sidebar-expand-btn" class="grammar-sidebar-toggle grammar-sidebar-expand">▶ Show topics</button>
+              <nav id="grammar-lesson-breadcrumb" class="grammar-lesson-breadcrumb" aria-label="Lesson location"></nav>
+              <div id="tutor-explanation-content" class="grammar-lesson-content" aria-live="polite">
+                <div class="grammar-lesson-placeholder card">
+                  <span class="grammar-placeholder-icon">📖</span>
+                  <strong id="tutor-initial-msg">Preparing your next lesson…</strong>
                 </div>
               </div>
-
-              <!-- Grid of checkboxes -->
-              <div id="custom-topics-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 0.75rem; max-height: 250px; overflow-y: auto; padding-right: 0.5rem;">
-                <!-- Dynamically generated checkboxes go here -->
+              <div id="tutor-loading" class="grammar-loading" role="status" aria-live="polite">
+                <div class="grammar-loading-spinner"></div>
+                <span>Loading lesson…</span>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <!-- Save subset form -->
-              <div style="display: flex; gap: 0.5rem; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 0.75rem; flex-wrap: wrap; width: 100%;">
-                <input type="text" id="subset-name-input" class="filter-input" style="flex: 1; min-width: 150px; font-size: 0.85rem; padding: 0.5rem 0.75rem;" placeholder="Save selection as preset...">
-                <button type="button" id="save-subset-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; border-radius: var(--border-radius-sm); cursor: pointer;">💾 Save Preset</button>
+        <!-- SUBVIEW: PRACTICE -->
+        <div id="grammar-subview-practice" class="grammar-subview-panel card" role="tabpanel" aria-labelledby="grammar-tab-practice" hidden>
+          <div id="practice-setup-screen" class="grammar-practice-setup">
+            <div class="grammar-practice-heading">
+              <div>
+                <span class="grammar-eyebrow">Practice</span>
+                <h2>Turn the current lesson into recall.</h2>
+                <p class="page-subtitle" id="practice-engine-note">Reviewed questions work instantly and offline.</p>
               </div>
+            </div>
 
-              <!-- Saved subsets list -->
-              <div id="saved-subsets-container" style="display: none; flex-direction: column; gap: 0.5rem; border-top: 1px solid var(--border-glass); padding-top: 0.75rem; width: 100%;">
-                <span style="font-size: 0.8rem; color: var(--color-text-muted); font-weight: 500;">Your Saved Presets (click to select, click ✖ to delete):</span>
-                <div id="saved-subsets-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                  <!-- Dynamic tags e.g. <span class="subset-tag">My Tenses <button>✖</button></span> -->
+            <div class="grammar-quick-practice-grid">
+              <article class="grammar-quick-card grammar-quick-card-primary">
+                <span class="grammar-eyebrow">Recommended · about 3 min</span>
+                <h3 id="practice-quick-title">Quick practice: Nominative Case</h3>
+                <p id="practice-quick-summary">Five focused questions using your current lesson.</p>
+                <button type="button" id="practice-quick-start-btn" class="btn btn-primary">Start 5 questions →</button>
+              </article>
+              <article class="grammar-quick-card">
+                <span class="grammar-eyebrow">Target weak areas</span>
+                <h3>Review mistakes</h3>
+                <p><strong id="practice-mistakes-count">0</strong> unresolved grammar mistakes from recent quizzes.</p>
+                <button type="button" id="practice-review-mistakes-btn" class="btn btn-secondary">Review weak topics</button>
+              </article>
+            </div>
+
+            <!-- Focused drills remain available without becoming a navigation level. -->
+            <div id="practice-mode-selector-container" class="grammar-drill-section" style="display: none;">
+              <div class="grammar-section-heading grammar-section-heading-compact">
+                <div>
+                  <span class="grammar-eyebrow">Focused drills</span>
+                  <h3>Practice one pattern at a time</h3>
                 </div>
               </div>
-            </div>
-
-            <!-- Grammar Quiz Target Mastery Progress -->
-            <div id="practice-mastery-group" style="margin-top: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--border-glass); width: 100%;">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem;">
-                <span style="font-size: 0.9rem; color: var(--color-text-muted); font-weight: 500;">Grammar Topic Mastery:</span>
-                <strong style="font-size: 0.95rem; color: var(--color-primary-hover);" id="practice-target-mastery-val">0%</strong>
-              </div>
-              <div class="level-progress-track" style="height: 0.75rem; background: var(--bg-input); border-radius: var(--border-radius-pill); position: relative; overflow: hidden; border: 1px solid var(--border-glass); width: 100%;">
-                <div id="practice-target-mastery-fill" class="level-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover)); border-radius: var(--border-radius-pill); transition: width 0.8s cubic-bezier(0.1, 0.8, 0.3, 1);"></div>
+              <div class="grammar-drill-grid" aria-label="Grammar drill types">
+                <button type="button" id="practice-mode-tab-quiz" class="grammar-drill-card practice-mode-tab active" data-mode="quiz"><span>📝</span><strong>Cloze quiz</strong><small>Fill the missing form</small></button>
+                <button type="button" id="practice-mode-tab-ending" class="grammar-drill-card practice-mode-tab" data-mode="ending"><span>🎯</span><strong>Ending picker</strong><small>Choose endings quickly</small></button>
+                <button type="button" id="practice-mode-tab-detective" class="grammar-drill-card practice-mode-tab" data-mode="detective"><span>🔍</span><strong>Case detective</strong><small>Identify a word's role</small></button>
+                <button type="button" id="practice-mode-tab-aspect" class="grammar-drill-card practice-mode-tab" data-mode="aspect"><span>⚡</span><strong>Aspect matcher</strong><small>Pair process and result</small></button>
               </div>
             </div>
 
-            <button type="button" id="practice-start-btn" class="btn btn-primary" style="align-self: flex-start; margin-top: 1rem; padding: 1rem 2rem; font-size: 1.05rem;">
-              🚀 Start AI Quiz
-            </button>
+            <details id="practice-customize-details" class="grammar-customize card">
+              <summary>
+                <span>
+                  <strong>Customize a session</strong>
+                  <small>Choose level, length, and multiple topics</small>
+                </span>
+                <span class="grammar-summary-chevron" aria-hidden="true">⌄</span>
+              </summary>
+              <div class="grammar-customize-body">
+                <div class="grammar-customize-controls">
+                  <div class="form-group">
+                    <label for="practice-quiz-level">Difficulty level</label>
+                    <select id="practice-quiz-level" class="filter-select">
+                      <option value="A1">A1 (Beginner)</option>
+                      <option value="A2">A2 (Elementary)</option>
+                      <option value="B1">B1 (Intermediate)</option>
+                      <option value="B2">B2 (Upper Intermediate)</option>
+                      <option value="C1">C1 (Advanced)</option>
+                      <option value="C2">C2 (Mastery)</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="practice-quiz-count">Session length</label>
+                    <select id="practice-quiz-count" class="filter-select">
+                      <option value="3">3 Questions</option>
+                      <option value="5" selected>5 Questions</option>
+                      <option value="10">10 Questions</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div id="custom-topics-panel" class="grammar-custom-topics">
+                  <div class="grammar-custom-topics-heading">
+                    <div>
+                      <strong>Target topics</strong>
+                      <span>Select one or more skills for this session.</span>
+                    </div>
+                    <div class="grammar-selection-actions">
+                      <button type="button" id="topics-select-all" class="btn btn-secondary">Select all</button>
+                      <button type="button" id="topics-clear-all" class="btn btn-secondary">Clear</button>
+                    </div>
+                  </div>
+                  <div id="custom-topics-checkboxes" class="grammar-topic-checkbox-groups"><!-- Rendered from catalog --></div>
+                  <div class="grammar-preset-form">
+                    <input type="text" id="subset-name-input" class="filter-input" placeholder="Save this selection as a preset…">
+                    <button type="button" id="save-subset-btn" class="btn btn-secondary">Save preset</button>
+                  </div>
+                  <div id="saved-subsets-container" class="grammar-saved-presets" style="display: none;">
+                    <span>Your saved presets</span>
+                    <div id="saved-subsets-list"><!-- Rendered by JS --></div>
+                  </div>
+                </div>
+
+                <div id="practice-mastery-group" class="grammar-target-mastery">
+                  <div>
+                    <span>Selected-topic mastery</span>
+                    <strong id="practice-target-mastery-val">0%</strong>
+                  </div>
+                  <div class="level-progress-track"><div id="practice-target-mastery-fill" class="level-progress-fill"></div></div>
+                </div>
+                <button type="button" id="practice-start-btn" class="btn btn-primary">Start custom quiz →</button>
+              </div>
+            </details>
           </div>
 
           <!-- Practice Session Loader -->
@@ -1373,9 +1412,11 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 1rem; width: 100%;">
+            <p id="quiz-complete-next-copy" class="page-subtitle">Review the explanation again or keep practicing while the pattern is fresh.</p>
+            <div class="grammar-complete-actions">
               <button type="button" id="quiz-complete-again-btn" class="btn btn-primary" style="flex: 1; padding: 1rem;">Practice Again</button>
-              <button type="button" id="quiz-complete-finish-btn" class="btn btn-secondary" style="flex: 1; padding: 1rem;">Back to Setup</button>
+              <button type="button" id="quiz-complete-learn-btn" class="btn btn-secondary">Continue learning</button>
+              <button type="button" id="quiz-complete-finish-btn" class="btn btn-secondary" style="flex: 1; padding: 1rem;">Practice options</button>
             </div>
           </div>
 
@@ -1462,7 +1503,8 @@
         </div>
 
         <!-- SUBVIEW: VERB ASPECTS HUB -->
-        <div id="grammar-subview-aspects" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
+        <div id="grammar-subview-aspects" class="grammar-subview-panel card" aria-label="Verb aspect training" hidden>
+          <button type="button" id="aspect-back-to-lesson-btn" class="grammar-context-back">← Back to the Verb Aspects lesson</button>
           <!-- Aspect Hub Header -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
             <div>
@@ -1552,7 +1594,7 @@
             </div>
 
             <!-- Dual Choice Buttons: NSV vs SV -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; width: 100%;">
+            <div id="aspect-trigger-choices-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; width: 100%;">
               <button type="button" id="aspect-trigger-choice-nsv" class="aspect-choice-btn">
                 <span class="aspect-badge-nsv">Imperfective (НСВ)</span>
                 <span id="aspect-trigger-choice-nsv-text" style="font-size: 1.35rem; margin-top: 0.25rem;">пьёт</span>
@@ -1664,10 +1706,11 @@
         </div>
 
         <!-- SUBVIEW: SANDBOX -->
-        <div id="grammar-subview-sandbox" class="grammar-subview-panel card" style="display: none; flex-direction: column; gap: 1.5rem;">
+        <div id="grammar-subview-sandbox" class="grammar-subview-panel card grammar-writing-panel" role="tabpanel" aria-labelledby="grammar-tab-sandbox" hidden>
           <div>
-            <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">AI Writing Sandbox</h2>
-            <p class="page-subtitle">Write Russian sentences or paragraphs and click analyze to check spelling, grammar, and receive suggestions for improvement.</p>
+            <span class="grammar-eyebrow">Writing feedback</span>
+            <h2>Check a Russian sentence or paragraph</h2>
+            <p class="page-subtitle">Receive corrections, clearer alternatives, and explanations. This tool uses AI and requires a signed-in account.</p>
           </div>
 
           <div class="form-group" style="margin-bottom: 0;">
@@ -1681,6 +1724,9 @@
             </button>
             <button type="button" id="sandbox-clear-btn" class="btn btn-secondary" style="padding: 1rem 1.5rem;">
               Clear Text
+            </button>
+            <button type="button" id="sandbox-undo-btn" class="btn btn-secondary" hidden>
+              Undo clear
             </button>
           </div>
 
@@ -2894,6 +2940,8 @@
   <script src="js/srs.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/speech.js"></script>
+  <script src="js/voice_answers.js"></script>
+  <script src="js/grammar_topics.js"></script>
   <script src="js/grammar_offline.js"></script>
   <script src="js/grammar.js"></script>
   <script src="js/alphabet.js"></script>

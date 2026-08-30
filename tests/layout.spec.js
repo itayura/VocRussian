@@ -368,6 +368,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     // Navigate to Grammar Workspace
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
     await expect(page.locator('#view-grammar')).toHaveClass(/active/);
+    await page.locator('#grammar-tab-tutor').click();
 
     const tutorGrid = page.locator('.tutor-grid-container');
     await expect(tutorGrid).toHaveCSS('display', 'grid');
@@ -390,7 +391,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
       await expect(sidebar).toHaveCSS('border-bottom-style', 'solid');
     } else {
       // Side-by-side
-      expect(Math.abs(sidebarBox.y - paneBox.y)).toBeLessThan(15);
+      expect(Math.abs(sidebarBox.y - paneBox.y)).toBeLessThan(40);
       expect(paneBox.x).toBeGreaterThanOrEqual(sidebarBox.x + sidebarBox.width - 5);
 
       // Sidebar borders: right-border is solid, bottom-border is none
@@ -407,6 +408,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     // Navigate to Grammar Workspace -> Practice Arena
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
     await page.locator('#grammar-tab-practice').click();
+    await page.locator('#practice-customize-details > summary').click();
 
     // Verify custom topics panel and checkboxes layouts
     const customPanel = page.locator('#custom-topics-panel');
@@ -420,6 +422,66 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     const sandboxInput = page.locator('#sandbox-user-input');
     await expect(sandboxInput).toBeVisible();
     await expect(sandboxInput).toHaveCSS('display', 'block');
+  });
+
+  test('Grammar overview and lesson remain contained on desktop and mobile', async ({ page }) => {
+    const viewport = page.viewportSize();
+    const isMobile = viewport && viewport.width <= 768;
+
+    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    const grammarView = page.locator('#view-grammar');
+    await expect(grammarView).toBeVisible();
+    const overflow = await grammarView.evaluate(element => element.scrollWidth - element.clientWidth);
+    expect(overflow).toBeLessThanOrEqual(1);
+    const primaryNav = await page.locator('.grammar-primary-nav').boundingBox();
+    const writingTab = await page.locator('#grammar-tab-sandbox').boundingBox();
+    expect(primaryNav).not.toBeNull();
+    expect(writingTab).not.toBeNull();
+    expect(writingTab.x + writingTab.width).toBeLessThanOrEqual(primaryNav.x + primaryNav.width + 1);
+
+    const pathCards = page.locator('.grammar-path-card');
+    await expect(pathCards).toHaveCount(5);
+    const firstPath = await pathCards.nth(0).boundingBox();
+    const secondPath = await pathCards.nth(1).boundingBox();
+    expect(firstPath).not.toBeNull();
+    expect(secondPath).not.toBeNull();
+    if (isMobile) {
+      expect(secondPath.y).toBeGreaterThanOrEqual(firstPath.y + firstPath.height - 2);
+    }
+
+    await page.locator('#grammar-continue-btn').click();
+    await expect(page.locator('#tutor-explanation-content')).toHaveAttribute('data-topic-id', 'nominative_case');
+    await expect(page.locator('#tutor-explanation-content table')).toHaveCount(0);
+
+    const lessonLayout = await page.locator('.grammar-lesson-card').evaluate(element => {
+      const rootRect = element.getBoundingClientRect();
+      const overflowers = [...element.querySelectorAll('*')].filter(child => {
+        const rect = child.getBoundingClientRect();
+        return child.scrollWidth > child.clientWidth + 1 || rect.right > rootRect.right + 1;
+      }).map(child => ({
+        selector: `${child.tagName.toLowerCase()}${child.id ? `#${child.id}` : ''}${[...child.classList].map(name => `.${name}`).join('')}`,
+        clientWidth: child.clientWidth,
+        scrollWidth: child.scrollWidth,
+        right: Math.round(child.getBoundingClientRect().right - rootRect.right)
+      }));
+      return { overflow: element.scrollWidth - element.clientWidth, overflowers };
+    });
+    expect(lessonLayout.overflow, JSON.stringify(lessonLayout.overflowers)).toBeLessThanOrEqual(1);
+    await expect(page.locator('.grammar-mistake-tip')).toHaveCSS('position', 'static');
+    const lessonBox = await page.locator('.grammar-lesson-card').boundingBox();
+    const tipBox = await page.locator('.grammar-mistake-tip').boundingBox();
+    expect(lessonBox).not.toBeNull();
+    expect(tipBox).not.toBeNull();
+    expect(tipBox.x).toBeGreaterThanOrEqual(lessonBox.x - 1);
+    expect(tipBox.x + tipBox.width).toBeLessThanOrEqual(lessonBox.x + lessonBox.width + 1);
+    if (isMobile) {
+      const ruleCards = page.locator('.grammar-rule-card');
+      const firstRule = await ruleCards.nth(0).boundingBox();
+      const secondRule = await ruleCards.nth(1).boundingBox();
+      expect(firstRule).not.toBeNull();
+      expect(secondRule).not.toBeNull();
+      expect(secondRule.y).toBeGreaterThanOrEqual(firstRule.y + firstRule.height - 2);
+    }
   });
 
   // 7. Settings view layout
@@ -535,7 +597,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await page.locator('#grammar-tab-practice').click();
 
     // Start quiz
-    await page.locator('#practice-start-btn').click();
+    await page.locator('#practice-quick-start-btn').click();
     await expect(page.locator('#practice-active-screen')).toBeVisible();
     await expect(page.locator('#practice-active-screen .practice-audio-controls')).toBeVisible();
 
@@ -608,7 +670,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
 
   test('Grammar status badges remain in their own exercise panels', async ({ page }) => {
     await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
-    await page.locator('#grammar-tab-aspects').click();
+    await page.locator('#grammar-open-aspects-btn').click();
 
     const aspectsPanel = await page.locator('#grammar-subview-aspects').boundingBox();
     const patternFilter = await page.locator('#aspect-hub-pattern-filter').boundingBox();

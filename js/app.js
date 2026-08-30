@@ -828,6 +828,7 @@
       if (window.GrammarManager) {
         window.GrammarManager.updateGrammarLevelUI();
         window.GrammarManager.updateGrammarPracticeMasteryUI();
+        window.GrammarManager.refreshGrammarWorkspace();
       }
       // Refresh settings checkbox dynamically on sync
       const showTranslitCheckbox = document.getElementById("settings-show-translit");

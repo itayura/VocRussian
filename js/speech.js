@@ -168,6 +168,11 @@
         this.initRecognition();
       }
 
+      // Individual answer controls can override the recognition language. This
+      // keeps Russian production exercises in ru-RU while allowing spoken
+      // English answers (for example, "Genitive Case") to use en-US.
+      this.recognition.lang = options.lang || "ru-RU";
+
       return new Promise((resolve, reject) => {
         let finalTranscript = "";
         let bestTranscript = "";
