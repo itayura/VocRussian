@@ -747,6 +747,24 @@
   let isCardFlipped = false;
   let studyHistory = []; // Tracks items studied in current session: { wordId, isCorrect }
 
+  function isReverseFlashcardAnswerHidden() {
+    return currentStudyMode === "flashcard" && currentStudyReverse && !isCardFlipped;
+  }
+
+  function updateStudyAudioControls() {
+    const answerHidden = isReverseFlashcardAnswerHidden();
+    const controls = [
+      [document.getElementById("tts-normal-btn"), "Listen Russian (Normal Speed)"],
+      [document.getElementById("tts-slow-btn"), "Listen Russian (Slow Speed)"]
+    ];
+
+    controls.forEach(([button, defaultTitle]) => {
+      if (!button) return;
+      button.disabled = answerHidden;
+      button.title = answerHidden ? "Flip the card to hear the Russian answer" : defaultTitle;
+    });
+  }
+
   // --- SELECTORS ---
   const views = {
     dashboard: document.getElementById("view-dashboard"),
@@ -1578,13 +1596,13 @@
     if (normalTtsBtn) {
       normalTtsBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (currentCard) AudioEngine.speak(currentCard.word, 1.0);
+        if (currentCard && !isReverseFlashcardAnswerHidden()) AudioEngine.speak(currentCard.word, 1.0);
       });
     }
     if (slowTtsBtn) {
       slowTtsBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (currentCard) AudioEngine.speak(currentCard.word, 0.55);
+        if (currentCard && !isReverseFlashcardAnswerHidden()) AudioEngine.speak(currentCard.word, 0.55);
       });
     }
 
@@ -1876,7 +1894,7 @@
     document.getElementById("study-progress-bar").style.width = progressPercent + "%";
 
     // Stop speaking and audio play
-    if (currentStudyMode !== "writing" && currentStudyMode !== "visual") {
+    if (currentStudyMode !== "writing" && currentStudyMode !== "visual" && !isReverseFlashcardAnswerHidden()) {
       // Auto-pronounce Russian word on load
       setTimeout(() => {
         AudioEngine.speak(currentCard.word);
@@ -1895,6 +1913,8 @@
     } else if (currentStudyMode === "pronunciation") {
       setupPronunciationLayout();
     }
+
+    updateStudyAudioControls();
   }
 
   // Flashcards Setup
@@ -1996,6 +2016,7 @@
     const wrapper = document.getElementById("flashcard-click-wrapper");
     wrapper.classList.toggle("flipped");
     isCardFlipped = wrapper.classList.contains("flipped");
+    updateStudyAudioControls();
     
     AudioEngine.playFlip();
 

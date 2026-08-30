@@ -424,6 +424,31 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#fc-word-front')).not.toHaveText(firstWord);
   });
 
+  test('Reverse flashcards keep the Russian answer silent until reveal', async ({ page }) => {
+    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await page.locator('#study-filter-direction').selectOption('reverse');
+
+    await page.evaluate(() => {
+      window.__reverseFlashcardSpeech = [];
+      window.AudioEngine.speak = (text, rate = 1.0) => {
+        window.__reverseFlashcardSpeech.push({ text, rate });
+      };
+    });
+
+    await page.locator('#mode-select-flashcard').click();
+    await page.waitForTimeout(450);
+
+    await expect(page.locator('#tts-normal-btn')).toBeDisabled();
+    await expect(page.locator('#tts-slow-btn')).toBeDisabled();
+    await expect.poll(() => page.evaluate(() => window.__reverseFlashcardSpeech.length)).toBe(0);
+
+    await page.locator('#flashcard-click-wrapper').click();
+
+    await expect(page.locator('#tts-normal-btn')).toBeEnabled();
+    await expect(page.locator('#tts-slow-btn')).toBeEnabled();
+    await expect.poll(() => page.evaluate(() => window.__reverseFlashcardSpeech.length)).toBe(1);
+  });
+
   // 4. Active Writing Practice
   test('Active Writing review session Cyrillic inputs', async ({ page }) => {
     await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
