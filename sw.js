@@ -1,5 +1,5 @@
 // Privyetik Progressive Web App Service Worker
-const CACHE_NAME = "voc-russian-cache-v61";
+const CACHE_NAME = "voc-russian-cache-v62";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -9,8 +9,9 @@ const ASSETS_TO_CACHE = [
   "./delete-account.html",
   "./css/styles.css?v=48",
   "./js/config.js",
+  "./js/network.js?v=1",
   "./js/build-info.js",
-  "./js/app.js?v=4",
+  "./js/app.js?v=6",
   "./js/audio.js",
   "./js/speech.js",
   "./js/voice_answers.js",
@@ -20,9 +21,9 @@ const ASSETS_TO_CACHE = [
   "./js/db_example.js",
   "./js/visual_assets.js",
   "./js/srs.js",
-  "./js/supabase.js",
+  "./js/supabase.js?v=3",
   "./js/grammar_offline.js",
-  "./js/grammar.js",
+  "./js/grammar.js?v=2",
   "./js/alphabet.js",
   "./js/placement.js"
 ];
@@ -55,7 +56,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch Event (Network-First for code/styles to guarantee instant updates)
+// Fetch event: fast cached startup with background refreshes.
 self.addEventListener("fetch", (event) => {
   const requestUrl = new URL(event.request.url);
   const isSupabaseCdn = requestUrl.hostname === "cdn.jsdelivr.net" && requestUrl.pathname.includes("@supabase/supabase-js");
@@ -87,28 +88,46 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Network-First for HTML, CSS, JS
-  if (
-    event.request.destination === "style" ||
-    event.request.destination === "script" ||
-    event.request.destination === "document" ||
-    event.request.mode === "navigate"
-  ) {
+  // Navigation gets a short network window, then falls back to the cached app shell.
+  if (event.request.destination === "document" || event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request)
-        .then((networkResponse) => {
+      caches.open(CACHE_NAME).then(cache => {
+        const networkPromise = fetch(event.request).then(networkResponse => {
           if (networkResponse && networkResponse.status === 200) {
-            const responseClone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+            cache.put(event.request, networkResponse.clone());
           }
           return networkResponse;
-        })
-        .catch(async () => {
-          const cached = await caches.match(event.request);
-          if (cached) return cached;
-          if (event.request.mode === "navigate") return caches.match("./index.html");
-          return new Response("Offline", { status: 503, statusText: "Offline" });
-        })
+        });
+
+        return Promise.race([
+          networkPromise,
+          new Promise((resolve, reject) => setTimeout(() => reject(new Error("Navigation timeout")), 3000))
+        ]).catch(async () => {
+          const cached = await cache.match(event.request);
+          const appShell = cached ? null : await cache.match("./index.html");
+          return cached || appShell || new Response("Offline", { status: 503, statusText: "Offline" });
+        });
+      })
+    );
+    return;
+  }
+
+  // Serve cached code/styles immediately and refresh them for the next load.
+  if (event.request.destination === "style" || event.request.destination === "script") {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(async cache => {
+        const cachedResponse = await cache.match(event.request);
+        const networkPromise = fetch(event.request)
+          .then(networkResponse => {
+            if (networkResponse && networkResponse.status === 200) {
+              cache.put(event.request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => null);
+
+        return cachedResponse || await networkPromise || new Response("Offline", { status: 503, statusText: "Offline" });
+      })
     );
     return;
   }

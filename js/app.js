@@ -1,6 +1,28 @@
 // Privyetik Application Controller
 
 (function () {
+  const NETWORK_TIMEOUTS = window.PrivyetikNetwork?.TIMEOUTS || { request: 15000, auth: 10000, ai: 45000 };
+
+  function withRequestTimeout(promise, timeoutMs, message) {
+    return window.PrivyetikNetwork
+      ? window.PrivyetikNetwork.withTimeout(promise, timeoutMs, message)
+      : promise;
+  }
+
+  function fetchWithDeadline(input, init, timeoutMs = NETWORK_TIMEOUTS.request, message) {
+    return window.PrivyetikNetwork
+      ? window.PrivyetikNetwork.fetch(input, init, timeoutMs, message)
+      : window.fetch(input, init);
+  }
+
+  function readJsonWithDeadline(response) {
+    return withRequestTimeout(
+      response.json(),
+      NETWORK_TIMEOUTS.request,
+      "The response took too long to finish. Please check your connection and try again."
+    );
+  }
+
   function escapeHTML(value) {
     return String(value ?? "").replace(/[&<>'"]/g, character => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -147,9 +169,9 @@
 
     try {
       const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&q=${encodeURIComponent(textToTranslate)}`;
-      const res = await fetch(googleTranslateUrl);
+      const res = await fetchWithDeadline(googleTranslateUrl);
       if (res.ok) {
-        const data = await res.json();
+        const data = await readJsonWithDeadline(res);
         const translatedText = data && data[0] && data[0][0] && data[0][0][0]
           ? data[0][0][0].trim()
           : textToTranslate;
@@ -600,9 +622,9 @@
       try {
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=ru&tl=${nativeLang}&q=${encodeURIComponent(cleanWord)}`;
-        const response = await fetch(url);
+        const response = await fetchWithDeadline(url);
         if (!response.ok) throw new Error("Translation API error");
-        const data = await response.json();
+        const data = await readJsonWithDeadline(response);
         const translation = data && data[0] && data[0][0] && data[0][0][0] ? data[0][0][0] : "Translation not found";
         
         if (loadingEl) loadingEl.style.display = "none";
@@ -3775,15 +3797,23 @@
       return null;
     }
 
-    const { data: sessionData } = await window.SupabaseSync.client.auth.getSession();
+    const { data: sessionData } = await withRequestTimeout(
+      window.SupabaseSync.client.auth.getSession(),
+      NETWORK_TIMEOUTS.auth,
+      "Signing in took too long. Please check your connection and try again."
+    );
     const token = sessionData?.session?.access_token;
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
     const nativeLang = SRS.getSetting("nativeLanguage", "en");
-    const { data, error } = await window.SupabaseSync.client.functions.invoke("generate-sentence", {
-      body: { word, translation, partOfSpeech, nativeLanguage: nativeLang },
-      headers: headers
-    });
+    const { data, error } = await withRequestTimeout(
+      window.SupabaseSync.client.functions.invoke("generate-sentence", {
+        body: { word, translation, partOfSpeech, nativeLanguage: nativeLang },
+        headers: headers
+      }),
+      NETWORK_TIMEOUTS.ai,
+      "Example generation took too long. Please try again."
+    );
 
     if (error) {
       throw new Error(`Edge Function generate-sentence error: ${error.message || error}`);
@@ -3898,7 +3928,11 @@
     let token = null;
     if (window.SupabaseSync && window.SupabaseSync.connectionState === "connected" && window.SupabaseSync.user) {
       try {
-        const { data: sessionData } = await window.SupabaseSync.client.auth.getSession();
+        const { data: sessionData } = await withRequestTimeout(
+          window.SupabaseSync.client.auth.getSession(),
+          NETWORK_TIMEOUTS.auth,
+          "Signing in took too long. Please check your connection and try again."
+        );
         token = sessionData?.session?.access_token;
       } catch (e) {
         console.warn("Failed to get Supabase session token:", e);
@@ -3908,10 +3942,14 @@
     // Attempt Supabase Edge Function (Gemini) preview if client exists
     if (window.SupabaseSync && window.SupabaseSync.client) {
       try {
-        const { data, error } = await window.SupabaseSync.client.functions.invoke("add-word", {
-          body: { word: wordOrTranslation, nativeLanguage: nativeLang, preview: true },
-          headers: headers
-        });
+        const { data, error } = await withRequestTimeout(
+          window.SupabaseSync.client.functions.invoke("add-word", {
+            body: { word: wordOrTranslation, nativeLanguage: nativeLang, preview: true },
+            headers: headers
+          }),
+          NETWORK_TIMEOUTS.ai,
+          "Word details took too long. Please try again."
+        );
         if (!error && data && data.success) {
           // Edge may return full object or just a word string
           if (typeof data.word === "object" && data.word !== null) {
@@ -3922,8 +3960,8 @@
             const sl = isReverse ? nativeLang : "ru";
             const tl = isReverse ? "ru" : nativeLang;
             const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(data.word)}`;
-            const gtRes = await fetch(gtUrl);
-            const gtJson = await gtRes.json();
+            const gtRes = await fetchWithDeadline(gtUrl);
+            const gtJson = await readJsonWithDeadline(gtRes);
             const translation = gtJson && gtJson[0] && gtJson[0][0] && gtJson[0][0][0] ? gtJson[0][0][0].trim() : "";
             return {
               word: data.word,
@@ -3947,8 +3985,8 @@
     const tl = isReverse ? "ru" : nativeLang;
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&q=${encodeURIComponent(wordOrTranslation)}`;
     try {
-      const res = await fetch(url);
-      const json = await res.json();
+      const res = await fetchWithDeadline(url);
+      const json = await readJsonWithDeadline(res);
       const translation = json && json[0] && json[0][0] && json[0][0][0] ? json[0][0][0].trim() : "";
       if (!translation) throw new Error("No translation returned");
       return {
@@ -4032,11 +4070,11 @@
           // Fallback to simple Google Translate logic if not signed in
           const nativeLang = SRS.getSetting("nativeLanguage", "en");
           const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${nativeLang}&dt=t&q=${encodeURIComponent(word)}`;
-          const gtRes = await fetch(googleTranslateUrl);
+          const gtRes = await fetchWithDeadline(googleTranslateUrl);
           if (!gtRes.ok) {
             throw new Error("Failed to contact translation service.");
           }
-          const gtData = await gtRes.json();
+          const gtData = await readJsonWithDeadline(gtRes);
           const translation = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
             ? gtData[0][0][0].trim() 
             : "";
@@ -4138,11 +4176,11 @@
           // Fallback to simple Google Translate logic if not signed in
           const nativeLang = SRS.getSetting("nativeLanguage", "en");
           const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${nativeLang}&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
-          const gtRes = await fetch(googleTranslateUrl);
+          const gtRes = await fetchWithDeadline(googleTranslateUrl);
           if (!gtRes.ok) {
             throw new Error("Failed to contact translation service.");
           }
-          const gtData = await gtRes.json();
+          const gtData = await readJsonWithDeadline(gtRes);
           let russianWord = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
             ? gtData[0][0][0].trim() 
             : "";
@@ -4269,11 +4307,11 @@
           // Fallback to simple Google Translate logic if not signed in
           const nativeLang = SRS.getSetting("nativeLanguage", "en");
           const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=${nativeLang}&dt=t&q=${encodeURIComponent(word)}`;
-          const gtRes = await fetch(googleTranslateUrl);
+          const gtRes = await fetchWithDeadline(googleTranslateUrl);
           if (!gtRes.ok) {
             throw new Error("Failed to contact translation service.");
           }
-          const gtData = await gtRes.json();
+          const gtData = await readJsonWithDeadline(gtRes);
           const translation = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
             ? gtData[0][0][0].trim() 
             : "";
@@ -4375,11 +4413,11 @@
           // Fallback to simple Google Translate logic if not signed in
           const nativeLang = SRS.getSetting("nativeLanguage", "en");
           const googleTranslateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${nativeLang}&tl=ru&dt=t&q=${encodeURIComponent(englishText)}`;
-          const gtRes = await fetch(googleTranslateUrl);
+          const gtRes = await fetchWithDeadline(googleTranslateUrl);
           if (!gtRes.ok) {
             throw new Error("Failed to contact translation service.");
           }
-          const gtData = await gtRes.json();
+          const gtData = await readJsonWithDeadline(gtRes);
           let russianWord = gtData && gtData[0] && gtData[0][0] && gtData[0][0][0] 
             ? gtData[0][0][0].trim() 
             : "";
@@ -4611,15 +4649,23 @@
       const client = window.SupabaseSync.client;
       if (!client) throw new Error("Database client not available.");
       
-      const { data: sessionData } = await client.auth.getSession();
+      const { data: sessionData } = await withRequestTimeout(
+        client.auth.getSession(),
+        NETWORK_TIMEOUTS.auth,
+        "Signing in took too long. Please check your connection and try again."
+      );
       const token = sessionData?.session?.access_token;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       const nativeLang = SRS.getSetting("nativeLanguage", "en") || "en";
-      const { data, error } = await client.functions.invoke("ai-grammar", {
-        body: { action: "inflections", word: card.word, pos: card.pos || "noun", nativeLanguage: nativeLang },
-        headers: headers
-      });
+      const { data, error } = await withRequestTimeout(
+        client.functions.invoke("ai-grammar", {
+          body: { action: "inflections", word: card.word, pos: card.pos || "noun", nativeLanguage: nativeLang },
+          headers: headers
+        }),
+        NETWORK_TIMEOUTS.ai,
+        "Inflection generation took too long. Please try again."
+      );
 
       if (error) throw new Error(error.message || error);
       if (!data || !data.success || !data.data) throw new Error("Invalid response payload from inflections engine.");

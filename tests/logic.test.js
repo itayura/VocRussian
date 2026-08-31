@@ -47,6 +47,48 @@ function loadGrammar() {
   return context.window.GrammarManager;
 }
 
+function loadNetwork(fetchImpl = () => new Promise(() => {})) {
+  const context = {
+    window: { fetch: fetchImpl },
+    console,
+    Promise,
+    Error,
+    Number,
+    AbortController,
+    setTimeout,
+    clearTimeout
+  };
+  vm.createContext(context);
+  vm.runInContext(fs.readFileSync("js/network.js", "utf8"), context);
+  return context.window.PrivyetikNetwork;
+}
+
+test("network deadlines reject stalled operations instead of loading forever", async () => {
+  const Network = loadNetwork();
+  await assert.rejects(
+    Network.withTimeout(new Promise(() => {}), 5, "Timed out in test"),
+    error => error.name === "TimeoutError" && error.code === "REQUEST_TIMEOUT" && error.message === "Timed out in test"
+  );
+});
+
+test("timed fetches abort the underlying request", async () => {
+  let aborted = false;
+  const Network = loadNetwork((input, init) => new Promise((resolve, reject) => {
+    init.signal.addEventListener("abort", () => {
+      aborted = true;
+      const error = new Error("aborted");
+      error.name = "AbortError";
+      reject(error);
+    }, { once: true });
+  }));
+
+  await assert.rejects(
+    Network.fetch("https://example.invalid", {}, 5),
+    error => error.name === "TimeoutError" && error.code === "REQUEST_TIMEOUT"
+  );
+  assert.equal(aborted, true);
+});
+
 test("grammar catalog defines one unique 24-topic path across five groups", () => {
   assert.equal(GrammarCatalog.topics.length, 24);
   assert.equal(GrammarCatalog.groups.length, 5);

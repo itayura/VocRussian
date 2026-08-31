@@ -127,11 +127,11 @@
   
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      document.addEventListener('DOMContentLoaded', () => {
         navigator.serviceWorker.register('./sw.js')
           .then(reg => console.log('Service Worker registered successfully!', reg))
           .catch(err => console.log('Service Worker registration failed:', err));
-      });
+      }, { once: true });
     }
   </script>
 </head>
@@ -2929,10 +2929,11 @@
   </div>
 
   <!-- BOOTSTRAP SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script id="supabase-sdk" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <script src="js/network.js?v=1"></script>
   <script src="js/build-info.js"></script>
-  <script src="js/supabase.js"></script>
+  <script src="js/supabase.js?v=3"></script>
   <script src="js/db.js"></script>
   <script src="js/db_expanded.js"></script>
   <script src="js/db_example.js"></script>
@@ -2943,9 +2944,9 @@
   <script src="js/voice_answers.js"></script>
   <script src="js/grammar_topics.js"></script>
   <script src="js/grammar_offline.js"></script>
-  <script src="js/grammar.js"></script>
+  <script src="js/grammar.js?v=2"></script>
   <script src="js/alphabet.js"></script>
   <script src="js/placement.js"></script>
-  <script src="js/app.js?v=4"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

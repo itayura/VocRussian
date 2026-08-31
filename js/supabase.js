@@ -1,6 +1,14 @@
 // Privyetik Supabase Cloud Sync & Authentication Module
 
 (function () {
+  const NETWORK_TIMEOUTS = window.PrivyetikNetwork?.TIMEOUTS || { request: 15000, auth: 10000 };
+
+  function withRequestTimeout(promise, timeoutMs, message) {
+    return window.PrivyetikNetwork
+      ? window.PrivyetikNetwork.withTimeout(promise, timeoutMs, message)
+      : promise;
+  }
+
   const CONFIG = {
     URL: window.PRIVYETIK_CONFIG.supabaseUrl,
     KEY: window.PRIVYETIK_CONFIG.supabasePublishableKey
@@ -21,15 +29,37 @@
     autoSyncRetryTimeout: null,
     autoSyncRetryCount: 0,
     pendingAutoSync: false,
+    initializationPromise: null,
 
-    init: async function () {
+    init: function () {
+      if (this.client && this.connectionState === "connected") return Promise.resolve(true);
+      if (this.initializationPromise) return this.initializationPromise;
+      const attempt = this.initializeConnection();
+      const trackedAttempt = attempt.finally(() => {
+        if (this.initializationPromise === trackedAttempt) this.initializationPromise = null;
+      });
+      this.initializationPromise = trackedAttempt;
+      return trackedAttempt;
+    },
+
+    initializeConnection: async function () {
       console.log("[SupabaseSync] init() started using URL:", CONFIG.URL);
       this.connectionState = "connecting";
       this.updateUI();
 
       try {
+        if (!window.supabase || typeof window.supabase.createClient !== "function") {
+          console.info("[SupabaseSync] SDK is still loading; cloud features will connect when it is ready.");
+          this.connectionState = "disconnected";
+          this.updateUI();
+          return false;
+        }
         this.client = window.supabase.createClient(CONFIG.URL, CONFIG.KEY);
-        const { data, error } = await this.client.auth.getSession();
+        const { data, error } = await withRequestTimeout(
+          this.client.auth.getSession(),
+          NETWORK_TIMEOUTS.auth,
+          "Connecting to your account took too long. Please check your connection and try again."
+        );
         if (error) throw error;
         
         this.connectionState = "connected";
@@ -82,24 +112,33 @@
       }
       
       this.updateUI();
+      return this.connectionState === "connected";
     },
 
     signUp: async function (email, password) {
       if (!this.client) throw new Error("Database not connected.");
-      const { data, error } = await this.client.auth.signUp({
-        email: email.trim(),
-        password: password
-      });
+      const { data, error } = await withRequestTimeout(
+        this.client.auth.signUp({
+          email: email.trim(),
+          password: password
+        }),
+        NETWORK_TIMEOUTS.request,
+        "Registration took too long. Please check your connection and try again."
+      );
       if (error) throw error;
       return data;
     },
 
     signIn: async function (email, password) {
       if (!this.client) throw new Error("Database not connected.");
-      const { data, error } = await this.client.auth.signInWithPassword({
-        email: email.trim(),
-        password: password
-      });
+      const { data, error } = await withRequestTimeout(
+        this.client.auth.signInWithPassword({
+          email: email.trim(),
+          password: password
+        }),
+        NETWORK_TIMEOUTS.request,
+        "Sign-in took too long. Please check your connection and try again."
+      );
       if (error) throw error;
       return data;
     },
@@ -929,4 +968,12 @@
   };
 
   window.SupabaseSync = SupabaseSync;
+
+  const supabaseSdk = document.getElementById("supabase-sdk");
+  if (supabaseSdk) {
+    supabaseSdk.addEventListener("load", () => SupabaseSync.init(), { once: true });
+    supabaseSdk.addEventListener("error", () => {
+      console.warn("[SupabaseSync] Cloud SDK could not be loaded; offline learning remains available.");
+    }, { once: true });
+  }
 })();

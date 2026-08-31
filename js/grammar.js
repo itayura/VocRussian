@@ -1,6 +1,14 @@
 // Privyetik Grammar Learning Manager
 
 (function () {
+  const NETWORK_TIMEOUTS = window.PrivyetikNetwork?.TIMEOUTS || { auth: 10000, ai: 45000 };
+
+  function withRequestTimeout(promise, timeoutMs, message) {
+    return window.PrivyetikNetwork
+      ? window.PrivyetikNetwork.withTimeout(promise, timeoutMs, message)
+      : promise;
+  }
+
   // Fallback for setRevealableText helper (useful if app.js is served cached)
   if (!window.setRevealableText) {
     window.setRevealableText = function (elementId, text) {
@@ -1396,17 +1404,25 @@
 
       try {
         const client = window.SupabaseSync.client;
-        const { data: sessionData } = await client.auth.getSession();
+        const { data: sessionData } = await withRequestTimeout(
+          client.auth.getSession(),
+          NETWORK_TIMEOUTS.auth,
+          "Signing in took too long. Please check your connection and try again."
+        );
         const token = sessionData?.session?.access_token;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const vocabList = this.getActiveVocabWords();
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
 
-        const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topicParam, topicIds: checkedTopics, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
-          headers: headers
-        });
+        const { data, error } = await withRequestTimeout(
+          client.functions.invoke("ai-grammar", {
+            body: { action: "quiz", topic: topicParam, topicIds: checkedTopics, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
+            headers: headers
+          }),
+          NETWORK_TIMEOUTS.ai,
+          "Quiz generation took too long. Please try again."
+        );
 
         if (error) throw new Error(error.message || error);
         if (!data?.success || !Array.isArray(data?.data?.questions)) throw new Error("Invalid prefetch questions payload.");
@@ -1888,16 +1904,24 @@
 
       try {
         const client = window.SupabaseSync.client;
-        const { data: sessionData } = await client.auth.getSession();
+        const { data: sessionData } = await withRequestTimeout(
+          client.auth.getSession(),
+          NETWORK_TIMEOUTS.auth,
+          "Signing in took too long. Please check your connection and try again."
+        );
         const token = sessionData?.session?.access_token;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke explain Deno edge function
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
-        const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "explain", topic: topicId, nativeLanguage: nativeLang },
-          headers: headers
-        });
+        const { data, error } = await withRequestTimeout(
+          client.functions.invoke("ai-grammar", {
+            body: { action: "explain", topic: topicId, nativeLanguage: nativeLang },
+            headers: headers
+          }),
+          NETWORK_TIMEOUTS.ai,
+          "Lesson generation took too long. Please try again."
+        );
 
         if (error) throw new Error(error.message || error);
         if (!data || !data.success) throw new Error("Failed to receive explanation payload.");
@@ -2060,17 +2084,25 @@
 
       try {
         const client = window.SupabaseSync.client;
-        const { data: sessionData } = await client.auth.getSession();
+        const { data: sessionData } = await withRequestTimeout(
+          client.auth.getSession(),
+          NETWORK_TIMEOUTS.auth,
+          "Signing in took too long. Please check your connection and try again."
+        );
         const token = sessionData?.session?.access_token;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
         const vocabList = this.getActiveVocabWords();
         
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
-        const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "quiz", topic: topicParam, topicIds: checkedTopics, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
-          headers: headers
-        });
+        const { data, error } = await withRequestTimeout(
+          client.functions.invoke("ai-grammar", {
+            body: { action: "quiz", topic: topicParam, topicIds: checkedTopics, cefr: cefr, count: count, vocab: vocabList, nativeLanguage: nativeLang },
+            headers: headers
+          }),
+          NETWORK_TIMEOUTS.ai,
+          "Quiz generation took too long. Please try again."
+        );
 
         if (error) throw new Error(error.message || error);
         if (!data?.success || !Array.isArray(data?.data?.questions)) throw new Error("Failed to receive valid questions payload.");
@@ -3390,16 +3422,24 @@
 
       try {
         const client = window.SupabaseSync.client;
-        const { data: sessionData } = await client.auth.getSession();
+        const { data: sessionData } = await withRequestTimeout(
+          client.auth.getSession(),
+          NETWORK_TIMEOUTS.auth,
+          "Signing in took too long. Please check your connection and try again."
+        );
         const token = sessionData?.session?.access_token;
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
         // Invoke Deno edge function analyze-sentence
         const nativeLang = window.SRS ? window.SRS.getSetting("nativeLanguage", "en") : "en";
-        const { data, error } = await client.functions.invoke("ai-grammar", {
-          body: { action: "analyze", sentence: input, nativeLanguage: nativeLang },
-          headers: headers
-        });
+        const { data, error } = await withRequestTimeout(
+          client.functions.invoke("ai-grammar", {
+            body: { action: "analyze", sentence: input, nativeLanguage: nativeLang },
+            headers: headers
+          }),
+          NETWORK_TIMEOUTS.ai,
+          "Writing analysis took too long. Please try again."
+        );
 
         if (error) throw new Error(error.message || error);
         if (!data || !data.success) throw new Error("Failed to receive writing feedback payload.");
