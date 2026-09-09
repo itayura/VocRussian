@@ -4,6 +4,74 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const GrammarCatalog = require("../js/grammar_topics.js");
+const Journey = require("../js/learning_journey.js");
+
+test("daily missions balance due, tricky and new words without hidden cards or duplicates", () => {
+  const now = Date.now();
+  const words = Array.from({ length: 15 }, (_, i) => ({ id: `m${i}` }));
+  const progress = {};
+  for (let i = 0; i < 6; i++) progress[`m${i}`] = { correctCount: 1, nextReview: now - 1000, reviewEvents: [{ at: now - 2000, correct: true }] };
+  for (let i = 6; i < 9; i++) progress[`m${i}`] = { wrongCount: 1, nextReview: now + Journey.DAY, reviewEvents: [{ at: now - i, correct: false }] };
+  progress.m14 = { hidden: true };
+  const plan = Journey.mission(words, progress, now);
+  assert.deepEqual(plan.counts, { review: 4, tricky: 2, fresh: 2 });
+  assert.equal(new Set(plan.items.map(i => i.id)).size, 8);
+  assert.ok(!plan.items.some(i => i.id === "m14"));
+  assert.equal(Journey.mission([], {}, now).items.length, 0);
+  assert.equal(Journey.mission([{ id: "hidden" }], { hidden: { hidden: true } }, now).items.length, 0);
+});
+
+test("weekly learning evidence requires later recall and excludes future and stale events", () => {
+  const now = new Date(2026, 8, 8, 12).getTime();
+  const day = Journey.DAY;
+  const summary = Journey.weekly({
+    recalled: { reviewEvents: [{ at: now - 4 * day, correct: true }, { at: now - day, correct: true, mode: "flashcard" }] },
+    recovered: { reviewEvents: [{ at: now - day, correct: false }, { at: now - 1000, correct: true, mode: "writing" }] },
+    revealed: { reviewEvents: [{ at: now - 100, correct: false }] },
+    stale: { reviewEvents: [{ at: now - 10 * day, correct: true }] },
+    future: { reviewEvents: [{ at: now + day, correct: true }] }
+  }, { dailyXpLog: { "2026-09-08": 20, "2026-09-01": 50 } }, now);
+  assert.equal(summary.remembered, 1);
+  assert.equal(summary.recovered, 1);
+  assert.equal(summary.practiced, 3);
+  assert.equal(summary.activeDays, 1);
+  assert.deepEqual(summary.skills, ["flashcard", "writing"]);
+});
+
+test("replaying a session review cannot duplicate XP or review evidence", () => {
+  const { SRS } = loadSRS();
+  const first = SRS.scoreCard("w1", true, "good", { reviewId: "session:0", mode: "flashcard" });
+  const second = SRS.scoreCard("w1", false, "hard", { reviewId: "session:0", mode: "flashcard" });
+  assert.equal(first.xpGained, 15);
+  assert.equal(second.xpGained, 0);
+  assert.equal(SRS.getStatsSummary().totalAttempts, 1);
+  assert.equal(SRS.getCardProgress("w1").reviewEvents.length, 1);
+  assert.equal(SRS.getCardProgress("w1").reviewEvents[0].correct, true);
+});
+
+test("weekly skills include repeated challenges even when no additional XP is earned", () => {
+  const now = Date.now();
+  const summary = Journey.weekly({}, { settings: { journeyChallenges: { cafe: { completedAt: now - 1000 } } } }, now);
+  assert.deepEqual(summary.skills, ["challenge"]);
+  assert.equal(summary.activeDays, 0);
+  assert.equal(summary.practiced, 0);
+});
+
+test("invalid saved sessions are ignored and Russian challenge answers tolerate punctuation", () => {
+  for (const raw of ["bad-json", "null", JSON.stringify({ version: 1, ids: [] })]) {
+    assert.equal(Journey.readSession(makeStorage({ [Journey.SESSION_KEY]: raw })), null);
+  }
+  assert.equal(Journey.normalizeAnswer("  МОЖНО кофе, пожалуйста? "), "можно кофе пожалуйста");
+  assert.equal(Journey.normalizeAnswer("Где вокза́л?"), "где вокзал");
+  const context = { window: {} }; vm.createContext(context);
+  vm.runInContext(fs.readFileSync("js/challenges.js", "utf8"), context);
+  assert.equal(context.window.RussianChallenges.length, 3);
+  for (const challenge of context.window.RussianChallenges) {
+    assert.ok(challenge.phrases.length >= 3);
+    assert.ok(challenge.questions.some(q => !q.choices));
+    for (const q of challenge.questions) if (q.choices) assert.equal(q.choices.filter(a => a === q.answer).length, 1);
+  }
+});
 
 function makeStorage(initial = {}) {
   const values = new Map(Object.entries(initial));

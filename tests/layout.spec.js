@@ -1,9 +1,10 @@
+const { navigateTo } = require('./helpers/navigation');
 const { test, expect } = require('@playwright/test');
 
 test.describe('Privyetik Layout & Responsive Test Suite', () => {
 
   async function mockLogin(page) {
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
+    await navigateTo(page, 'sync'); // Account tab
     await page.locator('#supabase-email').fill('learner@example.com');
     await page.locator('#supabase-password').fill('securepassword123');
     await page.locator('#supabase-auth-submit-btn').click();
@@ -195,7 +196,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
 
     const aside = page.locator('aside');
     const main = page.locator('main');
-    const firstNavLabel = page.locator('.nav-item button span').first();
+    const firstNavLabel = page.locator('.nav-item[data-target="dashboard"] button span');
 
     if (isMobile) {
       // Bottom Navigation Bar Layout
@@ -267,23 +268,21 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     }
   });
 
-  test('Mobile navigation reveals and centers features outside the first tab group', async ({ page }) => {
-    const viewport = page.viewportSize();
-    if (!viewport || viewport.width > 768) return;
-
+  test('Mobile navigation keeps primary tabs visible and opens secondary destinations', async ({ page }) => {
+    if (page.viewportSize().width > 768) return;
     const nav = page.locator('aside nav');
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
-    await expect.poll(() => nav.evaluate(element => element.scrollLeft)).toBeGreaterThan(0);
-
-    const navBox = await nav.boundingBox();
-    const settingsBox = await page.locator('.nav-item[data-target="settings"]').boundingBox();
-    expect(navBox).not.toBeNull();
-    expect(settingsBox).not.toBeNull();
-    expect(settingsBox.x).toBeGreaterThanOrEqual(navBox.x - 1);
-    expect(settingsBox.x + settingsBox.width).toBeLessThanOrEqual(navBox.x + navBox.width + 1);
-
-    await page.locator('.nav-item[data-target="landing"]').click({ force: true });
-    await expect.poll(() => nav.evaluate(element => element.scrollLeft)).toBe(0);
+    expect(await nav.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+    await navigateTo(page, 'settings');
+    await expect(page.locator('#view-settings')).toBeVisible();
+    await expect(page.locator('#mobile-more-dialog')).not.toBeVisible();
+    await expect(page.locator('#mobile-more-btn')).toHaveClass(/active/);
+    await navigateTo(page, 'landing');
+    await expect(page.locator('#view-landing')).toBeVisible();
+    await page.locator('#mobile-more-btn').click();
+    await expect(page.locator('#mobile-more-btn')).toHaveAttribute('aria-expanded', 'true');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#mobile-more-dialog')).not.toBeVisible();
+    await expect(page.locator('#mobile-more-btn')).toBeFocused();
   });
 
   // 3. Study Mode Selection & SRS Card Layout
@@ -292,7 +291,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     const isMobile = viewport && viewport.width <= 768;
 
     // Navigate to Study Mode selection page
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await expect(page.locator('#view-study-select')).toHaveClass(/active/);
 
     // Verify study mode selector options display
@@ -325,7 +324,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     const isMobile = viewport && viewport.width <= 768;
 
     // Navigate to Dictionary view
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
     await expect(page.locator('#view-dictionary')).toHaveClass(/active/);
 
     const filterBar = page.locator('#view-dictionary > .dictionary-filter-bar');
@@ -334,6 +333,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     // Retrieve input selectors inside filter bar
     const searchInput = page.locator('#dict-search');
     const filterDbSelect = page.locator('#dict-filter-db');
+    if (await page.locator('#dict-toggle-filters-btn').isVisible()) await page.locator('#dict-toggle-filters-btn').click();
     const filterCategorySelect = page.locator('#dict-filter-category');
 
     const searchBox = await searchInput.boundingBox();
@@ -366,7 +366,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to Grammar Workspace
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await expect(page.locator('#view-grammar')).toHaveClass(/active/);
     await page.locator('#grammar-tab-tutor').click();
 
@@ -406,7 +406,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to Grammar Workspace -> Practice Arena
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-tab-practice').click();
     await page.locator('#practice-customize-details > summary').click();
 
@@ -428,7 +428,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     const viewport = page.viewportSize();
     const isMobile = viewport && viewport.width <= 768;
 
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     const grammarView = page.locator('#view-grammar');
     await expect(grammarView).toBeVisible();
     const overflow = await grammarView.evaluate(element => element.scrollWidth - element.clientWidth);
@@ -487,7 +487,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   // 7. Settings view layout
   test('Settings workspace display panels', async ({ page }) => {
     // Navigate to Settings
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     await expect(page.locator('#view-settings')).toHaveClass(/active/);
 
     const themeSelect = page.locator('#settings-theme');
@@ -500,7 +500,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     if (!viewport) return;
 
     // Navigate to Dictionary view
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
 
     // Trigger modal
     await page.locator('#dict-add-word-btn').click();
@@ -536,7 +536,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     if (!viewport) return;
 
     // Trigger custom alert by navigating to Sync tab and clicking submit with empty fields
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+    await navigateTo(page, 'sync');
     await page.locator('#supabase-auth-submit-btn').click();
 
     const alertModal = page.locator('#custom-alert-modal');
@@ -593,7 +593,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar -> Practice Arena
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-tab-practice').click();
 
     // Start quiz
@@ -621,7 +621,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   // 12. Theme switch modifies CSS custom variables
   test('Theme switcher dynamically alters body CSS variables', async ({ page }) => {
     // Navigate to Settings
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
 
     // Get default color-primary custom variable
     const defaultColor = await page.evaluate(() => {
@@ -640,7 +640,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   });
 
   test('Study badges and flashcard actions stay inside their mobile cards', async ({ page }) => {
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await page.locator('#mode-select-choice').click();
 
     const questionBox = await page.locator('#study-sub-choice .choice-question-box').boundingBox();
@@ -656,8 +656,9 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
     expect(choiceHorizontalOverlap * choiceVerticalOverlap).toBe(0);
 
     await page.locator('#study-quit-btn').click();
-    await page.locator('#custom-confirm-ok-btn').click();
+    await navigateTo(page, 'study-select');
     await page.locator('#mode-select-flashcard').click();
+    await page.locator('#custom-confirm-ok-btn').click();
 
     const flashcardCategory = await page.locator('#fc-category-front').boundingBox();
     const pronounceButton = await page.locator('#fc-pronounce-btn').boundingBox();
@@ -669,7 +670,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   });
 
   test('Grammar status badges remain in their own exercise panels', async ({ page }) => {
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-open-aspects-btn').click();
 
     const aspectsPanel = await page.locator('#grammar-subview-aspects').boundingBox();
@@ -709,7 +710,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   });
 
   test('Mobile dialogs stack above the persistent bottom navigation', async ({ page }) => {
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
     await page.locator('#dict-add-word-btn').click();
 
     const layers = await page.evaluate(() => ({
@@ -721,7 +722,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
 
   test('Account credentials stay inside the cloud-sync card on narrow screens', async ({ page }) => {
     const viewport = page.viewportSize();
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+    await navigateTo(page, 'sync');
 
     const operations = await page.locator('#supabase-operations-panel').boundingBox();
     const email = await page.locator('#supabase-email').boundingBox();
@@ -739,18 +740,18 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   });
 
   test('Changing views resets the document scroll position', async ({ page }) => {
-    await page.locator('.nav-item[data-target="alphabet"]').click({ force: true });
+    await navigateTo(page, 'alphabet');
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     expect(await page.evaluate(() => document.scrollingElement.scrollTop)).toBeGreaterThan(0);
 
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     await expect(page.locator('#view-settings')).toHaveClass(/active/);
     await expect.poll(() => page.evaluate(() => document.scrollingElement.scrollTop)).toBe(0);
   });
 
   test('Alphabet typing game keeps Cyrillic keys touch-sized on mobile', async ({ page }) => {
     const viewport = page.viewportSize();
-    await page.locator('.nav-item[data-target="alphabet"]').click({ force: true });
+    await navigateTo(page, 'alphabet');
     await page.locator('#alphabet-quiz-btn').click();
     await page.locator('#game-mode-typing').click();
 
@@ -767,7 +768,7 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
   });
 
   test('One-card study sessions finish with a usable mobile summary', async ({ page }) => {
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await page.locator('#study-deck-size').fill('1');
     await page.locator('#mode-select-flashcard').click();
     await page.locator('#flashcard-click-wrapper').click();
@@ -790,10 +791,10 @@ test.describe('Privyetik Layout & Responsive Test Suite', () => {
 
 
   test('browser history returns to the previous app view', async ({ page }) => {
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
     await expect(page.locator('#view-dictionary')).toHaveClass(/active/);
 
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     await expect(page.locator('#view-settings')).toHaveClass(/active/);
 
     await page.goBack();

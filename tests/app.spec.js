@@ -1,9 +1,10 @@
+const { navigateTo } = require('./helpers/navigation');
 const { test, expect } = require('@playwright/test');
 
 test.describe('Privyetik E2E Test Suite', () => {
   
   async function mockLogin(page) {
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
+    await navigateTo(page, 'sync'); // Account tab
     await page.locator('#supabase-email').fill('learner@example.com');
     await page.locator('#supabase-password').fill('securepassword123');
     await page.locator('#supabase-auth-submit-btn').click();
@@ -319,7 +320,7 @@ test.describe('Privyetik E2E Test Suite', () => {
       localStorage.removeItem('voc_onboarding_completed_v1');
     });
     await page.reload();
-    await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
+    await navigateTo(page, 'dashboard');
 
     await expect(page.locator('#view-dashboard')).toHaveClass(/active/);
     await expect(page.locator('#onboarding-modal')).not.toHaveClass(/active/);
@@ -375,7 +376,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#tutor-explanation-content')).toContainText('Dative Case (Дательный падеж)');
 
     // Perform successful mock login
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true }); // Account tab
+    await navigateTo(page, 'sync'); // Account tab
     await page.locator('#supabase-email').fill('learner@example.com');
     await page.locator('#supabase-password').fill('securepassword123');
     await page.locator('#supabase-auth-submit-btn').click();
@@ -386,7 +387,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#supabase-user-email')).toHaveText('learner@example.com');
 
     // Navigating back to grammar and clicking a topic should successfully load the lesson explanation without showing the guest CTA
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await selectGrammarTopic(page, 'dative_case');
     await expect(page.locator('#modal-grammar-cta')).not.toHaveClass(/active/);
@@ -396,7 +397,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   // 3. Leitner Study (Flashcards)
   test('Leitner Flashcard study flow and box transitions', async ({ page }) => {
     // Navigate to vocabulary tab
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     
     // Select flashcard mode (starts study session automatically)
     await page.locator('#mode-select-flashcard').click();
@@ -425,7 +426,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Reverse flashcards keep the Russian answer silent until reveal', async ({ page }) => {
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await page.locator('#study-filter-direction').selectOption('reverse');
 
     await page.evaluate(() => {
@@ -451,7 +452,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
   // 4. Active Writing Practice
   test('Active Writing review session Cyrillic inputs', async ({ page }) => {
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     // Select writing mode (starts study session automatically)
     await page.locator('#mode-select-writing').click();
 
@@ -460,7 +461,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Multiple-choice answers can be selected by speaking', async ({ page }) => {
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await page.locator('#mode-select-choice').click();
 
     const choices = page.locator('#choices-container .choice-btn');
@@ -494,7 +495,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     // Log in to enable AI autofill sentences
     await mockLogin(page);
 
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
 
     // Search query
     await page.locator('#dict-search').fill('книга');
@@ -537,7 +538,7 @@ test.describe('Privyetik E2E Test Suite', () => {
 
   // 6. Theme and Settings Persistence
   test('Theme settings changes persist on reload', async ({ page }) => {
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     
     // Check initial theme
     await expect(page.locator('body')).not.toHaveClass(/theme-emerald/);
@@ -557,7 +558,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
 
     // The organized overview is the starting point; Learn is one explicit destination.
     await expect(page.locator('#grammar-tab-home')).toHaveClass(/active/);
@@ -571,7 +572,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Grammar overview exposes a grouped path and a structured lesson flow', async ({ page }) => {
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
 
     await expect(page.locator('#grammar-subview-home')).toBeVisible();
     await expect(page.locator('.grammar-primary-tab:visible')).toHaveCount(4);
@@ -606,7 +607,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Grammar tools stay contextual and writing clear supports undo', async ({ page }) => {
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
 
     await page.locator('#grammar-open-aspects-btn').click();
     await expect(page.locator('#grammar-subview-aspects')).toBeVisible();
@@ -626,7 +627,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Quick practice starts in one action and saves mistakes for review', async ({ page }) => {
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.evaluate(() => {
       window.GrammarOffline.getQuestions = () => Array.from({ length: 5 }, (_, index) => ({
         id: `roadmap-question-${index}`,
@@ -664,7 +665,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace -> Practice Arena subtab
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await page.locator('#grammar-tab-practice').click();
 
@@ -735,11 +736,11 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('AI Grammar Practice Arena refreshes mastery when returning to the page', async ({ page }) => {
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-tab-practice').click();
     await expect(page.locator('#practice-target-mastery-val')).toHaveText('0%');
 
-    await page.locator('.nav-item[data-target="dashboard"]').click({ force: true });
+    await navigateTo(page, 'dashboard');
     await page.evaluate(() => {
       window.GrammarManager.setGrammarProgressMap({
         nominative_case_A1: {
@@ -755,7 +756,7 @@ test.describe('Privyetik E2E Test Suite', () => {
       });
     });
 
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await expect(page.locator('#practice-target-mastery-val')).not.toHaveText('0%');
   });
 
@@ -765,7 +766,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to AI Grammar Workspace -> Sandbox subtab
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-tab-sandbox').click();
 
     // Enter text and analyze
@@ -785,7 +786,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await mockLogin(page);
 
     // Navigate to Practice Arena
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-tab-practice').click();
     await page.locator('#practice-quick-start-btn').click();
 
@@ -828,7 +829,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     });
 
     // Navigate to AI Grammar -> AI Tutor, trigger explain action
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await page.locator('#grammar-engine-mode-select').selectOption('ai');
     await selectGrammarTopic(page, 'dative_case');
 
@@ -870,7 +871,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await mockLogin(page);
 
     // 2. Navigate to Dictionary tab
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
     await expect(page.locator('#view-dictionary')).toHaveClass(/active/);
 
     // 3. Search for "книга" in Dictionary search input
@@ -899,7 +900,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await mockLogin(page);
 
     // 2. Navigate to Dictionary tab
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
 
     // 3. Open Custom Word modal
     await page.locator('#dict-add-word-btn').click();
@@ -1080,7 +1081,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(banner).toBeVisible();
 
     // 7. Retake test to apply seeding
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     await page.locator('#settings-placement-test-btn').click();
     await expect(page.locator('#modal-placement-test')).toBeVisible();
     await page.locator('#placement-start-test-btn').click();
@@ -1112,7 +1113,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await expect(page.locator('#sidebar-xp-val')).toHaveText('2000');
 
     // 8. Go to Settings and verify restore backup is visible
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     
     const restoreRow = page.locator('#settings-restore-placement-backup-row');
     await expect(restoreRow).toBeVisible();
@@ -1149,11 +1150,11 @@ test.describe('Privyetik E2E Test Suite', () => {
   test('Visual Recall Mode: universal access, mnemonic art, and translated recall cue', async ({ page }) => {
     // 1. Visual Recall is available by default for a fresh signed-out visitor.
     await page.goto('http://localhost:8080');
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await expect(page.locator('#mode-select-visual')).toBeVisible();
 
     // 2. Go to Settings and verify Visual Theme selector is visible
-    await page.locator('.nav-item[data-target="settings"]').click({ force: true });
+    await navigateTo(page, 'settings');
     const visualThemeRow = page.locator('#settings-visual-theme-row');
     await expect(visualThemeRow).toBeVisible();
     
@@ -1183,7 +1184,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await visualThemeSelect.selectOption('memory');
 
     // 3. Start Visual Recall session
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     await page.locator('#mode-select-visual').click();
     await expect(page.locator('#view-study-active')).toHaveClass(/active/);
     await expect(page.locator('#study-sub-visual')).toBeVisible();
@@ -1234,10 +1235,10 @@ test.describe('Privyetik E2E Test Suite', () => {
 
     // 6. Expanded visual sessions include the published generated images.
     await page.locator('#study-quit-btn').click();
-    await expect(page.locator('#custom-confirm-modal')).toHaveClass(/active/);
-    await page.locator('#custom-confirm-ok-btn').click();
+    await navigateTo(page, 'study-select');
     await page.locator('#study-filter-db').selectOption('expanded');
     await page.locator('#mode-select-visual').click();
+    await page.locator('#custom-confirm-ok-btn').click();
     await expect(page.locator('#view-study-active')).toHaveClass(/active/);
     await expect(page.locator('#study-sub-visual')).toBeVisible();
     const expandedImg = page.locator('#visual-img-front');
@@ -1251,7 +1252,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   test('Example Deck: selection in dictionary and study views, cards rendering', async ({ page }) => {
     await page.goto('http://localhost:8080');
     // Navigate to dictionary
-    await page.locator('.nav-item[data-target="dictionary"]').click({ force: true });
+    await navigateTo(page, 'dictionary');
     
     // Check dict deck selector includes Example Deck
     const dictDeckSelect = page.locator('#dict-filter-db');
@@ -1265,7 +1266,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     expect(count).toBeGreaterThanOrEqual(40);
 
     // Switch to Study selection
-    await page.locator('.nav-item[data-target="study-select"]').click({ force: true });
+    await navigateTo(page, 'study-select');
     const studyDeckSelect = page.locator('#study-filter-db');
     await expect(studyDeckSelect).toHaveValue('example');
   });
@@ -1275,7 +1276,7 @@ test.describe('Privyetik E2E Test Suite', () => {
     await page.goto('http://localhost:8080?feature_offline_grammar=1');
 
     // 2. Navigate to Grammar Tab
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
 
     // Verify engine selector is visible in header
     const engineSelector = page.locator('#grammar-engine-selector-container');
@@ -1374,16 +1375,16 @@ test.describe('Privyetik E2E Test Suite', () => {
     });
     await page.reload();
 
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await expect(page.locator('#grammar-engine-selector-container')).toBeVisible();
 
-    await page.locator('.nav-item[data-target="sync"]').click({ force: true });
+    await navigateTo(page, 'sync');
     await page.locator('#supabase-email').fill('itayura@gmail.com');
     await page.locator('#supabase-password').fill('securepassword123');
     await page.locator('#supabase-auth-submit-btn').click();
     await page.locator('#custom-alert-ok-btn').click();
 
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await expect(page.locator('#grammar-engine-selector-container')).toBeVisible();
     await expect(page.locator('#grammar-engine-mode-select')).toHaveValue('offline');
 
@@ -1396,7 +1397,7 @@ test.describe('Privyetik E2E Test Suite', () => {
   });
 
   test('Verb Aspects Hub provides 5 interactive training modes and filter explorer', async ({ page }) => {
-    await page.locator('.nav-item[data-target="grammar"]').click({ force: true });
+    await navigateTo(page, 'grammar');
     await expect(page.locator('#grammar-open-aspects-btn')).toBeVisible();
     await expect(page.locator('#grammar-tab-aspects')).toBeHidden();
 

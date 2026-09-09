@@ -14,7 +14,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Privyetik - Learn Russian</title>
   <meta name="description" content="A premium, local language learning app to master Russian grammar case system, alphabet, and vocabulary.">
-  <link rel="stylesheet" href="css/styles.css?v=48">
+  <link rel="stylesheet" href="css/styles.css?v=50">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b0f19">
   
@@ -23,106 +23,6 @@
       to { transform: rotate(360deg); }
     }
     
-    @media (max-width: 1024px), (pointer: coarse) {
-      html, body {
-        min-height: 100% !important;
-        overflow-x: hidden !important;
-        position: relative !important;
-      }
-      #app-container {
-        min-height: 100vh !important;
-        display: block !important;
-        width: 100% !important;
-        overflow-x: hidden !important;
-      }
-      aside {
-        position: fixed !important;
-        top: auto !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        height: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-        flex-direction: row !important;
-        padding-top: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        border-right: none !important;
-        border-top: 2px solid #3BBFB2 !important;
-        background: #0b0f19 !important;
-        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6) !important;
-        align-items: center !important;
-        z-index: 999999 !important;
-        display: flex !important;
-      }
-      .logo-container, .sidebar-footer {
-        display: none !important;
-      }
-      aside nav {
-        width: 100% !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-      }
-      aside nav::-webkit-scrollbar {
-        display: none !important;
-      }
-      .nav-links {
-        flex-direction: row !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-around !important;
-        width: 100% !important;
-        min-width: max-content !important;
-        gap: 0.15rem !important;
-        padding: 0 0.25rem env(safe-area-inset-bottom, 0px) 0.25rem !important;
-        margin: 0 !important;
-        list-style: none !important;
-      }
-      .nav-item {
-        flex-shrink: 0 !important;
-      }
-      .nav-item button {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0.35rem 0.5rem !important;
-        gap: 3px !important;
-        color: #8a99ad !important;
-        background: transparent !important;
-        border: none !important;
-        font-size: 0.65rem !important;
-        font-weight: 600 !important;
-        border-radius: 8px !important;
-        cursor: pointer !important;
-      }
-      .nav-item.active button {
-        color: #3BBFB2 !important;
-        background: rgba(59, 191, 178, 0.12) !important;
-      }
-      .nav-item button span {
-        display: block !important;
-        font-size: 0.65rem !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-      }
-      .nav-item button svg {
-        width: 20px !important;
-        height: 20px !important;
-      }
-      main {
-        margin-left: 0 !important;
-        padding: 1.25rem 1.25rem calc(80px + env(safe-area-inset-bottom, 0px)) 1.25rem !important;
-        width: 100% !important;
-        min-height: 100vh !important;
-        overflow-x: hidden !important;
-      }
-    }
   </style>
   
   <script>
@@ -137,6 +37,10 @@
 </head>
 <body>
   
+  <dialog id="mobile-more-dialog" class="mobile-more-dialog" aria-labelledby="mobile-more-title">
+    <div class="mobile-more-heading"><div><p class="section-eyebrow">PRIVYETIK</p><h2 id="mobile-more-title">Keep exploring</h2></div><button id="mobile-more-close" class="btn btn-icon btn-secondary" aria-label="Close navigation">✕</button></div>
+    <nav id="mobile-more-links" aria-label="More destinations"></nav>
+  </dialog>
   <div id="app-container">
     <!-- SIDEBAR NAVIGATION -->
     <aside>
@@ -150,9 +54,9 @@
         <div class="logo-text">Privyetik</div>
       </div>
       
-      <nav>
+      <nav aria-label="Main navigation">
         <ul class="nav-links">
-          <li class="nav-item" data-target="landing">
+          <li class="nav-item nav-secondary" data-target="landing">
             <button id="nav-btn-landing">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -200,7 +104,7 @@
               <span>Grammar</span>
             </button>
           </li>
-          <li class="nav-item" data-target="sync">
+          <li class="nav-item nav-secondary" data-target="sync">
             <button id="nav-btn-sync">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -209,7 +113,7 @@
               <span>Account</span>
             </button>
           </li>
-          <li class="nav-item" data-target="stats">
+          <li class="nav-item nav-secondary" data-target="stats">
             <button id="nav-btn-stats">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"></line>
@@ -219,7 +123,7 @@
               <span>Stats</span>
             </button>
           </li>
-          <li class="nav-item" data-target="alphabet">
+          <li class="nav-item nav-secondary" data-target="alphabet">
             <button id="nav-btn-alphabet">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -229,13 +133,19 @@
               <span>Alphabet</span>
             </button>
           </li>
-          <li class="nav-item" data-target="settings">
+          <li class="nav-item nav-secondary" data-target="settings">
             <button id="nav-btn-settings">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
               </svg>
               <span>Settings</span>
+            </button>
+          </li>
+          <li class="mobile-more-item">
+            <button id="mobile-more-btn" type="button" aria-haspopup="dialog" aria-controls="mobile-more-dialog" aria-expanded="false">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+              <span>More</span>
             </button>
           </li>
         </ul>
@@ -373,87 +283,21 @@
 
       <!-- VIEW: DASHBOARD -->
       <section id="view-dashboard" class="view-section active">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Добро пожаловать!</h1>
-            <p class="page-subtitle">Welcome back! Here is your learning overview today.</p>
-            <div class="dashboard-deck-filter-row" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-              <span style="font-size: 0.85rem; color: var(--color-text-muted);">Active Deck:</span>
-              <select id="dashboard-filter-db" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; border-radius: var(--border-radius-sm); border: 1px solid var(--border-glass-hover); background: var(--bg-card); color: var(--color-text-main); font-weight: 600; cursor: pointer; min-width: 180px; outline: none;"></select>
-            </div>
-          </div>
-          <button id="dash-quick-study-btn" class="btn btn-primary">
-            <span>Start Due Review</span>
-            <span id="dash-due-btn-badge" class="btn-pill" style="background: rgba(255,255,255,0.25);">0</span>
-          </button>
+        <div class="page-header dashboard-heading">
+          <div><p class="section-eyebrow">YOUR DAILY RUSSIAN</p><h1 class="page-title"><span lang="ru">Привет!</span> Ready to learn?</h1><p class="page-subtitle">A little practice. A little closer to fluent.</p></div>
+          <div class="dashboard-deck-filter-row"><label for="dashboard-filter-db">Your deck</label><select id="dashboard-filter-db" class="filter-select"></select></div>
+        </div>
+        <div id="resume-session-card" class="card resume-session-card" hidden>
+          <div><strong>Pick up where you left off</strong><p id="resume-session-description" class="journey-muted"></p></div>
+          <button id="resume-session-btn" class="btn btn-primary">Continue session →</button>
+        </div>
+        <div class="dashboard-study-hero card">
+          <div class="daily-hero-copy"><p class="section-eyebrow">TODAY'S MISSION</p><h2 id="daily-review-title">Your daily dose of Russian.</h2><p id="daily-review-description" hidden></p><p id="daily-mission-summary" class="journey-muted"></p></div>
+          <div id="dashboard-daily-goal" class="daily-goal"></div>
+          <div class="daily-hero-actions"><button id="daily-mission-start" class="btn btn-primary">Start today's mission</button></div>
+          <span class="daily-hero-letter" aria-hidden="true">Я<span>а б в</span></span>
         </div>
 
-        <!-- Assessment Test Banner -->
-        <div id="dashboard-placement-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px solid var(--color-primary); background: var(--bg-glass); padding: 1.25rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-size: 2.2rem;">🎓</span>
-            <div>
-              <strong style="color: var(--color-text-main); font-size: 1.05rem; display: block; margin-bottom: 0.15rem;">What level is my Russian now?</strong>
-              <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">Take our adaptive Assessment Test to check your proficiency level in 5-30 questions.</span>
-            </div>
-          </div>
-          <button type="button" id="placement-banner-start-btn" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: bold; border-radius: var(--border-radius-md);">Take Assessment Test</button>
-        </div>
-        
-        <!-- Notification Opt-in Banner -->
-        <div id="dashboard-notification-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px dashed var(--color-primary); background: var(--color-primary-glow); padding: 1rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-          <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <span style="font-size: 1.5rem;">🔔</span>
-            <div>
-              <strong style="color: var(--color-text-main); font-size: 0.95rem; display: block; margin-bottom: 0.15rem;">Keep your daily learning streak active!</strong>
-              <span class="page-subtitle" style="font-size: 0.8rem; margin: 0; color: var(--color-text-muted);">Allow notifications to receive study reminders and never miss a day.</span>
-            </div>
-          </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <button type="button" id="notification-banner-enable-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 32px; font-weight: bold;">Enable Reminders</button>
-            <button type="button" id="notification-banner-dismiss-btn" aria-label="Dismiss reminder prompt" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 32px; background: transparent; border-color: transparent; color: var(--color-text-muted);" title="Dismiss">✕</button>
-          </div>
-        </div>
-
-        <!-- Mascot Interactive Card -->
-        <div id="dashboard-mascot-card" class="card" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.25rem 1.5rem;">
-          <div id="dashboard-mascot-avatar" style="font-size: 3rem; line-height: 1; user-select: none; transition: transform 0.2s ease; cursor: pointer;" class="mascot-animation-idle">🐻</div>
-          <div style="flex: 1; position: relative;">
-            <div class="speech-bubble" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.75rem 1rem; color: var(--color-text-main); font-size: 0.95rem; line-height: 1.4; position: relative;">
-              <span id="dashboard-mascot-text">Привет! Let's crush today's Russian review session!</span>
-              <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 14px; height: 14px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tip of the Day Card -->
-        <div id="dashboard-tip-card" class="card" style="margin-bottom: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; justify-content: space-between;">
-          <span id="dashboard-tip-text" style="font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; flex: 1;">💡 Loading tip...</span>
-          <button id="dashboard-tip-refresh-btn" class="vocab-action-btn" title="Show another tip" style="background: transparent; border: none; font-size: 1.15rem; cursor: pointer; flex-shrink: 0;">🔄</button>
-        </div>
-
-        <!-- Recommended Word Card -->
-        <div id="dashboard-recommendation-card" class="card" style="margin-bottom: 1.5rem; display: none;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
-            <div>
-              <span class="vocab-label-badge" style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background-color: var(--color-primary-glow); border-color: var(--color-primary); color: var(--color-primary-hover);" id="recommend-reason-badge">Recommended for A1</span>
-              <h3 style="font-family: var(--font-heading); margin-top: 0.35rem; margin-bottom: 0.25rem;">Vocabulary Recommendation</h3>
-            </div>
-            <button id="recommend-refresh-btn" class="vocab-action-btn" title="Show Another Recommendation" style="background: transparent; border: none; font-size: 1.15rem; cursor: pointer;">🔄</button>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; gap: 1rem; flex-wrap: wrap;">
-            <div>
-              <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-text-main); font-family: var(--font-heading); display: flex; align-items: center; gap: 0.5rem;">
-                <span id="recommend-word-ru">Слово</span>
-                <button id="recommend-speak-btn" class="vocab-action-btn" style="background: transparent; border: none; font-size: 1rem; cursor: pointer; padding: 0;" title="Speak word">🔊</button>
-              </div>
-              <div style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 0.25rem;" id="recommend-word-translit">[slova]</div>
-              <div style="font-size: 1rem; font-weight: 600; color: var(--color-primary-hover);" id="recommend-word-translation">Translation</div>
-            </div>
-            <button id="recommend-add-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 36px;">Add to Study Deck</button>
-          </div>
-        </div>
-        
         <!-- Stats Widgets -->
         <div class="dashboard-grid">
           <div class="card stat-card due">
@@ -478,12 +322,91 @@
             </div>
           </div>
         </div>
+
+        <div class="dashboard-extra-actions"><button id="dash-quick-study-btn" class="btn btn-primary"><span>Start Due Review</span><span id="dash-due-btn-badge" class="btn-pill">0</span><span aria-hidden="true">→</span></button><button id="dash-browse-modes-btn" class="hero-secondary-btn">Explore study modes ↗</button></div>
+        <section class="learning-discovery" aria-labelledby="challenges-heading">
+          <div class="learning-section-heading"><div><p class="section-eyebrow">USE YOUR RUSSIAN</p><h2 id="challenges-heading">Small moments. Real conversations.</h2></div><span class="journey-muted">Works offline</span></div>
+          <div id="real-life-challenges" class="challenge-grid"></div>
+        </section>
+        <section class="card weekly-learning-card" aria-labelledby="weekly-learning-title">
+          <p class="section-eyebrow">YOUR WEEK IN RUSSIAN</p><h2 id="weekly-learning-title">Look what is starting to stick.</h2>
+          <p id="weekly-learning-story" class="journey-muted"></p>
+          <div id="weekly-learning-metrics" class="weekly-learning-metrics"></div>
+          <div id="weekly-learning-examples"></div>
+          <p class="journey-footnote">Across your decks · last 7 calendar days · based on saved review history. Recovery counts a correct attempt after a mistake; revealing an answer doesn't count.</p>
+        </section>
+        <!-- Mascot Interactive Card -->
+        <div id="dashboard-mascot-card" class="card" style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1.25rem 1.5rem;">
+          <button type="button" aria-label="Say hello to your learning companion" id="dashboard-mascot-avatar" style="font-size: 3rem; line-height: 1; user-select: none; transition: transform 0.2s ease; cursor: pointer;" class="mascot-animation-idle">🐻</button>
+          <div style="flex: 1; position: relative;">
+            <div class="speech-bubble" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.75rem 1rem; color: var(--color-text-main); font-size: 0.95rem; line-height: 1.4; position: relative;">
+              <span id="dashboard-mascot-text">Привет! Let's crush today's Russian review session!</span>
+              <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 14px; height: 14px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tip of the Day Card -->
+        <div id="dashboard-tip-card" class="card" style="margin-bottom: 1.5rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; justify-content: space-between;">
+          <span id="dashboard-tip-text" style="font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.5; flex: 1;">💡 Loading tip...</span>
+          <button id="dashboard-tip-refresh-btn" class="vocab-action-btn" title="Show another tip" style="background: transparent; border: none; font-size: 1.15rem; cursor: pointer; flex-shrink: 0;">🔄</button>
+        </div>
+
+        <!-- Recommended Word Card -->
+        <div id="dashboard-recommendation-card" class="card" style="margin-bottom: 1.5rem; display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <span class="vocab-label-badge" style="font-size: 0.75rem; text-transform: uppercase; font-weight: bold; background-color: var(--color-primary-glow); border-color: var(--color-primary); color: var(--color-primary-hover);" id="recommend-reason-badge">Recommended for A1</span>
+              <h3 style="font-family: var(--font-heading); margin-top: 0.35rem; margin-bottom: 0.25rem;">A word to discover</h3>
+            </div>
+            <button id="recommend-refresh-btn" class="vocab-action-btn" title="Show Another Recommendation" style="background: transparent; border: none; font-size: 1.15rem; cursor: pointer;">🔄</button>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 1rem 1.25rem; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <div style="font-size: 1.35rem; font-weight: 700; color: var(--color-text-main); font-family: var(--font-heading); display: flex; align-items: center; gap: 0.5rem;">
+                <span id="recommend-word-ru">Слово</span>
+                <button id="recommend-speak-btn" class="vocab-action-btn" style="background: transparent; border: none; font-size: 1rem; cursor: pointer; padding: 0;" title="Speak word">🔊</button>
+              </div>
+              <div style="font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 0.25rem;" id="recommend-word-translit">[slova]</div>
+              <div style="font-size: 1rem; font-weight: 600; color: var(--color-primary-hover);" id="recommend-word-translation">Translation</div>
+            </div>
+            <button id="recommend-add-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 36px;">Add to Study Deck</button>
+          </div>
+        </div>
+
+        <!-- Assessment Test Banner -->
+        <div id="dashboard-placement-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px solid var(--color-primary); background: var(--bg-glass); padding: 1.25rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 2.2rem;">🎓</span>
+            <div>
+              <strong style="color: var(--color-text-main); font-size: 1.05rem; display: block; margin-bottom: 0.15rem;">Find your starting point</strong>
+              <span class="page-subtitle" style="font-size: 0.85rem; margin: 0; color: var(--color-text-muted);">Already know some Russian? Find the right level for you.</span>
+            </div>
+          </div>
+          <button type="button" id="placement-banner-start-btn" class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem; font-weight: bold; border-radius: var(--border-radius-md);">Check my level →</button>
+        </div>
+
+        <!-- Notification Opt-in Banner -->
+        <div id="dashboard-notification-banner" class="card" style="display: none; margin-bottom: 1.5rem; border: 1px dashed var(--color-primary); background: var(--color-primary-glow); padding: 1rem 1.5rem; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">🔔</span>
+            <div>
+              <strong style="color: var(--color-text-main); font-size: 0.95rem; display: block; margin-bottom: 0.15rem;">Keep your daily learning streak active!</strong>
+              <span class="page-subtitle" style="font-size: 0.8rem; margin: 0; color: var(--color-text-muted);">Allow notifications to receive study reminders and never miss a day.</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" id="notification-banner-enable-btn" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem; height: 32px; font-weight: bold;">Enable Reminders</button>
+            <button type="button" id="notification-banner-dismiss-btn" aria-label="Dismiss reminder prompt" class="btn btn-secondary" style="padding: 0.5rem 0.75rem; font-size: 0.85rem; height: 32px; background: transparent; border-color: transparent; color: var(--color-text-muted);" title="Dismiss">✕</button>
+          </div>
+        </div>
+
         <div class="dashboard-row-2">
           <!-- Leitner Boxes Progress -->
           <div class="card">
             <h2 class="form-group" style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Study Progress Levels</h2>
             <p class="page-subtitle" style="margin-bottom: 1.5rem;">Distribution of your vocabulary cards across review boxes.</p>
-            
+
             <div class="box-distribution-list">
               <div class="box-item">
                 <div class="box-label-row">
@@ -549,7 +472,7 @@
                 <line x1="40" y1="70" x2="380" y2="70" class="chart-grid" />
                 <line x1="40" y1="120" x2="380" y2="120" class="chart-grid" />
                 <line x1="40" y1="170" x2="380" y2="170" stroke="var(--border-glass-hover)" stroke-width="1.5" />
-                
+
                 <!-- Chart Bars and Labels rendered by JS -->
                 <g id="chart-bars-group"></g>
                 <g id="chart-labels-group"></g>
@@ -559,39 +482,39 @@
         </div>
       </section>
 
-      <!-- VIEW: STUDY SELECTION -->
+<!-- VIEW: STUDY SELECTION -->
       <section id="view-study-select" class="view-section">
         <div>
-          <h1 class="page-title">Choose Study Mode</h1>
-          <p class="page-subtitle">Practice Russian with five distinct active recall training methods.</p>
+          <h1 class="page-title">How will you practice?</h1>
+          <p class="page-subtitle">Pick a mode and make a little progress today.</p>
         </div>
         
         <div class="study-modes-grid">
-          <div class="card mode-card card-glowing" id="mode-select-flashcard">
+          <button type="button" class="card mode-card card-glowing" id="mode-select-flashcard">
             <div class="mode-icon">🎴</div>
-            <div class="mode-title">Flashcards (3D)</div>
-            <div class="mode-desc">Flip cards back and forth to practice active recall. Supports smart review scheduling.</div>
-          </div>
-          <div class="card mode-card card-glowing" id="mode-select-choice">
+            <div class="mode-title">Flashcards</div>
+            <div class="mode-desc">Flip, recall, and build a lasting memory.</div>
+          </button>
+          <button type="button" class="card mode-card card-glowing" id="mode-select-choice">
             <div class="mode-icon">☑️</div>
             <div class="mode-title">Multiple Choice</div>
-            <div class="mode-desc">Identify the correct English translation for Russian words from 4 choices. Excellent for building fast recognition.</div>
-          </div>
-          <div class="card mode-card card-glowing" id="mode-select-writing">
+            <div class="mode-desc">Choose the meaning. Build quick recognition.</div>
+          </button>
+          <button type="button" class="card mode-card card-glowing" id="mode-select-writing">
             <div class="mode-icon">✍️</div>
             <div class="mode-title">Writing Practice</div>
-            <div class="mode-desc">Test spelling and memory recall. Type out the exact Russian word based on its English translation, transliteration, and example context.</div>
-          </div>
-          <div class="card mode-card card-glowing" id="mode-select-visual">
+            <div class="mode-desc">Find the right word and put your spelling to work.</div>
+          </button>
+          <button type="button" class="card mode-card card-glowing" id="mode-select-visual">
             <div class="mode-icon">🎨</div>
             <div class="mode-title">Visual Recall</div>
-            <div class="mode-desc">Reinforce memory with rich visual art and audio associations for vocabulary words.</div>
-          </div>
-          <div class="card mode-card card-glowing" id="mode-select-pronunciation">
+            <div class="mode-desc">Connect each word with a picture and a sound.</div>
+          </button>
+          <button type="button" class="card mode-card card-glowing" id="mode-select-pronunciation">
             <div class="mode-icon">🎙️</div>
             <div class="mode-title">Pronunciation Practice</div>
-            <div class="mode-desc">Speak Russian words into your microphone. Get real-time phoneme feedback, accuracy scoring, and voice training.</div>
-          </div>
+            <div class="mode-desc">Say it aloud and practice your pronunciation.</div>
+          </button>
         </div>
         
         <!-- Filter Study Target -->
@@ -677,7 +600,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.35rem;">
               <path d="M19 12H5M12 19l-7-7 7-7"></path>
             </svg>
-            Quit Session
+            Pause session
           </button>
           <div class="audio-controls">
             <!-- Normal TTS voice speed -->
@@ -934,18 +857,16 @@
               <div class="congrats-emoji">🎉</div>
               <h2 style="font-family: var(--font-heading); font-size: 1.75rem;">Session Complete!</h2>
               
-              <!-- Session Complete Mascot Card -->
-              <div id="complete-mascot-card" style="margin-top: 0.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 1.25rem; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--border-radius-md); padding: 0.85rem 1.25rem; text-align: left; width: 100%;">
-                <div id="complete-mascot-avatar" style="font-size: 2.5rem; line-height: 1; user-select: none;">🤖</div>
-                <div style="flex: 1; position: relative;">
-                  <div class="speech-bubble" style="background: var(--bg-input); border: 1px solid var(--border-glass); border-radius: 12px; padding: 0.6rem 0.85rem; color: var(--color-text-main); font-size: 0.9rem; line-height: 1.4; position: relative;">
-                    <span id="complete-mascot-text">Amazing work! You're making progress every single day!</span>
-                    <div style="position: absolute; left: -8px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 12px; height: 12px; background: var(--bg-input); border-left: 1px solid var(--border-glass); border-bottom: 1px solid var(--border-glass);"></div>
-                  </div>
-                </div>
-              </div>
-              <p class="page-subtitle">Great job reviewing Russian vocabulary today.</p>
+              <p id="complete-learning-summary" class="page-subtitle"></p>
+              <div id="complete-tricky-words" class="tricky-word-list"></div>
+              <p id="complete-retry-note" class="journey-muted">Try recalling these again. A later correct answer counts as recovery; seeing the answer doesn't.</p>
+              <div id="complete-daily-goal" class="daily-goal"></div>
+              <button id="complete-retry-btn" class="btn btn-primary" hidden>Practice tricky words</button>
               
+              <div class="completion-actions">
+                <button id="complete-home-btn" class="btn btn-secondary" style="flex: 1;">Finish for today</button>
+                <button id="complete-again-btn" class="btn btn-primary" style="flex: 1;">Study Again</button>
+              </div>
               <div class="dashboard-grid" style="width: 100%; margin: 1.5rem 0; grid-template-columns: repeat(2, 1fr);">
                 <div class="card stat-card due" style="padding: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
                   <div class="stat-icon-wrapper" style="width: 44px; height: 44px; font-size: 1.25rem;">🧠</div>
@@ -977,10 +898,7 @@
                 </div>
               </div>
 
-              <div style="display: flex; gap: 1rem; width: 100%;">
-                <button id="complete-home-btn" class="btn btn-secondary" style="flex: 1;">Back to Dashboard</button>
-                <button id="complete-again-btn" class="btn btn-primary" style="flex: 1;">Study Again</button>
-              </div>
+
             </div>
           </div>
 
@@ -992,7 +910,7 @@
         <div class="page-header">
           <div>
             <h1 class="page-title">Vocabulary Explorer</h1>
-            <p class="page-subtitle">Search, filter, and edit the vocabulary database, or add new words.</p>
+            <p class="page-subtitle">Discover words. Save favorites. Make them yours.</p>
           </div>
           <button id="dict-add-word-btn" class="btn btn-primary">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1004,10 +922,10 @@
         </div>
 
         <!-- Filters -->
-        <div class="card dictionary-filter-bar">
+        <div class="card dictionary-filter-bar" id="dictionary-filters">
           <div class="form-group" style="margin-bottom: 0;">
             <label for="dict-search" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Search</label>
-            <input type="text" id="dict-search" class="filter-input" placeholder="Search word or translation...">
+            <input type="search" id="dict-search" class="filter-input" placeholder="Search word or translation...">
           </div>
 
           <div class="form-group" style="margin-bottom: 0;">
@@ -1023,14 +941,15 @@
             </div>
           </div>
           
-          <div class="form-group" style="margin-bottom: 0;">
+          <button id="dict-toggle-filters-btn" type="button" class="btn btn-secondary" aria-expanded="false" aria-controls="dict-advanced-category dict-advanced-status dict-advanced-level">Filters <span id="dict-filter-count"></span><span aria-hidden="true">⌄</span></button>
+          <div id="dict-advanced-category" class="form-group dict-advanced-filter" style="margin-bottom: 0;">
             <label for="dict-filter-category" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Category</label>
             <select id="dict-filter-category" class="filter-select">
               <!-- Populated dynamically by JS -->
             </select>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
+          <div id="dict-advanced-status" class="form-group dict-advanced-filter" style="margin-bottom: 0;">
             <label for="dict-filter-status" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">Learning Status</label>
             <select id="dict-filter-status" class="filter-select">
               <option value="all">All Words</option>
@@ -1044,7 +963,7 @@
             </select>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
+          <div id="dict-advanced-level" class="form-group dict-advanced-filter" style="margin-bottom: 0;">
             <label for="dict-filter-level" style="font-size:0.75rem; font-weight:600; color:var(--color-text-muted);">CEFR Level</label>
             <select id="dict-filter-level" class="filter-select">
               <option value="all">All Levels</option>
@@ -1067,7 +986,7 @@
         <div id="dict-empty-state" class="card" style="display: none; text-align: center; padding: 4rem 2rem; border-style: dashed;">
           <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
           <h3 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">No words found</h3>
-          <p class="page-subtitle">Try adjusting your search criteria or add a custom word.</p>
+          <p class="page-subtitle">Try another word or clear your filters to explore the deck.</p><button id="dict-clear-filters-btn" type="button" class="btn btn-secondary">Clear search &amp; filters</button>
         </div>
       </section>
 
@@ -2928,6 +2847,13 @@
     </div>
   </div>
 
+  <dialog id="challenge-dialog" class="challenge-dialog" aria-labelledby="challenge-title">
+    <div class="challenge-heading"><div><p id="challenge-step-label" class="section-eyebrow"></p><h2 id="challenge-title" tabindex="-1"></h2></div><button id="challenge-close-btn" class="btn btn-secondary btn-icon" aria-label="Pause and close challenge">✕</button></div>
+    <progress id="challenge-progress" value="0" max="6" aria-label="Challenge progress"></progress>
+    <div id="challenge-body"></div>
+    <p id="challenge-feedback" class="challenge-feedback" role="status" aria-live="polite"></p>
+    <button id="challenge-next-btn" class="btn btn-primary">Continue →</button>
+  </dialog>
   <!-- BOOTSTRAP SCRIPTS -->
   <script id="supabase-sdk" async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
@@ -2938,7 +2864,7 @@
   <script src="js/db_expanded.js"></script>
   <script src="js/db_example.js"></script>
   <script src="js/visual_assets.js"></script>
-  <script src="js/srs.js"></script>
+  <script src="js/srs.js?v=2"></script>
   <script src="js/audio.js"></script>
   <script src="js/speech.js"></script>
   <script src="js/voice_answers.js"></script>
@@ -2947,6 +2873,9 @@
   <script src="js/grammar.js?v=2"></script>
   <script src="js/alphabet.js"></script>
   <script src="js/placement.js"></script>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/learning_journey.js?v=1"></script>
+  <script src="js/challenges.js?v=1"></script>
+  <script src="js/journey_ui.js?v=1"></script>
+  <script src="js/app.js?v=8"></script>
 </body>
 </html>

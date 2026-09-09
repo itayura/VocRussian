@@ -247,8 +247,11 @@
     },
 
     // Score a card based on active study outcome
-    scoreCard: function (id, isCorrect, rating = "good") {
+    scoreCard: function (id, isCorrect, rating = "good", context = {}) {
       const prog = this.getCardProgress(id);
+      // A resumed session may replay its last checkpoint after the review was saved.
+      const existing = context.reviewId && (prog.reviewEvents || []).find(event => event.reviewId === context.reviewId);
+      if (existing) return { newBox: existing.box, xpGained: 0, nextReview: existing.nextReview, duplicate: true };
       
       prog.correctCount = prog.correctCount || 0;
       prog.wrongCount = prog.wrongCount || 0;
@@ -287,6 +290,9 @@
         correct: !!isCorrect,
         due: isDue,
         rating,
+        reviewId: context.reviewId || null,
+        mode: context.mode || null,
+        xpGained,
         at: prog.updatedAt,
         box: prog.box,
         nextReview: prog.nextReview
@@ -538,6 +544,8 @@
       localStorage.removeItem("voc_placement_reward_claimed");
       localStorage.removeItem("voc_progress_backup_before_placement");
       localStorage.removeItem("voc_alphabet_game_completed");
+      localStorage.removeItem("voc_russian_session_v1");
+      localStorage.removeItem("voc_russian_challenge_session_v1");
       
       cardProgress = {};
       customWords = [];

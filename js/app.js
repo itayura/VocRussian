@@ -768,6 +768,77 @@
   let currentCard = null;
   let isCardFlipped = false;
   let studyHistory = []; // Tracks items studied in current session: { wordId, isCorrect }
+  let sessionId = "";
+  let sessionPurpose = null;
+  let sessionDb = "standard";
+
+  function setupLearningJourney() {
+    JourneyUI.setup({ start: startStudySession, resume: resumeStudySession });
+  }
+  function renderLearningJourney() { JourneyUI.render(); }
+  function finishLearningSession() {
+    JourneyUI.finish({ history: studyHistory, words: sessionDeck, purpose: sessionPurpose, db: sessionDb });
+  }
+
+  function saveStudyCheckpoint() {
+    if (!sessionId || !sessionDeck.length) return;
+    localStorage.setItem(LearningJourney.SESSION_KEY, JSON.stringify({
+      version: 1, id: sessionId, db: sessionDb, mode: currentStudyMode,
+      reverse: currentStudyReverse, ids: sessionDeck.map(word => word.id),
+      history: studyHistory, purpose: sessionPurpose, savedAt: Date.now()
+    }));
+  }
+
+  function scoreSessionCard(isCorrect, rating = "good") {
+    if (activeViewId !== "study-active" || studyHistory[sessionIndex]) return { xpGained: 0 };
+    const result = SRS.scoreCard(currentCard.id, isCorrect, rating, {
+      reviewId: `${sessionId}:${sessionIndex}`, mode: currentStudyMode
+    });
+    sessionXpGained += result.xpGained;
+    studyHistory.push({ wordId: currentCard.id, isCorrect: !!isCorrect, xp: result.xpGained });
+    saveStudyCheckpoint();
+    return result;
+  }
+
+  function resumeStudySession() {
+    const saved = LearningJourney.readSession(localStorage);
+    if (!saved) return;
+    const previousDb = SRS.getActiveDb();
+    SRS.setActiveDb(saved.db);
+    populateDecksDropdowns();
+    updateCategoryDropdowns();
+    const words = new Map(SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden).map(w => [w.id, w]));
+    // Recover an answer saved by SRS just before the session checkpoint was written.
+    while (saved.history.length < saved.ids.length) {
+      const index = saved.history.length;
+      const event = (SRS.getCardProgress(saved.ids[index]).reviewEvents || []).find(e => e.reviewId === `${saved.id}:${index}`);
+      if (!event) break;
+      saved.history.push({ wordId: saved.ids[index], isCorrect: event.correct, xp: event.xpGained || 0 });
+    }
+    const answered = new Map(saved.history.map(h => [h.wordId, h]));
+    sessionDeck = saved.ids.filter(id => words.has(id)).map(id => words.get(id));
+    studyHistory = sessionDeck.filter(w => answered.has(w.id)).map(w => answered.get(w.id));
+    if (!sessionDeck.length) {
+      localStorage.removeItem(LearningJourney.SESSION_KEY);
+      SRS.setActiveDb(previousDb);
+      populateDecksDropdowns();
+      updateCategoryDropdowns();
+      renderDashboard();
+      window.alert("The words in this saved session are no longer in your deck. You can start a fresh mission.");
+      return;
+    }
+    sessionId = saved.id;
+    sessionPurpose = saved.purpose || null;
+    sessionDb = saved.db;
+    currentStudyMode = saved.mode;
+    currentStudyReverse = !!saved.reverse;
+    sessionXpGained = studyHistory.reduce((sum, h) => sum + h.xp, 0);
+    sessionIndex = studyHistory.length;
+    saveStudyCheckpoint();
+    showStudyStage(currentStudyMode, "Resumed session");
+    if (sessionIndex >= sessionDeck.length) showSessionComplete();
+    else loadCardInSession();
+  }
 
   function isReverseFlashcardAnswerHidden() {
     return currentStudyMode === "flashcard" && currentStudyReverse && !isCardFlipped;
@@ -825,6 +896,7 @@
     setupDashboard();
     setupStudySelect();
     setupStudySession();
+    setupLearningJourney();
     setupDictionary();
     setupSync();
     setupModals();
@@ -922,30 +994,36 @@
 
 
   // --- VIEW ROUTING ---
-  function updateMobileNavOverflowHints() {
-    const aside = document.querySelector("aside");
-    const nav = aside?.querySelector("nav");
-    if (!aside || !nav) return;
-    const maxScrollLeft = Math.max(0, nav.scrollWidth - nav.clientWidth);
-    aside.classList.toggle("nav-at-start", nav.scrollLeft <= 4);
-    aside.classList.toggle("nav-at-end", maxScrollLeft - nav.scrollLeft <= 4);
-  }
-
-  function centerActiveMobileNavItem(item) {
-    if (!item || !window.matchMedia("(max-width: 1024px), (pointer: coarse)").matches) return;
-    const nav = item.closest("nav");
-    if (!nav || nav.scrollWidth <= nav.clientWidth + 2) return;
-    const centeredLeft = item.offsetLeft - ((nav.clientWidth - item.offsetWidth) / 2);
-    nav.scrollTo({ left: Math.max(0, centeredLeft), behavior: "auto" });
-    updateMobileNavOverflowHints();
-  }
-
   function setupNavigation() {
-    const mobileNav = document.querySelector("aside nav");
-    mobileNav?.addEventListener("scroll", updateMobileNavOverflowHints, { passive: true });
-    window.addEventListener("resize", updateMobileNavOverflowHints);
-    window.requestAnimationFrame(updateMobileNavOverflowHints);
-
+    const moreButton = document.getElementById("mobile-more-btn");
+    const moreDialog = document.getElementById("mobile-more-dialog");
+    const moreLinks = document.getElementById("mobile-more-links");
+    document.querySelectorAll(".nav-secondary").forEach(item => {
+      const button = item.querySelector("button").cloneNode(true);
+      button.removeAttribute("id");
+      button.dataset.mobileTarget = item.dataset.target;
+      button.addEventListener("click", () => {
+        moreDialog.close();
+        switchView(item.dataset.target);
+      });
+      moreLinks.appendChild(button);
+    });
+    moreButton.addEventListener("click", () => {
+      moreDialog.showModal();
+      moreButton.setAttribute("aria-expanded", "true");
+    });
+    document.getElementById("mobile-more-close").addEventListener("click", () => moreDialog.close());
+    moreDialog.addEventListener("close", () => {
+      moreButton.setAttribute("aria-expanded", "false");
+    });
+    moreDialog.addEventListener("click", event => {
+      if (event.target !== moreDialog) return;
+      const bounds = moreDialog.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) moreDialog.close();
+    });
+    window.matchMedia("(max-width: 1024px), (pointer: coarse)").addEventListener("change", event => {
+      if (!event.matches && moreDialog.open) moreDialog.close();
+    });
     navItems.forEach(item => {
       const button = item.querySelector("button");
       button.addEventListener("click", () => {
@@ -986,12 +1064,20 @@
 
     // Un-activate all nav links
     navItems.forEach(item => {
+      item.querySelector("button").removeAttribute("aria-current");
       if (item.getAttribute("data-target") === targetViewId) {
+        item.querySelector("button").setAttribute("aria-current", "page");
         item.classList.add("active");
-        window.requestAnimationFrame(() => centerActiveMobileNavItem(item));
       } else {
         item.classList.remove("active");
       }
+    });
+
+    const secondaryActive = !!document.querySelector(`.nav-secondary[data-target="${targetViewId}"]`);
+    document.getElementById("mobile-more-btn").classList.toggle("active", secondaryActive);
+    document.querySelectorAll("[data-mobile-target]").forEach(button => {
+      if (button.dataset.mobileTarget === targetViewId) button.setAttribute("aria-current", "page");
+      else button.removeAttribute("aria-current");
     });
 
     // Hide all sections, display the active one
@@ -1119,7 +1205,12 @@
   // --- DASHBOARD CONTROLLERS ---
   function setupDashboard() {
     const quickStudyBtn = document.getElementById("dash-quick-study-btn");
+    document.getElementById("dash-browse-modes-btn").addEventListener("click", () => switchView("study-select"));
     quickStudyBtn.addEventListener("click", () => {
+      if (SRS.getStatsSummary().dueCount === 0) {
+        switchView("study-select");
+        return;
+      }
       // Setup study filters to defaults
       document.getElementById("study-filter-category").value = "all";
       document.getElementById("study-filter-queue").value = "due";
@@ -1275,10 +1366,15 @@
     // Quick Study button badges
     document.getElementById("dash-due-btn-badge").innerText = stats.dueCount;
     const quickBtn = document.getElementById("dash-quick-study-btn");
+    document.getElementById("dash-due-btn-badge").hidden = stats.dueCount === 0;
+    document.getElementById("daily-review-title").textContent = stats.dueCount === 0 ? "You're all caught up." : "Your daily dose of Russian.";
+    document.getElementById("daily-review-description").textContent = stats.dueCount === 0
+      ? "Enjoy the pause, or try another way to practice."
+      : `${stats.dueCount} ${stats.dueCount === 1 ? "card" : "cards"} ready for review. Pick up where you left off.`;
     if (stats.dueCount === 0) {
       quickBtn.classList.remove("btn-primary");
       quickBtn.classList.add("btn-secondary");
-      quickBtn.querySelector("span:first-child").innerText = "No Due Cards Today";
+      quickBtn.querySelector("span:first-child").innerText = "Explore Study Modes";
     } else {
       quickBtn.classList.add("btn-primary");
       quickBtn.classList.remove("btn-secondary");
@@ -1316,6 +1412,8 @@
         window.updateMascotState("idle");
       }
     }
+
+    renderLearningJourney();
 
     // Render smart vocabulary recommendations
     renderVocabularyRecommendation();
@@ -1587,10 +1685,10 @@
   // --- STUDY ACTIVE CONTROLLERS ---
   function setupStudySession() {
     const quitBtn = document.getElementById("study-quit-btn");
-    quitBtn.addEventListener("click", async () => {
-      if (await window.confirmCustom("Are you sure you want to quit this study session? Your progress on completed words is already saved.")) {
-        switchView("study-select");
-      }
+    quitBtn.addEventListener("click", () => {
+      window.SpeechEngine?.stopListening?.();
+      window.speechSynthesis?.cancel();
+      switchView("dashboard");
     });
 
     const editBtn = document.getElementById("study-edit-word-btn");
@@ -1742,7 +1840,8 @@
     });
   }
 
-  async function startStudySession(mode) {
+  async function startStudySession(mode, options = {}) {
+    if (LearningJourney.readSession(localStorage) && !await window.confirmCustom("Start a new session? Your completed answers are saved, but this will replace your paused session.")) return;
     currentStudyMode = mode;
     
     // Get filter options from DOM
@@ -1807,6 +1906,11 @@
       pool = [...duePool, ...nonDuePool];
     }
 
+    if (options.ids) {
+      const available = new Map(SRS.getAllWords().filter(w => !SRS.getCardProgress(w.id).hidden).map(w => [w.id, w]));
+      pool = [...new Set(options.ids)].map(id => available.get(id)).filter(Boolean);
+      currentStudyReverse = false;
+    }
     // Check if empty deck
     if (pool.length === 0) {
       if (mode === "visual" && visualCoverageCount === 0) {
@@ -1844,7 +1948,7 @@
     }
 
     // Shuffle and slice (unless we pre-ordered for CEFR priority)
-    if (!(deckTarget === "all" && levelFilter !== "all")) {
+    if (!options.ids && !(deckTarget === "all" && levelFilter !== "all")) {
       pool.sort(() => Math.random() - 0.5);
 
       // Put the richer generated scenes first in Memory Scenes sessions. The
@@ -1855,17 +1959,23 @@
         pool.sort((a, b) => Number(hasGeneratedVisualArt(b.id)) - Number(hasGeneratedVisualArt(a.id)));
       }
     }
-    sessionDeck = pool.slice(0, maxDeckSize);
+    sessionDeck = options.ids ? pool : pool.slice(0, Math.max(1, Math.min(999, maxDeckSize || 20)));
     sessionIndex = 0;
     sessionXpGained = 0;
     studyHistory = [];
 
-    // Set deck tag badge
-    const badge = document.getElementById("study-deck-type-badge");
-    if (deckTarget === "due") badge.innerText = "Due Review";
-    else if (deckTarget === "starred") badge.innerText = "Starred Deck";
-    else badge.innerText = "Endless Deck";
+    sessionId = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
+    sessionDb = SRS.getActiveDb();
+    sessionPurpose = options.purpose || null;
+    saveStudyCheckpoint();
+    const label = options.purpose?.type === "mission" ? "Today's mission" : options.purpose?.type === "retry" ? "Focused retry" : deckTarget === "due" ? "Due Review" : deckTarget === "starred" ? "Starred Deck" : "Endless Deck";
+    showStudyStage(mode, label);
+    loadCardInSession();
+  }
 
+  function showStudyStage(mode, label) {
+    document.getElementById("study-quit-btn").hidden = false;
+    document.getElementById("study-deck-type-badge").textContent = label;
     // Switch display container
     switchView("study-active");
 
@@ -1880,7 +1990,6 @@
     document.getElementById("study-sub-complete").style.display = "none";
     placeStudyAudioControls(mode);
 
-    loadCardInSession();
   }
 
   function placeStudyAudioControls(mode) {
@@ -2060,11 +2169,7 @@
     isCardFlipped = false; // Immediately disable further clicks during transition
 
     // Log progress
-    const result = SRS.scoreCard(currentCard.id, isCorrect, rating);
-    sessionXpGained += result.xpGained;
-
-    // Track review history
-    studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
+    const result = scoreSessionCard(isCorrect, rating);
 
     const cardEl = document.getElementById("flashcard-click-wrapper");
     const animationsEnabled = SRS.getSetting("animationsEnabled", true);
@@ -2082,11 +2187,13 @@
     }
 
     // Delay showing next card slightly to allow animation to play
+    const scoredSessionId = sessionId;
+    const scoredIndex = sessionIndex;
     setTimeout(() => {
       if (cardEl) {
         cardEl.classList.remove("correct-glow", "incorrect-shake");
       }
-      showNextCard();
+      if (sessionId === scoredSessionId && sessionIndex === scoredIndex && activeViewId === "study-active") showNextCard();
     }, animationsEnabled ? 450 : 50);
   }
 
@@ -2208,11 +2315,7 @@
     buttons.forEach(btn => btn.classList.add("disabled"));
 
     // Score via SRS
-    const result = SRS.scoreCard(currentCard.id, isCorrect);
-    sessionXpGained += result.xpGained;
-
-    // Track review history
-    studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
+    const result = scoreSessionCard(isCorrect);
 
     const animationsEnabled = SRS.getSetting("animationsEnabled", true);
     if (isCorrect) {
@@ -2331,11 +2434,7 @@
     const isCorrect = (cleanUser === cleanWord);
     
     // Save to SRS
-    const result = SRS.scoreCard(currentCard.id, isCorrect);
-    sessionXpGained += result.xpGained;
-
-    // Track review history
-    studyHistory.push({ wordId: currentCard.id, isCorrect: isCorrect });
+    const result = scoreSessionCard(isCorrect);
 
     input.disabled = true;
 
@@ -2400,6 +2499,7 @@
   }
 
   function showNextCard() {
+    if (studyHistory.length <= sessionIndex) return;
     sessionIndex++;
     if (sessionIndex >= sessionDeck.length) {
       showSessionComplete();
@@ -2677,9 +2777,7 @@
     
     // Score via SRS
     const rating = evalResult.score >= 90 ? "easy" : evalResult.isCorrect ? "good" : "hard";
-    const srsResult = SRS.scoreCard(currentCard.id, evalResult.isCorrect, rating);
-    sessionXpGained += srsResult.xpGained;
-    studyHistory.push({ wordId: currentCard.id, isCorrect: evalResult.isCorrect });
+    const srsResult = scoreSessionCard(evalResult.isCorrect, rating);
 
     // Render UI Feedback
     const feedbackPanel = document.getElementById("pronounce-feedback-panel");
@@ -2823,6 +2921,10 @@
   }
 
   function showSessionComplete() {
+    finishLearningSession();
+    document.getElementById("study-quit-btn").hidden = true;
+    document.querySelector("main").scrollTop = 0;
+    window.scrollTo(0, 0);
     // Fill full progress indicator
     document.getElementById("study-progress-bar").style.width = "100%";
 
@@ -2846,7 +2948,7 @@
     document.getElementById("complete-words-count").innerText = sessionDeck.length;
     document.getElementById("complete-xp-gain").innerText = `+${sessionXpGained} XP`;
     document.getElementById("complete-accuracy").innerText = `${accuracy}%`;
-    document.getElementById("complete-streak").innerText = `${stats.streak} days`;
+    document.getElementById("complete-streak").innerText = `${stats.streak} ${stats.streak === 1 ? "day" : "days"}`;
 
     // Update Mascot state for completion page
     if (window.updateMascotState) {
@@ -2890,6 +2992,16 @@
     });
 
     // Listeners for filters
+    document.getElementById("dict-toggle-filters-btn").addEventListener("click", event => {
+      const expanded = document.getElementById("dictionary-filters").classList.toggle("filters-expanded");
+      event.currentTarget.setAttribute("aria-expanded", String(expanded));
+    });
+    document.getElementById("dict-clear-filters-btn").addEventListener("click", () => {
+      document.getElementById("dict-search").value = "";
+      ["dict-filter-category", "dict-filter-status", "dict-filter-level"].forEach(id => document.getElementById(id).value = "all");
+      renderDictionary();
+      document.getElementById("dict-search").focus();
+    });
     document.getElementById("dict-search").addEventListener("input", renderDictionary);
     document.getElementById("dict-filter-category").addEventListener("change", renderDictionary);
     document.getElementById("dict-filter-status").addEventListener("change", renderDictionary);
@@ -2907,6 +3019,8 @@
   }
 
   function renderDictionary() {
+    const filterCount = ["dict-filter-category", "dict-filter-status", "dict-filter-level"].filter(id => document.getElementById(id).value !== "all").length;
+    document.getElementById("dict-filter-count").textContent = filterCount ? `(${filterCount} active)` : "";
     const grid = document.getElementById("dict-words-grid");
     const emptyState = document.getElementById("dict-empty-state");
     
@@ -3047,7 +3161,7 @@
       cardEl.innerHTML = `
         <div class="vocab-card-header">
           <div class="vocab-word-display">
-            <span style="cursor:pointer;" class="word-speak-icon" title="Listen Pronunciation">${escapeHTML(card.accented || card.word)}</span>
+            <button type="button" class="word-speak-icon" lang="ru" title="Listen to pronunciation" aria-label="Listen to ${escapeHTML(card.word)}">${escapeHTML(card.accented || card.word)}</button>
             <span style="font-size:0.7em; color:var(--color-text-muted); font-weight:normal;">[${escapeHTML(card.transliteration || "")}]</span>
           </div>
           
